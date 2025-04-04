@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jira Automation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Jira Automation</h1>
+        <form id="generateForm" class="form">
+            <label for="prompt">Prompt:</label>
+            <textarea id="prompt" name="prompt" required></textarea><br><br>
+
+            <label for="image">Upload Image:</label>
+            <input type="file" id="image" name="image" accept="image/*" required><br><br>
+
+            <button type="submit">Preview</button>
+        </form>
+
+        <div id="loader" class="loader" style="display: none;"></div>
+
+        <div id="previewSection" class="preview-section" style="display: none;">
+            <h2>Bug Report Preview</h2>
+            <label for="summary">Summary:</label>
+            <input type="text" id="summary" class="editable" /><br><br>
+
+            <label for="description">Description:</label>
+            <textarea id="description" class="editable" rows="10" cols="50"></textarea><br><br>
+
+            <button id="createJiraButton">Create Jira Issue</button>
+        </div>
+    </div>
+
+    <script>
+        let previewData = null;
+
+        document.getElementById('generateForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const prompt = document.getElementById('prompt').value;
+            const imageFile = document.getElementById('image').files[0];
+
+            if (!imageFile) {
+                alert('Please upload an image.');
+                return;
+            }
+
+            document.getElementById('loader').style.display = 'block';
+
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const base64Image = reader.result.split(',')[1]; // Extract base64 string
+
+                const response = await fetch('/api/preview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt,
+                        images: [base64Image]
+                    })
+                });
+
+                document.getElementById('loader').style.display = 'none';
+
+                if (response.ok) {
+                    const result = await response.json();
+                    previewData = result; // Store preview data for later use
+                    document.getElementById('summary').value = result.summary;
+                    document.getElementById('description').value = result.description;
+                    document.getElementById('previewSection').style.display = 'block';
+                } else {
+                    alert('Error: ' + (await response.text()));
+                }
+            };
+
+            reader.readAsDataURL(imageFile);
+        });
+
+        document.getElementById('createJiraButton').addEventListener('click', async () => {
+            if (!previewData) {
+                alert('No preview data available.');
+                return;
+            }
+
+            const summary = document.getElementById('summary').value;
+            const description = document.getElementById('description').value;
+
+            const response = await fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    summary,
+                    description
+                })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert('Success: ' + result.message);
+            } else {
+                alert('Error: ' + (await response.text()));
+            }
+        });
+    </script>
+</body>
+</html>
