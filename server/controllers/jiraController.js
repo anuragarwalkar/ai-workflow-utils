@@ -74,8 +74,16 @@ async function createJiraIssue(req, res) {
                 project: { key: "CUDI" },
                 summary,
                 description,
-                issuetype: { name: "Bug" }
-            }
+                issuetype: { name: "Bug" },
+                priority: {
+                name: "Low"
+                },
+                customfield_16302: { id: "21304" },
+                customfield_16300: { id: "21302" },
+                customfield_11301: { id: "11023" },
+                customfield_11302: { id: "11029" },
+                customfield_11400: "11222"
+                }
         };
 
         const response = await axios.post(jiraUrl, payload, {
