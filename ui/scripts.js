@@ -207,6 +207,7 @@ document.getElementById('addAttachmentButton').addEventListener('click', async (
     const fileInput = document.getElementById('attachmentFile');
     const file = fileInput.files[0];
     const jiraId = document.getElementById('jiraId').value;
+    const loaderAddAttachment = document.getElementById('loaderAddAttachment'); // Ensure loader element is used
 
     if (!file || !jiraId) {
         alert('Please select a file and ensure a Jira ID is entered.');
@@ -217,6 +218,10 @@ document.getElementById('addAttachmentButton').addEventListener('click', async (
     formData.append('file', file); // Ensure the file is appended with the key 'file'
     formData.append('issueKey', jiraId); // Ensure the issueKey is appended
     formData.append('fileName', file.name); // Include the original file name
+
+    // Show loader and disable button
+    loaderAddAttachment.style.display = 'inline-block'; // Ensure spinner is visible
+    document.getElementById('addAttachmentButton').disabled = true;
 
     try {
         const response = await fetch('/api/upload', {
@@ -235,5 +240,9 @@ document.getElementById('addAttachmentButton').addEventListener('click', async (
     } catch (error) {
         console.error('Upload error:', error); // Log error for debugging
         alert('An error occurred: ' + error.message);
+    } finally {
+        // Hide loader and enable button
+        loaderAddAttachment.style.display = 'none'; // Ensure spinner is hidden
+        document.getElementById('addAttachmentButton').disabled = false;
     }
 });
