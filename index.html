@@ -9,6 +9,7 @@
 <body>
     <div class="container">
         <h1>AI Jira Assistant</h1> <!-- Updated heading -->
+        <button id="closePromptTab" class="close-button" style="display: none;">&times;</button> <!-- Cross icon -->
         <form id="generateForm" class="form">
             <label for="prompt">Prompt:</label>
             <textarea id="prompt" name="prompt" required></textarea><br><br>
@@ -45,6 +46,11 @@
         });
 
         let previewData = null;
+
+        document.getElementById('closePromptTab').addEventListener('click', () => {
+            document.getElementById('generateForm').style.display = 'none';
+            document.getElementById('closePromptTab').style.display = 'none';
+        });
 
         document.getElementById('generateForm').addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -96,6 +102,8 @@
             };
 
             reader.readAsDataURL(imageFile);
+
+            document.getElementById('closePromptTab').style.display = 'block'; // Show cross icon
         });
 
         document.getElementById('createJiraButton').addEventListener('click', async () => {

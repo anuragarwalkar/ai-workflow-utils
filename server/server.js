@@ -16,7 +16,7 @@ const jiraRoutes = require('./routes/jiraRoutes'); // Updated path to routes
 app.use('/api', jiraRoutes);
 
 // Wildcard route to serve index.html for all unmatched routes
-app.get('/{*splat}', (req, res) => {
+app.get('/', (_, res) => {
     res.sendFile(path.join(__dirname, '../ui/index.html')); // Serve UI index.html
 });
 
