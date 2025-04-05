@@ -1,7 +1,8 @@
+const path = require('path'); // Add this line to import the 'path' module
 const { createLogger, format, transports } = require('winston');
 
 const logger = createLogger({
-    level: 'info', // Default log level
+    level: 'info',
     format: format.combine(
         format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
         format.printf(({ timestamp, level, message }) => {
@@ -10,9 +11,9 @@ const logger = createLogger({
         })
     ),
     transports: [
-        new transports.Console(), // Log to console with colorized output
-        new transports.File({ filename: 'logs/error.log', level: 'error' }), // Log errors to a file
-        new transports.File({ filename: 'logs/combined.log' }) // Log all levels to a file
+        new transports.Console(),
+        new transports.File({ filename: path.join(__dirname, 'logs/error.log'), level: 'error' }), // Updated path
+        new transports.File({ filename: path.join(__dirname, 'logs/combined.log') }) // Updated path
     ]
 });
 

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Jira Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Jira Assistant</h1>
+        <form id="generateForm" class="form">
+            <label for="prompt">Prompt:</label>
+            <textarea id="prompt" name="prompt" required></textarea><br><br>
+
+            <label for="image">Upload Image:</label>
+            <input type="file" id="image" name="image" accept="image/*" required><br><br>
+
+            <button type="submit">Preview</button>
+        </form>
+
+        <div id="loader" class="loader" style="display: none;"></div>
+
+        <div id="previewSection" class="preview-section" style="display: none;">
+            <h2>Bug Report Preview</h2>
+            <label for="summary">Summary:</label>
+            <input type="text" id="summary" class="editable" /><br><br>
+
+            <label for="description">Description:</label>
+            <textarea id="description" class="editable" rows="10" cols="50"></textarea><br><br>
+
+            <button id="createJiraButton">Create Jira Issue</button>
+            <div id="loaderCreateJira" class="loader" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script> <!-- Extracted JavaScript -->
+</body>
+</html>
