@@ -2,17 +2,23 @@ const express = require('express');
 const path = require('path');
 const axios = require('axios'); // Add axios for HTTP requests
 require('dotenv').config(); // Load environment variables
+const logger = require('./logger'); // Import the logger
+const multer = require('multer'); // Add multer for file uploads
+const fs = require('fs'); // Add fs for file system operations
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json({ limit: '10mb' })); // Increase JSON payload size limit
 
+// Configure multer for file uploads
+const upload = multer({ dest: 'uploads/' }); // Temporary directory for uploaded files
+
 // Serve static files (e.g., CSS, JS)
 app.use(express.static(path.join(__dirname)));
 
-// Serve the index.html file on the default route
-app.get('/', (req, res) => {
+// Wildcard route to serve index.html for all unmatched routes
+app.get('/{*splat}', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
@@ -41,7 +47,6 @@ async function createJiraIssue(summary, description) {
             customfield_11400: "11222"
         }
     };
-
     try {
         const response = await axios.post(jiraUrl, payload, {
             headers: {
@@ -49,10 +54,53 @@ async function createJiraIssue(summary, description) {
                 'Authorization': `Bearer ${jiraToken}`
             }
         });
-        return response.data; // Return the Jira issue response
+
+        // Check if the response is HTML (indicating an error like a login page)
+        if (response.headers['content-type']?.includes('text/html')) {
+            throw new Error('Received an HTML response, possibly due to authentication issues');
+        }
+
+        if (response.status === 200 || response.status === 201) {
+            logger.info('Jira issue created successfully');
+            return response.data; // Return the Jira issue response
+        } else {
+            throw new Error(`Unexpected response status: ${response.status}`);
+        }
     } catch (error) {
-        console.error('Error creating Jira issue:', error.message);
+        logger.error(`Error creating Jira issue: ${error.message}`);
         throw new Error('Failed to create Jira issue');
+    }
+}
+
+// Function to upload an image to a Jira issue
+async function uploadImageToJira(issueKey, filePath) {
+    const jiraBaseUrl = process.env.JIRA_URL; // Pull Jira base URL from .env
+    const jiraToken = process.env.JIRA_TOKEN; // Pull Jira token from .env
+
+    if (!jiraBaseUrl || !jiraToken) {
+        throw new Error('JIRA_URL or JIRA_TOKEN is not defined in the environment variables');
+    }
+
+    const jiraUrl = `${jiraBaseUrl}/rest/api/2/issue/${issueKey}/attachments`;
+
+    try {
+        const response = await axios.post(jiraUrl, fs.createReadStream(filePath), {
+            headers: {
+                'X-Atlassian-Token': 'no-check',
+                'Authorization': `Bearer ${jiraToken}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        if (response.status === 200 || response.status === 201) {
+            logger.info('Image uploaded to Jira successfully');
+            return response.data; // Return the Jira response
+        } else {
+            throw new Error(`Unexpected response status: ${response.status}`);
+        }
+    } catch (error) {
+        logger.error(`Error uploading image to Jira: ${error.message}`);
+        throw new Error('Failed to upload image to Jira');
     }
 }
 
@@ -77,11 +125,15 @@ async function generateBugReport(prompt, images) {
     const summary = generatedBugReport.match(/h3\. Issue Summary: (.+)/)?.[1]?.trim();
     const description = generatedBugReport;
 
-    if (!summary || !description) {
-        throw new Error('Failed to extract summary or description from the bug report');
+    if (!summary && !description) {
+        throw new Error('Failed to extract summary and description from the bug report');
     }
 
-    return { summary, description, bugReport: generatedBugReport };
+    return { 
+        summary: summary || 'Anomaly: Summary not available', 
+        description: description || 'Description not available', 
+        bugReport: generatedBugReport 
+    };
 }
 
 // API endpoint to preview the bug report
@@ -103,7 +155,7 @@ app.post('/api/preview', async (req, res) => {
             description
         });
     } catch (error) {
-        console.error('Error generating bug report preview:', error.message);
+        logger.error(`Error generating bug report preview: ${error.message}`);
         res.status(500).json({ error: 'Failed to generate bug report preview', details: error.message });
     }
 });
@@ -126,12 +178,43 @@ app.post('/api/generate', async (req, res) => {
             jiraIssue: jiraResponse
         });
     } catch (error) {
-        console.error('Error creating Jira issue:', error.message);
+        logger.error(`Error creating Jira issue: ${error.message}`);
         res.status(500).json({ error: 'Failed to create Jira issue', details: error.message });
+    }
+});
+
+// API endpoint to upload an image to a Jira issue
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+    const { issueKey } = req.body;
+
+    if (!issueKey || !req.file) {
+        return res.status(400).json({ error: 'Invalid request payload or missing file' });
+    }
+
+    const filePath = req.file.path;
+
+    try {
+        // Upload the image to Jira
+        const jiraResponse = await uploadImageToJira(issueKey, filePath);
+
+        // Delete the temporary file after upload
+        fs.unlinkSync(filePath);
+
+        // Respond with the Jira response
+        res.status(200).json({
+            message: 'Image uploaded to Jira successfully',
+            jiraResponse
+        });
+    } catch (error) {
+        // Delete the temporary file in case of an error
+        fs.unlinkSync(filePath);
+
+        logger.error(`Error uploading image to Jira: ${error.message}`);
+        res.status(500).json({ error: 'Failed to upload image to Jira', details: error.message });
     }
 });
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    logger.info(`Server is running on http://localhost:${PORT}`);
 });
