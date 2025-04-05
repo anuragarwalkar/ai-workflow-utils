@@ -2,6 +2,10 @@
 
 This application automates the process of creating Jira tickets, adding attachments, and viewing Jira tickets.
 
+![image](https://github.com/user-attachments/assets/579559bb-6868-4ae5-8cd2-7a64ca345fe0)
+![image](https://github.com/user-attachments/assets/4bfaf36d-428e-4009-ad03-1ab215662abb)
+![image](https://github.com/user-attachments/assets/438cab5d-f7b7-4dde-b8b9-ef4ff1d6d2de)
+
 ## Prerequisites
 
 - Install [Ollama](https://ollama.com/) on your system.
