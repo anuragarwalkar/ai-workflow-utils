@@ -9,7 +9,7 @@ multer({ dest: 'uploads/' }); // Configure multer to store files in 'uploads/' d
 // Function to generate a bug report
 async function generateBugReport(prompt, images) {
     const model = "llava";
-    const constructedPrompt = `${prompt}. Based on the provided image and the paragraph above, generate a detailed bug report. Format your output like this, and include a blank line between each list item: h3. Issue Summary: Anomaly: [ One-line summary of the bug.] h3. Steps to Reproduce: # [Step 1]  # [Step 2]  # [Step 3]  h3. Expected Behavior: * [What should happen.]  h3. Actual Behavior: * [What is happening instead — visible in the image.]  h3. Possible Causes: * [List possible reasons — e.g., font rendering, input field style, etc.]`;
+    const constructedPrompt = `${prompt} - Based on the prompt & image, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: h3. Issue Summary: Anomaly: [ One-line summary of the bug.] h3. Steps to Reproduce: # [Step 1]  # [Step 2]  # [Step 3]  h3. Expected Behavior: * [What should happen.]  h3. Actual Behavior: * [What is happening instead — visible in the image.]  h3. Possible Causes: * [List possible reasons — e.g., font rendering, input field style, etc.]`;
 
     const response = await axios.post('http://localhost:11434/api/generate', {
         model,
@@ -24,8 +24,9 @@ async function generateBugReport(prompt, images) {
         throw new Error('Invalid response structure from external API');
     }
 
-    const summary = generatedBugReport.match(/h3\. Issue Summary: (.+)/)?.[1]?.trim();
-    const description = generatedBugReport;
+    const summaryMatch = generatedBugReport.match(/(?:h3\. Issue Summary:|Issue Summary:)\s*(.+)/);
+    const summary = summaryMatch?.[1]?.trim();
+    const description = generatedBugReport.replace(/(?:h3\. Issue Summary:|Issue Summary:)\s*.+/, '').trim();
 
     return { 
         summary: summary || 'Anomaly: Summary not available', 
