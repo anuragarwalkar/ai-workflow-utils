@@ -103,8 +103,9 @@ document.getElementById('createJiraButton').addEventListener('click', async () =
             alert('Error creating Jira issue: ' + (await generateResponse.text()));
             return;
         }
-
+        
         const generateResult = await generateResponse.json();
+        
         const issueKey = generateResult.jiraIssue.key;
 
         const formData = new FormData();
@@ -121,8 +122,8 @@ document.getElementById('createJiraButton').addEventListener('click', async () =
             return;
         }
 
-        const uploadResult = await uploadResponse.json();
-        alert('Success: ' + uploadResult.message);
+       await uploadResponse.json();
+    alert('Creating Jira issue Success:' + generateResult.jiraIssue.key);
     } catch (error) {
         alert('An error occurred: ' + error.message);
     } finally {
