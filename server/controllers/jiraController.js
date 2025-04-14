@@ -3,6 +3,7 @@ const fs = require('fs');
 const logger = require('../logger');
 const FormData = require('form-data'); // Add this import for FormData
 const multer = require('multer'); // Import multer
+const { convertMovToMp4 } = require('../utils/fileUtils'); // Import the reusable function
 
 multer({ dest: 'uploads/' }); // Configure multer to store files in 'uploads/' directory
 
@@ -123,8 +124,14 @@ async function uploadImage(req, res) {
 
         const jiraUrl = `${jiraBaseUrl}/rest/api/2/issue/${issueKey}/attachments`;
 
+        let filePath = req.file.path;
+        let fileName = originalFileName || req.file.originalname;
+
+        // Use the reusable function to convert .mov to .mp4 if necessary
+        ({ filePath, fileName } = await convertMovToMp4(filePath, fileName));
+
         const formData = new FormData();
-        formData.append('file', fs.createReadStream(req.file.path), originalFileName || req.file.originalname); // Use the original file name if provided
+        formData.append('file', fs.createReadStream(filePath), fileName);
 
         const response = await axios.post(jiraUrl, formData, {
             headers: {
@@ -134,15 +141,15 @@ async function uploadImage(req, res) {
             }
         });
 
-        fs.unlinkSync(req.file.path); // Clean up the uploaded file
+        fs.unlinkSync(filePath); // Clean up the uploaded file
 
         res.status(200).json({
             message: 'Image uploaded to Jira successfully',
             jiraResponse: response.data,
-            fileName: originalFileName || req.file.originalname // Return the file name for confirmation
+            fileName // Return the file name for confirmation
         });
     } catch (error) {
-        fs.unlinkSync(req.file.path); // Ensure cleanup even on error
+        if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path); // Ensure cleanup of original file
         logger.error(`Error uploading image to Jira: ${error.message}`);
         res.status(500).json({ error: 'Failed to upload image to Jira', details: error.message });
     }
