@@ -1,4 +1,4 @@
-# ai-tester-jira-reporter
+# ai-workflow-utils
 
 This application automates the process of creating Jira tickets, adding attachments, and viewing Jira tickets.
 
