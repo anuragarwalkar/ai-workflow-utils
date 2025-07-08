@@ -10,10 +10,16 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../ui'))); // Serve static files from UI folder
 
 // Import routes
-const jiraRoutes = require('./routes/jiraRoutes'); // Updated path to routes
+const jiraRoutes = require('./routes/jiraRoutes');
+
+// Import routes
+const emailRoutes = require('./routes/emailRoutes');
 
 // Use routes
 app.use('/api', jiraRoutes);
+
+// Use routes
+app.use('/api/email', emailRoutes);
 
 // Wildcard route to serve index.html for all unmatched routes
 app.get('/', (_, res) => {
