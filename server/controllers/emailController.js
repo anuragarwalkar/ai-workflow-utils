@@ -22,7 +22,7 @@ async function sendEmail(req, res) {
   const version = req.query.version;
   const tableData = await extractTableAsArray(htmlResponse, version);
   const emailBodyRes = emailBody(tableData, { releaseNoteURL, version })
-  await sendNotification('anurag.arwalkar@globant.com', `Release Notes - QA Build ${version}`, emailBodyRes)
+  await sendNotification('anurag.arwalkar@globant.com', `Release Notes - QA Build : ${version}`, emailBodyRes)
   res.status(200).send(emailBodyRes);
 }
 
