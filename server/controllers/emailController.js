@@ -14,7 +14,7 @@ async function sendEmail(req, res) {
   };
 
   // UR atlassian page link
-  const releaseNoteURL = "https://wiki.app.aib.ie/display/CAD/Release+July-2025";
+  const releaseNoteURL = process.env.WIKI_URL;
 
   const response = await fetch(releaseNoteURL, requestOptions);
   const htmlResponse = await response.text();
