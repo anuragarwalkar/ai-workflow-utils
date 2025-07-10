@@ -6,6 +6,7 @@ import theme from './theme/theme';
 import Layout from './components/layout/Layout';
 import HomeButtons from './components/home/HomeButtons';
 import CreateJiraContainer from './components/jira/CreateJira/CreateJiraContainer';
+import SendEmailContainer from './components/email/SendEmailContainer';
 import ViewJiraModal from './components/jira/ViewJira/ViewJiraModal';
 import NotificationSnackbar from './components/common/NotificationSnackbar';
 
@@ -16,6 +17,8 @@ const AppContent = () => {
     switch (currentView) {
       case 'createJira':
         return <CreateJiraContainer />;
+      case 'sendEmail':
+        return <SendEmailContainer />;
       case 'home':
       default:
         return <HomeButtons />;

@@ -36,7 +36,12 @@ async function extractTableAsArray(htmlString, buildNumber) {
     });
   });
 
-  return data;
+  // Filter out rows where ALL cells are empty
+  const filteredData = data.filter((row) => {
+    return !row.every(cell => cell.trim() === '');
+  });
+
+  return filteredData;
 }
 
 module.exports = {

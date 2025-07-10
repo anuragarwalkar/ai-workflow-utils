@@ -15,6 +15,10 @@ const HomeButtons = () => {
     dispatch(openViewJiraModal());
   };
 
+  const handleSendEmail = () => {
+    dispatch(setCurrentView('sendEmail'));
+  };
+
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
       <Stack spacing={3} sx={{ width: '100%', maxWidth: 400 }}>
@@ -41,6 +45,18 @@ const HomeButtons = () => {
           }}
         >
           View Jira
+        </Button>
+        <Button
+          variant="contained"
+          size="large"
+          onClick={handleSendEmail}
+          sx={{
+            py: 2,
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+          }}
+        >
+          Send Email
         </Button>
       </Stack>
     </Box>
