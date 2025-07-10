@@ -39,7 +39,7 @@ async function fetchAndMergeJiraSummary(tableData) {
 }
 
 async function sendEmail(req, res) {
-  const version = req.query.version;
+  const { version, dryRun = false} = req.query;
 
   const myHeaders = new Headers();
 
@@ -64,7 +64,9 @@ async function sendEmail(req, res) {
 
   const emailBodyRes = emailBody(mergedTableDataWithJira, { releaseNoteURL, version })
 
-  await sendNotification('anurag.arwalkar@globant.com', `Release Notes ------ QA Build : ${version}`, emailBodyRes)
+  if(!dryRun) {
+    await sendNotification('anurag.arwalkar@globant.com', `Release Notes QA Build : ${version}`, emailBodyRes)
+  }
 
   res.status(200).send(emailBodyRes);
 }

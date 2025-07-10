@@ -54,12 +54,12 @@ function formatTableByGroup(tableData) {
     });
     html += `</tr></thead><tbody>`;
 
-    group.rows.forEach((row, rowIndex) => {
+    group.rows.forEach((row) => {
       html += `<tr>`;
       keepIndexes.forEach(({ h, i }) => {
         const val = row[i] || '';
         const lower = h.toLowerCase();
-        const tdStyle = 'border:1px solid #ccc;padding:10px;text-align:center;vertical-align:middle;';
+        const tdStyle = 'border:1px solid #ccc;padding:10px;text-align:left;vertical-align:middle;';
 
         if (lower.includes('jira') && val) {
           html += `<td style="${tdStyle}"><a href="https://jira/app/${val}" style="color:#0645AD;text-decoration:none;">${val}</a></td>`;
