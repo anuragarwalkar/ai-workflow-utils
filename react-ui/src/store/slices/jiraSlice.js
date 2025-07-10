@@ -7,6 +7,8 @@ const initialState = {
     previewData: null,
     summary: '',
     description: '',
+    issueType: 'Task',
+    priority: 'Medium',
     isCreating: false,
     isPreviewLoading: false,
   },
@@ -42,6 +44,12 @@ const jiraSlice = createSlice({
     },
     setDescription: (state, action) => {
       state.createJira.description = action.payload;
+    },
+    setIssueType: (state, action) => {
+      state.createJira.issueType = action.payload;
+    },
+    setPriority: (state, action) => {
+      state.createJira.priority = action.payload;
     },
     setPreviewLoading: (state, action) => {
       state.createJira.isPreviewLoading = action.payload;
@@ -81,6 +89,8 @@ export const {
   setPreviewData,
   setSummary,
   setDescription,
+  setIssueType,
+  setPriority,
   setPreviewLoading,
   setCreating,
   resetCreateJira,

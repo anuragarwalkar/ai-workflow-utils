@@ -22,6 +22,7 @@
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
     "axios": "^1.8.4",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "eslint": "^9.30.1",
     "eslint-plugin-react-hooks": "^5.2.0",

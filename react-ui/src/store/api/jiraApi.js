@@ -3,22 +3,22 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const jiraApi = createApi({
   reducerPath: 'jiraApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api',
+    baseUrl: 'http://localhost:3000/api',
   }),
   tagTypes: ['Jira'],
   endpoints: (builder) => ({
     previewJira: builder.mutation({
-      query: ({ prompt, images }) => ({
+      query: ({ prompt, images, issueType }) => ({
         url: '/preview',
         method: 'POST',
-        body: { prompt, images },
+        body: { prompt, images, issueType },
       }),
     }),
     createJira: builder.mutation({
-      query: ({ summary, description }) => ({
+      query: ({ summary, description, issueType, priority }) => ({
         url: '/generate',
         method: 'POST',
-        body: { summary, description },
+        body: { summary, description, issueType, priority },
       }),
       invalidatesTags: ['Jira'],
     }),

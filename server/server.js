@@ -1,10 +1,19 @@
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const logger = require('./logger');
 require('dotenv').config();
 
 const app = express();
 const PORT = 3000;
+
+// CORS configuration
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173'], // React dev server ports
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../ui_backup'))); // Serve static files from UI folder

@@ -7,10 +7,14 @@ import {
   Stack,
   CircularProgress,
   styled,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { CloudUpload } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
-import { setPrompt, setImageFile } from '../../../store/slices/jiraSlice';
+import { setPrompt, setImageFile, setIssueType, setPriority } from '../../../store/slices/jiraSlice';
 import { usePreviewJiraMutation } from '../../../store/api/jiraApi';
 import { showNotification } from '../../../store/slices/uiSlice';
 import { setPreviewData } from '../../../store/slices/jiraSlice';
@@ -29,7 +33,7 @@ const VisuallyHiddenInput = styled('input')({
 
 const JiraForm = () => {
   const dispatch = useDispatch();
-  const { prompt, imageFile, isPreviewLoading } = useSelector(
+  const { prompt, imageFile, issueType, priority, isPreviewLoading } = useSelector(
     (state) => state.jira.createJira
   );
   
@@ -53,31 +57,64 @@ const JiraForm = () => {
     dispatch(setImageFile(file));
   };
 
+  const handleIssueTypeChange = (event) => {
+    dispatch(setIssueType(event.target.value));
+  };
+
+  const handlePriorityChange = (event) => {
+    dispatch(setPriority(event.target.value));
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!imageFile) {
-      dispatch(showNotification({
-        message: 'Please upload an image.',
-        severity: 'error'
-      }));
-      return;
-    }
+    // Update URL with prompt
+    const url = new URL(window.location.href);
+    url.searchParams.set('prompt', encodeURIComponent(prompt));
+    window.history.replaceState({}, '', url);
 
-    // Convert file to base64
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64Image = reader.result.split(',')[1];
+    if (imageFile) {
+      // Convert file to base64 if image is provided
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64Image = reader.result.split(',')[1];
 
-      // Update URL with prompt
-      const url = new URL(window.location.href);
-      url.searchParams.set('prompt', encodeURIComponent(prompt));
-      window.history.replaceState({}, '', url);
+        try {
+          const result = await previewJira({
+            prompt,
+            images: [base64Image],
+            issueType
+          }).unwrap();
 
+          dispatch(setPreviewData(result));
+          dispatch(showNotification({
+            message: 'Preview generated successfully!',
+            severity: 'success'
+          }));
+        } catch (error) {
+          console.error('Preview error:', error);
+          dispatch(showNotification({
+            message: `Error: ${error.data || error.message}`,
+            severity: 'error'
+          }));
+        }
+      };
+
+      reader.onerror = () => {
+        dispatch(showNotification({
+          message: 'Failed to read the file. Please try again.',
+          severity: 'error'
+        }));
+      };
+
+      reader.readAsDataURL(imageFile);
+    } else {
+      // Generate preview without image
       try {
         const result = await previewJira({
           prompt,
-          images: [base64Image]
+          images: [],
+          issueType
         }).unwrap();
 
         dispatch(setPreviewData(result));
@@ -92,16 +129,7 @@ const JiraForm = () => {
           severity: 'error'
         }));
       }
-    };
-
-    reader.onerror = () => {
-      dispatch(showNotification({
-        message: 'Failed to read the file. Please try again.',
-        severity: 'error'
-      }));
-    };
-
-    reader.readAsDataURL(imageFile);
+    }
   };
 
   const isLoading = isPreviewLoading || isPreviewMutationLoading;
@@ -124,6 +152,39 @@ const JiraForm = () => {
           variant="outlined"
         />
 
+        <FormControl fullWidth>
+          <InputLabel id="issue-type-label">Issue Type</InputLabel>
+          <Select
+            labelId="issue-type-label"
+            id="issue-type-select"
+            value={issueType}
+            label="Issue Type"
+            onChange={handleIssueTypeChange}
+          >
+            <MenuItem value="Task">Task</MenuItem>
+            <MenuItem value="Bug">Bug</MenuItem>
+            <MenuItem value="Story">Story</MenuItem>
+          </Select>
+        </FormControl>
+
+        {issueType === 'Bug' && (
+          <FormControl fullWidth>
+            <InputLabel id="priority-label">Priority</InputLabel>
+            <Select
+              labelId="priority-label"
+              id="priority-select"
+              value={priority}
+              label="Priority"
+              onChange={handlePriorityChange}
+            >
+              <MenuItem value="Critical">Critical</MenuItem>
+              <MenuItem value="High">High</MenuItem>
+              <MenuItem value="Medium">Medium</MenuItem>
+              <MenuItem value="Low">Low</MenuItem>
+            </Select>
+          </FormControl>
+        )}
+
         <Box>
           <Button
             component="label"
@@ -136,7 +197,6 @@ const JiraForm = () => {
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              required
             />
           </Button>
           {imageFile && (
