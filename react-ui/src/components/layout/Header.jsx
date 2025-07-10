@@ -1,6 +1,10 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box, IconButton } from '@mui/material';
-import { Home as HomeIcon } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, Box, IconButton, Avatar } from '@mui/material';
+import { 
+  Home as HomeIcon, 
+  Psychology as PsychologyIcon,
+  AutoAwesome as AutoAwesomeIcon 
+} from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { setCurrentView } from '../../store/slices/appSlice';
 import { resetCreateJira, resetViewJira } from '../../store/slices/jiraSlice';
@@ -39,19 +43,34 @@ const Header = () => {
             gap: 2,
           }}
         >
-          <IconButton
+          <Avatar
             sx={{
-              background: 'rgba(255, 255, 255, 0.2)',
-              color: 'white',
-              '&:hover': {
-                background: 'rgba(255, 255, 255, 0.3)',
-                transform: 'scale(1.05)',
-              },
+              width: 48,
+              height: 48,
+              background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+              boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
+              border: '2px solid rgba(255, 255, 255, 0.3)',
               transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'scale(1.1) rotate(5deg)',
+                boxShadow: '0 6px 25px rgba(102, 126, 234, 0.6)',
+              },
             }}
           >
-            <HomeIcon />
-          </IconButton>
+            <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <PsychologyIcon sx={{ fontSize: 24, color: 'white' }} />
+              <AutoAwesomeIcon 
+                sx={{ 
+                  fontSize: 12, 
+                  color: '#f093fb', 
+                  position: 'absolute', 
+                  top: -2, 
+                  right: -2,
+                  animation: 'pulse 2s infinite',
+                }} 
+              />
+            </Box>
+          </Avatar>
           <Typography 
             variant="h4" 
             component="h1" 

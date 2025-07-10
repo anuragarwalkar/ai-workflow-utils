@@ -74,7 +74,7 @@ const HomeButtons = () => {
           const ActionIconComponent = card.actionIcon;
           
           return (
-            <Grid item xs={12} sm={6} md={4} key={index} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Grid item xs={12} md={4} key={index}>
               <Card
                 sx={{
                   height: '100%',
