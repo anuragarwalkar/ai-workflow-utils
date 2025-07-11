@@ -151,8 +151,6 @@ async function createJiraIssue(req, res) {
         break;
     }
 
-    console.log('payload:', JSON.stringify(payload, null, 2))
-
     const response = await axios.post(jiraUrl, payload, {
       headers: {
         "Content-Type": "application/json",

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -11,14 +11,8 @@ import {
   Grid,
   Chip,
   Alert,
-} from '@mui/material';
-
-// Available packages from the shell script
-const AVAILABLE_PACKAGES = [
- // here
-];
-
-// Add list of pacages
+} from "@mui/material";
+import { AVAILABLE_PACKAGES } from '../../private-config';
 
 const BuildConfigForm = ({ config, onChange, onNext }) => {
   const handleTicketNumberChange = (event) => {
@@ -31,9 +25,9 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
   const handlePackageToggle = (packageName) => {
     const isSelected = config.selectedPackages.includes(packageName);
     const newSelectedPackages = isSelected
-      ? config.selectedPackages.filter(pkg => pkg !== packageName)
+      ? config.selectedPackages.filter((pkg) => pkg !== packageName)
       : [...config.selectedPackages, packageName];
-    
+
     onChange({
       ...config,
       selectedPackages: newSelectedPackages,
@@ -41,7 +35,8 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
   };
 
   const handleSelectAllPackages = () => {
-    const allSelected = config.selectedPackages.length === AVAILABLE_PACKAGES.length;
+    const allSelected =
+      config.selectedPackages.length === AVAILABLE_PACKAGES.length;
     onChange({
       ...config,
       selectedPackages: allSelected ? [] : [...AVAILABLE_PACKAGES],
@@ -56,12 +51,12 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
   };
 
   const isFormValid = () => {
-    return config.ticketNumber.trim() !== '';
+    return config.ticketNumber.trim() !== "";
   };
 
   const getPackageDisplayName = (packageName) => {
     // Extract the last part after the last hyphen for display
-    const parts = packageName.split('-');
+    const parts = packageName.split("-");
     return parts[parts.length - 1];
   };
 
@@ -70,7 +65,7 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
       <Typography variant="h6" gutterBottom>
         Configure Build Parameters
       </Typography>
-      
+
       <Grid container spacing={3}>
         {/* Ticket Number */}
         <Grid item xs={12}>
@@ -93,19 +88,26 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
         {/* Package Selection */}
         <Grid item xs={12}>
           <Paper sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="subtitle1">
-                Package Selection
-              </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography variant="subtitle1">Package Selection</Typography>
               <Button
                 size="small"
                 onClick={handleSelectAllPackages}
                 variant="outlined"
               >
-                {config.selectedPackages.length === AVAILABLE_PACKAGES.length ? 'Deselect All' : 'Select All'}
+                {config.selectedPackages.length === AVAILABLE_PACKAGES.length
+                  ? "Deselect All"
+                  : "Select All"}
               </Button>
             </Box>
-            
+
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               Select which packages to update to their latest versions:
             </Typography>
@@ -121,10 +123,8 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
                     />
                   }
                   label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="body2">
-                        {packageName}
-                      </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Typography variant="body2">{packageName}</Typography>
                       <Chip
                         label={getPackageDisplayName(packageName)}
                         size="small"
@@ -161,15 +161,23 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
               label="Create Pull Request automatically"
             />
             <Typography variant="body2" color="text.secondary" sx={{ ml: 4 }}>
-              If enabled, a pull request will be created automatically after the build completes
+              If enabled, a pull request will be created automatically after the
+              build completes
             </Typography>
           </Paper>
         </Grid>
 
         {/* Action Buttons */}
         <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Button variant="outlined" href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Button
+              variant="outlined"
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                window.history.back();
+              }}
+            >
               Cancel
             </Button>
             <Button

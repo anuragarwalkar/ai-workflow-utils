@@ -15,3 +15,5 @@ node_modules/
 .idea/
 
 scripts/
+
+# react-ui/src/private-config/
