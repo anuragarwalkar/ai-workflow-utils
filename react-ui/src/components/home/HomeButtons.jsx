@@ -22,7 +22,6 @@ import {
 import { useDispatch } from 'react-redux';
 import { setCurrentView } from '../../store/slices/appSlice';
 import { openViewJiraModal } from '../../store/slices/uiSlice';
-import { setBuildModalOpen } from '../../store/slices/buildSlice';
 
 const HomeButtons = () => {
   const dispatch = useDispatch();
@@ -40,7 +39,7 @@ const HomeButtons = () => {
   };
 
   const handleReleaseBuild = () => {
-    dispatch(setBuildModalOpen(true));
+    dispatch(setCurrentView('releaseBuild'));
   };
 
   const actionCards = [

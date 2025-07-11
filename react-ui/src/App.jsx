@@ -7,6 +7,7 @@ import Layout from './components/layout/Layout';
 import HomeButtons from './components/home/HomeButtons';
 import CreateJiraContainer from './components/jira/CreateJira/CreateJiraContainer';
 import SendEmailContainer from './components/email/SendEmailContainer';
+import ReleaseBuildContainer from './components/build/ReleaseBuildContainer';
 import ViewJiraModal from './components/jira/ViewJira/ViewJiraModal';
 import BuildModal from './components/build/BuildModal';
 import NotificationSnackbar from './components/common/NotificationSnackbar';
@@ -20,6 +21,8 @@ const AppContent = () => {
         return <CreateJiraContainer />;
       case 'sendEmail':
         return <SendEmailContainer />;
+      case 'releaseBuild':
+        return <ReleaseBuildContainer />;
       case 'home':
       default:
         return <HomeButtons />;

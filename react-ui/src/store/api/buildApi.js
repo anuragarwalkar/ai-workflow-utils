@@ -8,9 +8,10 @@ export const buildApi = createApi({
   tagTypes: ['Build'],
   endpoints: (builder) => ({
     startBuild: builder.mutation({
-      query: () => ({
+      query: (buildConfig) => ({
         url: '/release',
         method: 'POST',
+        body: buildConfig,
       }),
       invalidatesTags: ['Build'],
     }),

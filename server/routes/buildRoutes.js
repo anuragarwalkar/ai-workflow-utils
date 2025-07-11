@@ -9,7 +9,21 @@ module.exports = (io) => {
   // Start mobile app build process
   router.post('/release', (req, res) => {
     try {
-      logger.info('Starting mobile app build process');
+      const { ticketNumber, selectedPackages, createPullRequest } = req.body;
+      
+      logger.info('Starting mobile app build process', {
+        ticketNumber,
+        selectedPackages: selectedPackages?.length || 0,
+        createPullRequest
+      });
+      
+      // Validate required parameters
+      if (!ticketNumber) {
+        return res.status(400).json({
+          success: false,
+          message: 'Ticket number is required'
+        });
+      }
       
       // Send immediate response to client
       res.json({ 
@@ -21,8 +35,16 @@ module.exports = (io) => {
       // Path to the release script
       const scriptPath = path.join(__dirname, '../scripts/release_build.sh');
       
-      // Spawn the shell script process
-      const buildProcess = spawn('bash', [scriptPath], {
+      // Prepare script arguments
+      const scriptArgs = [
+        scriptPath,
+        ticketNumber,
+        selectedPackages ? selectedPackages.join(',') : '',
+        createPullRequest ? 'true' : 'false'
+      ];
+      
+      // Spawn the shell script process with arguments
+      const buildProcess = spawn('bash', scriptArgs, {
         cwd: path.dirname(scriptPath),
         stdio: ['pipe', 'pipe', 'pipe']
       });
