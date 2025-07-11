@@ -3,8 +3,10 @@ import appSlice from './slices/appSlice';
 import jiraSlice from './slices/jiraSlice';
 import emailSlice from './slices/emailSlice';
 import uiSlice from './slices/uiSlice';
+import buildSlice from './slices/buildSlice';
 import { jiraApi } from './api/jiraApi';
 import { emailApi } from './api/emailApi';
+import { buildApi } from './api/buildApi';
 
 const store = configureStore({
   reducer: {
@@ -12,8 +14,10 @@ const store = configureStore({
     jira: jiraSlice,
     email: emailSlice,
     ui: uiSlice,
+    build: buildSlice,
     [jiraApi.reducerPath]: jiraApi.reducer,
     [emailApi.reducerPath]: emailApi.reducer,
+    [buildApi.reducerPath]: buildApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -21,7 +25,7 @@ const store = configureStore({
         ignoredActions: ['jira/setImageFile'],
         ignoredPaths: ['jira.createJira.imageFile'],
       },
-    }).concat(jiraApi.middleware, emailApi.middleware),
+    }).concat(jiraApi.middleware, emailApi.middleware, buildApi.middleware),
 });
 
 // Export store for use in components

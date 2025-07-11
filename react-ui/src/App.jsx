@@ -8,6 +8,7 @@ import HomeButtons from './components/home/HomeButtons';
 import CreateJiraContainer from './components/jira/CreateJira/CreateJiraContainer';
 import SendEmailContainer from './components/email/SendEmailContainer';
 import ViewJiraModal from './components/jira/ViewJira/ViewJiraModal';
+import BuildModal from './components/build/BuildModal';
 import NotificationSnackbar from './components/common/NotificationSnackbar';
 
 const AppContent = () => {
@@ -29,6 +30,7 @@ const AppContent = () => {
     <Layout>
       {renderCurrentView()}
       <ViewJiraModal />
+      <BuildModal />
       <NotificationSnackbar />
     </Layout>
   );

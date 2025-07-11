@@ -13,13 +13,16 @@ import {
   BugReport as BugReportIcon,
   Visibility as VisibilityIcon,
   Email as EmailIcon,
+  Build as BuildIcon,
   Add as AddIcon,
   Search as SearchIcon,
-  Send as SendIcon
+  Send as SendIcon,
+  RocketLaunch as RocketLaunchIcon
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { setCurrentView } from '../../store/slices/appSlice';
 import { openViewJiraModal } from '../../store/slices/uiSlice';
+import { setBuildModalOpen } from '../../store/slices/buildSlice';
 
 const HomeButtons = () => {
   const dispatch = useDispatch();
@@ -34,6 +37,10 @@ const HomeButtons = () => {
 
   const handleSendEmail = () => {
     dispatch(setCurrentView('sendEmail'));
+  };
+
+  const handleReleaseBuild = () => {
+    dispatch(setBuildModalOpen(true));
   };
 
   const actionCards = [
@@ -63,6 +70,15 @@ const HomeButtons = () => {
       onClick: handleSendEmail,
       gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
       shadowColor: 'rgba(79, 172, 254, 0.3)',
+    },
+    {
+      title: 'Release Mobile App',
+      description: 'Build and release new mobile app version',
+      icon: BuildIcon,
+      actionIcon: RocketLaunchIcon,
+      onClick: handleReleaseBuild,
+      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+      shadowColor: 'rgba(250, 112, 154, 0.3)',
     },
   ];
 

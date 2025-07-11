@@ -13,3 +13,5 @@ node_modules/
 # IDE-specific files
 .vscode/
 .idea/
+
+scripts/
