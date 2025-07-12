@@ -10,8 +10,7 @@ multer({ dest: "uploads/" });
 const bitbucketToken = process.env.BITBUCKET_AUTHORIZATION_TOKEN;
 const bitbucketUrl = process.env.BIT_BUCKET_URL;
 
-async function generateJiraContent(prompt, images, issueType = "Bug") {
-  const model = "llava";
+async function generateJiraContentWithOpenAI(prompt, images, issueType = "Bug") {
   const hasImages = images && images.length > 0;
   const imageReference = hasImages ? "& image" : "";
   const imageContext = hasImages ? "visible in the image" : "described in the prompt";
@@ -20,32 +19,112 @@ async function generateJiraContent(prompt, images, issueType = "Bug") {
   
   switch (issueType) {
     case "Bug":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: h3. Issue Summary: Anomaly: [ One-line summary of the bug.] h3. Steps to Reproduce: # [Step 1]  # [Step 2]  # [Step 3]  h3. Expected Behavior: * [What should happen.]  h3. Actual Behavior: * [What is happening instead — ${imageContext}.]  h3. Possible Causes: * [List possible reasons — e.g., font rendering, input field style, etc.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: h3. Issue Summary: [Short, concise bug title - max 8 words] h3. Steps to Reproduce: # [Step 1]  # [Step 2]  # [Step 3]  h3. Expected Behavior: * [What should happen.]  h3. Actual Behavior: * [What is happening instead — ${imageContext}.]  h3. Possible Causes: * [List possible reasons — e.g., font rendering, input field style, etc.]`;
       break;
     
     case "Task":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: h3. Task Summary: [ One-line summary of the task.] h3. Description: * [Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Implementation Notes: * [Technical notes or considerations for implementation.]  h3. Dependencies: * [Any dependencies or prerequisites needed.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: h3. Task Summary: [Short, concise task title - max 8 words] h3. Description: * [Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Implementation Notes: * [Technical notes or considerations for implementation.]  h3. Dependencies: * [Any dependencies or prerequisites needed.]`;
       break;
     
     case "Story":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: h3. Story Summary: [ One-line summary of the user story.] h3. User Story: * As a [user type], I want [functionality] so that [benefit/value].  h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Definition of Done: * [What constitutes completion of this story.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: h3. Story Summary: [Short, concise story title - max 8 words] h3. User Story: * As a [user type], I want [functionality] so that [benefit/value].  h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Definition of Done: * [What constitutes completion of this story.]`;
       break;
     
     default:
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: h3. Summary: [ One-line summary.] h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: h3. Summary: [Short, concise title - max 8 words] h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]`;
   }
 
-  const response = await axios.post("http://localhost:11434/api/generate", {
+  // Prepare messages for OpenAI compatible API
+  const messages = [
+    {
+      role: "user",
+      content: hasImages ? [
+        { type: "text", text: constructedPrompt },
+        ...images.map(image => ({
+          type: "image_url",
+          image_url: { url: `data:image/jpeg;base64,${image}` }
+        }))
+      ] : constructedPrompt
+    }
+  ];
+
+  const response = await axios.post(`${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`, {
+    model: process.env.OPENAI_COMPATIBLE_MODEL,
+    messages,
+    max_tokens: 2000,
+    temperature: 0.7
+  }, {
+    headers: {
+      'Authorization': `Bearer ${process.env.OPENAI_COMPATIBLE_API_KEY}`,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  return response.data.choices[0].message.content;
+}
+
+async function generateJiraContentWithOllama(prompt, images, issueType = "Bug") {
+  const model = process.env.OLLAMA_MODEL || "llava";
+  const hasImages = images && images.length > 0;
+  const imageReference = hasImages ? "& image" : "";
+  const imageContext = hasImages ? "visible in the image" : "described in the prompt";
+  
+  let constructedPrompt;
+  
+  switch (issueType) {
+    case "Bug":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: h3. Issue Summary: [Short, concise bug title - max 8 words] h3. Steps to Reproduce: # [Step 1]  # [Step 2]  # [Step 3]  h3. Expected Behavior: * [What should happen.]  h3. Actual Behavior: * [What is happening instead — ${imageContext}.]  h3. Possible Causes: * [List possible reasons — e.g., font rendering, input field style, etc.]`;
+      break;
+    
+    case "Task":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: h3. Task Summary: [Short, concise task title - max 8 words] h3. Description: * [Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Implementation Notes: * [Technical notes or considerations for implementation.]  h3. Dependencies: * [Any dependencies or prerequisites needed.]`;
+      break;
+    
+    case "Story":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: h3. Story Summary: [Short, concise story title - max 8 words] h3. User Story: * As a [user type], I want [functionality] so that [benefit/value].  h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Definition of Done: * [What constitutes completion of this story.]`;
+      break;
+    
+    default:
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: h3. Summary: [Short, concise title - max 8 words] h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]`;
+  }
+
+  const response = await axios.post(`${process.env.OLLAMA_BASE_URL}/api/generate`, {
     model,
     prompt: constructedPrompt,
     images,
     stream: false,
   });
 
-  const generatedContent = response.data?.response;
+  return response.data?.response;
+}
+
+async function generateJiraContent(prompt, images, issueType = "Bug") {
+  let generatedContent;
+  let usedProvider = "unknown";
+
+  try {
+    // Try OpenAI compatible server first (Globant)
+    logger.info("Attempting to generate content using OpenAI compatible server (Globant)");
+    generatedContent = await generateJiraContentWithOpenAI(prompt, images, issueType);
+    usedProvider = "OpenAI Compatible (Globant)";
+    logger.info("Successfully generated content using OpenAI compatible server");
+  } catch (error) {
+    logger.warn(`OpenAI compatible server failed: ${error.message}. Falling back to Ollama.`);
+    
+    try {
+      // Fallback to Ollama
+      logger.info("Attempting to generate content using Ollama");
+      generatedContent = await generateJiraContentWithOllama(prompt, images, issueType);
+      usedProvider = "Ollama";
+      logger.info("Successfully generated content using Ollama");
+    } catch (ollamaError) {
+      logger.error(`Both providers failed. OpenAI: ${error.message}, Ollama: ${ollamaError.message}`);
+      throw new Error(`Failed to generate content with both providers. OpenAI: ${error.message}, Ollama: ${ollamaError.message}`);
+    }
+  }
 
   if (!generatedContent) {
-    throw new Error("Invalid response structure from external API");
+    throw new Error("Invalid response structure from AI provider");
   }
 
   const summaryMatch = generatedContent.match(
@@ -60,6 +139,7 @@ async function generateJiraContent(prompt, images, issueType = "Bug") {
     summary: summary || `${issueType}: Summary not available`,
     description: description || "Description not available",
     bugReport: generatedContent,
+    provider: usedProvider,
   };
 }
 
@@ -71,7 +151,7 @@ async function previewBugReport(req, res) {
   }
 
   try {
-    const { summary, description, bugReport } = await generateJiraContent(
+    const { summary, description, bugReport, provider } = await generateJiraContent(
       prompt,
       images,
       issueType
@@ -81,6 +161,7 @@ async function previewBugReport(req, res) {
       bugReport,
       summary,
       description,
+      provider,
     });
   } catch (error) {
     logger.error(`Error generating ${issueType} preview: ${error.message}`);
