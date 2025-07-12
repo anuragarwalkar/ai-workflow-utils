@@ -169,7 +169,7 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
 
         {/* Action Buttons */}
         <Grid item xs={12}>
-          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
             <Button
               variant="outlined"
               href="#"
