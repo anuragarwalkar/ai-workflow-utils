@@ -7,13 +7,12 @@ const Layout = ({ children }) => {
     <Box 
       sx={{ 
         minHeight: '100vh',
-        height: '100%',
+        width: '100vw',
         position: 'relative',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         backgroundAttachment: 'fixed',
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
-        paddingBottom: 0,
         '&::before': {
           content: '""',
           position: 'absolute',
@@ -38,11 +37,20 @@ const Layout = ({ children }) => {
       }}
     >
       <Header />
-      <Container maxWidth="md" sx={{ py: 4, position: 'relative', zIndex: 1 }}>
+      <Container 
+        maxWidth="xl" 
+        sx={{ 
+          px: 1,
+          py: 2,
+          position: 'relative', 
+          zIndex: 1
+        }}
+      >
         <Paper 
           elevation={0} 
           sx={{ 
-            p: 4,
+            p: 3,
+            width: '100%',
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
             borderRadius: '24px',
