@@ -7,9 +7,33 @@ const { convertMovToMp4 } = require("../utils/fileUtils");
 
 multer({ dest: "uploads/" }); 
 
-async function generateBugReport(prompt, images) {
+const bitbucketToken = process.env.BITBUCKET_AUTHORIZATION_TOKEN;
+const bitbucketUrl = process.env.BIT_BUCKET_URL;
+
+async function generateJiraContent(prompt, images, issueType = "Bug") {
   const model = "llava";
-  const constructedPrompt = `${prompt} - Based on the prompt & image, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: h3. Issue Summary: Anomaly: [ One-line summary of the bug.] h3. Steps to Reproduce: # [Step 1]  # [Step 2]  # [Step 3]  h3. Expected Behavior: * [What should happen.]  h3. Actual Behavior: * [What is happening instead — visible in the image.]  h3. Possible Causes: * [List possible reasons — e.g., font rendering, input field style, etc.]`;
+  const hasImages = images && images.length > 0;
+  const imageReference = hasImages ? "& image" : "";
+  const imageContext = hasImages ? "visible in the image" : "described in the prompt";
+  
+  let constructedPrompt;
+  
+  switch (issueType) {
+    case "Bug":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: h3. Issue Summary: Anomaly: [ One-line summary of the bug.] h3. Steps to Reproduce: # [Step 1]  # [Step 2]  # [Step 3]  h3. Expected Behavior: * [What should happen.]  h3. Actual Behavior: * [What is happening instead — ${imageContext}.]  h3. Possible Causes: * [List possible reasons — e.g., font rendering, input field style, etc.]`;
+      break;
+    
+    case "Task":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: h3. Task Summary: [ One-line summary of the task.] h3. Description: * [Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Implementation Notes: * [Technical notes or considerations for implementation.]  h3. Dependencies: * [Any dependencies or prerequisites needed.]`;
+      break;
+    
+    case "Story":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: h3. Story Summary: [ One-line summary of the user story.] h3. User Story: * As a [user type], I want [functionality] so that [benefit/value].  h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Definition of Done: * [What constitutes completion of this story.]`;
+      break;
+    
+    default:
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: h3. Summary: [ One-line summary.] h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]`;
+  }
 
   const response = await axios.post("http://localhost:11434/api/generate", {
     model,
@@ -18,58 +42,59 @@ async function generateBugReport(prompt, images) {
     stream: false,
   });
 
-  const generatedBugReport = response.data?.response;
+  const generatedContent = response.data?.response;
 
-  if (!generatedBugReport) {
+  if (!generatedContent) {
     throw new Error("Invalid response structure from external API");
   }
 
-  const summaryMatch = generatedBugReport.match(
-    /(?:h3\. Issue Summary:|Issue Summary:)\s*(.+)/
+  const summaryMatch = generatedContent.match(
+    /(?:h3\. (?:Issue Summary|Task Summary|Story Summary|Summary):|(?:Issue Summary|Task Summary|Story Summary|Summary):)\s*(.+)/
   );
   const summary = summaryMatch?.[1]?.trim();
-  const description = generatedBugReport
-    .replace(/(?:h3\. Issue Summary:|Issue Summary:)\s*.+/, "")
+  const description = generatedContent
+    .replace(/(?:h3\. (?:Issue Summary|Task Summary|Story Summary|Summary):|(?:Issue Summary|Task Summary|Story Summary|Summary):)\s*.+/, "")
     .trim();
 
   return {
-    summary: summary || "Anomaly: Summary not available",
+    summary: summary || `${issueType}: Summary not available`,
     description: description || "Description not available",
-    bugReport: generatedBugReport,
+    bugReport: generatedContent,
   };
 }
 
 async function previewBugReport(req, res) {
-  const { prompt, images } = req.body;
+  const { prompt, images = [], issueType = "Bug" } = req.body;
 
-  if (!prompt || !images || !Array.isArray(images)) {
+  if (!prompt || !Array.isArray(images)) {
     return res.status(400).json({ error: "Invalid request payload" });
   }
 
   try {
-    const { summary, description, bugReport } = await generateBugReport(
+    const { summary, description, bugReport } = await generateJiraContent(
       prompt,
-      images
+      images,
+      issueType
     );
     res.status(200).json({
-      message: "Bug report preview generated successfully",
+      message: `${issueType} preview generated successfully`,
       bugReport,
       summary,
       description,
     });
   } catch (error) {
-    logger.error(`Error generating bug report preview: ${error.message}`);
+    logger.error(`Error generating ${issueType} preview: ${error.message}`);
     res
       .status(500)
       .json({
-        error: "Failed to generate bug report preview",
+        error: `Failed to generate ${issueType} preview`,
         details: error.message,
       });
   }
 }
 
 async function createJiraIssue(req, res) {
-  const { summary, description } = req.body;
+  const { summary, description, issueType = "Task", priority = "Medium" } = req.body;
 
   if (!summary || !description) {
     return res.status(400).json({ error: "Invalid request payload" });
@@ -80,22 +105,54 @@ async function createJiraIssue(req, res) {
     const jiraToken = process.env.JIRA_TOKEN;
 
     const jiraUrl = `${jiraBaseUrl}/rest/api/2/issue`;
-    const payload = {
-      fields: {
-        project: { key: "CUDI" },
-        summary,
-        description,
-        issuetype: { name: "Bug" },
-        priority: {
-          name: "Low",
-        },
-        customfield_16302: { id: "21304" },
-        customfield_16300: { id: "21302" },
-        customfield_11301: { id: "11023" },
-        customfield_11302: { id: "11029" },
-        customfield_11400: "11222",
+    
+    // Create base payload
+    const baseFields = {
+      project: { key: "CUDI" },
+      summary,
+      description,
+      issuetype: { name: issueType },
+      priority: {
+        name: priority,
       },
     };
+
+    // Add issue type specific custom fields using switch case
+    let payload;
+    switch (issueType) {
+      case "Task":
+        payload = {
+          fields: {
+            ...baseFields,
+            customfield_11400: "11222",
+            customfield_10006: "CUDI-11449"
+          },
+        };
+        break;
+      
+      case "Bug":
+        payload = {
+          fields: {
+            ...baseFields,
+            customfield_16302: { id: "21304" },
+            customfield_16300: { id: "21302" },
+            customfield_11301: { id: "11023" },
+            customfield_11302: { id: "11029" },
+            customfield_11400: "11222",
+          },
+        };
+        break;
+      
+      default:
+        // Default payload for other issue types
+        payload = {
+          fields: {
+            ...baseFields,
+            customfield_11400: "11222",
+          },
+        };
+        break;
+    }
 
     const response = await axios.post(jiraUrl, payload, {
       headers: {
@@ -222,11 +279,103 @@ async function getJiraIssue(req, res) {
   }
 }
 
+async function createPullRequest(req, res) {
+  const { 
+    ticketNumber, 
+    updatedList, 
+    branchName, 
+    projectKey,
+    repoSlug,
+    createPR = true 
+  } = req.body;
+
+  if (!ticketNumber || !updatedList || !branchName || !projectKey || !repoSlug) {
+    return res.status(400).json({ 
+      error: "ticketNumber, updatedList, branchName, projectKey, and repoSlug are required" 
+    });
+  }
+
+  if (!createPR) {
+    return res.status(200).json({ 
+      message: "Skipping pull request creation as requested" 
+    });
+  }
+
+  try {  
+    if (!bitbucketToken) {
+      return res.status(400).json({ 
+        error: "BITBUCKET_AUTHORIZATION_TOKEN environment variable is required" 
+      });
+    }
+
+    const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests`;
+    
+    // Create the pull request payload
+    const prTitle = `feat(CUDI-${ticketNumber}): upgrade ${updatedList}`;
+    const prDescription = `This PR integrates the latest updates for the following packages: ${updatedList}.`;
+
+    const payload = {
+      title: prTitle,
+      description: prDescription,
+      source: {
+        branch: {
+          name: branchName
+        }
+      },
+      destination: {
+        branch: {
+          name: "main"
+        }
+      }
+    };
+
+    const response = await axios.post(url, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${bitbucketToken}`
+      }
+    });
+
+    if (response.status === 201) {
+      logger.info(`Pull request created successfully for ticket CUDI-${ticketNumber}`);
+      res.status(201).json({
+        message: "Pull request created successfully",
+        pullRequest: response.data,
+        prTitle,
+        prDescription
+      });
+    } else {
+      logger.error(`Failed to create pull request: ${response.status}`);
+      res.status(response.status).json({
+        error: "Failed to create pull request",
+        details: response.data
+      });
+    }
+
+  } catch (error) {
+    logger.error(`Error creating pull request: ${error.message}`);
+    
+    if (error.response) {
+      res.status(error.response.status).json({
+        error: "Failed to create pull request",
+        details: error.response.data,
+        status: error.response.status
+      });
+    } else {
+      res.status(500).json({
+        error: "Failed to create pull request",
+        details: error.message
+      });
+    }
+  }
+}
+
 module.exports = {
   previewBugReport,
   createJiraIssue,
   uploadImage,
   getJiraIssue,
   fetchJiraIssue,
-  fetchJiraSummaries
+  fetchJiraSummaries,
+  createPullRequest
 };

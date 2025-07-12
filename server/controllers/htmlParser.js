@@ -86,18 +86,35 @@ function formatDate(date = new Date()) {
   });
 }
 
+function getTimeBasedGreeting() {
+  const now = new Date();
+  const hour = now.getHours();
+  
+  if (hour >= 5 && hour < 12) {
+    return "Good morning, team,";
+  } else if (hour >= 12 && hour < 17) {
+    return "Good afternoon, team,";
+  } else if (hour >= 17 && hour < 22) {
+    return "Good evening, team,";
+  } else {
+    return "Hello team,";
+  }
+}
+
 const emailBody = (tableData, { version, releaseNoteURL }) => `
   <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #000;">
-    <p>Hello all,</p>
+    <p>${getTimeBasedGreeting()}</p>
+    <p>We’re pleased to share the latest update from our mobile app QA build. Please find the details below:</p>
 
-    <p>Here’s the daily update on our build release:</p>
     <ul>
-      <li><strong>Date:</strong> ${formatDate()}</li>
-      <li><strong>Current Build Version:</strong> ${version}</li>
-      <li><strong>Status:</strong> Completed</li>
-      <li><strong>Release Note URL:</strong> <a href="${releaseNoteURL}" target="_blank">${releaseNoteURL}</a></li>
+    <li><strong>Date:</strong> ${formatDate()}</li>
+    <li><strong>Current Build Version:</strong> ${version}</li>
+    <li><strong>Status:</strong> Completed</li>
+    <li><strong>Release Note URL:</strong> <a href="${releaseNoteURL}" target="_blank">${releaseNoteURL}</a></li>
     </ul>
 
+    <p>This update includes important bug fixes, enhancements, and tasks related to the value streams. Scroll down to review the full list of changes:</p>
+    
     ${formatTableByGroup(tableData)}
 
     <p>Regards,<br/>Anurag</p>

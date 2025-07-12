@@ -1,12 +1,16 @@
 const { extractTableAsArray } = require("./extractTableAsArray");
 const { emailBody } = require('./htmlParser');
 const { sendNotification} = require('./email');
+const {fetchAndMergeJiraSummary} = require('./featchAndMergeJiraSummary');
 const logger = require("../logger");
 
 async function sendEmail(req, res) {
   const releaseNoteURL = process.env.WIKI_URL;
-  const { version, dryRun = false} = req.query;
-
+  const { version, dryRun = 'false'} = req.query;
+  
+  // Convert string to boolean
+  const isDryRun = dryRun === 'true';
+  
   const myHeaders = new Headers();
 
   myHeaders.append("Accept", "application/json");
@@ -27,7 +31,7 @@ async function sendEmail(req, res) {
 
   const emailBodyRes = emailBody(mergedTableDataWithJira, { releaseNoteURL, version })
 
-  if(!dryRun) {
+  if(!isDryRun) {
     await sendNotification('anurag.arwalkar@globant.com', `Release Notes QA Build : ${version}`, emailBodyRes)
     logger.info('Email notification sent');
   }
