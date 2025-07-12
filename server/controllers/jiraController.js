@@ -19,19 +19,19 @@ async function generateJiraContentWithOpenAI(prompt, images, issueType = "Bug") 
   
   switch (issueType) {
     case "Bug":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: h3. Issue Summary: [Short, concise bug title - max 8 words] h3. Steps to Reproduce: # [Step 1]  # [Step 2]  # [Step 3]  h3. Expected Behavior: * [What should happen.]  h3. Actual Behavior: * [What is happening instead — ${imageContext}.]  h3. Possible Causes: * [List possible reasons — e.g., font rendering, input field style, etc.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — ${imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.`;
       break;
     
     case "Task":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: h3. Task Summary: [Short, concise task title - max 8 words] h3. Description: * [Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Implementation Notes: * [Technical notes or considerations for implementation.]  h3. Dependencies: * [Any dependencies or prerequisites needed.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.`;
       break;
     
     case "Story":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: h3. Story Summary: [Short, concise story title - max 8 words] h3. User Story: * As a [user type], I want [functionality] so that [benefit/value].  h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Definition of Done: * [What constitutes completion of this story.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.`;
       break;
     
     default:
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: h3. Summary: [Short, concise title - max 8 words] h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: Summary: Short, concise title - max 8 words Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.`;
   }
 
   // Prepare messages for OpenAI compatible API
@@ -73,19 +73,19 @@ async function generateJiraContentWithOllama(prompt, images, issueType = "Bug") 
   
   switch (issueType) {
     case "Bug":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: h3. Issue Summary: [Short, concise bug title - max 8 words] h3. Steps to Reproduce: # [Step 1]  # [Step 2]  # [Step 3]  h3. Expected Behavior: * [What should happen.]  h3. Actual Behavior: * [What is happening instead — ${imageContext}.]  h3. Possible Causes: * [List possible reasons — e.g., font rendering, input field style, etc.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — ${imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.`;
       break;
     
     case "Task":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: h3. Task Summary: [Short, concise task title - max 8 words] h3. Description: * [Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Implementation Notes: * [Technical notes or considerations for implementation.]  h3. Dependencies: * [Any dependencies or prerequisites needed.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.`;
       break;
     
     case "Story":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: h3. Story Summary: [Short, concise story title - max 8 words] h3. User Story: * As a [user type], I want [functionality] so that [benefit/value].  h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Definition of Done: * [What constitutes completion of this story.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.`;
       break;
     
     default:
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: h3. Summary: [Short, concise title - max 8 words] h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: Summary: Short, concise title - max 8 words Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.`;
   }
 
   const response = await axios.post(`${process.env.OLLAMA_BASE_URL}/api/generate`, {
@@ -103,10 +103,10 @@ async function generateJiraContent(prompt, images, issueType = "Bug") {
   let usedProvider = "unknown";
 
   try {
-    // Try OpenAI compatible server first (Globant)
-    logger.info("Attempting to generate content using OpenAI compatible server (Globant)");
+    // Try OpenAI compatible server first
+    logger.info("Attempting to generate content using OpenAI compatible server");
     generatedContent = await generateJiraContentWithOpenAI(prompt, images, issueType);
-    usedProvider = "OpenAI Compatible (Globant)";
+    usedProvider = "OpenAI Compatible";
     logger.info("Successfully generated content using OpenAI compatible server");
   } catch (error) {
     logger.warn(`OpenAI compatible server failed: ${error.message}. Falling back to Ollama.`);
@@ -130,10 +130,21 @@ async function generateJiraContent(prompt, images, issueType = "Bug") {
   const summaryMatch = generatedContent.match(
     /(?:h3\. (?:Issue Summary|Task Summary|Story Summary|Summary):|(?:Issue Summary|Task Summary|Story Summary|Summary):)\s*(.+)/
   );
-  const summary = summaryMatch?.[1]?.trim();
-  const description = generatedContent
+  let summary = summaryMatch?.[1]?.trim();
+  
+  // Clean up any remaining brackets from the summary
+  if (summary) {
+    summary = summary.replace(/^\[|\]$/g, '').trim();
+  }
+  
+  let description = generatedContent
     .replace(/(?:h3\. (?:Issue Summary|Task Summary|Story Summary|Summary):|(?:Issue Summary|Task Summary|Story Summary|Summary):)\s*.+/, "")
     .trim();
+  
+  // Clean up any remaining h3. formatting from the description
+  if (description) {
+    description = description.replace(/h3\.\s*/g, '').trim();
+  }
 
   return {
     summary: summary || `${issueType}: Summary not available`,
