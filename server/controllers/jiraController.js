@@ -35,32 +35,128 @@ async function generateJiraContentWithOpenAI(prompt, images, issueType = "Bug") 
   }
 
   // Prepare messages for OpenAI compatible API
-  const messages = [
-    {
-      role: "user",
-      content: hasImages ? [
-        { type: "text", text: constructedPrompt },
-        ...images.map(image => ({
-          type: "image_url",
-          image_url: { url: `data:image/jpeg;base64,${image}` }
-        }))
-      ] : constructedPrompt
-    }
-  ];
+  let messages;
+  
+  if (hasImages) {
+    // Detect image format and prepare accordingly
+    const imageContent = images.map(image => {
+      // Remove data URL prefix if present to get pure base64
+      let base64Data = image;
+      let mediaType = "image/jpeg";
+      
+      if (image.startsWith('data:')) {
+        const [header, data] = image.split(',');
+        base64Data = data;
+        // Extract media type from data URL
+        const mediaTypeMatch = header.match(/data:([^;]+)/);
+        if (mediaTypeMatch) {
+          mediaType = mediaTypeMatch[1];
+        }
+      } else {
+        // Try to detect image type from base64 header
+        if (image.startsWith('/9j/') || image.startsWith('iVBORw0KGgo')) {
+          mediaType = image.startsWith('/9j/') ? "image/jpeg" : "image/png";
+        }
+      }
+      
+      // Try Claude/Anthropic format first (since the error suggests this)
+      return {
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: mediaType,
+          data: base64Data
+        }
+      };
+    });
 
-  const response = await axios.post(`${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`, {
+    messages = [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: constructedPrompt },
+          ...imageContent
+        ]
+      }
+    ];
+  } else {
+    messages = [
+      {
+        role: "user",
+        content: constructedPrompt
+      }
+    ];
+  }
+
+  // Add error handling and logging for debugging
+  logger.info(`Making OpenAI compatible API request to: ${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`);
+  logger.info(`Using model: ${process.env.OPENAI_COMPATIBLE_MODEL}`);
+  logger.info(`Has images: ${hasImages}, Image count: ${images ? images.length : 0}`);
+
+  const requestPayload = {
     model: process.env.OPENAI_COMPATIBLE_MODEL,
     messages,
     max_tokens: 2000,
     temperature: 0.7
-  }, {
-    headers: {
-      'Authorization': `Bearer ${process.env.OPENAI_COMPATIBLE_API_KEY}`,
-      'Content-Type': 'application/json'
-    }
-  });
+  };
 
-  return response.data.choices[0].message.content;
+  // Log the request payload (without image data for brevity)
+  const logPayload = { ...requestPayload };
+  if (hasImages) {
+    logPayload.messages = logPayload.messages.map(msg => ({
+      ...msg,
+      content: Array.isArray(msg.content) 
+        ? msg.content.map(item => {
+            if (item.type === 'image_url') {
+              return { type: 'image_url', image_url: '[IMAGE_DATA]' };
+            } else if (item.type === 'image') {
+              return { type: 'image', source: { type: 'base64', media_type: item.source.media_type, data: '[IMAGE_DATA]' } };
+            }
+            return item;
+          })
+        : msg.content
+    }));
+  }
+  logger.info(`Request payload: ${JSON.stringify(logPayload, null, 2)}`);
+
+  try {
+    const response = await axios.post(`${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`, requestPayload, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_COMPATIBLE_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      timeout: 60000 // 60 second timeout
+    });
+
+    logger.info(`OpenAI compatible API response status: ${response.status}`);
+    return response.data.choices[0].message.content;
+  } catch (error) {
+    // Enhanced error logging
+    if (error.response) {
+      logger.error(`OpenAI compatible API error - Status: ${error.response.status}`);
+      logger.error(`Error data: ${JSON.stringify(error.response.data, null, 2)}`);
+      logger.error(`Error headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+      
+      // Provide more specific error messages based on status code
+      if (error.response.status === 400) {
+        throw new Error(`Bad Request (400): ${error.response.data?.error?.message || 'Invalid request format or parameters'}`);
+      } else if (error.response.status === 401) {
+        throw new Error(`Unauthorized (401): Invalid API key or authentication failed`);
+      } else if (error.response.status === 413) {
+        throw new Error(`Payload Too Large (413): Image or request size exceeds server limits`);
+      } else if (error.response.status === 429) {
+        throw new Error(`Rate Limited (429): Too many requests, please try again later`);
+      } else {
+        throw new Error(`API Error (${error.response.status}): ${error.response.data?.error?.message || error.message}`);
+      }
+    } else if (error.request) {
+      logger.error(`Network error: ${error.message}`);
+      throw new Error(`Network error: Unable to reach OpenAI compatible server`);
+    } else {
+      logger.error(`Request setup error: ${error.message}`);
+      throw new Error(`Request error: ${error.message}`);
+    }
+  }
 }
 
 async function generateJiraContentWithOllama(prompt, images, issueType = "Bug") {
@@ -98,28 +194,119 @@ async function generateJiraContentWithOllama(prompt, images, issueType = "Bug") 
   return response.data?.response;
 }
 
+async function generateJiraContentWithOpenAITextOnly(prompt, images, issueType = "Bug") {
+  const hasImages = images && images.length > 0;
+  const imageReference = hasImages ? "& image" : "";
+  const imageContext = hasImages ? "described in the prompt (note: images were provided but this model doesn't support vision)" : "described in the prompt";
+  
+  let constructedPrompt;
+  
+  switch (issueType) {
+    case "Bug":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — ${imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.`;
+      break;
+    
+    case "Task":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.`;
+      break;
+    
+    case "Story":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.`;
+      break;
+    
+    default:
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: Summary: Short, concise title - max 8 words Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.`;
+  }
+
+  const messages = [
+    {
+      role: "user",
+      content: constructedPrompt
+    }
+  ];
+
+  logger.info(`Making OpenAI compatible API request (text-only) to: ${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`);
+
+  const response = await axios.post(`${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`, {
+    model: process.env.OPENAI_COMPATIBLE_MODEL,
+    messages,
+    max_tokens: 2000,
+    temperature: 0.7
+  }, {
+    headers: {
+      'Authorization': `Bearer ${process.env.OPENAI_COMPATIBLE_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    timeout: 60000
+  });
+
+  return response.data.choices[0].message.content;
+}
+
 async function generateJiraContent(prompt, images, issueType = "Bug") {
   let generatedContent;
   let usedProvider = "unknown";
+  const hasImages = images && images.length > 0;
 
-  try {
-    // Try OpenAI compatible server first
-    logger.info("Attempting to generate content using OpenAI compatible server");
-    generatedContent = await generateJiraContentWithOpenAI(prompt, images, issueType);
-    usedProvider = "OpenAI Compatible";
-    logger.info("Successfully generated content using OpenAI compatible server");
-  } catch (error) {
-    logger.warn(`OpenAI compatible server failed: ${error.message}. Falling back to Ollama.`);
-    
+  // Check if the model likely supports vision based on model name
+  const modelSupportsVision = process.env.OPENAI_COMPATIBLE_MODEL && (
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('vision') ||
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('gpt-4') ||
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('claude-3') ||
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('llava')
+  );
+
+  // If we have images but the model likely doesn't support vision, start with text-only
+  if (hasImages && !modelSupportsVision) {
+    logger.info("Model likely doesn't support vision, starting with text-only mode");
     try {
-      // Fallback to Ollama
+      logger.info("Attempting to generate content using OpenAI compatible server (text-only mode)");
+      generatedContent = await generateJiraContentWithOpenAITextOnly(prompt, images, issueType);
+      usedProvider = "OpenAI Compatible (Text-Only)";
+      logger.info("Successfully generated content using OpenAI compatible server (text-only mode)");
+    } catch (textOnlyError) {
+      logger.warn(`OpenAI compatible server (text-only) failed: ${textOnlyError.message}. Falling back to Ollama.`);
+    }
+  } else {
+    // Try vision mode first if model might support it
+    try {
+      logger.info("Attempting to generate content using OpenAI compatible server");
+      generatedContent = await generateJiraContentWithOpenAI(prompt, images, issueType);
+      usedProvider = "OpenAI Compatible";
+      logger.info("Successfully generated content using OpenAI compatible server");
+    } catch (error) {
+      logger.warn(`OpenAI compatible server failed: ${error.message}`);
+      
+      // If the error suggests vision model issues and we have images, try text-only mode
+      if (hasImages && (
+        error.message.includes('400') || 
+        error.message.includes('image') || 
+        error.message.includes('vision') ||
+        error.message.includes('multimodal') ||
+        error.message.includes('user messages are valid')
+      )) {
+        try {
+          logger.info("Attempting to generate content using OpenAI compatible server (text-only mode)");
+          generatedContent = await generateJiraContentWithOpenAITextOnly(prompt, images, issueType);
+          usedProvider = "OpenAI Compatible (Text-Only)";
+          logger.info("Successfully generated content using OpenAI compatible server (text-only mode)");
+        } catch (textOnlyError) {
+          logger.warn(`OpenAI compatible server (text-only) also failed: ${textOnlyError.message}. Falling back to Ollama.`);
+        }
+      }
+    }
+  }
+  
+  // If still no content, try Ollama
+  if (!generatedContent) {
+    try {
       logger.info("Attempting to generate content using Ollama");
       generatedContent = await generateJiraContentWithOllama(prompt, images, issueType);
       usedProvider = "Ollama";
       logger.info("Successfully generated content using Ollama");
     } catch (ollamaError) {
-      logger.error(`Both providers failed. OpenAI: ${error.message}, Ollama: ${ollamaError.message}`);
-      throw new Error(`Failed to generate content with both providers. OpenAI: ${error.message}, Ollama: ${ollamaError.message}`);
+      logger.error(`All providers failed. Ollama: ${ollamaError.message}`);
+      throw new Error(`Failed to generate content with all providers. Ollama: ${ollamaError.message}`);
     }
   }
 
