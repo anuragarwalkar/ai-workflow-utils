@@ -16,4 +16,7 @@ router.post('/upload', upload.single('file'), jiraController.uploadImage); // Us
 // Example route for fetching a Jira issue by ID
 router.get('/issue/:id', jiraController.getJiraIssue);
 
+// Route for creating pull requests
+router.post('/create-pr', jiraController.createPullRequest);
+
 module.exports = router;

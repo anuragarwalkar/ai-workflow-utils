@@ -7,6 +7,9 @@ const { convertMovToMp4 } = require("../utils/fileUtils");
 
 multer({ dest: "uploads/" }); 
 
+const bitbucketToken = process.env.BITBUCKET_AUTHORIZATION_TOKEN;
+const bitbucketUrl = process.env.BIT_BUCKET_URL;
+
 async function generateJiraContent(prompt, images, issueType = "Bug") {
   const model = "llava";
   const hasImages = images && images.length > 0;
@@ -276,11 +279,103 @@ async function getJiraIssue(req, res) {
   }
 }
 
+async function createPullRequest(req, res) {
+  const { 
+    ticketNumber, 
+    updatedList, 
+    branchName, 
+    projectKey,
+    repoSlug,
+    createPR = true 
+  } = req.body;
+
+  if (!ticketNumber || !updatedList || !branchName || !projectKey || !repoSlug) {
+    return res.status(400).json({ 
+      error: "ticketNumber, updatedList, branchName, projectKey, and repoSlug are required" 
+    });
+  }
+
+  if (!createPR) {
+    return res.status(200).json({ 
+      message: "Skipping pull request creation as requested" 
+    });
+  }
+
+  try {  
+    if (!bitbucketToken) {
+      return res.status(400).json({ 
+        error: "BITBUCKET_AUTHORIZATION_TOKEN environment variable is required" 
+      });
+    }
+
+    const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests`;
+    
+    // Create the pull request payload
+    const prTitle = `feat(CUDI-${ticketNumber}): upgrade ${updatedList}`;
+    const prDescription = `This PR integrates the latest updates for the following packages: ${updatedList}.`;
+
+    const payload = {
+      title: prTitle,
+      description: prDescription,
+      source: {
+        branch: {
+          name: branchName
+        }
+      },
+      destination: {
+        branch: {
+          name: "main"
+        }
+      }
+    };
+
+    const response = await axios.post(url, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${bitbucketToken}`
+      }
+    });
+
+    if (response.status === 201) {
+      logger.info(`Pull request created successfully for ticket CUDI-${ticketNumber}`);
+      res.status(201).json({
+        message: "Pull request created successfully",
+        pullRequest: response.data,
+        prTitle,
+        prDescription
+      });
+    } else {
+      logger.error(`Failed to create pull request: ${response.status}`);
+      res.status(response.status).json({
+        error: "Failed to create pull request",
+        details: response.data
+      });
+    }
+
+  } catch (error) {
+    logger.error(`Error creating pull request: ${error.message}`);
+    
+    if (error.response) {
+      res.status(error.response.status).json({
+        error: "Failed to create pull request",
+        details: error.response.data,
+        status: error.response.status
+      });
+    } else {
+      res.status(500).json({
+        error: "Failed to create pull request",
+        details: error.message
+      });
+    }
+  }
+}
+
 module.exports = {
   previewBugReport,
   createJiraIssue,
   uploadImage,
   getJiraIssue,
   fetchJiraIssue,
-  fetchJiraSummaries
+  fetchJiraSummaries,
+  createPullRequest
 };
