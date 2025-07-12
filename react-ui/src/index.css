@@ -100,3 +100,13 @@ input[type="file"] {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* Blinking cursor animation for streaming */
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
