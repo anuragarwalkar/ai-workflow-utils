@@ -65,7 +65,7 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 - Jira account with API access
 
 ### **AI Providers**
-- **Primary**: OpenAI Compatible API server (e.g., Globant server, OpenAI, Anthropic)
+- **Primary**: OpenAI Compatible API server (e.g., OpenAI, Anthropic)
 - **Fallback**: [Ollama](https://ollama.com/) for local AI processing
   ```bash
   # Install Ollama
