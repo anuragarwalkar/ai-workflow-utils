@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -12,29 +12,95 @@ import {
   Clear as ClearIcon,
   Refresh as RefreshIcon,
   Home as HomeIcon,
+  CallMerge as PullRequestIcon,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearBuildLogs } from '../../store/slices/buildSlice';
 import { setCurrentView } from '../../store/slices/appSlice';
+import { useCreatePullRequestMutation } from '../../store/api/jiraApi';
+import { PR_CONFIG } from '../../private-config';
 import socketService from '../../services/socketService';
 
 const BuildProgress = ({ onReset, onBack }) => {
   const dispatch = useDispatch();
   const logContainerRef = useRef(null);
+  const [prStatus, setPrStatus] = useState(null); // 'creating', 'success', 'error'
+  const [prError, setPrError] = useState(null);
+  const [prData, setPrData] = useState(null);
   
   const { 
     isBuilding, 
     buildLogs, 
     buildStatus, 
-    error 
+    error,
+    buildConfig,
+    branchName
   } = useSelector((state) => state.build);
+  
+  const [createPullRequest] = useCreatePullRequestMutation();
 
   // Auto-scroll to bottom when new logs are added
   useEffect(() => {
     if (logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
+
   }, [buildLogs]);
+
+  // Handle automatic PR creation when build completes successfully
+  useEffect(() => {
+    const shouldCreatePR = 
+      buildStatus === 'success' && 
+      buildConfig?.createPullRequest && 
+      branchName && 
+      buildConfig.ticketNumber && 
+      buildConfig.selectedPackages?.length > 0 &&
+      prStatus !== 'creating' && 
+      prStatus !== 'success';
+
+    if (shouldCreatePR) {
+      handleCreatePullRequest();
+    }
+  }, [buildStatus, buildConfig, branchName, prStatus]);
+
+  const handleCreatePullRequest = async () => {
+    if (!buildConfig || !branchName) {
+      setPrError('Missing build configuration or branch name');
+      return;
+    }
+
+    try {
+      setPrStatus('creating');
+      setPrError(null);
+
+      // Create comma-separated list of package short names
+      const getPackageShortName = (packageName) => {
+        const parts = packageName.split("-");
+        return parts[parts.length - 1];
+      };
+
+      const updatedList = buildConfig.selectedPackages
+        .map(getPackageShortName)
+        .join(', ');
+
+      const result = await createPullRequest({
+        ticketNumber: buildConfig.ticketNumber,
+        updatedList,
+        branchName,
+        projectKey: PR_CONFIG.PROJECT_KEY,
+        repoSlug: PR_CONFIG.REPO_SLUG
+      }).unwrap();
+
+      setPrStatus('success');
+      setPrData(result);
+      console.log('Pull request created successfully:', result);
+
+    } catch (error) {
+      setPrStatus('error');
+      setPrError(error.data?.error || error.message || 'Failed to create pull request');
+      console.error('Failed to create pull request:', error);
+    }
+  };
 
   const handleClearLogs = () => {
     dispatch(clearBuildLogs());
@@ -115,6 +181,75 @@ const BuildProgress = ({ onReset, onBack }) => {
         <Alert severity="error" sx={{ mb: 3 }}>
           {error}
         </Alert>
+      )}
+
+      {/* Pull Request Status */}
+      {buildConfig?.createPullRequest && (
+        <Box sx={{ mb: 3 }}>
+          {prStatus === 'creating' && (
+            <Alert 
+              severity="info" 
+              icon={<CircularProgress size={20} />}
+              sx={{ mb: 2 }}
+            >
+              Creating pull request automatically...
+            </Alert>
+          )}
+          
+          {prStatus === 'success' && prData && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                  Pull request created successfully!
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  Title: {prData.prTitle}
+                </Typography>
+                {prData.pullRequest?.links?.self?.[0]?.href && (
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    <a 
+                      href={prData.pullRequest.links.self[0].href} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ color: 'inherit', textDecoration: 'underline' }}
+                    >
+                      View Pull Request
+                    </a>
+                  </Typography>
+                )}
+              </Box>
+            </Alert>
+          )}
+          
+          {prStatus === 'error' && prError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                  Failed to create pull request
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {prError}
+                </Typography>
+                <Button
+                  size="small"
+                  startIcon={<PullRequestIcon />}
+                  onClick={handleCreatePullRequest}
+                  sx={{ mt: 1 }}
+                  variant="outlined"
+                >
+                  Retry PR Creation
+                </Button>
+              </Box>
+            </Alert>
+          )}
+          
+          {buildStatus === 'success' && !branchName && (
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              Build completed successfully, but branch name was not captured from the build process. 
+              Pull request cannot be created automatically.
+            </Alert>
+          )}
+        </Box>
       )}
 
       <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
@@ -209,11 +344,35 @@ const BuildProgress = ({ onReset, onBack }) => {
       </Paper>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-        <Typography variant="caption" color="text.secondary">
-          WebSocket Status: {socketService.isSocketConnected() ? '🟢 Connected' : '🔴 Disconnected'}
-        </Typography>
+        <Box>
+          <Typography variant="caption" color="text.secondary" display="block">
+            WebSocket Status: {socketService.isSocketConnected() ? '🟢 Connected' : '🔴 Disconnected'}
+          </Typography>
+          {buildConfig?.createPullRequest && (
+            <Typography variant="caption" color="text.secondary" display="block">
+              Branch: {branchName || 'Not captured yet'}
+            </Typography>
+          )}
+        </Box>
         
         <Box sx={{ display: 'flex', gap: 1 }}>
+          {/* Manual PR Creation Button */}
+          {buildConfig?.createPullRequest && 
+           buildStatus === 'success' && 
+           branchName && 
+           prStatus !== 'success' && 
+           prStatus !== 'creating' && (
+            <Button
+              variant="contained"
+              startIcon={<PullRequestIcon />}
+              onClick={handleCreatePullRequest}
+              size="small"
+              color="primary"
+            >
+              Create PR
+            </Button>
+          )}
+          
           {!isBuilding && buildStatus && (
             <Button onClick={onReset} variant="outlined">
               Start New Build

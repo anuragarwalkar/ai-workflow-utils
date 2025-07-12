@@ -88,7 +88,10 @@ const ReleaseBuildContainer = () => {
       }).unwrap();
       
       // Update Redux state
-      dispatch(startBuild({ buildId: result.buildId }));
+      dispatch(startBuild({ 
+        buildId: result.buildId, 
+        buildConfig: buildConfig 
+      }));
       
       // Move to progress step
       setActiveStep(2);

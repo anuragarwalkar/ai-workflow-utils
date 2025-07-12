@@ -7,6 +7,8 @@ const initialState = {
   isModalOpen: false,
   lastBuildId: null,
   error: null,
+  buildConfig: null, // Store build configuration for PR creation
+  branchName: null, // Store branch name from WebSocket
 };
 
 const buildSlice = createSlice({
@@ -18,6 +20,7 @@ const buildSlice = createSlice({
       state.buildLogs = [];
       state.buildStatus = 'start';
       state.lastBuildId = action.payload.buildId;
+      state.buildConfig = action.payload.buildConfig;
       state.error = null;
       state.isModalOpen = true;
     },
@@ -48,11 +51,19 @@ const buildSlice = createSlice({
       state.isModalOpen = false;
       state.lastBuildId = null;
       state.error = null;
+      state.buildConfig = null;
+      state.branchName = null;
     },
     setBuildError: (state, action) => {
       state.error = action.payload;
       state.isBuilding = false;
       state.buildStatus = 'error';
+    },
+    setBranchName: (state, action) => {
+      state.branchName = action.payload;
+    },
+    setBuildConfig: (state, action) => {
+      state.buildConfig = action.payload;
     },
   },
 });
@@ -64,6 +75,8 @@ export const {
   setBuildModalOpen,
   resetBuildState,
   setBuildError,
+  setBranchName,
+  setBuildConfig,
 } = buildSlice.actions;
 
 export default buildSlice.reducer;

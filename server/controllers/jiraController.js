@@ -286,7 +286,6 @@ async function createPullRequest(req, res) {
     branchName, 
     projectKey,
     repoSlug,
-    createPR = true 
   } = req.body;
 
   if (!ticketNumber || !updatedList || !branchName || !projectKey || !repoSlug) {
