@@ -15,7 +15,7 @@ import { showNotification } from '../../../store/slices/uiSlice';
 
 const PreviewSection = () => {
   const dispatch = useDispatch();
-  const { summary, description, imageFile, previewData, isCreating } = useSelector(
+  const { summary, description, imageFile, previewData, isCreating, streamingContent, streamingStatus, isStreaming } = useSelector(
     (state) => state.jira.createJira
   );
 
@@ -72,6 +72,46 @@ const PreviewSection = () => {
   };
 
   const isLoading = isCreating || isCreateLoading || isUploadLoading;
+
+  // Show streaming content if streaming is active
+  if (isStreaming || (streamingContent && !previewData)) {
+    return (
+      <Paper elevation={1} sx={{ p: 3, mt: 3, backgroundColor: 'grey.50' }}>
+        <Stack spacing={3}>
+          <Typography variant="h2" component="h2">
+            Generating Preview...
+          </Typography>
+          
+          {streamingStatus && (
+            <Typography variant="body2" color="primary">
+              Status: {streamingStatus}
+            </Typography>
+          )}
+          
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              p: 2, 
+              backgroundColor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'divider',
+              minHeight: '200px',
+              fontFamily: 'monospace',
+              whiteSpace: 'pre-wrap',
+              overflow: 'auto'
+            }}
+          >
+            {streamingContent || 'Waiting for response...'}
+            {isStreaming && (
+              <Box component="span" sx={{ animation: 'blink 1s infinite' }}>
+                ▋
+              </Box>
+            )}
+          </Paper>
+        </Stack>
+      </Paper>
+    );
+  }
 
   if (!previewData) {
     return null;

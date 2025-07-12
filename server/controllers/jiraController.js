@@ -10,8 +10,7 @@ multer({ dest: "uploads/" });
 const bitbucketToken = process.env.BITBUCKET_AUTHORIZATION_TOKEN;
 const bitbucketUrl = process.env.BIT_BUCKET_URL;
 
-async function generateJiraContent(prompt, images, issueType = "Bug") {
-  const model = "llava";
+async function generateJiraContentWithOpenAI(prompt, images, issueType = "Bug") {
   const hasImages = images && images.length > 0;
   const imageReference = hasImages ? "& image" : "";
   const imageContext = hasImages ? "visible in the image" : "described in the prompt";
@@ -20,46 +19,766 @@ async function generateJiraContent(prompt, images, issueType = "Bug") {
   
   switch (issueType) {
     case "Bug":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: h3. Issue Summary: Anomaly: [ One-line summary of the bug.] h3. Steps to Reproduce: # [Step 1]  # [Step 2]  # [Step 3]  h3. Expected Behavior: * [What should happen.]  h3. Actual Behavior: * [What is happening instead — ${imageContext}.]  h3. Possible Causes: * [List possible reasons — e.g., font rendering, input field style, etc.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — ${imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.`;
       break;
     
     case "Task":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: h3. Task Summary: [ One-line summary of the task.] h3. Description: * [Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Implementation Notes: * [Technical notes or considerations for implementation.]  h3. Dependencies: * [Any dependencies or prerequisites needed.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.`;
       break;
     
     case "Story":
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: h3. Story Summary: [ One-line summary of the user story.] h3. User Story: * As a [user type], I want [functionality] so that [benefit/value].  h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]  h3. Acceptance Criteria: # [Criteria 1]  # [Criteria 2]  # [Criteria 3]  h3. Definition of Done: * [What constitutes completion of this story.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.`;
       break;
     
     default:
-      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: h3. Summary: [ One-line summary.] h3. Description: * [Detailed description based on the ${hasImages ? "image and " : ""}prompt.]`;
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: Summary: Short, concise title - max 8 words Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.`;
   }
 
-  const response = await axios.post("http://localhost:11434/api/generate", {
+  // Prepare messages for OpenAI compatible API
+  let messages;
+  
+  if (hasImages) {
+    // Detect image format and prepare accordingly
+    const imageContent = images.map(image => {
+      // Remove data URL prefix if present to get pure base64
+      let base64Data = image;
+      let mediaType = "image/jpeg";
+      
+      if (image.startsWith('data:')) {
+        const [header, data] = image.split(',');
+        base64Data = data;
+        // Extract media type from data URL
+        const mediaTypeMatch = header.match(/data:([^;]+)/);
+        if (mediaTypeMatch) {
+          mediaType = mediaTypeMatch[1];
+        }
+      } else {
+        // Try to detect image type from base64 header
+        if (image.startsWith('/9j/') || image.startsWith('iVBORw0KGgo')) {
+          mediaType = image.startsWith('/9j/') ? "image/jpeg" : "image/png";
+        }
+      }
+      
+      // Try Claude/Anthropic format first (since the error suggests this)
+      return {
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: mediaType,
+          data: base64Data
+        }
+      };
+    });
+
+    messages = [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: constructedPrompt },
+          ...imageContent
+        ]
+      }
+    ];
+  } else {
+    messages = [
+      {
+        role: "user",
+        content: constructedPrompt
+      }
+    ];
+  }
+
+  // Add error handling and logging for debugging
+  logger.info(`Making OpenAI compatible API request to: ${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`);
+  logger.info(`Using model: ${process.env.OPENAI_COMPATIBLE_MODEL}`);
+  logger.info(`Has images: ${hasImages}, Image count: ${images ? images.length : 0}`);
+
+  const requestPayload = {
+    model: process.env.OPENAI_COMPATIBLE_MODEL,
+    messages,
+    max_tokens: 2000,
+    temperature: 0.7
+  };
+
+  // Log the request payload (without image data for brevity)
+  const logPayload = { ...requestPayload };
+  if (hasImages) {
+    logPayload.messages = logPayload.messages.map(msg => ({
+      ...msg,
+      content: Array.isArray(msg.content) 
+        ? msg.content.map(item => {
+            if (item.type === 'image_url') {
+              return { type: 'image_url', image_url: '[IMAGE_DATA]' };
+            } else if (item.type === 'image') {
+              return { type: 'image', source: { type: 'base64', media_type: item.source.media_type, data: '[IMAGE_DATA]' } };
+            }
+            return item;
+          })
+        : msg.content
+    }));
+  }
+  logger.info(`Request payload: ${JSON.stringify(logPayload, null, 2)}`);
+
+  try {
+    const response = await axios.post(`${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`, requestPayload, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_COMPATIBLE_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      timeout: 60000 // 60 second timeout
+    });
+
+    logger.info(`OpenAI compatible API response status: ${response.status}`);
+    return response.data.choices[0].message.content;
+  } catch (error) {
+    // Enhanced error logging
+    if (error.response) {
+      logger.error(`OpenAI compatible API error - Status: ${error.response.status}`);
+      logger.error(`Error data: ${JSON.stringify(error.response.data, null, 2)}`);
+      logger.error(`Error headers: ${JSON.stringify(error.response.headers, null, 2)}`);
+      
+      // Provide more specific error messages based on status code
+      if (error.response.status === 400) {
+        throw new Error(`Bad Request (400): ${error.response.data?.error?.message || 'Invalid request format or parameters'}`);
+      } else if (error.response.status === 401) {
+        throw new Error(`Unauthorized (401): Invalid API key or authentication failed`);
+      } else if (error.response.status === 413) {
+        throw new Error(`Payload Too Large (413): Image or request size exceeds server limits`);
+      } else if (error.response.status === 429) {
+        throw new Error(`Rate Limited (429): Too many requests, please try again later`);
+      } else {
+        throw new Error(`API Error (${error.response.status}): ${error.response.data?.error?.message || error.message}`);
+      }
+    } else if (error.request) {
+      logger.error(`Network error: ${error.message}`);
+      throw new Error(`Network error: Unable to reach OpenAI compatible server`);
+    } else {
+      logger.error(`Request setup error: ${error.message}`);
+      throw new Error(`Request error: ${error.message}`);
+    }
+  }
+}
+
+async function generateJiraContentWithOllama(prompt, images, issueType = "Bug") {
+  const model = process.env.OLLAMA_MODEL || "llava";
+  const hasImages = images && images.length > 0;
+  const imageReference = hasImages ? "& image" : "";
+  const imageContext = hasImages ? "visible in the image" : "described in the prompt";
+  
+  let constructedPrompt;
+  
+  switch (issueType) {
+    case "Bug":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — ${imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.`;
+      break;
+    
+    case "Task":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.`;
+      break;
+    
+    case "Story":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.`;
+      break;
+    
+    default:
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: Summary: Short, concise title - max 8 words Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.`;
+  }
+
+  const response = await axios.post(`${process.env.OLLAMA_BASE_URL}/api/generate`, {
     model,
     prompt: constructedPrompt,
     images,
     stream: false,
   });
 
-  const generatedContent = response.data?.response;
+  return response.data?.response;
+}
+
+async function generateJiraContentWithOpenAITextOnly(prompt, images, issueType = "Bug") {
+  const hasImages = images && images.length > 0;
+  const imageReference = hasImages ? "& image" : "";
+  const imageContext = hasImages ? "described in the prompt (note: images were provided but this model doesn't support vision)" : "described in the prompt";
+  
+  let constructedPrompt;
+  
+  switch (issueType) {
+    case "Bug":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — ${imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.`;
+      break;
+    
+    case "Task":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.`;
+      break;
+    
+    case "Story":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.`;
+      break;
+    
+    default:
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: Summary: Short, concise title - max 8 words Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.`;
+  }
+
+  const messages = [
+    {
+      role: "user",
+      content: constructedPrompt
+    }
+  ];
+
+  logger.info(`Making OpenAI compatible API request (text-only) to: ${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`);
+
+  const response = await axios.post(`${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`, {
+    model: process.env.OPENAI_COMPATIBLE_MODEL,
+    messages,
+    max_tokens: 2000,
+    temperature: 0.7
+  }, {
+    headers: {
+      'Authorization': `Bearer ${process.env.OPENAI_COMPATIBLE_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    timeout: 60000
+  });
+
+  return response.data.choices[0].message.content;
+}
+
+async function generateJiraContentWithOpenAIStreaming(prompt, images, issueType, res) {
+  const hasImages = images && images.length > 0;
+  const imageReference = hasImages ? "& image" : "";
+  const imageContext = hasImages ? "visible in the image" : "described in the prompt";
+  
+  let constructedPrompt;
+  
+  switch (issueType) {
+    case "Bug":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — ${imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.`;
+      break;
+    
+    case "Task":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.`;
+      break;
+    
+    case "Story":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.`;
+      break;
+    
+    default:
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: Summary: Short, concise title - max 8 words Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.`;
+  }
+
+  // Prepare messages for OpenAI compatible API
+  let messages;
+  
+  if (hasImages) {
+    const imageContent = images.map(image => {
+      let base64Data = image;
+      let mediaType = "image/jpeg";
+      
+      if (image.startsWith('data:')) {
+        const [header, data] = image.split(',');
+        base64Data = data;
+        const mediaTypeMatch = header.match(/data:([^;]+)/);
+        if (mediaTypeMatch) {
+          mediaType = mediaTypeMatch[1];
+        }
+      } else {
+        if (image.startsWith('/9j/') || image.startsWith('iVBORw0KGgo')) {
+          mediaType = image.startsWith('/9j/') ? "image/jpeg" : "image/png";
+        }
+      }
+      
+      return {
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: mediaType,
+          data: base64Data
+        }
+      };
+    });
+
+    messages = [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: constructedPrompt },
+          ...imageContent
+        ]
+      }
+    ];
+  } else {
+    messages = [
+      {
+        role: "user",
+        content: constructedPrompt
+      }
+    ];
+  }
+
+  const requestPayload = {
+    model: process.env.OPENAI_COMPATIBLE_MODEL,
+    messages,
+    max_tokens: 2000,
+    temperature: 0.7,
+    stream: true
+  };
+
+  let fullContent = "";
+
+  try {
+    const response = await axios.post(`${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`, requestPayload, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_COMPATIBLE_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      responseType: 'stream',
+      timeout: 60000
+    });
+
+    return new Promise((resolve, reject) => {
+      response.data.on('data', (chunk) => {
+        const lines = chunk.toString().split('\n').filter(line => line.trim() !== '');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') {
+              resolve(fullContent);
+              return;
+            }
+            
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                fullContent += content;
+                res.write(`data: ${JSON.stringify({
+                  type: 'chunk',
+                  content: content
+                })}\n\n`);
+              }
+            } catch (e) {
+              // Ignore parsing errors for malformed chunks
+            }
+          }
+        }
+      });
+
+      response.data.on('end', () => {
+        resolve(fullContent);
+      });
+
+      response.data.on('error', (error) => {
+        reject(error);
+      });
+    });
+  } catch (error) {
+    logger.error(`OpenAI streaming error: ${error.message}`);
+    throw error;
+  }
+}
+
+async function generateJiraContentWithOpenAIStreamingTextOnly(prompt, images, issueType, res) {
+  const hasImages = images && images.length > 0;
+  const imageReference = hasImages ? "& image" : "";
+  const imageContext = hasImages ? "described in the prompt (note: images were provided but this model doesn't support vision)" : "described in the prompt";
+  
+  let constructedPrompt;
+  
+  switch (issueType) {
+    case "Bug":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — ${imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.`;
+      break;
+    
+    case "Task":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.`;
+      break;
+    
+    case "Story":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.`;
+      break;
+    
+    default:
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: Summary: Short, concise title - max 8 words Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.`;
+  }
+
+  const messages = [
+    {
+      role: "user",
+      content: constructedPrompt
+    }
+  ];
+
+  const requestPayload = {
+    model: process.env.OPENAI_COMPATIBLE_MODEL,
+    messages,
+    max_tokens: 2000,
+    temperature: 0.7,
+    stream: true
+  };
+
+  let fullContent = "";
+
+  try {
+    const response = await axios.post(`${process.env.OPENAI_COMPATIBLE_BASE_URL}/chat/completions`, requestPayload, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_COMPATIBLE_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      responseType: 'stream',
+      timeout: 60000
+    });
+
+    return new Promise((resolve, reject) => {
+      response.data.on('data', (chunk) => {
+        const lines = chunk.toString().split('\n').filter(line => line.trim() !== '');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') {
+              resolve(fullContent);
+              return;
+            }
+            
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                fullContent += content;
+                res.write(`data: ${JSON.stringify({
+                  type: 'chunk',
+                  content: content
+                })}\n\n`);
+              }
+            } catch (e) {
+              // Ignore parsing errors for malformed chunks
+            }
+          }
+        }
+      });
+
+      response.data.on('end', () => {
+        resolve(fullContent);
+      });
+
+      response.data.on('error', (error) => {
+        reject(error);
+      });
+    });
+  } catch (error) {
+    logger.error(`OpenAI text-only streaming error: ${error.message}`);
+    throw error;
+  }
+}
+
+async function generateJiraContentWithOllamaStreaming(prompt, images, issueType, res) {
+  const model = process.env.OLLAMA_MODEL || "llava";
+  const hasImages = images && images.length > 0;
+  const imageReference = hasImages ? "& image" : "";
+  const imageContext = hasImages ? "visible in the image" : "described in the prompt";
+  
+  let constructedPrompt;
+  
+  switch (issueType) {
+    case "Bug":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed bug report for mobile app dont include react native or mobile app in title. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — ${imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.`;
+      break;
+    
+    case "Task":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed task description for mobile app development. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.`;
+      break;
+    
+    case "Story":
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed user story for mobile app. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.`;
+      break;
+    
+    default:
+      constructedPrompt = `${prompt} - Based on the prompt ${imageReference}, generate a detailed description. Format your output like this: Summary: Short, concise title - max 8 words Description: * Detailed description based on the ${hasImages ? "image and " : ""}prompt.`;
+  }
+
+  let fullContent = "";
+
+  try {
+    const response = await axios.post(`${process.env.OLLAMA_BASE_URL}/api/generate`, {
+      model,
+      prompt: constructedPrompt,
+      images,
+      stream: true,
+    }, {
+      responseType: 'stream'
+    });
+
+    return new Promise((resolve, reject) => {
+      response.data.on('data', (chunk) => {
+        const lines = chunk.toString().split('\n').filter(line => line.trim() !== '');
+        
+        for (const line of lines) {
+          try {
+            const parsed = JSON.parse(line);
+            if (parsed.response) {
+              fullContent += parsed.response;
+              res.write(`data: ${JSON.stringify({
+                type: 'chunk',
+                content: parsed.response
+              })}\n\n`);
+            }
+            if (parsed.done) {
+              resolve(fullContent);
+              return;
+            }
+          } catch (e) {
+            // Ignore parsing errors for malformed chunks
+          }
+        }
+      });
+
+      response.data.on('end', () => {
+        resolve(fullContent);
+      });
+
+      response.data.on('error', (error) => {
+        reject(error);
+      });
+    });
+  } catch (error) {
+    logger.error(`Ollama streaming error: ${error.message}`);
+    throw error;
+  }
+}
+
+async function generateJiraContentStreaming(prompt, images, issueType, res) {
+  const hasImages = images && images.length > 0;
+  let usedProvider = "unknown";
+  let fullContent = "";
+
+  // Check if the model likely supports vision based on model name
+  const modelSupportsVision = process.env.OPENAI_COMPATIBLE_MODEL && (
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('vision') ||
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('gpt-4') ||
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('claude-3') ||
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('llava')
+  );
+
+  // Send initial status
+  res.write(`data: ${JSON.stringify({
+    type: 'status',
+    message: 'Starting content generation...',
+    provider: 'Initializing'
+  })}\n\n`);
+
+  // If we have images but the model likely doesn't support vision, start with text-only
+  if (hasImages && !modelSupportsVision) {
+    logger.info("Model likely doesn't support vision, starting with text-only mode");
+    try {
+      logger.info("Attempting to generate content using OpenAI compatible server (text-only mode)");
+      res.write(`data: ${JSON.stringify({
+        type: 'status',
+        message: 'Using OpenAI Compatible (Text-Only)...',
+        provider: 'OpenAI Compatible (Text-Only)'
+      })}\n\n`);
+      
+      fullContent = await generateJiraContentWithOpenAIStreamingTextOnly(prompt, images, issueType, res);
+      usedProvider = "OpenAI Compatible (Text-Only)";
+      logger.info("Successfully generated content using OpenAI compatible server (text-only mode)");
+    } catch (textOnlyError) {
+      logger.warn(`OpenAI compatible server (text-only) failed: ${textOnlyError.message}. Falling back to Ollama.`);
+      res.write(`data: ${JSON.stringify({
+        type: 'status',
+        message: 'OpenAI failed, trying Ollama...',
+        provider: 'Ollama'
+      })}\n\n`);
+      fullContent = await generateJiraContentWithOllamaStreaming(prompt, images, issueType, res);
+      usedProvider = "Ollama";
+    }
+  } else {
+    // Try vision mode first if model might support it
+    try {
+      logger.info("Attempting to generate content using OpenAI compatible server");
+      res.write(`data: ${JSON.stringify({
+        type: 'status',
+        message: 'Using OpenAI Compatible...',
+        provider: 'OpenAI Compatible'
+      })}\n\n`);
+      
+      fullContent = await generateJiraContentWithOpenAIStreaming(prompt, images, issueType, res);
+      usedProvider = "OpenAI Compatible";
+      logger.info("Successfully generated content using OpenAI compatible server");
+    } catch (error) {
+      logger.warn(`OpenAI compatible server failed: ${error.message}`);
+      
+      // If the error suggests vision model issues and we have images, try text-only mode
+      if (hasImages && (
+        error.message.includes('400') || 
+        error.message.includes('image') || 
+        error.message.includes('vision') ||
+        error.message.includes('multimodal') ||
+        error.message.includes('user messages are valid')
+      )) {
+        try {
+          logger.info("Attempting to generate content using OpenAI compatible server (text-only mode)");
+          res.write(`data: ${JSON.stringify({
+            type: 'status',
+            message: 'Switching to text-only mode...',
+            provider: 'OpenAI Compatible (Text-Only)'
+          })}\n\n`);
+          
+          fullContent = await generateJiraContentWithOpenAIStreamingTextOnly(prompt, images, issueType, res);
+          usedProvider = "OpenAI Compatible (Text-Only)";
+          logger.info("Successfully generated content using OpenAI compatible server (text-only mode)");
+        } catch (textOnlyError) {
+          logger.warn(`OpenAI compatible server (text-only) also failed: ${textOnlyError.message}. Falling back to Ollama.`);
+          res.write(`data: ${JSON.stringify({
+            type: 'status',
+            message: 'OpenAI failed, trying Ollama...',
+            provider: 'Ollama'
+          })}\n\n`);
+          fullContent = await generateJiraContentWithOllamaStreaming(prompt, images, issueType, res);
+          usedProvider = "Ollama";
+        }
+      } else {
+        res.write(`data: ${JSON.stringify({
+          type: 'status',
+          message: 'OpenAI failed, trying Ollama...',
+          provider: 'Ollama'
+        })}\n\n`);
+        fullContent = await generateJiraContentWithOllamaStreaming(prompt, images, issueType, res);
+        usedProvider = "Ollama";
+      }
+    }
+  }
+
+  if (!fullContent) {
+    throw new Error("Invalid response structure from AI provider");
+  }
+
+  // Parse the final content
+  const summaryMatch = fullContent.match(
+    /(?:h3\. (?:Issue Summary|Task Summary|Story Summary|Summary):|(?:Issue Summary|Task Summary|Story Summary|Summary):)\s*(.+)/
+  );
+  let summary = summaryMatch?.[1]?.trim();
+  
+  // Clean up any remaining brackets from the summary
+  if (summary) {
+    summary = summary.replace(/^\[|\]$/g, '').trim();
+  }
+  
+  let description = fullContent
+    .replace(/(?:h3\. (?:Issue Summary|Task Summary|Story Summary|Summary):|(?:Issue Summary|Task Summary|Story Summary|Summary):)\s*.+/, "")
+    .trim();
+  
+  // Clean up any remaining h3. formatting from the description
+  if (description) {
+    description = description.replace(/h3\.\s*/g, '').trim();
+  }
+
+  // Send final result
+  res.write(`data: ${JSON.stringify({
+    type: 'complete',
+    message: `${issueType} preview generated successfully`,
+    bugReport: fullContent,
+    summary: summary || `${issueType}: Summary not available`,
+    description: description || "Description not available",
+    provider: usedProvider,
+  })}\n\n`);
+}
+
+async function generateJiraContent(prompt, images, issueType = "Bug") {
+  let generatedContent;
+  let usedProvider = "unknown";
+  const hasImages = images && images.length > 0;
+
+  // Check if the model likely supports vision based on model name
+  const modelSupportsVision = process.env.OPENAI_COMPATIBLE_MODEL && (
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('vision') ||
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('gpt-4') ||
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('claude-3') ||
+    process.env.OPENAI_COMPATIBLE_MODEL.includes('llava')
+  );
+
+  // If we have images but the model likely doesn't support vision, start with text-only
+  if (hasImages && !modelSupportsVision) {
+    logger.info("Model likely doesn't support vision, starting with text-only mode");
+    try {
+      logger.info("Attempting to generate content using OpenAI compatible server (text-only mode)");
+      generatedContent = await generateJiraContentWithOpenAITextOnly(prompt, images, issueType);
+      usedProvider = "OpenAI Compatible (Text-Only)";
+      logger.info("Successfully generated content using OpenAI compatible server (text-only mode)");
+    } catch (textOnlyError) {
+      logger.warn(`OpenAI compatible server (text-only) failed: ${textOnlyError.message}. Falling back to Ollama.`);
+    }
+  } else {
+    // Try vision mode first if model might support it
+    try {
+      logger.info("Attempting to generate content using OpenAI compatible server");
+      generatedContent = await generateJiraContentWithOpenAI(prompt, images, issueType);
+      usedProvider = "OpenAI Compatible";
+      logger.info("Successfully generated content using OpenAI compatible server");
+    } catch (error) {
+      logger.warn(`OpenAI compatible server failed: ${error.message}`);
+      
+      // If the error suggests vision model issues and we have images, try text-only mode
+      if (hasImages && (
+        error.message.includes('400') || 
+        error.message.includes('image') || 
+        error.message.includes('vision') ||
+        error.message.includes('multimodal') ||
+        error.message.includes('user messages are valid')
+      )) {
+        try {
+          logger.info("Attempting to generate content using OpenAI compatible server (text-only mode)");
+          generatedContent = await generateJiraContentWithOpenAITextOnly(prompt, images, issueType);
+          usedProvider = "OpenAI Compatible (Text-Only)";
+          logger.info("Successfully generated content using OpenAI compatible server (text-only mode)");
+        } catch (textOnlyError) {
+          logger.warn(`OpenAI compatible server (text-only) also failed: ${textOnlyError.message}. Falling back to Ollama.`);
+        }
+      }
+    }
+  }
+  
+  // If still no content, try Ollama
+  if (!generatedContent) {
+    try {
+      logger.info("Attempting to generate content using Ollama");
+      generatedContent = await generateJiraContentWithOllama(prompt, images, issueType);
+      usedProvider = "Ollama";
+      logger.info("Successfully generated content using Ollama");
+    } catch (ollamaError) {
+      logger.error(`All providers failed. Ollama: ${ollamaError.message}`);
+      throw new Error(`Failed to generate content with all providers. Ollama: ${ollamaError.message}`);
+    }
+  }
 
   if (!generatedContent) {
-    throw new Error("Invalid response structure from external API");
+    throw new Error("Invalid response structure from AI provider");
   }
 
   const summaryMatch = generatedContent.match(
     /(?:h3\. (?:Issue Summary|Task Summary|Story Summary|Summary):|(?:Issue Summary|Task Summary|Story Summary|Summary):)\s*(.+)/
   );
-  const summary = summaryMatch?.[1]?.trim();
-  const description = generatedContent
+  let summary = summaryMatch?.[1]?.trim();
+  
+  // Clean up any remaining brackets from the summary
+  if (summary) {
+    summary = summary.replace(/^\[|\]$/g, '').trim();
+  }
+  
+  let description = generatedContent
     .replace(/(?:h3\. (?:Issue Summary|Task Summary|Story Summary|Summary):|(?:Issue Summary|Task Summary|Story Summary|Summary):)\s*.+/, "")
     .trim();
+  
+  // Clean up any remaining h3. formatting from the description
+  if (description) {
+    description = description.replace(/h3\.\s*/g, '').trim();
+  }
 
   return {
     summary: summary || `${issueType}: Summary not available`,
     description: description || "Description not available",
     bugReport: generatedContent,
+    provider: usedProvider,
   };
 }
 
@@ -70,27 +789,27 @@ async function previewBugReport(req, res) {
     return res.status(400).json({ error: "Invalid request payload" });
   }
 
+  // Set up Server-Sent Events headers
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Cache-Control'
+  });
+
   try {
-    const { summary, description, bugReport } = await generateJiraContent(
-      prompt,
-      images,
-      issueType
-    );
-    res.status(200).json({
-      message: `${issueType} preview generated successfully`,
-      bugReport,
-      summary,
-      description,
-    });
+    await generateJiraContentStreaming(prompt, images, issueType, res);
   } catch (error) {
     logger.error(`Error generating ${issueType} preview: ${error.message}`);
-    res
-      .status(500)
-      .json({
-        error: `Failed to generate ${issueType} preview`,
-        details: error.message,
-      });
+    res.write(`data: ${JSON.stringify({
+      type: 'error',
+      error: `Failed to generate ${issueType} preview`,
+      details: error.message
+    })}\n\n`);
   }
+  
+  res.end();
 }
 
 async function createJiraIssue(req, res) {
@@ -286,7 +1005,6 @@ async function createPullRequest(req, res) {
     branchName, 
     projectKey,
     repoSlug,
-    createPR = true 
   } = req.body;
 
   if (!ticketNumber || !updatedList || !branchName || !projectKey || !repoSlug) {

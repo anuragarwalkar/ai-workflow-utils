@@ -15,9 +15,9 @@ import {
 import { CloudUpload } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { setPrompt, setImageFile, setIssueType, setPriority } from '../../../store/slices/jiraSlice';
-import { usePreviewJiraMutation } from '../../../store/api/jiraApi';
+import { usePreviewJiraStreamingMutation } from '../../../store/api/jiraApi';
 import { showNotification } from '../../../store/slices/uiSlice';
-import { setPreviewData } from '../../../store/slices/jiraSlice';
+import { setPreviewData, setStreamingContent, setStreamingStatus, setStreaming } from '../../../store/slices/jiraSlice';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -33,11 +33,11 @@ const VisuallyHiddenInput = styled('input')({
 
 const JiraForm = () => {
   const dispatch = useDispatch();
-  const { prompt, imageFile, issueType, priority, isPreviewLoading } = useSelector(
+  const { prompt, imageFile, issueType, priority, isPreviewLoading, isStreaming } = useSelector(
     (state) => state.jira.createJira
   );
   
-  const [previewJira, { isLoading: isPreviewMutationLoading }] = usePreviewJiraMutation();
+  const [previewJiraStreaming] = usePreviewJiraStreamingMutation();
 
   // Check URL params for prompt on component mount
   useEffect(() => {
@@ -73,34 +73,52 @@ const JiraForm = () => {
     url.searchParams.set('prompt', encodeURIComponent(prompt));
     window.history.replaceState({}, '', url);
 
+    // Reset streaming content
+    dispatch(setStreamingContent(''));
+    dispatch(setStreamingStatus(''));
+    dispatch(setStreaming(true));
+
+    const handleStreamingRequest = async (images) => {
+      try {
+        const result = await previewJiraStreaming({
+          prompt,
+          images,
+          issueType,
+          onChunk: (chunk, fullContent) => {
+            dispatch(setStreamingContent(fullContent));
+          },
+          onStatus: (status, provider) => {
+            dispatch(setStreamingStatus(`${status} (${provider})`));
+          }
+        }).unwrap();
+
+        dispatch(setStreaming(false));
+        // The streaming result has the data directly, not nested under .data
+        dispatch(setPreviewData(result));
+        dispatch(showNotification({
+          message: 'Preview generated successfully!',
+          severity: 'success'
+        }));
+      } catch (error) {
+        dispatch(setStreaming(false));
+        console.error('Preview error:', error);
+        dispatch(showNotification({
+          message: `Error: ${error.error || error.message}`,
+          severity: 'error'
+        }));
+      }
+    };
+
     if (imageFile) {
       // Convert file to base64 if image is provided
       const reader = new FileReader();
       reader.onload = async () => {
         const base64Image = reader.result.split(',')[1];
-
-        try {
-          const result = await previewJira({
-            prompt,
-            images: [base64Image],
-            issueType
-          }).unwrap();
-
-          dispatch(setPreviewData(result));
-          dispatch(showNotification({
-            message: 'Preview generated successfully!',
-            severity: 'success'
-          }));
-        } catch (error) {
-          console.error('Preview error:', error);
-          dispatch(showNotification({
-            message: `Error: ${error.data || error.message}`,
-            severity: 'error'
-          }));
-        }
+        await handleStreamingRequest([base64Image]);
       };
 
       reader.onerror = () => {
+        dispatch(setStreaming(false));
         dispatch(showNotification({
           message: 'Failed to read the file. Please try again.',
           severity: 'error'
@@ -110,29 +128,11 @@ const JiraForm = () => {
       reader.readAsDataURL(imageFile);
     } else {
       // Generate preview without image
-      try {
-        const result = await previewJira({
-          prompt,
-          images: [],
-          issueType
-        }).unwrap();
-
-        dispatch(setPreviewData(result));
-        dispatch(showNotification({
-          message: 'Preview generated successfully!',
-          severity: 'success'
-        }));
-      } catch (error) {
-        console.error('Preview error:', error);
-        dispatch(showNotification({
-          message: `Error: ${error.data || error.message}`,
-          severity: 'error'
-        }));
-      }
+      await handleStreamingRequest([]);
     }
   };
 
-  const isLoading = isPreviewLoading || isPreviewMutationLoading;
+  const isLoading = isPreviewLoading || isStreaming;
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>

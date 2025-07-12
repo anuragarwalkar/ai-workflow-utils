@@ -82,14 +82,14 @@ const HomeButtons = () => {
   ];
 
   return (
-    <Box sx={{ py: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-      <Grid container spacing={3} sx={{ maxWidth: 900, mx: 'auto', justifyContent: 'center' }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', flex: 1 }}>
+      <Grid container spacing={2} sx={{ maxWidth: 800, mx: 'auto', justifyContent: 'center', alignItems: 'center' }}>
         {actionCards.map((card, index) => {
           const IconComponent = card.icon;
           const ActionIconComponent = card.actionIcon;
           
           return (
-            <Grid item xs={12} md={4} key={index}>
+            <Grid item xs={12} sm={6} key={index}>
               <Card
                 sx={{
                   height: '100%',

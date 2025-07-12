@@ -1,7 +1,6 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box, IconButton, Avatar } from '@mui/material';
+import { Typography, Box, Avatar } from '@mui/material';
 import { 
-  Home as HomeIcon, 
   Psychology as PsychologyIcon,
   AutoAwesome as AutoAwesomeIcon 
 } from '@mui/icons-material';
@@ -22,71 +21,81 @@ const Header = () => {
   };
 
   return (
-    <AppBar 
-      position="static" 
-      elevation={0}
+    <Box
       sx={{
-        background: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '60px',
+        py: 1,
+        mb: 2,
       }}
     >
-      <Toolbar sx={{ minHeight: '80px' }}>
-        <Box
-          onClick={handleLogoClick}
+      <Box
+        onClick={handleLogoClick}
+        sx={{
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          px: 4,
+          py: 2,
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          borderRadius: '16px',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            background: 'rgba(255, 255, 255, 0.15)',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
+          },
+        }}
+      >
+        <Avatar
           sx={{
-            cursor: 'pointer',
-            flexGrow: 1,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 2,
+            width: 48,
+            height: 48,
+            background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+            boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
+            border: '2px solid rgba(255, 255, 255, 0.3)',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              transform: 'scale(1.1) rotate(5deg)',
+              boxShadow: '0 6px 25px rgba(102, 126, 234, 0.6)',
+            },
           }}
         >
-          <Avatar
-            sx={{
-              width: 48,
-              height: 48,
-              background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
-              boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
-              border: '2px solid rgba(255, 255, 255, 0.3)',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'scale(1.1) rotate(5deg)',
-                boxShadow: '0 6px 25px rgba(102, 126, 234, 0.6)',
-              },
-            }}
-          >
-            <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <PsychologyIcon sx={{ fontSize: 24, color: 'white' }} />
-              <AutoAwesomeIcon 
-                sx={{ 
-                  fontSize: 12, 
-                  color: '#f093fb', 
-                  position: 'absolute', 
-                  top: -2, 
-                  right: -2,
-                  animation: 'pulse 2s infinite',
-                }} 
-              />
-            </Box>
-          </Avatar>
-          <Typography 
-            variant="h4" 
-            component="h1" 
-            sx={{ 
-              color: 'white',
-              fontWeight: 700,
-              letterSpacing: '1px',
-              textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
-              fontSize: { xs: '1.5rem', md: '2rem' },
-            }}
-          >
-            AI Workflow Utils
-          </Typography>
-        </Box>
-      </Toolbar>
-    </AppBar>
+          <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <PsychologyIcon sx={{ fontSize: 24, color: 'white' }} />
+            <AutoAwesomeIcon 
+              sx={{ 
+                fontSize: 12, 
+                color: '#f093fb', 
+                position: 'absolute', 
+                top: -2, 
+                right: -2,
+                animation: 'pulse 2s infinite',
+              }} 
+            />
+          </Box>
+        </Avatar>
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          sx={{ 
+            color: 'white',
+            fontWeight: 700,
+            letterSpacing: '1px',
+            textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
+            fontSize: { xs: '1.5rem', md: '2rem' },
+          }}
+        >
+          AI Workflow Utils
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 

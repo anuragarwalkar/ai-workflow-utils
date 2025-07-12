@@ -11,6 +11,9 @@ const initialState = {
     priority: 'Medium',
     isCreating: false,
     isPreviewLoading: false,
+    streamingContent: '',
+    streamingStatus: '',
+    isStreaming: false,
   },
   viewJira: {
     jiraId: '',
@@ -57,6 +60,15 @@ const jiraSlice = createSlice({
     setCreating: (state, action) => {
       state.createJira.isCreating = action.payload;
     },
+    setStreamingContent: (state, action) => {
+      state.createJira.streamingContent = action.payload;
+    },
+    setStreamingStatus: (state, action) => {
+      state.createJira.streamingStatus = action.payload;
+    },
+    setStreaming: (state, action) => {
+      state.createJira.isStreaming = action.payload;
+    },
     resetCreateJira: (state) => {
       state.createJira = initialState.createJira;
     },
@@ -93,6 +105,9 @@ export const {
   setPriority,
   setPreviewLoading,
   setCreating,
+  setStreamingContent,
+  setStreamingStatus,
+  setStreaming,
   resetCreateJira,
   setJiraId,
   setJiraDetails,
