@@ -1,5 +1,11 @@
 # ai-workflow-utils
 
+<img width="1512" height="777" alt="image" src="https://github.com/user-attachments/assets/ed5e180a-da5b-4856-b984-e3c9c1bd58e4" />
+<img width="1510" height="780" alt="image" src="https://github.com/user-attachments/assets/95ced2b4-d64b-4a5e-84d0-92362b414ea2" />
+<img width="1511" height="778" alt="image" src="https://github.com/user-attachments/assets/134b3acd-7ff4-43b5-9397-2f4811be446c" />
+<img width="1512" height="774" alt="image" src="https://github.com/user-attachments/assets/909afe74-5348-4c6b-82f0-e7ff0bc60cf2" />
+<img width="1511" height="780" alt="image" src="https://github.com/user-attachments/assets/6781d64d-542d-4253-8e5b-00c10b436c7c" />
+
 This application automates the process of creating Jira tickets, adding attachments, and viewing Jira tickets.
 
 ## Prerequisites
