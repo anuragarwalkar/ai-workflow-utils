@@ -25,7 +25,7 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(path.join(__dirname, '../ui_backup'))); // Serve static files from UI folder
+app.use(express.static(path.join(__dirname, '../react-ui/dist'))); // Serve static files from UI folder
 
 // Import routes
 const jiraRoutes = require('./routes/jiraRoutes');
