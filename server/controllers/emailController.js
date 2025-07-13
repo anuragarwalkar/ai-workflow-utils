@@ -4,7 +4,7 @@ import { sendNotification } from './email.js';
 import { fetchAndMergeJiraSummary } from './featchAndMergeJiraSummary.js';
 import logger from "../logger.js";
 
-export async function sendEmail(req, res) {
+async function sendEmailController(req, res) {
   const releaseNoteURL = process.env.WIKI_URL;
   const { version, dryRun = 'false'} = req.query;
   
@@ -38,3 +38,5 @@ export async function sendEmail(req, res) {
 
   res.status(200).send(emailBodyRes);
 }
+
+export default sendEmailController;

@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { API_BASE_URL } from '../../config/environment.js';
 
 export const emailApi = createApi({
   reducerPath: 'emailApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3000/api/email',
+    baseUrl: `${API_BASE_URL}/api/email`,
     responseHandler: (response) => response.text(),
   }),
   tagTypes: ['Email'],

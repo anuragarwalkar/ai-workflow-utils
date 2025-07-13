@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { API_BASE_URL } from '../../config/environment.js';
 
 export const jiraApi = createApi({
   reducerPath: 'jiraApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3000/api',
+    baseUrl: `${API_BASE_URL}/api/jira`,
   }),
   tagTypes: ['Jira'],
   endpoints: (builder) => ({
@@ -18,7 +19,7 @@ export const jiraApi = createApi({
       queryFn: async ({ prompt, images, issueType, onChunk, onStatus }, { signal }) => {
         try {
           // Use a more RTK Query-like approach while maintaining streaming capability
-          const baseUrl = 'http://localhost:3000/api';
+          const baseUrl = `${API_BASE_URL}/api/jira`;
           const url = `${baseUrl}/preview`;
           
           const response = await fetch(url, {

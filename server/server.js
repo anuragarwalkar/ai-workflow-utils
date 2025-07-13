@@ -73,7 +73,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api', jiraRoutes);
+app.use('/api/jira', jiraRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/build', buildRoutes(io));
 

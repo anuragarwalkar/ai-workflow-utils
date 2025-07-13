@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
 import store from '../store';
 import { addBuildLog, setBuildError, setBranchName } from '../store/slices/buildSlice';
+import { API_BASE_URL } from '../config/environment.js';
 
 class SocketService {
   constructor() {
@@ -13,7 +14,7 @@ class SocketService {
       return this.socket;
     }
 
-    this.socket = io('http://localhost:3000', {
+    this.socket = io(API_BASE_URL, {
       transports: ['websocket', 'polling'],
       timeout: 20000,
     });
