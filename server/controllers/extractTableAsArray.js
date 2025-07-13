@@ -1,7 +1,6 @@
-const path = require("path");
-const { JSDOM } = require("jsdom");
+import {JSDOM} from 'jsdom';
 
-async function extractTableAsArray(htmlString, buildNumber) {
+export async function extractTableAsArray(htmlString, buildNumber) {
   const dom = new JSDOM(htmlString);
   const document = dom.window.document;
 
@@ -43,7 +42,3 @@ async function extractTableAsArray(htmlString, buildNumber) {
 
   return filteredData;
 }
-
-module.exports = {
-  extractTableAsArray,
-};

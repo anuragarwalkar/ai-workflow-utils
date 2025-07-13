@@ -1,5 +1,5 @@
-const fs = require('fs');
-const ffmpeg = require('fluent-ffmpeg');
+import fs from 'fs';
+import ffmpeg from 'fluent-ffmpeg';
 
 /**
  * Converts a .mov file to .mp4 if necessary.
@@ -7,7 +7,7 @@ const ffmpeg = require('fluent-ffmpeg');
  * @param {string} fileName - The name of the file.
  * @returns {Promise<{filePath: string, fileName: string}>} - The updated file path and name.
  */
-async function convertMovToMp4(filePath, fileName) {
+export async function convertMovToMp4(filePath, fileName) {
     if (!fileName.toLowerCase().endsWith('.mov')) {
         // Return the original file path and name for non-.mov files
         return { filePath, fileName };
@@ -26,4 +26,3 @@ async function convertMovToMp4(filePath, fileName) {
     return { filePath: convertedFilePath, fileName: fileName.replace(/\.mov$/i, '.mp4') };
 }
 
-module.exports = { convertMovToMp4 };

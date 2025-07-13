@@ -16,4 +16,4 @@ node_modules/
 
 scripts/
 
-# react-ui/src/private-config/
+dist/

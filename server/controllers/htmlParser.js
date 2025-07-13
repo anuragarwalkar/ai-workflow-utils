@@ -101,7 +101,7 @@ function getTimeBasedGreeting() {
   }
 }
 
-const emailBody = (tableData, { version, releaseNoteURL }) => `
+export const emailBody = (tableData, { version, releaseNoteURL }) => `
   <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #000;">
     <p>${getTimeBasedGreeting()}</p>
     <p>We’re pleased to share the latest update from our mobile app QA build. Please find the details below:</p>
@@ -120,7 +120,3 @@ const emailBody = (tableData, { version, releaseNoteURL }) => `
     <p>Regards,<br/>Anurag</p>
   </div>
 `;
-
-module.exports = {
-   emailBody
-}

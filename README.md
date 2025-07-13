@@ -44,12 +44,16 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 - **Real-time Updates**: WebSocket integration for live updates
 - **Streaming Support**: Custom streaming implementation for real-time AI responses
 
-### **Backend (Node.js + Express)**
+### **Backend (Node.js + Express + Webpack)**
+- **Modern Express Framework**: Latest Express.js with ES6 modules
+- **Webpack Build System**: ES6 import/export syntax with Babel transpilation
 - **RESTful API**: Clean, well-documented API endpoints
 - **Streaming Support**: Server-Sent Events (SSE) for real-time data streaming
 - **File Processing**: Advanced file handling with format conversion
 - **Error Handling**: Comprehensive error handling and logging
-- **Modular Architecture**: Clean separation of concerns
+- **Modular Architecture**: Clean separation of concerns with middleware patterns
+- **Rate Limiting**: Built-in request rate limiting for security
+- **Request Logging**: Comprehensive request/response logging
 
 ### **AI Integration**
 - **Multi-Provider Support**: OpenAI Compatible APIs + Ollama
@@ -119,16 +123,22 @@ SMTP_USER=your-email@company.com
 SMTP_PASS=your-email-password
 ```
 
-### 4. **Start the Application**
+### 4. **Build and Start the Application**
 ```bash
-# Start backend server
-npm run server
+# Build the backend with webpack (ES6 modules)
+npm run build-server
+
+# Start backend server (from built files)
+npm run start-server
+
+# For development with auto-rebuild
+npm run dev-server
 
 # Start frontend (in another terminal)
-npm run client
+npm run dev
 
-# Or start both concurrently
-npm start
+# Build everything for production
+npm run build-all
 ```
 
 ### 5. **Setup Ollama (Fallback AI)**
