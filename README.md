@@ -47,13 +47,14 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 ### **Backend (Node.js + Express + Webpack)**
 - **Modern Express Framework**: Latest Express.js with ES6 modules
 - **Webpack Build System**: ES6 import/export syntax with Babel transpilation
-- **RESTful API**: Clean, well-documented API endpoints
+- **RESTful API**: Clean, well-documented API endpoints with proper namespacing
 - **Streaming Support**: Server-Sent Events (SSE) for real-time data streaming
 - **File Processing**: Advanced file handling with format conversion
 - **Error Handling**: Comprehensive error handling and logging
 - **Modular Architecture**: Clean separation of concerns with middleware patterns
 - **Rate Limiting**: Built-in request rate limiting for security
 - **Request Logging**: Comprehensive request/response logging
+- **Centralized Configuration**: Environment variables managed through centralized config files
 
 ### **AI Integration**
 - **Multi-Provider Support**: OpenAI Compatible APIs + Ollama
@@ -98,6 +99,8 @@ cp react-ui/.env.example react-ui/.env
 ```
 
 ### 3. **Configure Environment Variables**
+
+**Server Configuration (.env):**
 ```env
 # Jira Configuration
 JIRA_URL=https://your-company.atlassian.net
@@ -121,6 +124,22 @@ SMTP_HOST=smtp.your-company.com
 SMTP_PORT=587
 SMTP_USER=your-email@company.com
 SMTP_PASS=your-email-password
+
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+```
+
+**Client Configuration (react-ui/.env):**
+```env
+# API Base URL for client-side requests
+VITE_API_BASE_URL=http://localhost:3000
+
+# Pull Request Configuration
+VITE_PR_CREATION_REPO_KEY=your-repo-key
+VITE_PR_CREATION_REPO_SLUG=your-repo-slug
+VITE_GIT_REPOS=example-1,example-2
 ```
 
 ### 4. **Build and Start the Application**
@@ -233,28 +252,379 @@ The application uses Server-Sent Events (SSE) for real-time streaming:
 
 ## 🔌 API Reference
 
-### **Jira Endpoints**
+### **Base URL**
 ```
-POST /api/preview          # Generate Jira content (streaming)
-POST /api/generate         # Create Jira issue
-POST /api/upload           # Upload attachments
-GET  /api/issue/:id        # Fetch Jira issue
-POST /api/create-pr        # Create pull request
+http://localhost:3000
 ```
 
-### **Build Endpoints**
-```
-POST /api/build/start      # Start build process
-GET  /api/build/status     # Get build status
-POST /api/build/deploy     # Deploy build
+---
+
+## **Jira Endpoints**
+
+### **POST** `/api/jira/preview`
+Generate Jira content with real-time streaming
+
+**Request Body:**
+```json
+{
+  "prompt": "string (required) - Description of the issue or task",
+  "images": ["string"] (optional) - Array of base64 encoded images,
+  "issueType": "string (optional) - Bug|Task|Story (default: Bug)"
+}
 ```
 
-### **Email Endpoints**
+**Response:** Server-Sent Events (SSE)
 ```
-POST /api/email/send       # Send email
-GET  /api/email/templates  # Get email templates
-POST /api/email/generate   # Generate email content
+Content-Type: text/event-stream
+
+data: {"type": "status", "message": "Starting content generation...", "provider": "OpenAI Compatible"}
+
+data: {"type": "chunk", "content": "Issue Summary: Login button not working"}
+
+data: {"type": "complete", "bugReport": "...", "summary": "...", "description": "...", "provider": "OpenAI Compatible"}
 ```
+
+**Example:**
+```bash
+curl -X POST http://localhost:3000/api/jira/preview \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "Login button is not responding when clicked",
+    "issueType": "Bug"
+  }'
+```
+
+---
+
+### **POST** `/api/jira/generate`
+Create a new Jira issue
+
+**Request Body:**
+```json
+{
+  "summary": "string (required) - Issue title",
+  "description": "string (required) - Issue description",
+  "issueType": "string (optional) - Task|Bug|Story (default: Task)",
+  "priority": "string (optional) - Low|Medium|High|Critical (default: Medium)"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Jira issue created successfully",
+  "jiraIssue": {
+    "id": "12345",
+    "key": "CUDI-123",
+    "self": "https://company.atlassian.net/rest/api/2/issue/12345"
+  }
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:3000/api/jira/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "summary": "Fix login button responsiveness",
+    "description": "The login button does not respond to user clicks...",
+    "issueType": "Bug",
+    "priority": "High"
+  }'
+```
+
+---
+
+### **POST** `/api/jira/upload`
+Upload file attachment to Jira issue
+
+**Request:** `multipart/form-data`
+```
+file: File (required) - Image/video file (supports .mov to .mp4 conversion)
+issueKey: string (required) - Jira issue key (e.g., CUDI-123)
+fileName: string (optional) - Custom filename
+```
+
+**Response:**
+```json
+{
+  "message": "Image uploaded to Jira successfully",
+  "jiraResponse": [...],
+  "fileName": "screenshot.png"
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:3000/api/jira/upload \
+  -F "file=@screenshot.png" \
+  -F "issueKey=CUDI-123" \
+  -F "fileName=login-bug-screenshot.png"
+```
+
+---
+
+### **GET** `/api/jira/issue/:id`
+Fetch Jira issue details
+
+**Parameters:**
+- `id` (path) - Jira issue ID or key
+
+**Response:**
+```json
+{
+  "id": "12345",
+  "key": "CUDI-123",
+  "fields": {
+    "summary": "Fix login button responsiveness",
+    "description": "The login button does not respond...",
+    "status": {"name": "Open"},
+    "priority": {"name": "High"},
+    "issuetype": {"name": "Bug"}
+  }
+}
+```
+
+**Example:**
+```bash
+curl -X GET http://localhost:3000/api/jira/issue/CUDI-123
+```
+
+---
+
+### **POST** `/api/jira/create-pr`
+Create pull request in Bitbucket
+
+**Request Body:**
+```json
+{
+  "ticketNumber": "string (required) - Jira ticket number (without CUDI prefix)",
+  "updatedList": "string (required) - Description of changes",
+  "branchName": "string (required) - Source branch name",
+  "projectKey": "string (required) - Bitbucket project key",
+  "repoSlug": "string (required) - Repository slug"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Pull request created successfully",
+  "pullRequest": {
+    "id": 123,
+    "title": "feat(CUDI-456): upgrade dependencies",
+    "state": "OPEN"
+  },
+  "prTitle": "feat(CUDI-456): upgrade dependencies",
+  "prDescription": "This PR integrates the latest updates..."
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:3000/api/jira/create-pr \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ticketNumber": "456",
+    "updatedList": "React Native, Expo SDK",
+    "branchName": "feature/CUDI-456-upgrade-deps",
+    "projectKey": "MOBILE",
+    "repoSlug": "mobile-app"
+  }'
+```
+
+---
+
+## **Build Endpoints**
+
+### **POST** `/api/build/release`
+Start mobile app build process
+
+**Request Body:**
+```json
+{
+  "ticketNumber": "string (required) - Jira ticket number",
+  "selectedPackages": ["string"] (optional) - Array of package names to update,
+  "createPullRequest": "boolean (optional) - Whether to create PR (default: false)"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Build process started",
+  "buildId": "1642123456789"
+}
+```
+
+**WebSocket Events:** Real-time build progress via Socket.IO
+```json
+{
+  "type": "start|stdout|stderr|success|error",
+  "message": "Build process initiated...",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "exitCode": 0
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:3000/api/build/release \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ticketNumber": "CUDI-123",
+    "selectedPackages": ["react-native", "@expo/cli"],
+    "createPullRequest": true
+  }'
+```
+
+---
+
+### **GET** `/api/build/status`
+Get build service status
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Build service is running",
+  "timestamp": "2024-01-15T10:30:00.000Z"
+}
+```
+
+**Example:**
+```bash
+curl -X GET http://localhost:3000/api/build/status
+```
+
+---
+
+## **Email Endpoints**
+
+### **POST** `/api/email/send`
+Send release notes email
+
+**Query Parameters:**
+- `version` (required) - Release version number
+- `dryRun` (optional) - true|false (default: false) - Preview email without sending
+
+**Response:** HTML email content
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Release Notes QA Build: 1.2.3</title>
+</head>
+<body>
+  <!-- Email content with release notes -->
+</body>
+</html>
+```
+
+**Example:**
+```bash
+# Send actual email
+curl -X POST "http://localhost:3000/api/email/send?version=1.2.3&dryRun=false"
+
+# Preview email (dry run)
+curl -X POST "http://localhost:3000/api/email/send?version=1.2.3&dryRun=true"
+```
+
+---
+
+### **GET** `/api/email/status`
+Get email service status
+
+**Response:**
+```json
+{
+  "status": "OK",
+  "service": "Email Service",
+  "timestamp": "2024-01-15T10:30:00.000Z"
+}
+```
+
+---
+
+## **Health Check**
+
+### **GET** `/health`
+Application health status
+
+**Response:**
+```json
+{
+  "status": "OK",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "uptime": 3600.123,
+  "environment": "development"
+}
+```
+
+**Example:**
+```bash
+curl -X GET http://localhost:3000/health
+```
+
+---
+
+## **Error Responses**
+
+All endpoints may return these error formats:
+
+**400 Bad Request:**
+```json
+{
+  "error": "Invalid request payload",
+  "details": "Missing required field: summary"
+}
+```
+
+**401 Unauthorized:**
+```json
+{
+  "error": "Unauthorized",
+  "details": "Invalid API key or authentication failed"
+}
+```
+
+**429 Too Many Requests:**
+```json
+{
+  "error": "Rate limit exceeded",
+  "details": "Too many requests, please try again later"
+}
+```
+
+**500 Internal Server Error:**
+```json
+{
+  "error": "Internal server error",
+  "details": "Failed to connect to external service"
+}
+```
+
+---
+
+## **Rate Limits**
+
+- **Jira endpoints:** 50 requests per 15 minutes
+- **Build endpoints:** 5 requests per hour
+- **Email endpoints:** 10 requests per hour
+- **Health check:** No rate limit
+
+---
+
+## **Authentication**
+
+The API uses environment-based authentication:
+- **Jira:** Bearer token via `JIRA_TOKEN`
+- **Bitbucket:** Bearer token via `BITBUCKET_AUTHORIZATION_TOKEN`
+- **AI Providers:** API keys via `OPENAI_COMPATIBLE_API_KEY`
+- **Email:** SMTP credentials via environment variables
+
+No client-side authentication is required for API access.
 
 ## 🤝 Contributing
 
