@@ -23,21 +23,29 @@ class EnvironmentSetup {
         // Required configurations
         JIRA_URL: {
           description: 'Your Jira instance URL (e.g., https://your-company.atlassian.net)',
-          required: true,
-          validate: (value) => value.startsWith('https://') && value.includes('atlassian.net')
+          required: true
         },
         JIRA_TOKEN: {
           description: 'Your Jira API token (create one at: https://id.atlassian.com/manage-profile/security/api-tokens)',
           required: true,
           sensitive: true
         },
-        OPENAI_COMPATIBLE_API_KEY: {
-          description: 'Your AI API key (OpenAI, Anthropic, etc.)',
+        WIKI_URL: {
+          description: 'Your Atlassian Wiki URL (e.g., https://your-company.atlassian.net/wiki)',
+          required: true
+        },
+        WIKI_BASIC_AUTH: {
+          description: 'Your Wiki basic authentication token',
           required: true,
           sensitive: true
         },
         
         // Optional but recommended
+        OPENAI_COMPATIBLE_API_KEY: {
+          description: 'Your AI API key (OpenAI, Anthropic, etc.)',
+          required: false,
+          sensitive: true
+        },
         OPENAI_COMPATIBLE_BASE_URL: {
           description: 'AI API base URL (default: https://api.anthropic.com)',
           required: false,
