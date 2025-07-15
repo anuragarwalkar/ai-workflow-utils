@@ -1,5 +1,10 @@
-const path = require('path'); // Add this line to import the 'path' module
-const { createLogger, format, transports } = require('winston');
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { createLogger, format, transports } from 'winston';
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const logger = createLogger({
     level: 'info',
@@ -17,4 +22,4 @@ const logger = createLogger({
     ]
 });
 
-module.exports = logger;
+export default logger;

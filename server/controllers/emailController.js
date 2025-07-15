@@ -1,10 +1,10 @@
-const { extractTableAsArray } = require("./extractTableAsArray");
-const { emailBody } = require('./htmlParser');
-const { sendNotification} = require('./email');
-const {fetchAndMergeJiraSummary} = require('./featchAndMergeJiraSummary');
-const logger = require("../logger");
+import { extractTableAsArray } from "./extractTableAsArray.js";
+import { emailBody } from './htmlParser.js';
+import { sendNotification } from './email.js';
+import { fetchAndMergeJiraSummary } from './featchAndMergeJiraSummary.js';
+import logger from "../logger.js";
 
-async function sendEmail(req, res) {
+async function sendEmailController(req, res) {
   const releaseNoteURL = process.env.WIKI_URL;
   const { version, dryRun = 'false'} = req.query;
   
@@ -32,13 +32,11 @@ async function sendEmail(req, res) {
   const emailBodyRes = emailBody(mergedTableDataWithJira, { releaseNoteURL, version })
 
   if(!isDryRun) {
-    await sendNotification('anurag.arwalkar@globant.com', `Release Notes QA Build : ${version}`, emailBodyRes)
+    await sendNotification('anuragarwalkar@gmail.com', `Release Notes QA Build : ${version}`, emailBodyRes)
     logger.info('Email notification sent');
   }
 
   res.status(200).send(emailBodyRes);
 }
 
-module.exports = {
-  sendEmail,
-};
+export default sendEmailController;

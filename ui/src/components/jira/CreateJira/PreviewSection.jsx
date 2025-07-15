@@ -15,7 +15,7 @@ import { showNotification } from '../../../store/slices/uiSlice';
 
 const PreviewSection = () => {
   const dispatch = useDispatch();
-  const { summary, description, imageFile, previewData, isCreating, streamingContent, streamingStatus, isStreaming } = useSelector(
+  const { summary, description, imageFile, previewData, isCreating, streamingContent, streamingStatus, isStreaming, issueType } = useSelector(
     (state) => state.jira.createJira
   );
 
@@ -41,24 +41,25 @@ const PreviewSection = () => {
 
     try {
       // Create Jira issue
-      const jiraResult = await createJira({
+      const response = await createJira({
         summary,
-        description
+        description,
+        issueType
       }).unwrap();
 
-      const issueKey = jiraResult.jiraIssue.key;
+      const generatedIssueKey = response.jiraIssue.key;
 
       // Upload attachment if image exists
-      if (imageFile && issueKey) {
+      if (imageFile && generatedIssueKey) {
         const formData = new FormData();
         formData.append('file', imageFile);
-        formData.append('issueKey', issueKey);
+        formData.append('issueKey', generatedIssueKey);
 
         await uploadAttachment({ formData }).unwrap();
       }
 
       dispatch(showNotification({
-        message: `Jira issue created successfully: ${issueKey}`,
+        message: `Jira issue created successfully: ${generatedIssueKey}`,
         severity: 'success'
       }));
 

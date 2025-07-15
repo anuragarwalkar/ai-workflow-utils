@@ -1,16 +1,68 @@
 {
   "name": "ai-workflow-utils",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "1.0.2",
+  "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems.",
+  "main": "dist/server.js",
+  "bin": {
+    "ai-workflow-utils": "bin/cli.js",
+    "ai-workflow-setup": "bin/setup.js"
+  },
+  "files": [
+    "dist/",
+    "ui/dist/",
+    "ui/.env.example",
+    "bin/",
+    "README.md",
+    "LICENSE",
+    ".env.example"
+  ],
+  "keywords": [
+    "ai",
+    "workflow",
+    "automation",
+    "jira",
+    "bitbucket",
+    "email",
+    "build-management",
+    "development-tools",
+    "openai",
+    "ollama",
+    "react",
+    "express",
+    "nodejs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anuragarwalkar/ai-workflow-utils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/anuragarwalkar/ai-workflow-utils/issues"
+  },
+  "homepage": "https://github.com/anuragarwalkar/ai-workflow-utils#readme",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start-server": "node server/server.js",
-    "start": "vite",
-    "build": "vite build"
+    "start": "node dist/server.js",
+    "start-server": "node dist/server.js",
+    "start-server-dev": "nodemon dist/server.js",
+    "start-ui": "vite",
+    "build-ui": "vite build",
+    "build-server": "webpack --config webpack.config.js",
+    "start-dev": "concurrently --names \"ui, watch, server\" \"npm run start-ui\" \"npm run build-server:watch\" \"npm run start-server-dev\"",
+    "serve": "npm run build && npm run start-server",
+    "build-server:watch": "webpack --config webpack.config.js --watch",
+    "preview": "vite preview",
+    "build": "concurrently \"npm run build-ui\" \"npm run build-server\"",
+    "prepublishOnly": "npm run build"
   },
-  "author": "anurag.arwalkar",
+  "author": {
+    "name": "Anurag Arwalkar",
+    "email": "anurag.arwalkar@gmail.com"
+  },
   "license": "MIT",
-  "description": "",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -41,5 +93,15 @@
     "socket.io-client": "^4.8.1",
     "vite": "^7.0.4",
     "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
+    "babel-loader": "^9.2.1",
+    "concurrently": "^9.2.0",
+    "nodemon": "^3.1.10",
+    "webpack": "^5.100.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-node-externals": "^3.0.0"
   }
 }

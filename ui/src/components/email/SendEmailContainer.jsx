@@ -1,0 +1,258 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  FormControlLabel,
+  Switch,
+  Alert,
+  CircularProgress,
+  Divider,
+  Grid,
+} from '@mui/material';
+import { Download } from '@mui/icons-material';
+import { useDispatch } from 'react-redux';
+import { useSendEmailMutation } from '../../store/api/emailApi';
+import { setCurrentView } from '../../store/slices/appSlice';
+import { setEmailData, setLastSentVersion } from '../../store/slices/emailSlice';
+
+const SendEmailContainer = () => {
+  const dispatch = useDispatch();
+  const [sendEmail, { isLoading, error }] = useSendEmailMutation();
+  
+  const [version, setVersion] = useState('');
+  const [dryRun, setDryRun] = useState(true);
+  const [emailPreview, setEmailPreview] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [toEmail, setToEmail] = useState('');
+  const [ccEmail, setCcEmail] = useState('');
+  const [subject, setSubject] = useState('');
+
+  // Load email values from localStorage on component mount
+  useEffect(() => {
+    const savedToEmail = localStorage.getItem('emailTemplate_toEmail');
+    const savedCcEmail = localStorage.getItem('emailTemplate_ccEmail');
+    const savedSubjectEmail = localStorage.getItem('emailTemplate_subject');
+    
+    if (savedToEmail) {
+      setToEmail(savedToEmail);
+    }
+    
+    if (savedCcEmail) {
+      setCcEmail(savedCcEmail);
+    }
+
+    if (savedSubjectEmail) {
+      setSubject(savedSubjectEmail);
+    }
+  }, []);
+
+  const handleBackToHome = () => {
+    dispatch(setCurrentView('home'));
+    setEmailPreview(null);
+    setSuccess(false);
+  };
+
+  const handleSendEmail = async () => {
+    try {
+      setSuccess(false);
+      const result = await sendEmail({ version, dryRun }).unwrap();
+      
+      setEmailPreview(result);
+      dispatch(setEmailData(result));
+      
+      if (!dryRun) {
+        dispatch(setLastSentVersion(version));
+        setSuccess(true);
+      }
+    } catch (err) {
+      console.error('Failed to send email:', err);
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    if (!emailPreview) return;
+
+    // Save current To and CC values to localStorage
+    localStorage.setItem('emailTemplate_toEmail', toEmail);
+    localStorage.setItem('emailTemplate_ccEmail', ccEmail);
+    localStorage.setItem('emailTemplate_subject', subject);
+
+    // Create the .eml file content
+    const emlContent = `To: ${toEmail}
+${ccEmail ? `Cc: ${ccEmail}\n` : ''}Subject: ${subject} : ${version}
+Content-Type: text/html; charset=UTF-8
+
+${emailPreview}`;
+
+    // Create blob and download
+    const blob = new Blob([emlContent], { type: 'message/rfc822' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `email-template-v${version}.eml`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Send Email
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={handleBackToHome}
+            sx={{ minWidth: 120 }}
+          >
+            Back to Home
+          </Button>
+        </Box>
+
+        <Box sx={{ mb: 4 }}>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Version"
+                value={version}
+                onChange={(e) => setVersion(e.target.value)}
+                placeholder="e.g., 2.0.9"
+                helperText="Enter the version number for the release notes"
+              />
+            </Grid>
+            
+            {dryRun && emailPreview && (
+              <>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Subject"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Email subject"
+                    helperText="Email subject line"
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="To Email"
+                    value={toEmail}
+                    onChange={(e) => setToEmail(e.target.value)}
+                    placeholder="recipient@example.com"
+                    helperText="Primary recipient email address"
+                  />
+                </Grid>
+                
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="CC Email (Optional)"
+                    value={ccEmail}
+                    onChange={(e) => setCcEmail(e.target.value)}
+                    placeholder="cc@example.com"
+                    helperText="Carbon copy email address"
+                  />
+                </Grid>
+              </>
+            )}
+          </Grid>
+
+          <FormControlLabel
+            control={
+              <Switch
+                checked={dryRun}
+                onChange={(e) => setDryRun(e.target.checked)}
+                color="primary"
+              />
+            }
+            label={dryRun ? "Dry Run (Only preview and donwload template)" : "Send Actual Email"}
+            sx={{ mt: 3, mb: 3 }}
+          />
+
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={handleSendEmail}
+              disabled={isLoading || !version.trim()}
+              sx={{ minWidth: 200 }}
+            >
+              {isLoading ? (
+                <>
+                  <CircularProgress size={20} sx={{ mr: 1 }} />
+                  {dryRun ? 'Generating Preview...' : 'Sending Email...'}
+                </>
+              ) : (
+                dryRun ? (emailPreview ? 'Regenerate Preview' : 'Generate Preview') : 'Send Email'
+              )}
+            </Button>
+
+            {dryRun && emailPreview && (
+              <Button
+                variant="outlined"
+                size="large"
+                onClick={handleDownloadTemplate}
+                startIcon={<Download />}
+                sx={{ minWidth: 200 }}
+              >
+                Download Template
+              </Button>
+            )}
+          </Box>
+        </Box>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            Error: {error.data?.message || error.message || 'Failed to process email request'}
+          </Alert>
+        )}
+
+        {success && (
+          <Alert severity="success" sx={{ mb: 3 }}>
+            Email sent successfully for version {version}!
+          </Alert>
+        )}
+
+        {emailPreview && (
+          <Box sx={{ mt: 4 }}>
+            <Divider sx={{ mb: 3 }} />
+            <Typography variant="h6" gutterBottom>
+              {dryRun ? 'Email Preview' : 'Email Content'}
+            </Typography>
+            <Paper 
+              variant="outlined" 
+              sx={{ 
+                p: 0, 
+                height: 500,
+                overflow: 'hidden',
+                backgroundColor: '#ffffff'
+              }}
+            >
+              <iframe
+                srcDoc={emailPreview}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                  backgroundColor: 'white'
+                }}
+                title="Email Preview"
+              />
+            </Paper>
+          </Box>
+        )}
+      </Paper>
+    </Box>
+  );
+};
+
+export default SendEmailContainer;

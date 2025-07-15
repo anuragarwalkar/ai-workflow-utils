@@ -1,10 +1,10 @@
-const { fetchJiraSummaries } = require('./jiraController');
+import { fetchJiraSummaries } from './jiraController.js';
 
-async function fetchAndMergeJiraSummary(tableData) {
+export async function fetchAndMergeJiraSummary(tableData) {
   if (!Array.isArray(tableData) || tableData.length < 2) {
     throw new Error("Invalid table data");
   }
-
+  
   const headers = tableData[0];
   const jiraKeyIndex = headers.indexOf('Jira URL');
 
@@ -33,8 +33,4 @@ async function fetchAndMergeJiraSummary(tableData) {
   }
 
   return tableData;
-}
-
-module.exports = {
-    fetchAndMergeJiraSummary,
 }

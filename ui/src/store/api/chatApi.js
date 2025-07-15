@@ -1,33 +1,33 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { API_BASE_URL } from '../../config/environment.js';
 
-export const jiraApi = createApi({
-  reducerPath: 'jiraApi',
+export const chatApi = createApi({
+  reducerPath: 'chatApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3000/api',
+    baseUrl: `${API_BASE_URL}/api/chat`,
   }),
-  tagTypes: ['Jira'],
+  tagTypes: ['Chat'],
   endpoints: (builder) => ({
-    previewJira: builder.mutation({
-      query: ({ prompt, images, issueType }) => ({
-        url: '/preview',
+    sendChatMessage: builder.mutation({
+      query: ({ message, conversationHistory }) => ({
+        url: '/message',
         method: 'POST',
-        body: { prompt, images, issueType },
+        body: { message, conversationHistory },
       }),
     }),
-    previewJiraStreaming: builder.mutation({
-      queryFn: async ({ prompt, images, issueType, onChunk, onStatus }, { signal }) => {
+    sendChatMessageStreaming: builder.mutation({
+      queryFn: async ({ message, conversationHistory, onChunk, onStatus }, { signal }) => {
         try {
-          // Use a more RTK Query-like approach while maintaining streaming capability
-          const baseUrl = 'http://localhost:3000/api';
-          const url = `${baseUrl}/preview`;
+          const baseUrl = `${API_BASE_URL}/api/chat`;
+          const url = `${baseUrl}/stream`;
           
           const response = await fetch(url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ prompt, images, issueType }),
-            signal, // RTK Query provides abort signal for cancellation
+            body: JSON.stringify({ message, conversationHistory }),
+            signal,
           });
 
           if (!response.ok) {
@@ -39,7 +39,7 @@ export const jiraApi = createApi({
             };
           }
 
-          // Stream processing - this is why we need native fetch
+          // Stream processing
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
           let fullContent = '';
@@ -65,10 +65,7 @@ export const jiraApi = createApi({
                       onChunk?.(data.content, fullContent);
                     } else if (data.type === 'complete') {
                       finalResult = {
-                        bugReport: data.bugReport,
-                        summary: data.summary,
-                        description: data.description,
-                        message: data.message,
+                        response: data.response,
                         provider: data.provider
                       };
                     } else if (data.type === 'error') {
@@ -102,44 +99,10 @@ export const jiraApi = createApi({
         }
       },
     }),
-    createJira: builder.mutation({
-      query: ({ summary, description, issueType, priority }) => ({
-        url: '/generate',
-        method: 'POST',
-        body: { summary, description, issueType, priority },
-      }),
-      invalidatesTags: ['Jira'],
-    }),
-    fetchJira: builder.query({
-      query: (jiraId) => `/issue/${jiraId}`,
-      providesTags: (result, error, jiraId) => [{ type: 'Jira', id: jiraId }],
-    }),
-    uploadAttachment: builder.mutation({
-      query: ({ formData }) => ({
-        url: '/upload',
-        method: 'POST',
-        body: formData,
-      }),
-      invalidatesTags: (result, error, { issueKey }) => [
-        { type: 'Jira', id: issueKey },
-      ],
-    }),
-    createPullRequest: builder.mutation({
-      query: ({ ticketNumber, updatedList, branchName, projectKey, repoSlug }) => ({
-        url: '/create-pr',
-        method: 'POST',
-        body: { ticketNumber, updatedList, branchName, projectKey, repoSlug },
-      }),
-    }),
   }),
 });
 
 export const {
-  usePreviewJiraMutation,
-  usePreviewJiraStreamingMutation,
-  useCreateJiraMutation,
-  useFetchJiraQuery,
-  useLazyFetchJiraQuery,
-  useUploadAttachmentMutation,
-  useCreatePullRequestMutation,
-} = jiraApi;
+  useSendChatMessageMutation,
+  useSendChatMessageStreamingMutation,
+} = chatApi;

@@ -1,9 +1,9 @@
-const axios = require("axios");
-const fs = require("fs");
-const logger = require("../logger");
-const FormData = require("form-data"); 
-const multer = require("multer");
-const { convertMovToMp4 } = require("../utils/fileUtils");
+import axios from "axios";
+import fs from "fs";
+import logger from "../logger.js";
+import FormData from "form-data";
+import multer from "multer";
+import { convertMovToMp4 } from "../utils/fileUtils.js";
 
 multer({ dest: "uploads/" }); 
 
@@ -813,9 +813,9 @@ async function previewBugReport(req, res) {
 }
 
 async function createJiraIssue(req, res) {
-  const { summary, description, issueType = "Task", priority = "Medium" } = req.body;
+  const { summary, description, issueType, priority } = req.body;
 
-  if (!summary || !description) {
+  if (!summary || !description || !issueType) {
     return res.status(400).json({ error: "Invalid request payload" });
   }
 
@@ -863,7 +863,6 @@ async function createJiraIssue(req, res) {
         break;
       
       default:
-        // Default payload for other issue types
         payload = {
           fields: {
             ...baseFields,
@@ -1013,11 +1012,6 @@ async function createPullRequest(req, res) {
     });
   }
 
-  if (!createPR) {
-    return res.status(200).json({ 
-      message: "Skipping pull request creation as requested" 
-    });
-  }
 
   try {  
     if (!bitbucketToken) {
@@ -1088,7 +1082,17 @@ async function createPullRequest(req, res) {
   }
 }
 
-module.exports = {
+export {
+  previewBugReport,
+  createJiraIssue,
+  uploadImage,
+  getJiraIssue,
+  fetchJiraIssue,
+  fetchJiraSummaries,
+  createPullRequest
+};
+
+export default {
   previewBugReport,
   createJiraIssue,
   uploadImage,
