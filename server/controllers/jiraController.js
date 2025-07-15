@@ -813,9 +813,9 @@ async function previewBugReport(req, res) {
 }
 
 async function createJiraIssue(req, res) {
-  const { summary, description, issueType = "Task", priority = "Medium" } = req.body;
+  const { summary, description, issueType, priority } = req.body;
 
-  if (!summary || !description) {
+  if (!summary || !description || !issueType) {
     return res.status(400).json({ error: "Invalid request payload" });
   }
 
@@ -863,7 +863,6 @@ async function createJiraIssue(req, res) {
         break;
       
       default:
-        // Default payload for other issue types
         payload = {
           fields: {
             ...baseFields,

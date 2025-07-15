@@ -12,7 +12,7 @@ export const emailApi = createApi({
     sendEmail: builder.mutation({
       query: ({ version, dryRun = true }) => ({
         url: `/send?version=${version}&dryRun=${dryRun}`,
-        method: 'GET',
+        method: 'POST',
       }),
     }),
   }),

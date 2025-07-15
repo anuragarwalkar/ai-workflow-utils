@@ -32,7 +32,7 @@ async function sendEmailController(req, res) {
   const emailBodyRes = emailBody(mergedTableDataWithJira, { releaseNoteURL, version })
 
   if(!isDryRun) {
-    await sendNotification('anurag.arwalkar@globant.com', `Release Notes QA Build : ${version}`, emailBodyRes)
+    await sendNotification('anuragarwalkar@gmail.com', `Release Notes QA Build : ${version}`, emailBodyRes)
     logger.info('Email notification sent');
   }
 

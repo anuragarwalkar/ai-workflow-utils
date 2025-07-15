@@ -14,6 +14,7 @@ import { requestLogger, errorHandler, notFoundHandler } from './middleware/index
 import jiraRoutes from './routes/jiraRoutes.js';
 import emailRoutes from './routes/emailRoutes.js';
 import buildRoutes from './routes/buildRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
 
 // Configure dotenv
 dotenv.config();
@@ -76,6 +77,7 @@ app.get('/health', (req, res) => {
 app.use('/api/jira', jiraRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/build', buildRoutes(io));
+app.use('/api/chat', chatRoutes);
 
 // Serve static files from React build
 const staticPath = path.join(__dirname, '../react-ui/dist');

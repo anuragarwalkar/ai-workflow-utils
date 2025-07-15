@@ -9,7 +9,7 @@ const emailRateLimit = createRateLimit(60 * 60 * 1000, 10); // 10 emails per hou
 router.use(emailRateLimit);
 
 // Route for sending email
-router.post('/send', asyncHandler(emailController.sendEmail));
+router.post('/send', asyncHandler(emailController));
 
 // Route for email status/health check
 router.get('/status', (req, res) => {

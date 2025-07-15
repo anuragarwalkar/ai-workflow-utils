@@ -11,6 +11,7 @@ import ReleaseBuildContainer from './components/build/ReleaseBuildContainer';
 import ViewJiraModal from './components/jira/ViewJira/ViewJiraModal';
 import BuildModal from './components/build/BuildModal';
 import NotificationSnackbar from './components/common/NotificationSnackbar';
+import ChatOverlay from './components/chat/ChatOverlay';
 
 const AppContent = () => {
   const currentView = useSelector((state) => state.app.currentView);
@@ -30,12 +31,15 @@ const AppContent = () => {
   };
 
   return (
-    <Layout>
-      {renderCurrentView()}
-      <ViewJiraModal />
-      <BuildModal />
-      <NotificationSnackbar />
-    </Layout>
+    <>
+      <Layout>
+        {renderCurrentView()}
+        <ViewJiraModal />
+        <BuildModal />
+        <NotificationSnackbar />
+      </Layout>
+      <ChatOverlay />
+    </>
   );
 };
 
