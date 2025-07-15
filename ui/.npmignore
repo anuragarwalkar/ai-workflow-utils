@@ -1,0 +1,6 @@
+# Ignore everything except dist
+!dist/
+src/
+*.test.js
+*.md
+node_modules/
