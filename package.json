@@ -56,9 +56,7 @@
     "build-server:watch": "webpack --config webpack.config.js --watch",
     "preview": "vite preview",
     "build": "concurrently \"npm run build-ui\" \"npm run build-server\"",
-    "prepublishOnly": "npm run build",
-    "postinstall": "npm run build",
-    "prepare": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "author": {
     "name": "Anurag Arwalkar",
