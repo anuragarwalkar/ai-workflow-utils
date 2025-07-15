@@ -80,7 +80,7 @@ app.use('/api/build', buildRoutes(io));
 app.use('/api/chat', chatRoutes);
 
 // Serve static files from React build
-const staticPath = path.join(__dirname, '../react-ui/dist');
+const staticPath = path.join(__dirname, '../ui/dist');
 app.use(express.static(staticPath, {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0',
   etag: true,

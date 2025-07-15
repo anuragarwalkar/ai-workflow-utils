@@ -95,7 +95,7 @@ npm install
 ```bash
 # Copy environment template
 cp .env.example .env
-cp react-ui/.env.example react-ui/.env
+cp ui/.env.example ui/.env
 ```
 
 ### 3. **Configure Environment Variables**
@@ -131,7 +131,7 @@ NODE_ENV=development
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
 ```
 
-**Client Configuration (react-ui/.env):**
+**Client Configuration (ui/.env):**
 ```env
 # API Base URL for client-side requests
 VITE_API_BASE_URL=http://localhost:3000

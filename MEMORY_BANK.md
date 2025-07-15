@@ -35,7 +35,7 @@
 
 ### Project Structure
 ```
-react-ui/
+ui/
 ├── src/
 │   ├── store/
 │   │   ├── index.js                 # Store configuration
