@@ -1049,7 +1049,7 @@ async function createPullRequest(req, res) {
     });
 
     if (response.status === 201) {
-      logger.info(`Pull request created successfully for ticket CUDI-${ticketNumber}`);
+      logger.info(`Pull request created successfully for ticket ${ticketNumber}`);
       res.status(201).json({
         message: "Pull request created successfully",
         pullRequest: response.data,

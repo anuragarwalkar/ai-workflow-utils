@@ -315,7 +315,7 @@ Create a new Jira issue
   "message": "Jira issue created successfully",
   "jiraIssue": {
     "id": "12345",
-    "key": "CUDI-123",
+    "key": "XXXX-123",
     "self": "https://company.atlassian.net/rest/api/2/issue/12345"
   }
 }
@@ -341,7 +341,7 @@ Upload file attachment to Jira issue
 **Request:** `multipart/form-data`
 ```
 file: File (required) - Image/video file (supports .mov to .mp4 conversion)
-issueKey: string (required) - Jira issue key (e.g., CUDI-123)
+issueKey: string (required) - Jira issue key (e.g., XXXX-123)
 fileName: string (optional) - Custom filename
 ```
 
@@ -358,7 +358,7 @@ fileName: string (optional) - Custom filename
 ```bash
 curl -X POST http://localhost:3000/api/jira/upload \
   -F "file=@screenshot.png" \
-  -F "issueKey=CUDI-123" \
+  -F "issueKey=XXXX-123" \
   -F "fileName=login-bug-screenshot.png"
 ```
 
@@ -374,7 +374,7 @@ Fetch Jira issue details
 ```json
 {
   "id": "12345",
-  "key": "CUDI-123",
+  "key": "XXXX-123",
   "fields": {
     "summary": "Fix login button responsiveness",
     "description": "The login button does not respond...",
@@ -387,7 +387,7 @@ Fetch Jira issue details
 
 **Example:**
 ```bash
-curl -X GET http://localhost:3000/api/jira/issue/CUDI-123
+curl -X GET http://localhost:3000/api/jira/issue/XXXX-123
 ```
 
 ---
@@ -398,7 +398,7 @@ Create pull request in Bitbucket
 **Request Body:**
 ```json
 {
-  "ticketNumber": "string (required) - Jira ticket number (without CUDI prefix)",
+  "ticketNumber": "string (required) - Jira ticket number (without XXXX prefix)",
   "updatedList": "string (required) - Description of changes",
   "branchName": "string (required) - Source branch name",
   "projectKey": "string (required) - Bitbucket project key",
@@ -412,10 +412,10 @@ Create pull request in Bitbucket
   "message": "Pull request created successfully",
   "pullRequest": {
     "id": 123,
-    "title": "feat(CUDI-456): upgrade dependencies",
+    "title": "feat(XXXX-456): upgrade dependencies",
     "state": "OPEN"
   },
-  "prTitle": "feat(CUDI-456): upgrade dependencies",
+  "prTitle": "feat(XXXX-456): upgrade dependencies",
   "prDescription": "This PR integrates the latest updates..."
 }
 ```
@@ -427,7 +427,7 @@ curl -X POST http://localhost:3000/api/jira/create-pr \
   -d '{
     "ticketNumber": "456",
     "updatedList": "React Native, Expo SDK",
-    "branchName": "feature/CUDI-456-upgrade-deps",
+    "branchName": "feature/XXXX-456-upgrade-deps",
     "projectKey": "MOBILE",
     "repoSlug": "mobile-app"
   }'
@@ -473,7 +473,7 @@ Start mobile app build process
 curl -X POST http://localhost:3000/api/build/release \
   -H "Content-Type: application/json" \
   -d '{
-    "ticketNumber": "CUDI-123",
+    "ticketNumber": "XXXX-123",
     "selectedPackages": ["react-native", "@expo/cli"],
     "createPullRequest": true
   }'

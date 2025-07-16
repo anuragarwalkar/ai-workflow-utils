@@ -79,7 +79,7 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
               placeholder="e.g., 12345"
               value={config.ticketNumber}
               onChange={handleTicketNumberChange}
-              helperText="Enter the CUDI ticket number for this release"
+              helperText="Enter the Jira ticket number for this release"
               required
             />
           </Paper>
