@@ -1,13 +1,11 @@
 import express from 'express';
 import { spawn } from 'child_process';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import logger from '../logger.js';
 import { asyncHandler, createRateLimit } from '../middleware/index.js';
 
-// Get __dirname equivalent for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Use project root for consistent path resolution
+const projectRoot = process.cwd();
 
 export default (io) => {
   const router = express.Router();
@@ -42,7 +40,7 @@ export default (io) => {
     });
 
     // Path to the release script
-    const scriptPath = path.join(__dirname, '../scripts/release_build.sh');
+    const scriptPath = path.join(projectRoot, 'server/scripts/release_build.sh');
     
     // Prepare script arguments
     const scriptArgs = [

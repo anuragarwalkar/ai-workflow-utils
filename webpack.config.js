@@ -11,6 +11,10 @@ module.exports = {
     clean: true
   },
   externals: [nodeExternals()],
+  node: {
+    __dirname: false,
+    __filename: false
+  },
   module: {
     rules: [
       {

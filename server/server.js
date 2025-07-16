@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import logger from './logger.js';
@@ -19,9 +18,8 @@ import chatRoutes from './routes/chatRoutes.js';
 // Configure dotenv
 dotenv.config();
 
-// Get __dirname equivalent for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Determine project root directory
+const projectRoot = process.cwd();
 
 const app = express();
 const server = http.createServer(app);
@@ -80,7 +78,7 @@ app.use('/api/build', buildRoutes(io));
 app.use('/api/chat', chatRoutes);
 
 // Serve static files from React build
-const staticPath = path.join(__dirname, '../ui/dist');
+const staticPath = path.join(projectRoot, 'ui/dist');
 app.use(express.static(staticPath, {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0',
   etag: true,

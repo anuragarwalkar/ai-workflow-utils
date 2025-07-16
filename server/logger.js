@@ -1,14 +1,10 @@
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { createLogger, format, transports } from 'winston';
 import fs from 'fs';
 
-// Get __dirname equivalent for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Ensure logs directory exists
-const logsDir = path.join(__dirname, 'logs');
+// Use project root for consistent path resolution
+const projectRoot = process.cwd();
+const logsDir = path.join(projectRoot, 'logs');
 try {
     if (!fs.existsSync(logsDir)) {
         fs.mkdirSync(logsDir, { recursive: true });
@@ -20,11 +16,11 @@ try {
 // Create transports array with fallback
 const logTransports = [new transports.Console()];
 
-// Try to add file transports, fall back to console-only if there 0-are permission issues
+// Try to add file transports, fall back to console-only if there are permission issues
 try {
     logTransports.push(
-        new transports.File({ filename: path.join(__dirname, 'logs/error.log'), level: 'error' }),
-        new transports.File({ filename: path.join(__dirname, 'logs/combined.log') })
+        new transports.File({ filename: path.join(projectRoot, 'logs/error.log'), level: 'error' }),
+        new transports.File({ filename: path.join(projectRoot, 'logs/combined.log') })
     );
 } catch (error) {
     console.warn('Warning: Could not create file transports, using console only:', error.message);
