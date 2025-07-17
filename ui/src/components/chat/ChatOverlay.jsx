@@ -325,7 +325,7 @@ const ChatOverlay = () => {
               overflow: 'auto',
               p: 1,
               bgcolor: 'grey.50',
-              paddingBottom: '80px', // Space for input area
+              paddingBottom: '100px', // Increased space for input area and clear button
             }}
           >
             {conversationHistory.length === 0 && !isStreaming && (
@@ -441,7 +441,7 @@ const ChatOverlay = () => {
               )}
             </List>
 
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} style={{ marginBottom: '30px' }} />
           </Box>
 
           {/* Error Display */}
@@ -472,7 +472,8 @@ const ChatOverlay = () => {
               <Box
                 sx={{
                   px: 1,
-                  pt: 0.5,
+                  pt: 1,
+                  pb: 0.5,
                   display: 'flex',
                   justifyContent: 'center',
                 }}
@@ -533,6 +534,7 @@ const ChatOverlay = () => {
                       bgcolor: 'white',
                     },
                   },
+                  marginBottom: 0
                 }}
               />
               <IconButton
