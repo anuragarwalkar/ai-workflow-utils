@@ -107,9 +107,9 @@ JIRA_URL=https://your-company.atlassian.net
 JIRA_TOKEN=your-jira-api-token
 
 # Primary AI Provider (OpenAI Compatible)
-OPENAI_COMPATIBLE_BASE_URL=https://api.clients.geai.globant.com
+OPENAI_COMPATIBLE_BASE_URL=your-api-provider-url
 OPENAI_COMPATIBLE_API_KEY=your-api-key
-OPENAI_COMPATIBLE_MODEL=vertex_ai/claude-sonnet-4-20250514
+OPENAI_COMPATIBLE_MODEL=your-api-provider-model
 
 # Fallback AI Provider (Ollama)
 OLLAMA_BASE_URL=http://localhost:11434
