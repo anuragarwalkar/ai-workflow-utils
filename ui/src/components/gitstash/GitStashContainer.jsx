@@ -29,22 +29,17 @@ const GitStashContainer = () => {
   // Reset shouldSkipPRList on component mount if there's no directPRId
   useEffect(() => {
     if (!directPRId) {
-      console.log('GitStashContainer: No directPRId on mount, resetting shouldSkipPRList to false'); // Debug log
       setShouldSkipPRList(false);
     }
   }, []); // Only run on mount
 
   // Watch for directPRId and set flag to skip PR list
   useEffect(() => {
-    console.log('GitStashContainer: directPRId changed:', directPRId); // Debug log
     if (directPRId) {
-      console.log('GitStashContainer: Setting shouldSkipPRList to true'); // Debug log
       setShouldSkipPRList(true);
     } else {
-      console.log('GitStashContainer: directPRId is null, shouldSkipPRList remains:', shouldSkipPRList); // Debug log
       // Reset shouldSkipPRList when directPRId becomes null
       if (shouldSkipPRList) {
-        console.log('GitStashContainer: Resetting shouldSkipPRList to false'); // Debug log
         setShouldSkipPRList(false);
       }
     }
@@ -64,7 +59,6 @@ const GitStashContainer = () => {
   };
 
   const handleDirectNext = () => {
-    console.log('GitStashContainer: handleDirectNext called, setting step to 2'); // Debug log
     // For direct PR navigation, skip to step 2 (Review Changes)
     setActiveStep(2);
   };
@@ -76,7 +70,6 @@ const GitStashContainer = () => {
   };
 
   const getStepContent = (step) => {
-    console.log('GitStashContainer: getStepContent called with step:', step, 'shouldSkipPRList:', shouldSkipPRList); // Debug log
     switch (step) {
       case 0:
         return (

@@ -216,7 +216,6 @@ async function getPullRequestDiff(req, res) {
     });
 
     const data = response.data;
-    console.log('data:', data);
     logger.info(`Successfully fetched diff for PR ${pullRequestId}`);
     
     res.json(data);
