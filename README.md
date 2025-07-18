@@ -198,7 +198,8 @@ NODE_ENV=production
 
 ---
 
-## 🛠️ **CLI Commands**
+<details>
+<summary><strong>🛠️ CLI Commands (For Advanced Users)</strong></summary>
 
 ### **Setup and Configuration**
 ```bash
@@ -236,6 +237,8 @@ ai-workflow-utils --setup-ollama
 ollama list
 ```
 
+</details>
+
 ---
 
 ## 🎨 **User Interface Overview**
@@ -255,7 +258,8 @@ ollama list
 
 ---
 
-## 🔧 **Advanced Configuration**
+<details>
+<summary><strong>🔧 Advanced Configuration (For Developers)</strong></summary>
 
 ### **AI Provider Fallback System**
 ```javascript
@@ -293,9 +297,12 @@ MAX_FILE_SIZE=50MB
 ALLOWED_FILE_TYPES=jpg,jpeg,png,gif,mp4,mov,pdf,doc,docx
 ```
 
+</details>
+
 ---
 
-## 🚀 **Production Deployment**
+<details>
+<summary><strong>🚀 Production Deployment (For DevOps)</strong></summary>
 
 ### **Docker Deployment**
 ```bash
@@ -344,6 +351,8 @@ server {
 }
 ```
 
+</details>
+
 ---
 
 ## 🔒 **Security & Privacy**
@@ -362,7 +371,8 @@ server {
 
 ---
 
-## 📊 **Monitoring & Analytics**
+<details>
+<summary><strong>📊 Monitoring & Analytics (For DevOps)</strong></summary>
 
 ### **Built-in Monitoring**
 - **Health Checks**: `/health` endpoint for monitoring
@@ -383,9 +393,12 @@ LOG_MAX_FILES=5
 LOG_REQUESTS=true
 ```
 
+</details>
+
 ---
 
-## 🤝 **Contributing**
+<details>
+<summary><strong>🤝 Contributing (For Developers)</strong></summary>
 
 We welcome contributions! Here's how to get started:
 
@@ -423,9 +436,12 @@ ai-workflow-utils/
 4. Add tests if applicable
 5. Submit a pull request
 
+</details>
+
 ---
 
-## 📝 **API Documentation**
+<details>
+<summary><strong>📝 API Documentation (For Developers)</strong></summary>
 
 ### **Core Endpoints**
 
@@ -462,9 +478,12 @@ file: [binary-data]
 issueKey: "PROJ-123"
 ```
 
+</details>
+
 ---
 
-## 🆘 **Troubleshooting**
+<details>
+<summary><strong>🆘 Troubleshooting (For Support)</strong></summary>
 
 ### **Common Issues**
 
@@ -504,6 +523,8 @@ ai-workflow-utils --debug
 # Check logs
 tail -f logs/app.log
 ```
+
+</details>
 
 ---
 
