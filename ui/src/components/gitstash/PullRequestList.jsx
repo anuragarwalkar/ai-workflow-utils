@@ -28,7 +28,7 @@ import { setSelectedPullRequest, setError } from '../../store/slices/prSlice';
 
 const PullRequestList = ({ onNext, onPrevious }) => {
   const dispatch = useDispatch();
-  const { selectedProject, selectedPullRequest } = useSelector((state) => state.pr);
+  const { selectedProject, selectedPullRequest, directPRId } = useSelector((state) => state.pr);
   
   const {
     data: pullRequests,
@@ -50,6 +50,20 @@ const PullRequestList = ({ onNext, onPrevious }) => {
       dispatch(setError(`Failed to fetch pull requests: ${error.data?.error || error.message}`));
     }
   }, [error, dispatch]);
+
+  // Handle direct PR navigation (for cases where we still land on this component)
+  useEffect(() => {
+    console.log('PullRequestList: directPRId:', directPRId, 'pullRequests loaded:', !!pullRequests?.values); // Debug log
+    if (directPRId && pullRequests?.values) {
+      const targetPR = pullRequests.values.find(pr => pr.id === directPRId);
+      console.log('PullRequestList: Found target PR:', targetPR?.id, targetPR?.title); // Debug log
+      if (targetPR) {
+        dispatch(setSelectedPullRequest(targetPR));
+        // Don't clear directPRId here - let the container handle the navigation
+        console.log('PullRequestList: Set selected PR, keeping directPRId for navigation'); // Debug log
+      }
+    }
+  }, [directPRId, pullRequests, dispatch]);
 
   const handleSelectPR = (pr) => {
     dispatch(setSelectedPullRequest(pr));
@@ -118,14 +132,48 @@ const PullRequestList = ({ onNext, onPrevious }) => {
       </Typography>
 
       {pullRequests?.values?.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 4 }}>
-          <Typography variant="h6" color="text.secondary">
-            No pull requests found
-          </Typography>
-          <Button variant="outlined" onClick={onPrevious} sx={{ mt: 2 }}>
-            Try Different Repository
-          </Button>
-        </Box>
+        <Card elevation={1} sx={{ textAlign: 'center', py: 6 }}>
+          <CardContent>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
+                🔍 No Pull Requests Found
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
+                There are currently no pull requests in this repository.
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                This could mean:
+              </Typography>
+            </Box>
+            
+            <Box sx={{ mb: 3, textAlign: 'left', maxWidth: 400, mx: 'auto' }}>
+              <List dense>
+                <ListItem>
+                  <ListItemText
+                    primary="• All pull requests have been merged or closed"
+                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="• No active development in this repository"
+                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="• Repository details might be incorrect"
+                    primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                  />
+                </ListItem>
+              </List>
+            </Box>
+            
+            <Button variant="outlined" onClick={onPrevious} sx={{ mt: 2 }}>
+              Try Different Repository
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <>
           <Card elevation={1} sx={{ mb: 3 }}>

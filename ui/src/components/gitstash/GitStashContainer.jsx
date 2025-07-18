@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -23,7 +23,32 @@ const steps = ['Select Repository', 'Choose Pull Request', 'Review Changes'];
 const GitStashContainer = () => {
   const dispatch = useDispatch();
   const [activeStep, setActiveStep] = useState(0);
-  const { error } = useSelector((state) => state.pr);
+  const [shouldSkipPRList, setShouldSkipPRList] = useState(false);
+  const { error, directPRId } = useSelector((state) => state.pr);
+
+  // Reset shouldSkipPRList on component mount if there's no directPRId
+  useEffect(() => {
+    if (!directPRId) {
+      console.log('GitStashContainer: No directPRId on mount, resetting shouldSkipPRList to false'); // Debug log
+      setShouldSkipPRList(false);
+    }
+  }, []); // Only run on mount
+
+  // Watch for directPRId and set flag to skip PR list
+  useEffect(() => {
+    console.log('GitStashContainer: directPRId changed:', directPRId); // Debug log
+    if (directPRId) {
+      console.log('GitStashContainer: Setting shouldSkipPRList to true'); // Debug log
+      setShouldSkipPRList(true);
+    } else {
+      console.log('GitStashContainer: directPRId is null, shouldSkipPRList remains:', shouldSkipPRList); // Debug log
+      // Reset shouldSkipPRList when directPRId becomes null
+      if (shouldSkipPRList) {
+        console.log('GitStashContainer: Resetting shouldSkipPRList to false'); // Debug log
+        setShouldSkipPRList(false);
+      }
+    }
+  }, [directPRId, shouldSkipPRList]);
 
   const handleBack = () => {
     dispatch(clearPRData());
@@ -38,17 +63,26 @@ const GitStashContainer = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
+  const handleDirectNext = () => {
+    console.log('GitStashContainer: handleDirectNext called, setting step to 2'); // Debug log
+    // For direct PR navigation, skip to step 2 (Review Changes)
+    setActiveStep(2);
+  };
+
   const handleReset = () => {
     setActiveStep(0);
+    setShouldSkipPRList(false);
     dispatch(clearPRData());
   };
 
   const getStepContent = (step) => {
+    console.log('GitStashContainer: getStepContent called with step:', step, 'shouldSkipPRList:', shouldSkipPRList); // Debug log
     switch (step) {
       case 0:
         return (
           <GitStashForm 
             onNext={handleNext}
+            onDirectNext={handleDirectNext}
           />
         );
       case 1:
@@ -61,7 +95,7 @@ const GitStashContainer = () => {
       case 2:
         return (
           <PullRequestDiff 
-            onPrevious={handlePrevious}
+            onPrevious={shouldSkipPRList ? handleReset : handlePrevious}
             onReset={handleReset}
           />
         );
@@ -102,7 +136,7 @@ const GitStashContainer = () => {
           </Stepper>
         </Paper>
 
-        <Paper elevation={2} sx={{ p: 3, minHeight: '60vh' }}>
+        <Paper elevation={2} sx={{ p: 3, minHeight: activeStep === 0 ? 'auto' : '60vh' }}>
           {getStepContent(activeStep)}
         </Paper>
       </Box>

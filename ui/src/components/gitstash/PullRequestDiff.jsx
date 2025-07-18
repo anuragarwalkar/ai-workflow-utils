@@ -31,8 +31,8 @@ import {
   VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
-import { useGetPullRequestDiffQuery, useReviewPullRequestMutation } from '../../store/api/prApi';
-import { setDiffData, setReviewData, setError } from '../../store/slices/prSlice';
+import { useGetPullRequestDiffQuery, useReviewPullRequestMutation, useGetPullRequestsQuery } from '../../store/api/prApi';
+import { setDiffData, setReviewData, setError, setSelectedPullRequest } from '../../store/slices/prSlice';
 
 const DiffLine = ({ line, type, lineNumber }) => {
   const theme = useTheme();
@@ -137,7 +137,17 @@ const FileChanges = ({ file, expanded, onToggle }) => {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-          <Typography variant="subtitle1" sx={{ fontFamily: 'monospace', flex: 1 }}>
+          <Typography 
+            variant="subtitle1" 
+            sx={{ 
+              fontFamily: 'monospace', 
+              flex: 1,
+              wordBreak: 'break-all',
+              whiteSpace: 'normal',
+              lineHeight: 1.2,
+              minWidth: 0
+            }}
+          >
             {fileName}
           </Typography>
           <Chip 
@@ -188,8 +198,32 @@ const FileChanges = ({ file, expanded, onToggle }) => {
 
 const PullRequestDiff = ({ onPrevious, onReset }) => {
   const dispatch = useDispatch();
-  const { selectedProject, selectedPullRequest, diffData, reviewData } = useSelector((state) => state.pr);
+  const { selectedProject, selectedPullRequest, diffData, reviewData, directPRId } = useSelector((state) => state.pr);
   const [expandedFiles, setExpandedFiles] = useState({});
+
+  // Fetch PR list if we have a direct PR ID but no selected PR details
+  const {
+    data: pullRequests,
+    isLoading: isPRListLoading
+  } = useGetPullRequestsQuery(
+    {
+      projectKey: selectedProject.projectKey,
+      repoSlug: selectedProject.repoSlug,
+    },
+    {
+      skip: !directPRId || !selectedProject.projectKey || !selectedProject.repoSlug || (selectedPullRequest && selectedPullRequest.title),
+    }
+  );
+
+  // Set the selected PR from the list if we have a direct PR ID
+  useEffect(() => {
+    if (directPRId && pullRequests?.values && (!selectedPullRequest || !selectedPullRequest.title)) {
+      const targetPR = pullRequests.values.find(pr => pr.id === directPRId);
+      if (targetPR) {
+        dispatch(setSelectedPullRequest(targetPR));
+      }
+    }
+  }, [directPRId, pullRequests, selectedPullRequest, dispatch]);
 
   const {
     data: diff,
@@ -200,10 +234,10 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
     {
       projectKey: selectedProject.projectKey,
       repoSlug: selectedProject.repoSlug,
-      pullRequestId: selectedPullRequest.id,
+      pullRequestId: selectedPullRequest?.id || directPRId,
     },
     {
-      skip: !selectedProject.projectKey || !selectedProject.repoSlug || !selectedPullRequest?.id,
+      skip: !selectedProject.projectKey || !selectedProject.repoSlug || (!selectedPullRequest?.id && !directPRId),
     }
   );
 
@@ -241,13 +275,13 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
   };
 
   const handleReview = async () => {
-    if (!diffData) return;
+    if (!diffData || (!selectedPullRequest?.id && !directPRId)) return;
 
     try {
       const result = await reviewPullRequest({
         projectKey: selectedProject.projectKey,
         repoSlug: selectedProject.repoSlug,
-        pullRequestId: selectedPullRequest.id,
+        pullRequestId: selectedPullRequest?.id || directPRId,
         diffData,
         prDetails: selectedPullRequest,
       }).unwrap();
@@ -283,12 +317,12 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
     };
   };
 
-  if (isDiffLoading) {
+  if (isDiffLoading || isPRListLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
         <CircularProgress size={60} />
         <Typography variant="h6" sx={{ ml: 2 }}>
-          Loading diff...
+          {isPRListLoading ? 'Loading pull request details...' : 'Loading diff...'}
         </Typography>
       </Box>
     );
@@ -316,7 +350,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h5" component="h2">
-          Review: {selectedPullRequest.title}
+          Review: {selectedPullRequest?.title || `PR #${directPRId || 'Unknown'}`}
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
@@ -381,9 +415,19 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
               </Box>
               
               {!diffData?.diffs || diffData.diffs.length === 0 ? (
-                <Typography color="text.secondary">
-                  No changes found in this pull request.
-                </Typography>
+                <Card elevation={0} sx={{ textAlign: 'center', py: 4, backgroundColor: 'grey.50' }}>
+                  <CardContent>
+                    <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                      📄 No Changes Found
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      This pull request doesn't contain any file changes.
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      This might be a documentation-only PR or the changes haven't been committed yet.
+                    </Typography>
+                  </CardContent>
+                </Card>
               ) : (
                 <Box>
                   {diffData.diffs.map((file, fileIndex) => (

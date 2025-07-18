@@ -32,22 +32,40 @@ const SendEmailContainer = () => {
 
   // Load email values from localStorage on component mount
   useEffect(() => {
-    const savedToEmail = localStorage.getItem('emailTemplate_toEmail');
-    const savedCcEmail = localStorage.getItem('emailTemplate_ccEmail');
-    const savedSubjectEmail = localStorage.getItem('emailTemplate_subject');
+    const lastEmailVersion = localStorage.getItem('lastEmailVersion');
     
-    if (savedToEmail) {
-      setToEmail(savedToEmail);
-    }
-    
-    if (savedCcEmail) {
-      setCcEmail(savedCcEmail);
-    }
-
-    if (savedSubjectEmail) {
-      setSubject(savedSubjectEmail);
+    if (lastEmailVersion) {
+      try {
+        const lastVersionData = JSON.parse(lastEmailVersion);
+        if (lastVersionData.version) {
+          setVersion(lastVersionData.version);
+        }
+        if (lastVersionData.toEmail) {
+          setToEmail(lastVersionData.toEmail);
+        }
+        if (lastVersionData.ccEmail) {
+          setCcEmail(lastVersionData.ccEmail);
+        }
+        if (lastVersionData.subject) {
+          setSubject(lastVersionData.subject);
+        }
+      } catch (error) {
+        console.error('Error parsing last email version data:', error);
+      }
     }
   }, []);
+
+  const saveEmailDataToLocalStorage = () => {
+    const emailVersionData = {
+      version,
+      timestamp: new Date().toISOString(),
+      toEmail,
+      ccEmail,
+      subject,
+      dryRun
+    };
+    localStorage.setItem('lastEmailVersion', JSON.stringify(emailVersionData));
+  };
 
   const handleBackToHome = () => {
     dispatch(setCurrentView('home'));
@@ -63,6 +81,9 @@ const SendEmailContainer = () => {
       setEmailPreview(result);
       dispatch(setEmailData(result));
       
+      // Save last version to local storage when preview is successfully generated
+      saveEmailDataToLocalStorage();
+      
       if (!dryRun) {
         dispatch(setLastSentVersion(version));
         setSuccess(true);
@@ -75,10 +96,8 @@ const SendEmailContainer = () => {
   const handleDownloadTemplate = () => {
     if (!emailPreview) return;
 
-    // Save current To and CC values to localStorage
-    localStorage.setItem('emailTemplate_toEmail', toEmail);
-    localStorage.setItem('emailTemplate_ccEmail', ccEmail);
-    localStorage.setItem('emailTemplate_subject', subject);
+    // Update localStorage with current email data before download
+    saveEmailDataToLocalStorage();
 
     // Create the .eml file content
     const emlContent = `To: ${toEmail}

@@ -6,6 +6,7 @@ const initialState = {
     repoSlug: '',
   },
   selectedPullRequest: null,
+  directPRId: null,
   diffData: null,
   reviewData: null,
   isReviewing: false,
@@ -19,6 +20,7 @@ const prSlice = createSlice({
     setSelectedProject: (state, action) => {
       state.selectedProject = action.payload;
       state.selectedPullRequest = null;
+      state.directPRId = null;
       state.diffData = null;
       state.reviewData = null;
       state.error = null;
@@ -28,6 +30,9 @@ const prSlice = createSlice({
       state.diffData = null;
       state.reviewData = null;
       state.error = null;
+    },
+    setDirectPRId: (state, action) => {
+      state.directPRId = action.payload;
     },
     setDiffData: (state, action) => {
       state.diffData = action.payload;
@@ -47,6 +52,7 @@ const prSlice = createSlice({
     },
     clearPRData: (state) => {
       state.selectedPullRequest = null;
+      state.directPRId = null;
       state.diffData = null;
       state.reviewData = null;
       state.error = null;
@@ -57,6 +63,7 @@ const prSlice = createSlice({
 export const {
   setSelectedProject,
   setSelectedPullRequest,
+  setDirectPRId,
   setDiffData,
   setReviewData,
   setIsReviewing,
