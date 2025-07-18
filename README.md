@@ -94,8 +94,8 @@ ai-workflow-utils --dev
 The application will be available at `http://localhost:3000`
 
 ---
-
-## 🎯 **Feature Deep Dive**
+<details>
+<summary><strong>🎯 Feature Deep Div</strong></summary>
 
 ### **🎫 AI Jira Ticket Creation**
 
@@ -142,9 +142,8 @@ The application will be available at `http://localhost:3000`
 - **Smart Conversion**: Automatic .mov to .mp4 for compatibility
 - **Batch Upload**: Multiple files at once
 - **Preview Integration**: View attachments before upload
-
+</details>
 ---
-
 <details>
 <summary><strong>⚙️ Advanced Configuration (For Developers)</strong></summary>
 
@@ -238,23 +237,6 @@ ollama list
 ```
 
 </details>
-
----
-
-## 🎨 **User Interface Overview**
-
-### **Main Dashboard**
-- **Create Jira**: AI-powered ticket creation
-- **View Jira**: Browse and manage existing tickets with attachment support
-- **GitStash Review**: AI code review for pull requests
-- **AI Chat Assistant**: General development assistance (coming soon)
-
-### **Key UI Features**
-- **Real-time Streaming**: Watch AI generate content live
-- **Drag & Drop**: Easy file uploads
-- **Responsive Design**: Works on desktop and mobile
-- **Dark/Light Mode**: Customizable themes
-- **Progress Indicators**: Clear feedback on all operations
 
 ---
 
@@ -354,8 +336,8 @@ server {
 </details>
 
 ---
-
-## 🔒 **Security & Privacy**
+<details>
+<summary><strong>🔒 Security & Privacy</strong></summary>
 
 ### **Data Privacy**
 - **Local AI Processing**: Use Ollama for complete data privacy
@@ -370,7 +352,7 @@ server {
 - **Access Control**: Token-based authentication
 
 ---
-
+</details>
 <details>
 <summary><strong>📊 Monitoring & Analytics (For DevOps)</strong></summary>
 
