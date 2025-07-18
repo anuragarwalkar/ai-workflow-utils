@@ -94,7 +94,9 @@ ai-workflow-utils --dev
 The application will be available at `http://localhost:3000`
 
 ---
+
 <details>
+     
 <summary><strong>🎯 Feature Deep Div</strong></summary>
 
 ### **🎫 AI Jira Ticket Creation**
@@ -143,7 +145,9 @@ The application will be available at `http://localhost:3000`
 - **Batch Upload**: Multiple files at once
 - **Preview Integration**: View attachments before upload
 </details>
+
 ---
+
 <details>
 <summary><strong>⚙️ Advanced Configuration (For Developers)</strong></summary>
 
@@ -336,6 +340,7 @@ server {
 </details>
 
 ---
+
 <details>
 <summary><strong>🔒 Security & Privacy</strong></summary>
 
@@ -351,8 +356,10 @@ server {
 - **Error Handling**: No sensitive data in error messages
 - **Access Control**: Token-based authentication
 
----
 </details>
+
+---
+
 <details>
 <summary><strong>📊 Monitoring & Analytics (For DevOps)</strong></summary>
 
