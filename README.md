@@ -1,4 +1,4 @@
-# 🚀 AI Workflow Utils v1.0.6 - Major Feature Release
+# 🚀 AI Workflow Utils v1.1.0 - Major Feature Release
 
 <div align="center">
 
