@@ -17,7 +17,7 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import { clearBuildLogs } from '../../store/slices/buildSlice';
 import { setCurrentView } from '../../store/slices/appSlice';
-import { useCreatePullRequestMutation } from '../../store/api/jiraApi';
+import { useCreatePullRequestMutation } from '../../store/api/prApi';
 import { PR_CONFIG } from '../../private-config';
 import socketService from '../../services/socketService';
 

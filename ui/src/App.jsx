@@ -8,6 +8,7 @@ import HomeButtons from './components/home/HomeButtons';
 import CreateJiraContainer from './components/jira/CreateJira/CreateJiraContainer';
 import SendEmailContainer from './components/email/SendEmailContainer';
 import ReleaseBuildContainer from './components/build/ReleaseBuildContainer';
+import GitStashContainer from './components/gitstash/GitStashContainer';
 import ViewJiraModal from './components/jira/ViewJira/ViewJiraModal';
 import BuildModal from './components/build/BuildModal';
 import NotificationSnackbar from './components/common/NotificationSnackbar';
@@ -24,6 +25,8 @@ const AppContent = () => {
         return <SendEmailContainer />;
       case 'releaseBuild':
         return <ReleaseBuildContainer />;
+      case 'gitStash':
+        return <GitStashContainer />;
       case 'home':
       default:
         return <HomeButtons />;

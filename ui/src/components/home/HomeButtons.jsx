@@ -17,7 +17,9 @@ import {
   Add as AddIcon,
   Search as SearchIcon,
   Send as SendIcon,
-  RocketLaunch as RocketLaunchIcon
+  RocketLaunch as RocketLaunchIcon,
+  Code as CodeIcon,
+  Reviews as ReviewsIcon
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { setCurrentView } from '../../store/slices/appSlice';
@@ -40,6 +42,10 @@ const HomeButtons = () => {
 
   const handleReleaseBuild = () => {
     dispatch(setCurrentView('releaseBuild'));
+  };
+
+  const handleGitStash = () => {
+    dispatch(setCurrentView('gitStash'));
   };
 
   const actionCards = [
@@ -78,6 +84,15 @@ const HomeButtons = () => {
       onClick: handleReleaseBuild,
       gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
       shadowColor: 'rgba(250, 112, 154, 0.3)',
+    },
+    {
+      title: 'GitStash Review',
+      description: 'Review pull requests with AI assistance',
+      icon: CodeIcon,
+      actionIcon: ReviewsIcon,
+      onClick: handleGitStash,
+      gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+      shadowColor: 'rgba(17, 153, 142, 0.3)',
     },
   ];
 

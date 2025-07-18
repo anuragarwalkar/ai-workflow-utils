@@ -14,6 +14,7 @@ import jiraRoutes from './routes/jiraRoutes.js';
 import emailRoutes from './routes/emailRoutes.js';
 import buildRoutes from './routes/buildRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
+import prRoutes from './routes/prRoutes.js';
 
 // Configure dotenv
 dotenv.config();
@@ -76,6 +77,7 @@ app.use('/api/jira', jiraRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/build', buildRoutes(io));
 app.use('/api/chat', chatRoutes);
+app.use('/api/pr', prRoutes);
 
 // Serve static files from React build
 const staticPath = path.join(projectRoot, 'ui/dist');
