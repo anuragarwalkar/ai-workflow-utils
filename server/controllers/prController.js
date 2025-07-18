@@ -27,36 +27,116 @@ function buildReviewPrompt(diffData, prDetails) {
     prompt += `**Pull Request Details:**\n`;
     prompt += `Title: ${prDetails.title || 'N/A'}\n`;
     prompt += `Description: ${prDetails.description || 'N/A'}\n`;
-    prompt += `Author: ${prDetails.author?.displayName || 'N/A'}\n\n`;
+    prompt += `Author: ${prDetails.author?.user?.displayName || prDetails.author?.displayName || 'N/A'}\n\n`;
   }
 
   prompt += `**Code Changes:**\n\n`;
 
-  if (diffData.values && Array.isArray(diffData.values)) {
-    diffData.values.forEach((file, index) => {
-      prompt += `### File ${index + 1}: ${file.srcPath?.toString || 'Unknown file'}\n`;
+  let hasChanges = false;
+  
+  // Handle Bitbucket diff format
+  if (diffData && diffData.diffs && Array.isArray(diffData.diffs)) {
+    diffData.diffs.forEach((file, index) => {
+      const fileName = file.source?.toString || file.destination?.toString || 'Unknown file';
+      prompt += `### File ${index + 1}: ${fileName}\n`;
       
       if (file.hunks && Array.isArray(file.hunks)) {
         file.hunks.forEach((hunk, hunkIndex) => {
-          prompt += `\n**Hunk ${hunkIndex + 1}** (${hunk.section || 'No section'}):\n`;
-          prompt += `Lines ${hunk.oldLine}-${hunk.newLine}\n\n`;
+          prompt += `\n**Hunk ${hunkIndex + 1}**`;
+          if (hunk.context) {
+            prompt += ` (${hunk.context})`;
+          }
+          prompt += `:\n`;
+          prompt += `Lines: ${hunk.sourceLine}-${hunk.sourceLine + hunk.sourceSpan - 1} → ${hunk.destinationLine}-${hunk.destinationLine + hunk.destinationSpan - 1}\n\n`;
+          prompt += `\`\`\`diff\n`;
           
-          if (hunk.lines && Array.isArray(hunk.lines)) {
-            hunk.lines.forEach(line => {
-              if (line.left && line.right) {
-                prompt += `- ${line.left}\n+ ${line.right}\n`;
-              } else if (line.left) {
-                prompt += `- ${line.left}\n`;
-              } else if (line.right) {
-                prompt += `+ ${line.right}\n`;
+          if (hunk.segments && Array.isArray(hunk.segments)) {
+            hunk.segments.forEach(segment => {
+              if (segment.lines && Array.isArray(segment.lines)) {
+                segment.lines.forEach(line => {
+                  hasChanges = true;
+                  let prefix = ' '; // context line
+                  
+                  if (segment.type === 'ADDED') {
+                    prefix = '+';
+                  } else if (segment.type === 'REMOVED') {
+                    prefix = '-';
+                  }
+                  
+                  prompt += `${prefix}${line.line}\n`;
+                });
               }
             });
           }
-          prompt += `\n`;
+          prompt += `\`\`\`\n\n`;
         });
       }
       prompt += `\n---\n\n`;
     });
+  }
+  // Fallback to old format handling
+  else if (diffData && diffData.values && Array.isArray(diffData.values)) {
+    diffData.values.forEach((file, index) => {
+      const fileName = file.srcPath?.toString || file.path?.toString || file.source?.toString || 'Unknown file';
+      prompt += `### File ${index + 1}: ${fileName}\n`;
+      
+      if (file.hunks && Array.isArray(file.hunks)) {
+        file.hunks.forEach((hunk, hunkIndex) => {
+          prompt += `\n**Hunk ${hunkIndex + 1}**:\n`;
+          if (hunk.oldLine !== undefined && hunk.newLine !== undefined) {
+            prompt += `Lines: ${hunk.oldLine} → ${hunk.newLine}\n`;
+          }
+          prompt += `\`\`\`diff\n`;
+          
+          if (hunk.lines && Array.isArray(hunk.lines)) {
+            hunk.lines.forEach(line => {
+              hasChanges = true;
+              if (line.left && line.right) {
+                prompt += `-${line.left}\n+${line.right}\n`;
+              } else if (line.left) {
+                prompt += `-${line.left}\n`;
+              } else if (line.right) {
+                prompt += `+${line.right}\n`;
+              } else if (line.content) {
+                const prefix = line.type === 'ADDED' ? '+' : line.type === 'REMOVED' ? '-' : ' ';
+                prompt += `${prefix}${line.content}\n`;
+              } else if (typeof line === 'string') {
+                prompt += `${line}\n`;
+              }
+            });
+          } else if (hunk.content) {
+            hasChanges = true;
+            prompt += `${hunk.content}\n`;
+          }
+          prompt += `\`\`\`\n\n`;
+        });
+      } else if (file.content || file.diff) {
+        hasChanges = true;
+        prompt += `\n\`\`\`diff\n`;
+        prompt += `${file.content || file.diff}\n`;
+        prompt += `\`\`\`\n\n`;
+      }
+      prompt += `\n---\n\n`;
+    });
+  }
+  // Handle raw diff string
+  else if (diffData && typeof diffData === 'string') {
+    hasChanges = true;
+    prompt += `\`\`\`diff\n${diffData}\n\`\`\`\n\n`;
+  }
+  // Handle other diff object structures
+  else if (diffData && typeof diffData === 'object') {
+    hasChanges = true;
+    prompt += `\`\`\`json\n${JSON.stringify(diffData, null, 2)}\n\`\`\`\n\n`;
+    prompt += `Note: The above is the raw diff data structure. Please analyze the changes within this data.\n\n`;
+  }
+
+  if (!hasChanges) {
+    prompt += `**Note:** No specific code changes were detected in the provided diff data. This might indicate:\n`;
+    prompt += `- The diff data structure is different than expected\n`;
+    prompt += `- The changes are in binary files or very large files\n`;
+    prompt += `- There might be an issue with how the diff was generated\n\n`;
+    prompt += `Raw diff data structure:\n\`\`\`json\n${JSON.stringify(diffData, null, 2)}\n\`\`\`\n\n`;
   }
 
   prompt += `\nPlease provide a comprehensive code review covering:\n`;
@@ -66,6 +146,7 @@ function buildReviewPrompt(diffData, prDetails) {
   prompt += `4. Performance implications\n`;
   prompt += `5. Best practices and suggestions for improvement\n`;
   prompt += `6. Overall assessment and recommendation\n`;
+  prompt += `\nIf you cannot see specific code changes, please indicate what information you would need to provide a proper review.\n`;
 
   return prompt;
 }
@@ -154,7 +235,7 @@ async function getPullRequestDiff(req, res) {
   }
 }
 
-// Review pull request using OpenAI compatible API
+// Review pull request using OpenAI compatible API with fallback
 async function reviewPullRequest(req, res) {
   try {
     const { projectKey, repoSlug, pullRequestId, diffData, prDetails } = req.body;
@@ -165,62 +246,137 @@ async function reviewPullRequest(req, res) {
       });
     }
 
+    // Debug logging to understand diff data structure
+    logger.info(`Starting AI review for PR ${pullRequestId}`);
+
     // Prepare the prompt for AI review
     const reviewPrompt = buildReviewPrompt(diffData, prDetails);
     
-    logger.info(`Starting AI review for PR ${pullRequestId}`);
+    let review = null;
+    let aiProvider = 'unknown';
 
-    const response = await axios.post(`${openaiBaseUrl}/v1/chat/completions`, {
-      model: openaiModel,
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert code reviewer. Analyze the provided code changes and provide constructive feedback focusing on code quality, potential bugs, security issues, performance concerns, and best practices.'
-        },
-        {
-          role: 'user',
-          content: reviewPrompt
-        }
-      ],
-      max_tokens: 2000,
-      temperature: 0.3,
-    }, {
-      headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    // Try primary OpenAI compatible API first
+    try {
+      if (openaiBaseUrl && openaiApiKey && openaiModel) {
+        logger.info(`Attempting review with OpenAI compatible API: ${openaiBaseUrl}/chat/completions`);
+        
+        const response = await axios.post(`${openaiBaseUrl}/chat/completions`, {
+          model: openaiModel,
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert code reviewer. Analyze the provided code changes and provide constructive feedback focusing on code quality, potential bugs, security issues, performance concerns, and best practices.'
+            },
+            {
+              role: 'user',
+              content: reviewPrompt
+            }
+          ],
+          max_tokens: 2000,
+          temperature: 0.3,
+        }, {
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: 30000 // 30 second timeout
+        });
 
-    const review = response.data.choices?.[0]?.message?.content;
+        review = response.data.choices?.[0]?.message?.content;
+        aiProvider = 'OpenAI Compatible';
+        logger.info('Successfully generated review using OpenAI compatible API');
+      }
+    } catch (primaryError) {
+      logger.warn('Primary API failed, attempting fallback:', primaryError.message);
+      
+      // Try Ollama fallback
+      try {
+        const ollamaUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+        const ollamaModel = process.env.OLLAMA_MODEL || 'llama2';
+        
+        logger.info(`Attempting review with Ollama: ${ollamaUrl}`);
+        
+        const ollamaResponse = await axios.post(`${ollamaUrl}/api/generate`, {
+          model: ollamaModel,
+          prompt: `You are an expert code reviewer. ${reviewPrompt}`,
+          stream: false
+        }, {
+          timeout: 60000 // 60 second timeout for Ollama
+        });
+
+        review = ollamaResponse.data.response;
+        aiProvider = 'ollama';
+        logger.info('Successfully generated review using Ollama');
+      } catch (ollamaError) {
+        logger.error('Ollama fallback also failed:', ollamaError.message);
+        
+        // If both fail, provide a basic static review
+        review = generateBasicReview(diffData, prDetails);
+        aiProvider = 'static';
+        logger.info('Using static review as final fallback');
+      }
+    }
 
     if (!review) {
       return res.status(500).json({ 
-        error: 'No review content received from AI' 
+        error: 'No review content could be generated from any AI provider',
+        details: 'Both primary API and fallback options failed'
       });
     }
 
-    logger.info(`Successfully generated AI review for PR ${pullRequestId}`);
+    logger.info(`Successfully generated AI review for PR ${pullRequestId} using ${aiProvider}`);
     
     res.json({
       review,
       projectKey,
       repoSlug,
       pullRequestId,
+      aiProvider,
       reviewedAt: new Date().toISOString()
     });
   } catch (error) {
     logger.error('Error reviewing pull request:', error);
-    if (error.response) {
-      return res.status(error.response.status).json({
-        error: `Failed to generate AI review: ${error.response.statusText}`,
-        details: error.response.data
-      });
-    }
     res.status(500).json({ 
       error: 'Internal server error while reviewing pull request',
-      message: error.message 
+      message: error.message,
+      details: error.response?.data || 'No additional details available'
     });
   }
+}
+
+// Generate a basic static review when AI services are unavailable
+function generateBasicReview(diffData, prDetails) {
+  let review = `# Pull Request Review\n\n`;
+  
+  if (prDetails) {
+    review += `**Pull Request:** ${prDetails.title || 'N/A'}\n`;
+    review += `**Author:** ${prDetails.author?.displayName || 'N/A'}\n\n`;
+  }
+
+  review += `## Summary\n`;
+  review += `This is a basic review generated when AI services are unavailable.\n\n`;
+
+  if (diffData.values && Array.isArray(diffData.values)) {
+    review += `## Files Changed (${diffData.values.length})\n`;
+    diffData.values.forEach((file, index) => {
+      review += `${index + 1}. ${file.srcPath?.toString || 'Unknown file'}\n`;
+    });
+    review += `\n`;
+  }
+
+  review += `## Recommendations\n`;
+  review += `- Please ensure all changes have been tested thoroughly\n`;
+  review += `- Verify that code follows project coding standards\n`;
+  review += `- Check for potential security vulnerabilities\n`;
+  review += `- Ensure proper error handling is in place\n`;
+  review += `- Consider performance implications of the changes\n`;
+  review += `- Update documentation if necessary\n\n`;
+
+  review += `## Note\n`;
+  review += `This review was generated using a static template because AI review services were unavailable. `;
+  review += `Please conduct a manual code review to ensure code quality.\n`;
+
+  return review;
 }
 
 // Create pull request (moved from jiraController)
