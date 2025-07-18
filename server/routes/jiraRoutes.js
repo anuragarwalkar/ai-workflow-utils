@@ -61,7 +61,5 @@ router.post('/upload', (req, res, next) => {
 // Route for fetching a Jira issue by ID
 router.get('/issue/:id', asyncHandler(jiraController.getJiraIssue));
 
-// Route for creating pull requests
-router.post('/create-pr', asyncHandler(jiraController.createPullRequest));
 
 export default router;

@@ -125,13 +125,6 @@ export const jiraApi = createApi({
         { type: 'Jira', id: issueKey },
       ],
     }),
-    createPullRequest: builder.mutation({
-      query: ({ ticketNumber, updatedList, branchName, projectKey, repoSlug }) => ({
-        url: '/create-pr',
-        method: 'POST',
-        body: { ticketNumber, updatedList, branchName, projectKey, repoSlug },
-      }),
-    }),
   }),
 });
 
@@ -142,5 +135,4 @@ export const {
   useFetchJiraQuery,
   useLazyFetchJiraQuery,
   useUploadAttachmentMutation,
-  useCreatePullRequestMutation,
 } = jiraApi;
