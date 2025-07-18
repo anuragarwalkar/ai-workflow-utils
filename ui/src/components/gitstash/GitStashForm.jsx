@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   TextField,
@@ -13,6 +13,8 @@ import { useDispatch } from 'react-redux';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { setSelectedProject, setError } from '../../store/slices/prSlice';
 
+const STORAGE_KEY = 'gitstash_project_config';
+
 const GitStashForm = ({ onNext }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
@@ -20,6 +22,31 @@ const GitStashForm = ({ onNext }) => {
     repoSlug: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  // Load saved values from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedConfig = localStorage.getItem(STORAGE_KEY);
+      if (savedConfig) {
+        const parsedConfig = JSON.parse(savedConfig);
+        setFormData({
+          projectKey: parsedConfig.projectKey || '',
+          repoSlug: parsedConfig.repoSlug || '',
+        });
+      }
+    } catch (error) {
+      console.warn('Failed to load saved project configuration:', error);
+    }
+  }, []);
+
+  // Save to localStorage whenever form data changes
+  const saveToLocalStorage = (data) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.warn('Failed to save project configuration:', error);
+    }
+  };
 
   const handleInputChange = (field) => (event) => {
     setFormData(prev => ({
@@ -40,11 +67,16 @@ const GitStashForm = ({ onNext }) => {
     dispatch(setError(null));
 
     try {
-      // Set the selected project in Redux store
-      dispatch(setSelectedProject({
+      const projectData = {
         projectKey: formData.projectKey.trim(),
         repoSlug: formData.repoSlug.trim(),
-      }));
+      };
+
+      // Save to localStorage for future use
+      saveToLocalStorage(projectData);
+
+      // Set the selected project in Redux store
+      dispatch(setSelectedProject(projectData));
 
       // Move to next step
       onNext();
@@ -68,10 +100,11 @@ const GitStashForm = ({ onNext }) => {
           </Typography>
           
           <Alert severity="info" sx={{ mb: 3 }}>
-            <Typography variant="body2">
+            <Typography variant="body2" component="div">
               <strong>Example:</strong><br />
               Project Key: <code>MYPROJ</code><br />
-              Repository Slug: <code>my-repository</code>
+              Repository Slug: <code>my-repository</code><br />
+              <em>Note: Your settings will be saved for next time.</em>
             </Typography>
           </Alert>
         </CardContent>

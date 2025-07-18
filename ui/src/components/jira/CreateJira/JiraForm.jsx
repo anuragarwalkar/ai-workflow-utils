@@ -219,7 +219,7 @@ const JiraForm = () => {
             />
           </Button>
           {imageFile && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" component="div">
               Selected: {imageFile.name}
             </Typography>
           )}

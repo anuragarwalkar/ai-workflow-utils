@@ -14,6 +14,9 @@ import {
   Paper,
   Divider,
   Grid,
+  useTheme,
+  Tooltip,
+  IconButton,
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
@@ -21,10 +24,167 @@ import {
   AutoAwesome as AutoAwesomeIcon,
   Refresh as RefreshIcon,
   Code as CodeIcon,
+  Add as AddIcon,
+  Remove as RemoveIcon,
+  FileCopy as FileCopyIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useGetPullRequestDiffQuery, useReviewPullRequestMutation } from '../../store/api/prApi';
 import { setDiffData, setReviewData, setError } from '../../store/slices/prSlice';
+
+const DiffLine = ({ line, type, lineNumber }) => {
+  const theme = useTheme();
+  
+  const getLineStyle = (segmentType) => {
+    switch (segmentType) {
+      case 'ADDED':
+        return {
+          backgroundColor: theme.palette.success.light + '20',
+          borderLeft: `3px solid ${theme.palette.success.main}`,
+          color: theme.palette.success.dark
+        };
+      case 'REMOVED':
+        return {
+          backgroundColor: theme.palette.error.light + '20',
+          borderLeft: `3px solid ${theme.palette.error.main}`,
+          color: theme.palette.error.dark
+        };
+      case 'CONTEXT':
+        return {
+          backgroundColor: theme.palette.grey[50],
+          borderLeft: `3px solid ${theme.palette.grey[300]}`,
+          color: theme.palette.text.primary
+        };
+      default:
+        return {};
+    }
+  };
+
+  const getLineIcon = (segmentType) => {
+    switch (segmentType) {
+      case 'ADDED':
+        return <AddIcon fontSize="small" color="success" />;
+      case 'REMOVED':
+        return <RemoveIcon fontSize="small" color="error" />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        fontFamily: 'monospace',
+        fontSize: '0.875rem',
+        padding: '2px 8px',
+        minHeight: '20px',
+        ...getLineStyle(type)
+      }}
+    >
+      <Box sx={{ minWidth: '20px', display: 'flex', alignItems: 'center' }}>
+        {getLineIcon(type)}
+      </Box>
+      <Box sx={{ minWidth: '60px', color: theme.palette.text.secondary, marginRight: 2 }}>
+        {lineNumber && (
+          <Typography variant="caption" sx={{ fontFamily: 'monospace' }}>
+            {lineNumber}
+          </Typography>
+        )}
+      </Box>
+      <Box sx={{ flex: 1, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+        {line}
+      </Box>
+    </Box>
+  );
+};
+
+const FileChanges = ({ file, expanded, onToggle }) => {
+  const theme = useTheme();
+  
+  const getFileStatus = () => {
+    if (!file.source && file.destination) return 'ADDED';
+    if (file.source && !file.destination) return 'REMOVED';
+    return 'MODIFIED';
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'ADDED': return 'success';
+      case 'REMOVED': return 'error';
+      case 'MODIFIED': return 'warning';
+      default: return 'default';
+    }
+  };
+
+  const status = getFileStatus();
+  const fileName = file.destination?.toString || file.source?.toString || 'Unknown file';
+
+  return (
+    <Accordion
+      expanded={expanded}
+      onChange={onToggle}
+      sx={{ mb: 1, border: `1px solid ${theme.palette.divider}` }}
+    >
+      <AccordionSummary 
+        expandIcon={<ExpandMoreIcon />}
+        sx={{ 
+          backgroundColor: theme.palette.grey[50],
+          '&:hover': { backgroundColor: theme.palette.grey[100] }
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+          <Typography variant="subtitle1" sx={{ fontFamily: 'monospace', flex: 1 }}>
+            {fileName}
+          </Typography>
+          <Chip 
+            label={status} 
+            size="small" 
+            color={getStatusColor(status)}
+            variant="outlined" 
+          />
+          <Chip 
+            label={`${file.hunks?.length || 0} hunks`} 
+            size="small" 
+            variant="outlined" 
+          />
+        </Box>
+      </AccordionSummary>
+      <AccordionDetails sx={{ p: 0 }}>
+        {file.hunks?.map((hunk, hunkIndex) => (
+          <Box key={hunkIndex} sx={{ mb: 2 }}>
+            <Box sx={{ 
+              backgroundColor: theme.palette.primary.light + '20', 
+              p: 1, 
+              borderBottom: `1px solid ${theme.palette.divider}` 
+            }}>
+              <Typography variant="subtitle2" sx={{ color: 'primary.main', fontFamily: 'monospace' }}>
+                {hunk.context || `@@ -${hunk.sourceLine},${hunk.sourceSpan} +${hunk.destinationLine},${hunk.destinationSpan} @@`}
+              </Typography>
+            </Box>
+            <Box>
+              {hunk.segments?.map((segment, segmentIndex) => (
+                <Box key={segmentIndex}>
+                  {segment.lines?.map((line, lineIndex) => (
+                    <DiffLine
+                      key={`${segmentIndex}-${lineIndex}`}
+                      line={line.line}
+                      type={segment.type}
+                      lineNumber={line.source || line.destination}
+                    />
+                  ))}
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        ))}
+      </AccordionDetails>
+    </Accordion>
+  );
+};
 
 const PullRequestDiff = ({ onPrevious, onReset }) => {
   const dispatch = useDispatch();
@@ -68,6 +228,18 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
     }));
   };
 
+  const handleExpandAll = () => {
+    const newExpanded = {};
+    diffData?.diffs?.forEach((_, index) => {
+      newExpanded[index] = true;
+    });
+    setExpandedFiles(newExpanded);
+  };
+
+  const handleCollapseAll = () => {
+    setExpandedFiles({});
+  };
+
   const handleReview = async () => {
     if (!diffData) return;
 
@@ -86,29 +258,29 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
     }
   };
 
-  const renderHunkLines = (lines) => {
-    return lines.map((line, index) => (
-      <Box key={index} sx={{ fontFamily: 'monospace', fontSize: '0.875rem', mb: 0.5 }}>
-        {line.left && line.right ? (
-          <Box>
-            <Box sx={{ color: 'error.main', backgroundColor: 'error.light', p: 0.5, borderRadius: 0.5, mb: 0.25 }}>
-              - {line.left}
-            </Box>
-            <Box sx={{ color: 'success.main', backgroundColor: 'success.light', p: 0.5, borderRadius: 0.5 }}>
-              + {line.right}
-            </Box>
-          </Box>
-        ) : line.left ? (
-          <Box sx={{ color: 'error.main', backgroundColor: 'error.light', p: 0.5, borderRadius: 0.5 }}>
-            - {line.left}
-          </Box>
-        ) : line.right ? (
-          <Box sx={{ color: 'success.main', backgroundColor: 'success.light', p: 0.5, borderRadius: 0.5 }}>
-            + {line.right}
-          </Box>
-        ) : null}
-      </Box>
-    ));
+  const getDiffStats = () => {
+    if (!diffData?.diffs) return { files: 0, additions: 0, deletions: 0 };
+    
+    let additions = 0;
+    let deletions = 0;
+    
+    diffData.diffs.forEach(file => {
+      file.hunks?.forEach(hunk => {
+        hunk.segments?.forEach(segment => {
+          if (segment.type === 'ADDED') {
+            additions += segment.lines?.length || 0;
+          } else if (segment.type === 'REMOVED') {
+            deletions += segment.lines?.length || 0;
+          }
+        });
+      });
+    });
+    
+    return {
+      files: diffData.diffs.length,
+      additions,
+      deletions
+    };
   };
 
   if (isDiffLoading) {
@@ -137,6 +309,8 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
       </Box>
     );
   }
+
+  const stats = getDiffStats();
 
   return (
     <Box>
@@ -173,60 +347,52 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         <Grid item xs={12} md={reviewData ? 6 : 12}>
           <Card elevation={1} sx={{ mb: 3 }}>
             <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <CodeIcon color="primary" />
-                <Typography variant="h6">
-                  Code Changes
-                </Typography>
-                <Chip 
-                  label={`${diffData?.values?.length || 0} files`} 
-                  size="small" 
-                  color="primary" 
-                  variant="outlined" 
-                />
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CodeIcon color="primary" />
+                  <Typography variant="h6">
+                    Code Changes
+                  </Typography>
+                  <Chip 
+                    label={`${stats.files} files`} 
+                    size="small" 
+                    color="primary" 
+                    variant="outlined" 
+                  />
+                  <Chip 
+                    label={`+${stats.additions} -${stats.deletions}`} 
+                    size="small" 
+                    color="secondary" 
+                    variant="outlined" 
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Tooltip title="Expand All">
+                    <IconButton size="small" onClick={handleExpandAll}>
+                      <VisibilityIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Collapse All">
+                    <IconButton size="small" onClick={handleCollapseAll}>
+                      <VisibilityOffIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
               </Box>
               
-              {diffData?.values?.length === 0 ? (
+              {!diffData?.diffs || diffData.diffs.length === 0 ? (
                 <Typography color="text.secondary">
                   No changes found in this pull request.
                 </Typography>
               ) : (
                 <Box>
-                  {diffData?.values?.map((file, fileIndex) => (
-                    <Accordion
+                  {diffData.diffs.map((file, fileIndex) => (
+                    <FileChanges
                       key={fileIndex}
+                      file={file}
                       expanded={expandedFiles[fileIndex] || false}
-                      onChange={() => handleFileToggle(fileIndex)}
-                      sx={{ mb: 1 }}
-                    >
-                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="subtitle1" sx={{ fontFamily: 'monospace' }}>
-                            {file.srcPath?.toString || 'Unknown file'}
-                          </Typography>
-                          <Chip 
-                            label={`${file.hunks?.length || 0} hunks`} 
-                            size="small" 
-                            variant="outlined" 
-                          />
-                        </Box>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        {file.hunks?.map((hunk, hunkIndex) => (
-                          <Paper key={hunkIndex} variant="outlined" sx={{ p: 2, mb: 2 }}>
-                            <Typography variant="subtitle2" sx={{ mb: 1, color: 'primary.main' }}>
-                              {hunk.section || `Hunk ${hunkIndex + 1}`}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ mb: 2, display: 'block' }}>
-                              Lines {hunk.oldLine}-{hunk.newLine}
-                            </Typography>
-                            <Box sx={{ backgroundColor: 'grey.50', p: 1, borderRadius: 1 }}>
-                              {renderHunkLines(hunk.lines || [])}
-                            </Box>
-                          </Paper>
-                        ))}
-                      </AccordionDetails>
-                    </Accordion>
+                      onToggle={() => handleFileToggle(fileIndex)}
+                    />
                   ))}
                 </Box>
               )}

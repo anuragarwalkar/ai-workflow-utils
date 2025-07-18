@@ -23,7 +23,7 @@ const JiraDetails = () => {
 
   if (isLoading) {
     return (
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" color="text.secondary" component="div">
         Loading Jira details...
       </Typography>
     );
@@ -31,7 +31,7 @@ const JiraDetails = () => {
 
   if (error) {
     return (
-      <Typography variant="body2" color="error">
+      <Typography variant="body2" color="error" component="div">
         Error loading Jira details: {error.data || error.message}
       </Typography>
     );

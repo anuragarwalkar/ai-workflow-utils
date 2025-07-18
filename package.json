@@ -55,7 +55,7 @@
     "serve": "npm run build && npm run start-server",
     "build-server:watch": "webpack --config webpack.config.js --watch",
     "preview": "vite preview",
-    "build": "concurrently \"npm run build-ui\" \"npm run build-server\"",
+    "build": "concurrently --names \"ui, server\" \"npm run build-ui\" \"npm run build-server\"",
     "prepublishOnly": "npm run build"
   },
   "author": {

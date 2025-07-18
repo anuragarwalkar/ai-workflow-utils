@@ -1,5 +1,17 @@
-import fetch from 'node-fetch';
+import axios from 'axios';
+import https from 'https';
 import logger from '../logger.js';
+import dotenv from 'dotenv';
+
+// Configure dotenv
+dotenv.config();
+
+// Create axios instance with SSL certificate verification disabled for self-signed certificates
+const axiosInstance = axios.create({
+  httpsAgent: new https.Agent({
+    rejectUnauthorized: false // Ignore self-signed certificate errors
+  })
+});
 
 const bitbucketUrl = process.env.BIT_BUCKET_URL;
 const authToken = process.env.BITBUCKET_AUTHORIZATION_TOKEN;
@@ -73,30 +85,26 @@ async function getPullRequests(req, res) {
     
     logger.info(`Fetching pull requests from: ${url}`);
 
-    const response = await fetch(url, {
-      method: 'GET',
+    const response = await axiosInstance.get(url, {
       headers: {
         'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      logger.error(`BitBucket API error: ${response.status} - ${errorText}`);
-      return res.status(response.status).json({ 
-        error: `Failed to fetch pull requests: ${response.statusText}`,
-        details: errorText
-      });
-    }
-
-    const data = await response.json();
+    const data = response.data;
     
     logger.info(`Successfully fetched ${data.values?.length || 0} pull requests`);
     
     res.json(data);
   } catch (error) {
     logger.error('Error fetching pull requests:', error);
+    if (error.response) {
+      return res.status(error.response.status).json({
+        error: `Failed to fetch pull requests: ${error.response.statusText}`,
+        details: error.response.data
+      });
+    }
     res.status(500).json({ 
       error: 'Internal server error while fetching pull requests',
       message: error.message 
@@ -119,30 +127,26 @@ async function getPullRequestDiff(req, res) {
     
     logger.info(`Fetching PR diff from: ${url}`);
 
-    const response = await fetch(url, {
-      method: 'GET',
+    const response = await axiosInstance.get(url, {
       headers: {
         'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      logger.error(`BitBucket API error: ${response.status} - ${errorText}`);
-      return res.status(response.status).json({ 
-        error: `Failed to fetch pull request diff: ${response.statusText}`,
-        details: errorText
-      });
-    }
-
-    const data = await response.json();
-    
+    const data = response.data;
+    console.log('data:', data);
     logger.info(`Successfully fetched diff for PR ${pullRequestId}`);
     
     res.json(data);
   } catch (error) {
     logger.error('Error fetching pull request diff:', error);
+    if (error.response) {
+      return res.status(error.response.status).json({
+        error: `Failed to fetch pull request diff: ${error.response.statusText}`,
+        details: error.response.data
+      });
+    }
     res.status(500).json({ 
       error: 'Internal server error while fetching pull request diff',
       message: error.message 
@@ -166,40 +170,28 @@ async function reviewPullRequest(req, res) {
     
     logger.info(`Starting AI review for PR ${pullRequestId}`);
 
-    const response = await fetch(`${openaiBaseUrl}/v1/chat/completions`, {
-      method: 'POST',
+    const response = await axios.post(`${openaiBaseUrl}/v1/chat/completions`, {
+      model: openaiModel,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert code reviewer. Analyze the provided code changes and provide constructive feedback focusing on code quality, potential bugs, security issues, performance concerns, and best practices.'
+        },
+        {
+          role: 'user',
+          content: reviewPrompt
+        }
+      ],
+      max_tokens: 2000,
+      temperature: 0.3,
+    }, {
       headers: {
         'Authorization': `Bearer ${openaiApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: openaiModel,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert code reviewer. Analyze the provided code changes and provide constructive feedback focusing on code quality, potential bugs, security issues, performance concerns, and best practices.'
-          },
-          {
-            role: 'user',
-            content: reviewPrompt
-          }
-        ],
-        max_tokens: 2000,
-        temperature: 0.3,
-      }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      logger.error(`OpenAI API error: ${response.status} - ${errorText}`);
-      return res.status(response.status).json({ 
-        error: `Failed to generate AI review: ${response.statusText}`,
-        details: errorText
-      });
-    }
-
-    const aiResponse = await response.json();
-    const review = aiResponse.choices?.[0]?.message?.content;
+    const review = response.data.choices?.[0]?.message?.content;
 
     if (!review) {
       return res.status(500).json({ 
@@ -218,6 +210,12 @@ async function reviewPullRequest(req, res) {
     });
   } catch (error) {
     logger.error('Error reviewing pull request:', error);
+    if (error.response) {
+      return res.status(error.response.status).json({
+        error: `Failed to generate AI review: ${error.response.statusText}`,
+        details: error.response.data
+      });
+    }
     res.status(500).json({ 
       error: 'Internal server error while reviewing pull request',
       message: error.message 
@@ -271,25 +269,14 @@ async function createPullRequest(req, res) {
 
     logger.info(`Creating pull request for ticket ${ticketNumber}`);
 
-    const response = await fetch(url, {
-      method: 'POST',
+    const response = await axiosInstance.post(url, payload, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${authToken}`,
       },
-      body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      logger.error(`BitBucket API error: ${response.status} - ${errorText}`);
-      return res.status(response.status).json({
-        error: "Failed to create pull request",
-        details: errorText
-      });
-    }
-
-    const data = await response.json();
+    const data = response.data;
 
     logger.info(`Pull request created successfully for ticket ${ticketNumber}`);
     
@@ -301,12 +288,26 @@ async function createPullRequest(req, res) {
     });
   } catch (error) {
     logger.error('Error creating pull request:', error);
+    if (error.response) {
+      return res.status(error.response.status).json({
+        error: "Failed to create pull request",
+        details: error.response.data,
+        status: error.response.status
+      });
+    }
     res.status(500).json({ 
       error: 'Internal server error while creating pull request',
       message: error.message 
     });
   }
 }
+
+export {
+  getPullRequests,
+  getPullRequestDiff,
+  reviewPullRequest,
+  createPullRequest
+};
 
 export default {
   getPullRequests,

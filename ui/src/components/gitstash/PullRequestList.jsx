@@ -174,18 +174,18 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                         </Box>
                       }
                       secondary={
-                        <Box>
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                        <Box component="div">
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }} component="div">
                             #{pr.id} • by {pr.author?.displayName || 'Unknown'}
                           </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} component="div">
                             <ScheduleIcon fontSize="small" color="action" />
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography variant="caption" color="text.secondary" component="span">
                               Created: {formatDate(pr.createdDate)}
                             </Typography>
                           </Box>
                           {pr.description && (
-                            <Typography variant="body2" sx={{ mt: 1, maxWidth: '80%' }}>
+                            <Typography variant="body2" sx={{ mt: 1, maxWidth: '80%' }} component="div">
                               {pr.description.length > 100 
                                 ? `${pr.description.substring(0, 100)}...` 
                                 : pr.description

@@ -92,7 +92,7 @@ const AttachmentUpload = () => {
             />
           </Button>
           {attachmentFile && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" component="div">
               File selected: {attachmentFile.name}
             </Typography>
           )}
