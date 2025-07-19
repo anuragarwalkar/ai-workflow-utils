@@ -60,6 +60,10 @@ const ActionCards = () => {
     dispatch(setCurrentView('gitStash'));
   };
 
+  const handleCreatePR = () => {
+    dispatch(setCurrentView('pr'));
+  };
+
   // New unreleased feature handlers
   const handleAiChat = () => {
     console.log('AI Chat feature clicked');
@@ -90,6 +94,7 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       shadowColor: 'rgba(102, 126, 234, 0.3)',
       isReleased: true,
+      isBeta: false,
     },
     {
       id: 'view-jira',
@@ -101,6 +106,7 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
       shadowColor: 'rgba(240, 147, 251, 0.3)',
       isReleased: true,
+      isBeta: false,
     },
     {
       id: 'send-email',
@@ -136,6 +142,19 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
       shadowColor: 'rgba(17, 153, 142, 0.3)',
       isReleased: true,
+      isBeta: true,
+    },
+    {
+      id: 'create-pr',
+      title: 'Create PR',
+      description: 'Create and preview pull requests with AI assistance',
+      icon: CodeIcon,
+      actionIcon: AddIcon,
+      onClick: handleCreatePR,
+      gradient: 'linear-gradient(135deg, #6b46c1 0%, #805ad5 100%)',
+      shadowColor: 'rgba(107, 70, 193, 0.3)',
+      isReleased: true,
+      isBeta: true,
     },
     // Unreleased features
     {
@@ -255,6 +274,24 @@ const ActionCards = () => {
                         top: 12,
                         right: 12,
                         background: 'linear-gradient(45deg, #ff6b6b, #feca57)',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        fontSize: '0.6rem',
+                        zIndex: 1,
+                      }}
+                    />
+                  )}
+                  
+                  {/* Beta Badge for beta features */}
+                  {card.isReleased && card.isBeta && (
+                    <Chip
+                      label="BETA"
+                      size="small"
+                      sx={{
+                        position: 'absolute',
+                        top: 12,
+                        right: 12,
+                        background: 'linear-gradient(45deg, #667eea, #764ba2)',
                         color: 'white',
                         fontWeight: 'bold',
                         fontSize: '0.6rem',

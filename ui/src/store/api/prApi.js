@@ -32,10 +32,10 @@ export const prApi = createApi({
       ],
     }),
     createPullRequest: builder.mutation({
-      query: ({ ticketNumber, updatedList, branchName, projectKey, repoSlug }) => ({
+      query: ({ ticketNumber, branchName, projectKey, repoSlug, preview = false }) => ({
         url: '/create',
         method: 'POST',
-        body: { ticketNumber, updatedList, branchName, projectKey, repoSlug },
+        body: { ticketNumber, branchName, projectKey, repoSlug, preview },
       }),
     }),
   }),
