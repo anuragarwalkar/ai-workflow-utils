@@ -9,10 +9,10 @@
 
 **The Ultimate AI-Powered Development Workflow Automation Platform**
 
-*Streamline your development process with intelligent Jira ticket creation, AI-powered code reviews, and seamless attachment management*
+*Streamline your development process with intelligent Jira ticket creation, AI-powered code reviews & pull request creation, and seamless attachment management*
 
-<img width="3024" height="2376" alt="AI-Workflow-Utils-07-19-2025_12_32_AM" src="https://github.com/user-attachments/assets/932e486d-4183-4008-8f0d-fac9025d9b5e" />
 
+<img width="3024" height="2968" alt="AI-Workflow-Utils-07-19-2025_07_50_PM" src="https://github.com/user-attachments/assets/c64d2ad4-101b-429e-883a-65be50185f2c" />
 
 </div>
 
