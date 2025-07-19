@@ -2,6 +2,7 @@ import axios from 'axios';
 import https from 'https';
 import logger from '../logger.js';
 import dotenv from 'dotenv';
+import { Ollama } from '@langchain/ollama';
 
 // Configure dotenv
 dotenv.config();
@@ -378,19 +379,171 @@ function generateBasicReview(diffData, prDetails) {
   return review;
 }
 
-// Create pull request (moved from jiraController)
+// Get commit messages from a branch
+async function getCommitMessages(projectKey, repoSlug, branchName) {
+  try {
+    const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/commits`;
+    
+    logger.info(`Fetching commits from branch ${branchName}: ${url}`);
+
+    const response = await axiosInstance.get(url, {
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      },
+      params: {
+        until: branchName,
+        limit: 20 // Limit to recent commits to avoid token limits
+      }
+    });
+
+    if (response.data && response.data.values) {
+      const commits = response.data.values.map(commit => ({
+        id: commit.id,
+        message: commit.message,
+        author: commit.author.name,
+        date: commit.authorTimestamp
+      }));
+      
+      logger.info(`Successfully fetched ${commits.length} commits from branch ${branchName}`);
+      return commits;
+    }
+    
+    return [];
+  } catch (error) {
+    logger.error('Error fetching commit messages:', error);
+    throw new Error(`Failed to fetch commits: ${error.response?.data?.errors?.[0]?.message || error.message}`);
+  }
+}
+
+// Initialize LangChain Ollama model
+function initializeOllama() {
+  const ollamaBaseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+  const ollamaModel = process.env.OLLAMA_MODEL || 'llama3.2';
+  
+  return new Ollama({
+    baseUrl: ollamaBaseUrl,
+    model: ollamaModel,
+    temperature: 0.7,
+  });
+}
+
+// Analyze commits to determine the type (feat/fix/chore)
+function analyzeCommitType(commits) {
+  const commitMessages = commits.map(commit => commit.message.toLowerCase()).join(' ');
+  
+  // Check for feature keywords
+  const featKeywords = ['feat', 'feature', 'add', 'implement', 'create', 'new', 'introduce'];
+  const fixKeywords = ['fix', 'bug', 'patch', 'resolve', 'correct', 'repair', 'hotfix'];
+  const choreKeywords = ['chore', 'refactor', 'update', 'clean', 'maintain', 'deps', 'dependency', 'style', 'format'];
+  
+  let featScore = 0;
+  let fixScore = 0;
+  let choreScore = 0;
+  
+  // Score based on keyword matches
+  featKeywords.forEach(keyword => {
+    if (commitMessages.includes(keyword)) featScore++;
+  });
+  
+  fixKeywords.forEach(keyword => {
+    if (commitMessages.includes(keyword)) fixScore++;
+  });
+  
+  choreKeywords.forEach(keyword => {
+    if (commitMessages.includes(keyword)) choreScore++;
+  });
+  
+  // Return the type with highest score, default to 'feat'
+  if (fixScore > featScore && fixScore > choreScore) {
+    return 'fix';
+  } else if (choreScore > featScore && choreScore > fixScore) {
+    return 'chore';
+  } else {
+    return 'feat';
+  }
+}
+
+// Generate PR title using LangChain Ollama with commit-based prefix
+async function generatePRTitle(commits, ticketNumber) {
+  try {
+    const commitMessages = commits.map(commit => commit.message).join('\n');
+    
+    const ollama = initializeOllama();
+    
+    const titlePrompt = `Based on the following commit messages from a branch, generate a very short and concise pull request title.
+The title should be clear, professional, and summarize the main purpose of the changes.
+Keep it under 50 characters and use imperative mood (e.g., "Add auth" not "Added authentication").
+Focus on the most important change only.
+DO NOT include any ticket numbers, issue numbers, or identifiers in the title.
+
+Commit messages:
+${commitMessages}
+
+Generate only the title without any ticket numbers or identifiers:`;
+
+    const response = await ollama.invoke(titlePrompt);
+    const aiTitle = response.trim() || 'Generated PR Title';
+    
+    // Determine commit type and format with prefix
+    const commitType = analyzeCommitType(commits);
+    const formattedTitle = `${commitType}(${ticketNumber}): ${aiTitle}`;
+    
+    return formattedTitle;
+  } catch (error) {
+    logger.error('Error generating PR title with Ollama:', error);
+    // Fallback with basic format
+    return `feat(${ticketNumber}): Generated PR Title`;
+  }
+}
+
+// Generate PR description using LangChain Ollama
+async function generatePRDescription(commitMessages) {
+  const ollama = initializeOllama();
+  
+  const descriptionPrompt = `Based on the following commit messages from a branch, generate a comprehensive pull request description.
+The description should be well-structured and include:
+
+## Summary
+Brief overview of what this PR accomplishes
+
+## Changes Made
+- List key changes and features
+- Include any bug fixes
+- Mention any refactoring
+
+## Breaking Changes
+- List any breaking changes (if none, write "None")
+
+## Testing
+- Mention testing approach or areas that need testing
+
+Commit messages:
+${commitMessages}
+
+Generate the description in markdown format:`;
+
+  try {
+    const response = await ollama.invoke(descriptionPrompt);
+    return response.trim() || 'Generated PR Description';
+  } catch (error) {
+    logger.error('Error generating PR description with Ollama:', error);
+    return 'Generated PR Description';
+  }
+}
+
+// Create pull request with LangChain-generated title and description
 async function createPullRequest(req, res) {
   const { 
     ticketNumber, 
-    updatedList, 
     branchName, 
     projectKey,
     repoSlug,
   } = req.body;
 
-  if (!ticketNumber || !updatedList || !branchName || !projectKey || !repoSlug) {
+  if (!ticketNumber || !branchName || !projectKey || !repoSlug) {
     return res.status(400).json({ 
-      error: "ticketNumber, updatedList, branchName, projectKey, and repoSlug are required" 
+      error: "ticketNumber, branchName, projectKey, and repoSlug are required" 
     });
   }
 
@@ -401,26 +554,58 @@ async function createPullRequest(req, res) {
       });
     }
 
+    let prTitle, prDescription;
+    let aiGenerated = false;
+
+    // Try to generate AI-powered title and description using Ollama
+    try {
+      logger.info(`Generating AI-powered PR content for branch ${branchName} using Ollama`);
+      
+      // Fetch commit messages from the branch
+      const commits = await getCommitMessages(projectKey, repoSlug, branchName);
+      
+      if (commits.length > 0) {
+        // Format commit messages for AI processing
+        const commitMessages = commits.map(commit => 
+          `- ${commit.message} (by ${commit.author})`
+        ).join('\n');
+
+        // Generate title and description using LangChain Ollama
+        const [generatedTitle, generatedDescription] = await Promise.all([
+          generatePRTitle(commits, ticketNumber),
+          generatePRDescription(commitMessages)
+        ]);
+
+        prTitle = generatedTitle;
+        prDescription = generatedDescription;
+        aiGenerated = true;
+        
+        logger.info(`Successfully generated AI-powered PR content`);
+      } else {
+        logger.warn(`No commits found for branch ${branchName}, using fallback title/description`);
+        prTitle = `${ticketNumber}`;
+        prDescription = `This PR contains changes for ticket ${ticketNumber} from branch ${branchName}.`;
+      }
+    } catch (ollamaError) {
+      logger.info(`Ollama not available, using basic title/description: ${ollamaError.message}`);
+      prTitle = `${ticketNumber}`;
+      prDescription = `This PR contains changes for ticket ${ticketNumber} from branch ${branchName}.`;
+    }
+
     const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests`;
     
-    // Create the pull request payload
-    const prTitle = `feat(CUDI-${ticketNumber}): upgrade ${updatedList}`;
-    const prDescription = `This PR integrates the latest updates for the following packages: ${updatedList}.`;
-
     const payload = {
       title: prTitle,
       description: prDescription,
-      source: {
-        branch: {
-          name: branchName
-        }
+      fromRef: {
+        id: `refs/heads/${branchName}`
       },
-      destination: {
-        branch: {
-          name: "main"
-        }
+      toRef: {
+        id: "refs/heads/main"
       }
     };
+
+    console.log('payload:', JSON.stringify(payload, null, 2));
 
     logger.info(`Creating pull request for ticket ${ticketNumber}`);
 
@@ -437,9 +622,12 @@ async function createPullRequest(req, res) {
     
     res.status(201).json({
       message: "Pull request created successfully",
-      pullRequest: data,
+      // pullRequest: data,
       prTitle,
-      prDescription
+      prDescription,
+      aiGenerated,
+      ticketNumber,
+      branchName
     });
   } catch (error) {
     logger.error('Error creating pull request:', error);

@@ -122,20 +122,70 @@ io.on('connection', (socket) => {
 });
 
 // Graceful shutdown handling
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, shutting down gracefully');
-  server.close(() => {
-    logger.info('Process terminated');
-    process.exit(0);
-  });
+let isShuttingDown = false;
+
+const gracefulShutdown = (signal) => {
+  if (isShuttingDown) {
+    logger.warn(`${signal} received again, forcing exit`);
+    process.exit(1);
+  }
+  
+  isShuttingDown = true;
+  logger.info(`${signal} received, shutting down gracefully`);
+  
+  // Set a timeout to force exit if graceful shutdown takes too long
+  const forceExitTimeout = setTimeout(() => {
+    logger.error('Graceful shutdown timeout, forcing exit');
+    process.exit(1);
+  }, 10000); // 10 seconds timeout
+  
+  // Close Socket.IO server first
+  try {
+    io.close((err) => {
+      if (err) {
+        logger.error('Error closing Socket.IO server:', err);
+      } else {
+        logger.info('Socket.IO server closed');
+      }
+      
+      // Close HTTP server
+      if (server.listening) {
+        server.close((err) => {
+          if (err) {
+            logger.error('Error closing HTTP server:', err);
+          } else {
+            logger.info('HTTP server closed');
+          }
+          clearTimeout(forceExitTimeout);
+          logger.info('Process terminated gracefully');
+          process.exit(0);
+        });
+      } else {
+        logger.info('HTTP server was not running');
+        clearTimeout(forceExitTimeout);
+        logger.info('Process terminated gracefully');
+        process.exit(0);
+      }
+    });
+  } catch (error) {
+    logger.error('Error during shutdown:', error);
+    clearTimeout(forceExitTimeout);
+    process.exit(1);
+  }
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Handle uncaught exceptions and unhandled rejections
+process.on('uncaughtException', (err) => {
+  logger.error('Uncaught Exception:', err);
+  gracefulShutdown('UNCAUGHT_EXCEPTION');
 });
 
-process.on('SIGINT', () => {
-  logger.info('SIGINT received, shutting down gracefully');
-  server.close(() => {
-    logger.info('Process terminated');
-    process.exit(0);
-  });
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  gracefulShutdown('UNHANDLED_REJECTION');
 });
 
 // Start the server
