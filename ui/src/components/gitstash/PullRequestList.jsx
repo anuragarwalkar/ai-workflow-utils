@@ -53,14 +53,10 @@ const PullRequestList = ({ onNext, onPrevious }) => {
 
   // Handle direct PR navigation (for cases where we still land on this component)
   useEffect(() => {
-    console.log('PullRequestList: directPRId:', directPRId, 'pullRequests loaded:', !!pullRequests?.values); // Debug log
     if (directPRId && pullRequests?.values) {
       const targetPR = pullRequests.values.find(pr => pr.id === directPRId);
-      console.log('PullRequestList: Found target PR:', targetPR?.id, targetPR?.title); // Debug log
       if (targetPR) {
         dispatch(setSelectedPullRequest(targetPR));
-        // Don't clear directPRId here - let the container handle the navigation
-        console.log('PullRequestList: Set selected PR, keeping directPRId for navigation'); // Debug log
       }
     }
   }, [directPRId, pullRequests, dispatch]);

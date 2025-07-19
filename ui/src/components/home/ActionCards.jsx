@@ -87,7 +87,7 @@ const ActionCards = () => {
     {
       id: 'create-jira',
       title: 'Create Jira',
-      description: 'Create new Jira tickets and track issues',
+      description: 'AI-powered Jira ticket creation with smart suggestions',
       icon: BugReportIcon,
       actionIcon: AddIcon,
       onClick: handleCreateJira,

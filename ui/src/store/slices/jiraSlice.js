@@ -9,6 +9,8 @@ const initialState = {
     description: '',
     issueType: 'Task',
     priority: 'Medium',
+    projectType: '',
+    customFields: [],
     isCreating: false,
     isPreviewLoading: false,
     streamingContent: '',
@@ -53,6 +55,24 @@ const jiraSlice = createSlice({
     },
     setPriority: (state, action) => {
       state.createJira.priority = action.payload;
+    },
+    setProjectType: (state, action) => {
+      state.createJira.projectType = action.payload;
+    },
+    setCustomFields: (state, action) => {
+      state.createJira.customFields = action.payload;
+    },
+    addCustomField: (state) => {
+      state.createJira.customFields.push({ key: '', value: '' });
+    },
+    removeCustomField: (state, action) => {
+      state.createJira.customFields.splice(action.payload, 1);
+    },
+    updateCustomField: (state, action) => {
+      const { index, field, value } = action.payload;
+      if (state.createJira.customFields[index]) {
+        state.createJira.customFields[index][field] = value;
+      }
     },
     setPreviewLoading: (state, action) => {
       state.createJira.isPreviewLoading = action.payload;
@@ -103,6 +123,11 @@ export const {
   setDescription,
   setIssueType,
   setPriority,
+  setProjectType,
+  setCustomFields,
+  addCustomField,
+  removeCustomField,
+  updateCustomField,
   setPreviewLoading,
   setCreating,
   setStreamingContent,

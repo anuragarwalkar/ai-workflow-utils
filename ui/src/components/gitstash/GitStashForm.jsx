@@ -20,7 +20,7 @@ import {
   FormControlLabel,
   Switch,
 } from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { 
   Search as SearchIcon,
   Info as InfoIcon,
@@ -35,7 +35,6 @@ const STORAGE_KEY = 'gitstash_project_config';
 
 const GitStashForm = ({ onNext, onDirectNext }) => {
   const dispatch = useDispatch();
-  const { directPRId } = useSelector((state) => state.pr);
   const [tabValue, setTabValue] = useState(0);
   const [formData, setFormData] = useState({
     projectKey: '',
@@ -118,7 +117,6 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
     
     if (url.trim()) {
       const parsed = parseGitStashUrl(url);
-      console.log('URL parsing result:', parsed); // Debug log
       setUrlData(prev => ({ 
         ...prev, 
         parsedData: parsed,
@@ -183,36 +181,24 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
       // Save to localStorage for future use
       saveToLocalStorage(projectData);
 
-      console.log('GitStashForm: About to submit with:', { prNumber, directToPR: urlData.directToPR, projectData }); // Debug log
-
       // If we have a PR number and user wants to go directly to it, set it first
       if (prNumber && urlData.directToPR) {
-        console.log('GitStashForm: Setting directPRId:', prNumber); // Debug log
         dispatch(setDirectPRId(prNumber));
       }
 
       // Set the selected project in Redux store
-      console.log('GitStashForm: Setting selected project:', projectData); // Debug log
       dispatch(setSelectedProject(projectData));
 
       // Re-set the direct PR ID after setting project (since setSelectedProject clears it)
       if (prNumber && urlData.directToPR) {
-      console.log('GitStashForm: Re-setting directPRId after project set:', prNumber); // Debug log
       dispatch(setDirectPRId(prNumber));
-      
-      // Add a small delay to ensure Redux state is updated
-      setTimeout(() => {
-        console.log('GitStashForm: Current directPRId in Redux after timeout:', directPRId); // Debug log
-      }, 100);
+    
       }
-      
-      console.log('GitStashForm: Calling onNext, directToPR:', urlData.directToPR, 'prNumber:', prNumber); // Debug log
       
       // If we have direct PR navigation, use onDirectNext to skip PR list
       if (prNumber && urlData.directToPR) {
         // Use setTimeout to ensure Redux state is updated before calling onDirectNext
         setTimeout(() => {
-          console.log('GitStashForm: Delayed onDirectNext call for direct navigation'); // Debug log
           onDirectNext();
         }, 50);
       } else {

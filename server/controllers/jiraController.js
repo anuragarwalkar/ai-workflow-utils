@@ -810,9 +810,9 @@ async function previewBugReport(req, res) {
 }
 
 async function createJiraIssue(req, res) {
-  const { summary, description, issueType, priority } = req.body;
+  const { summary, description, issueType, priority, projectType, customFields } = req.body;
 
-  if (!summary || !description || !issueType) {
+  if (!summary || !description || !issueType || !projectType) {
     return res.status(400).json({ error: "Invalid request payload" });
   }
 
@@ -822,52 +822,43 @@ async function createJiraIssue(req, res) {
 
     const jiraUrl = `${jiraBaseUrl}/rest/api/2/issue`;
     
+    // Process custom fields into Jira format
+    const processedCustomFields = {};
+
+    if (customFields && Array.isArray(customFields)) {
+      customFields.forEach(field => {
+        if (field.key && field.value) {
+          const val = field.value;
+
+          // Check if the value is a string and looks like an object or array
+          const isLikelyJson = typeof val === 'string' && /^[{\[].*[}\]]$/.test(val.trim());
+
+          if (isLikelyJson) {
+            try {
+              // Sanitize object keys like { id: "007" }
+              const sanitized = val.replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":');
+              processedCustomFields[field.key] = JSON.parse(sanitized);
+            } catch (err) {
+              processedCustomFields[field.key] = val; // fallback to string
+            }
+          } else {
+            processedCustomFields[field.key] = val; // treat as string
+          }
+        }
+      });
+    }
+
     // Create base payload
-    const baseFields = {
-      project: { key: "CUDI" },
+    const payload = {
+      project: { key: projectType },
       summary,
       description,
       issuetype: { name: issueType },
       priority: {
         name: priority,
       },
+      ...processedCustomFields
     };
-
-    // Add issue type specific custom fields using switch case
-    let payload;
-    switch (issueType) {
-      case "Task":
-        payload = {
-          fields: {
-            ...baseFields,
-            customfield_11400: "11222",
-            customfield_10006: "CUDI-11449"
-          },
-        };
-        break;
-      
-      case "Bug":
-        payload = {
-          fields: {
-            ...baseFields,
-            customfield_16302: { id: "21304" },
-            customfield_16300: { id: "21302" },
-            customfield_11301: { id: "11023" },
-            customfield_11302: { id: "11029" },
-            customfield_11400: "11222",
-          },
-        };
-        break;
-      
-      default:
-        payload = {
-          fields: {
-            ...baseFields,
-            customfield_11400: "11222",
-          },
-        };
-        break;
-    }
 
     const response = await axios.post(jiraUrl, payload, {
       headers: {
@@ -878,7 +869,7 @@ async function createJiraIssue(req, res) {
 
     res.status(200).json({
       message: "Jira issue created successfully",
-      jiraIssue: response.data,
+      jiraIssue: response?.data,
     });
   } catch (error) {
     logger.error(`Error creating Jira issue: ${error.message}`);

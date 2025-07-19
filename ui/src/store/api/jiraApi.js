@@ -104,10 +104,10 @@ export const jiraApi = createApi({
       },
     }),
     createJira: builder.mutation({
-      query: ({ summary, description, issueType, priority }) => ({
+      query: ({ summary, description, issueType, priority, projectType, customFields }) => ({
         url: '/generate',
         method: 'POST',
-        body: { summary, description, issueType, priority },
+        body: { summary, description, issueType, priority, projectType, customFields },
       }),
       invalidatesTags: ['Jira'],
     }),

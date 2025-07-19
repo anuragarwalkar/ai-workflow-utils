@@ -1,8 +1,8 @@
-# 🚀 AI Workflow Utils v1.2.0 - Major Feature Release
+# 🚀 AI Workflow Utils v1.3.0 - Major Feature Release
 
 <div align="center">
 
-![AI Workflow Utils](https://img.shields.io/badge/AI%20Workflow%20Utils-v1.2.0-blue?style=for-the-badge)
+![AI Workflow Utils](https://img.shields.io/badge/AI%20Workflow%20Utils-v1.3.0-blue?style=for-the-badge)
 ![Node.js](https://img.shields.io/badge/Node.js-16%2B-green?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
@@ -18,7 +18,7 @@
 
 ---
 
-## 🎉 **NEW IN v1.2.0 - Game-Changing Features!**
+## 🎉 **NEW IN v1.3.0 - Game-Changing Features!**
 
 ### 🎯 **Feature #1: AI-Powered Jira Ticket Creation**
 Create professional Jira tickets (Tasks, Bugs, Stories) using AI with multiple provider support:

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   Box,
   TextField,
@@ -11,14 +11,20 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  IconButton,
 } from "@mui/material";
-import { CloudUpload } from "@mui/icons-material";
+import { CloudUpload, Delete as DeleteIcon, Add as AddIcon } from "@mui/icons-material";
 import { useSelector, useDispatch } from "react-redux";
 import {
   setPrompt,
   setImageFile,
   setIssueType,
   setPriority,
+  setProjectType,
+  setCustomFields,
+  addCustomField,
+  removeCustomField,
+  updateCustomField,
 } from "../../../store/slices/jiraSlice";
 import { usePreviewJiraStreamingMutation } from "../../../store/api/jiraApi";
 import { showNotification } from "../../../store/slices/uiSlice";
@@ -48,20 +54,80 @@ const JiraForm = () => {
     imageFile,
     issueType,
     priority,
+    projectType,
+    customFields,
     isPreviewLoading,
     isStreaming,
   } = useSelector((state) => state.jira.createJira);
 
   const [previewJiraStreaming] = usePreviewJiraStreamingMutation();
 
-  // Check URL params for prompt on component mount
+  // LocalStorage functions
+  const saveToLocalStorage = () => {
+    try {
+      // Get existing data
+      const existingData = localStorage.getItem('jira_form_data');
+      let jiraFormData = existingData ? JSON.parse(existingData) : {};
+      
+      // Update with current form data
+      jiraFormData = {
+        ...jiraFormData,
+        projectType,
+        customFieldsByType: {
+          ...jiraFormData.customFieldsByType,
+          [issueType]: customFields
+        }
+      };
+      
+      localStorage.setItem('jira_form_data', JSON.stringify(jiraFormData));
+    } catch (error) {
+      console.error('Failed to save to localStorage:', error);
+    }
+  };
+
+  const loadFromLocalStorage = useCallback(() => {
+    try {
+      const saved = localStorage.getItem('jira_form_data');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (error) {
+      console.error('Failed to load from localStorage:', error);
+    }
+    return null;
+  }, []);
+
+  // Check URL params for prompt on component mount and load localStorage data
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const promptParam = urlParams.get("prompt");
     if (promptParam) {
       dispatch(setPrompt(decodeURIComponent(promptParam)));
     }
-  }, [dispatch]);
+
+    // Load saved data from localStorage
+    const savedData = loadFromLocalStorage();
+    if (savedData) {
+      if (savedData.projectType) {
+        dispatch(setProjectType(savedData.projectType));
+      }
+      // Load custom fields for the current issue type
+      if (savedData.customFieldsByType && savedData.customFieldsByType[issueType]) {
+        dispatch(setCustomFields(savedData.customFieldsByType[issueType]));
+      }else{
+        dispatch(setCustomFields([]));
+      }
+    }
+  }, [dispatch, loadFromLocalStorage, issueType]);
+
+  // Handle issue type changes - load custom fields for the selected issue type
+  useEffect(() => {
+    const savedData = loadFromLocalStorage();
+    if (savedData && savedData.customFieldsByType && savedData.customFieldsByType[issueType]) {
+      dispatch(setCustomFields(savedData.customFieldsByType[issueType]));
+    }
+    // Don't clear custom fields if no saved data - let user keep working with current fields
+  }, [issueType, dispatch, loadFromLocalStorage]);
 
   const handlePromptChange = (event) => {
     dispatch(setPrompt(event.target.value));
@@ -80,8 +146,27 @@ const JiraForm = () => {
     dispatch(setPriority(event.target.value));
   };
 
+  const handleProjectTypeChange = (event) => {
+    dispatch(setProjectType(event.target.value));
+  };
+
+  const handleAddCustomField = () => {
+    dispatch(addCustomField());
+  };
+
+  const handleRemoveCustomField = (index) => {
+    dispatch(removeCustomField(index));
+  };
+
+  const handleUpdateCustomField = (index, field, value) => {
+    dispatch(updateCustomField({ index, field, value }));
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // save details to storage
+    saveToLocalStorage();
 
     // Update URL with prompt
     const url = new URL(window.location.href);
@@ -95,6 +180,7 @@ const JiraForm = () => {
 
     const handleStreamingRequest = async (images) => {
       try {
+        saveToLocalStorage();
         const result = await previewJiraStreaming({
           prompt,
           images,
@@ -203,6 +289,64 @@ const JiraForm = () => {
             <MenuItem value="Low">Low</MenuItem>
           </Select>
         </FormControl>
+
+        <TextField
+          label="Project Key"
+          value={projectType}
+          onChange={handleProjectTypeChange}
+          required
+          fullWidth
+          variant="outlined"
+          placeholder="e.g., AIWUT, PROJ, etc."
+        />
+
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Custom Fields ({issueType})
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            These custom fields are specific to {issueType} issues and will be saved separately for each issue type.
+            <br />
+            <strong>Value formats:</strong> Simple text: "11222" | Object: {`{"id": "21304"}`} | Array: {`["value1", "value2"]`}
+          </Typography>
+          {customFields.map((field, index) => (
+            <Box key={index} sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center', marginBottom: '16px' }}>
+              <TextField 
+                label="Field Key" 
+                value={field.key} 
+                style={{marginBottom: 0}}
+                onChange={(e) => handleUpdateCustomField(index, 'key', e.target.value)}
+                size="small"
+                sx={{ flex: 1 }}
+                placeholder="e.g., customfield_1234"
+              />
+              <TextField 
+                label="Field Value" 
+                style={{marginBottom: 0}}
+                value={field.value} 
+                onChange={(e) => handleUpdateCustomField(index, 'value', e.target.value)}
+                size="small"
+                sx={{ flex: 1 }}
+                placeholder='e.g., 11222 or {"id": "007"}'
+              />
+              <IconButton 
+                onClick={() => handleRemoveCustomField(index)}
+                color="error"
+                size="small"
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          ))}
+          <Button 
+            onClick={handleAddCustomField} 
+            startIcon={<AddIcon />}
+            variant="outlined"
+            size="small"
+          >
+            Add Custom Field
+          </Button>
+        </Box>
 
         <Box>
           <Button

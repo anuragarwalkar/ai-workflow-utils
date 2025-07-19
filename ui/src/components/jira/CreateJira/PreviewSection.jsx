@@ -29,6 +29,8 @@ const PreviewSection = () => {
     isStreaming,
     issueType,
     priority,
+    projectType,
+    customFields,
   } = useSelector((state) => state.jira.createJira);
 
   const [createJira, { isLoading: isCreateLoading }] = useCreateJiraMutation();
@@ -54,13 +56,34 @@ const PreviewSection = () => {
       return;
     }
 
+    if (!projectType || projectType.trim() === '') {
+      dispatch(
+        showNotification({
+          message: "Project Type is required to create a Jira issue.",
+          severity: "error",
+        })
+      );
+      return;
+    }
+
     try {
+      // Save to localStorage before creating Jira issue
+      const jiraFormData = {
+        projectType,
+        customFieldsByType: {
+          [issueType]: customFields
+        }
+      };
+      localStorage.setItem('jira_form_data', JSON.stringify(jiraFormData));
+
       // Create Jira issue
       const response = await createJira({
         summary,
         description,
         issueType,
         priority,
+        projectType,
+        customFields,
       }).unwrap();
 
       const generatedIssueKey = response.jiraIssue.key;
@@ -176,7 +199,7 @@ const PreviewSection = () => {
           variant="contained"
           size="large"
           onClick={handleCreateJira}
-          disabled={isLoading}
+          disabled={isLoading || !projectType || projectType.trim() === ''}
           sx={{ position: "relative" }}
         >
           {isLoading && (
@@ -193,6 +216,12 @@ const PreviewSection = () => {
           )}
           {isLoading ? "Creating Jira Issue..." : "Create Jira Issue"}
         </Button>
+        
+        {(!projectType || projectType.trim() === '') && (
+          <Typography variant="body2" color="warning.main" sx={{ textAlign: 'center' }}>
+            ⚠️ Please enter a Project Type in the form above to enable Jira issue creation
+          </Typography>
+        )}
       </Stack>
     </Paper>
   );
