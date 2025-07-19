@@ -7,15 +7,34 @@ import {
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { useFetchJiraQuery } from '../../../store/api/jiraApi';
+import { useDebounce } from '../../../hooks/useDebounce';
 import AttachmentUpload from './AttachmentUpload';
 
 const JiraDetails = () => {
   const { jiraId } = useSelector((state) => state.jira.viewJira);
   
-  // Use RTK Query to get cached data
-  const { data: jiraData, isLoading, error } = useFetchJiraQuery(jiraId, {
-    skip: !jiraId, // Skip the query if no jiraId
+  // Debounce the jiraId to prevent API calls while typing
+  const debouncedJiraId = useDebounce(jiraId, 300);
+  
+  // Validate Jira ID format before making API call
+  const jiraIdPattern = /^[A-Z]{2,}-\d+$/i;
+  const isValidJiraId = debouncedJiraId && jiraIdPattern.test(debouncedJiraId.trim());
+  
+  // Use RTK Query with skip condition for invalid IDs
+  const { data: jiraData, isLoading, error } = useFetchJiraQuery(debouncedJiraId?.trim(), {
+    skip: !isValidJiraId, // Skip the query if jiraId is invalid
   });
+
+  // Show a hint when user is typing but hasn't entered a valid format yet
+  if (jiraId && !isValidJiraId && jiraId.length > 0) {
+    return (
+      <Paper elevation={1} sx={{ p: 3, backgroundColor: 'info.light', color: 'info.contrastText' }}>
+        <Typography variant="body2" component="div">
+          Enter a valid Jira ID format (e.g. PROJ-456)
+        </Typography>
+      </Paper>
+    );
+  }
 
   if (!jiraId) {
     return null;
@@ -30,10 +49,27 @@ const JiraDetails = () => {
   }
 
   if (error) {
+    // Handle different types of errors gracefully
+    let errorMessage = 'Error loading Jira details';
+    
+    if (error.status === 404) {
+      errorMessage = `Jira issue "${debouncedJiraId.trim()}" not found. Please check the ID and try again.`;
+    } else if (error.status === 401) {
+      errorMessage = 'Authentication failed. Please check your Jira credentials.';
+    } else if (error.status === 403) {
+      errorMessage = 'Access denied. You may not have permission to view this Jira issue.';
+    } else if (error.data) {
+      errorMessage = `Error: ${error.data.message || error.data}`;
+    } else if (error.message) {
+      errorMessage = `Error: ${error.message}`;
+    }
+    
     return (
-      <Typography variant="body2" color="error" component="div">
-        Error loading Jira details: {error.data || error.message}
-      </Typography>
+      <Paper elevation={1} sx={{ p: 3, backgroundColor: 'error.light', color: 'error.contrastText' }}>
+        <Typography variant="body2" component="div">
+          {errorMessage}
+        </Typography>
+      </Paper>
     );
   }
 

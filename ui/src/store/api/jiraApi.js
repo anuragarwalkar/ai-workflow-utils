@@ -114,6 +114,8 @@ export const jiraApi = createApi({
     fetchJira: builder.query({
       query: (jiraId) => `/issue/${jiraId}`,
       providesTags: (result, error, jiraId) => [{ type: 'Jira', id: jiraId }],
+      // Use keepUnusedDataFor to cache results and reduce API calls
+      keepUnusedDataFor: 60, // Keep data for 60 seconds
     }),
     uploadAttachment: builder.mutation({
       query: ({ formData }) => ({

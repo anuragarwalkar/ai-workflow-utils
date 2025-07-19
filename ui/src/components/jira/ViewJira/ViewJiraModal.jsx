@@ -46,6 +46,16 @@ const ViewJiraModal = () => {
       return;
     }
 
+    // Validate Jira ID format
+    const jiraIdPattern = /^[A-Z]{2,}-\d+$/i;
+    if (!jiraIdPattern.test(jiraId.trim())) {
+      dispatch(showNotification({
+        message: 'Please enter a valid Jira ID format (e.g., PROJ-456).',
+        severity: 'error'
+      }));
+      return;
+    }
+
     try {
       await fetchJira(jiraId.trim()).unwrap();
       // The result will be automatically stored in the cache and available via selector
@@ -55,8 +65,23 @@ const ViewJiraModal = () => {
       }));
     } catch (error) {
       console.error('Fetch Jira error:', error);
+      
+      // Handle different error types with user-friendly messages
+      let errorMessage = 'Error fetching Jira issue';
+      if (error.status === 404) {
+        errorMessage = `Jira issue "${jiraId.trim()}" not found. Please check the ID and try again.`;
+      } else if (error.status === 401) {
+        errorMessage = 'Authentication failed. Please check your Jira credentials.';
+      } else if (error.status === 403) {
+        errorMessage = 'Access denied. You may not have permission to view this Jira issue.';
+      } else if (error.data) {
+        errorMessage = `Error: ${error.data.message || error.data}`;
+      } else if (error.message) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      
       dispatch(showNotification({
-        message: `Error fetching Jira issue: ${error.data || error.message}`,
+        message: errorMessage,
         severity: 'error'
       }));
     }
@@ -89,6 +114,8 @@ const ViewJiraModal = () => {
             onChange={handleJiraIdChange}
             fullWidth
             variant="outlined"
+            placeholder="e.g. PROJ-456"
+            helperText="Enter a valid Jira ID format. The issue will be fetched automatically."
           />
 
           <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
