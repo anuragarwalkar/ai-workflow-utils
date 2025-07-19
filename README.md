@@ -1,4 +1,4 @@
-# 🚀 AI Workflow Utils v1.1.0 - Major Feature Release
+# 🚀 AI Workflow Utils v1.2.0 - Major Feature Release
 
 <div align="center">
 
@@ -18,7 +18,7 @@
 
 ---
 
-## 🎉 **NEW IN v1.0.7 - Game-Changing Features!**
+## 🎉 **NEW IN v1.2.0 - Game-Changing Features!**
 
 ### 🎯 **Feature #1: AI-Powered Jira Ticket Creation**
 Create professional Jira tickets (Tasks, Bugs, Stories) using AI with multiple provider support:
@@ -30,7 +30,18 @@ Create professional Jira tickets (Tasks, Bugs, Stories) using AI with multiple p
 - **🎨 Professional Templates**: Auto-formatted with proper sections and acceptance criteria
 - **🔗 Direct Jira Integration**: Creates tickets instantly with your access token
 
-### 🔍 **Feature #2: GitStash PR AI Review**
+### 🚀 **Feature #2: AI-Powered Pull Request Creation**
+Revolutionary AI-powered pull request creation for Atlassian Bitbucket:
+
+- **🤖 Intelligent PR Generation**: AI analyzes commit messages to create professional PR titles and descriptions
+- **📝 Smart Commit Analysis**: Automatically determines PR type (feat/fix/chore) based on commit patterns
+- **⚡ Real-time Streaming**: Watch AI generate PR content live with streaming updates
+- **🔄 Multi-Model Support**: Uses Ollama for local AI processing with privacy
+- **✏️ Editable Previews**: Review and edit AI-generated content before creating the PR
+- **🎯 Ticket Integration**: Automatically includes ticket numbers in PR titles
+- **💾 Smart Persistence**: Remembers project and repository settings for faster workflow
+
+### 🔍 **Feature #3: GitStash PR AI Review**
 Revolutionary AI-powered pull request reviews for Atlassian Bitbucket:
 
 - **🧠 Intelligent Code Analysis**: AI reviews your code changes
@@ -39,7 +50,7 @@ Revolutionary AI-powered pull request reviews for Atlassian Bitbucket:
 - **📝 Automated Comments**: AI adds review comments directly to your PRs
 - **⚡ Coming Soon**: Direct comment integration (currently in development)
 
-### 📎 **Feature #3: Simple Jira Attachment Management**
+### 📎 **Feature #4: Simple Jira Attachment Management**
 Effortless file management for your Jira tickets:
 
 - **📁 Drag & Drop Interface**: Simple file uploads
@@ -123,6 +134,30 @@ The application will be available at `http://localhost:3000`
 - **Anthropic Claude** (with vision)
 - **Any OpenAI-compatible API**
 - **Ollama LLaVA** (local, private)
+
+### **🚀 AI-Powered Pull Request Creation**
+
+**Revolutionary PR Generation:**
+- **Smart Commit Analysis**: AI analyzes your commit messages to understand the changes
+- **Automatic Type Detection**: Determines if changes are features, fixes, or chores
+- **Professional Formatting**: Generates conventional commit-style titles (feat/fix/chore)
+- **Streaming Generation**: Watch AI create content in real-time with live updates
+- **Local AI Processing**: Uses Ollama for complete privacy and offline capability
+
+**How it works:**
+1. Navigate to "Create PR"
+2. Enter project key, repository slug, ticket number, and branch name
+3. Click "Preview" to start AI generation
+4. Watch AI analyze commits and generate title/description in real-time
+5. Edit the generated content if needed
+6. Click "Create Pull Request" to submit to Bitbucket
+
+**AI Features:**
+- **Commit Message Analysis**: Extracts meaningful information from commit history
+- **Smart Categorization**: Automatically prefixes with feat/fix/chore based on content
+- **Ticket Integration**: Includes ticket numbers in standardized format
+- **Editable Previews**: Full control over final content before submission
+- **Persistent Settings**: Remembers project and repo settings for faster workflow
 
 ### **🔍 GitStash PR AI Review**
 
@@ -449,6 +484,42 @@ Content-Type: application/json
 }
 ```
 
+**Create Pull Request Preview (Streaming):**
+```bash
+POST /api/pr/stream-preview
+Content-Type: application/json
+
+{
+  "projectKey": "PROJ",
+  "repoSlug": "my-repo",
+  "ticketNumber": "PROJ-123",
+  "branchName": "feature/my-branch"
+}
+
+# Returns Server-Sent Events stream with:
+# - status updates
+# - title_chunk events (streaming title generation)
+# - title_complete event (final title)
+# - description_chunk events (streaming description generation)
+# - description_complete event (final description)
+# - complete event (final preview data)
+```
+
+**Create Pull Request:**
+```bash
+POST /api/pr/create
+Content-Type: application/json
+
+{
+  "projectKey": "PROJ",
+  "repoSlug": "my-repo",
+  "ticketNumber": "PROJ-123",
+  "branchName": "feature/my-branch",
+  "customTitle": "feat(PROJ-123): Add user authentication",
+  "customDescription": "## Summary\nAdded user authentication feature\n\n## Changes Made\n- Added login component\n- Implemented JWT tokens"
+}
+```
+
 **GitStash PR Review:**
 ```bash
 POST /api/pr/review
@@ -603,8 +674,6 @@ Special thanks to the amazing open-source community and the following technologi
 
 ```bash
 npm install -g ai-workflow-utils
-ai-workflow-setup
-ai-workflow-utils
 ```
 
 **⭐ Star us on GitHub if this tool helps you!**
