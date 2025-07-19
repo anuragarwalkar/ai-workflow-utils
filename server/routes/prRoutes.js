@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPullRequests, getPullRequestDiff, reviewPullRequest, createPullRequest } from '../controllers/prController.js';
+import { getPullRequests, getPullRequestDiff, reviewPullRequest, createPullRequest, streamPRPreview } from '../controllers/prController.js';
 import { asyncHandler, createRateLimit } from '../middleware/index.js';
 
 const router = express.Router();
@@ -19,5 +19,8 @@ router.post('/review', asyncHandler(reviewPullRequest));
 
 // Route to create a pull request
 router.post('/create', asyncHandler(createPullRequest));
+
+// Route to stream PR preview generation
+router.post('/stream-preview', asyncHandler(streamPRPreview));
 
 export default router;

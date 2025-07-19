@@ -9,6 +9,7 @@ import CreateJiraContainer from './components/jira/CreateJira/CreateJiraContaine
 import SendEmailContainer from './components/email/SendEmailContainer';
 import ReleaseBuildContainer from './components/build/ReleaseBuildContainer';
 import GitStashContainer from './components/gitstash/GitStashContainer';
+import PRContainer from './components/pr/PRContainer';
 import ViewJiraModal from './components/jira/ViewJira/ViewJiraModal';
 import BuildModal from './components/build/BuildModal';
 import NotificationSnackbar from './components/common/NotificationSnackbar';
@@ -27,6 +28,8 @@ const AppContent = () => {
         return <ReleaseBuildContainer />;
       case 'gitStash':
         return <GitStashContainer />;
+      case 'pr':
+        return <PRContainer />;
       case 'home':
       default:
         return <HomeButtons />;

@@ -2,6 +2,7 @@ import axios from 'axios';
 import https from 'https';
 import logger from '../logger.js';
 import dotenv from 'dotenv';
+import { Ollama } from '@langchain/ollama';
 
 // Configure dotenv
 dotenv.config();
@@ -378,19 +379,245 @@ function generateBasicReview(diffData, prDetails) {
   return review;
 }
 
-// Create pull request (moved from jiraController)
+// Get commit messages from a branch
+async function getCommitMessages(projectKey, repoSlug, branchName) {
+  try {
+    const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/commits`;
+    
+    logger.info(`Fetching commits from branch ${branchName}: ${url}`);
+
+    const response = await axiosInstance.get(url, {
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      },
+      params: {
+        until: branchName,
+        limit: 20 // Limit to recent commits to avoid token limits
+      }
+    });
+
+    if (response.data && response.data.values) {
+      const commits = response.data.values.map(commit => ({
+        id: commit.id,
+        message: commit.message,
+        author: commit.author.name,
+        date: commit.authorTimestamp
+      }));
+      
+      logger.info(`Successfully fetched ${commits.length} commits from branch ${branchName}`);
+      return commits;
+    }
+    
+    return [];
+  } catch (error) {
+    logger.error('Error fetching commit messages:', error);
+    throw new Error(`Failed to fetch commits: ${error.response?.data?.errors?.[0]?.message || error.message}`);
+  }
+}
+
+// Initialize LangChain Ollama model
+function initializeOllama() {
+  const ollamaBaseUrl = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+  const ollamaModel = process.env.OLLAMA_MODEL || 'llama3.2';
+  
+  return new Ollama({
+    baseUrl: ollamaBaseUrl,
+    model: ollamaModel,
+    temperature: 0.7,
+  });
+}
+
+// Analyze commits to determine the type (feat/fix/chore)
+function analyzeCommitType(commits) {
+  const commitMessages = commits.map(commit => commit.message.toLowerCase()).join(' ');
+  
+  // Check for feature keywords
+  const featKeywords = ['feat', 'feature', 'add', 'implement', 'create', 'new', 'introduce'];
+  const fixKeywords = ['fix', 'bug', 'patch', 'resolve', 'correct', 'repair', 'hotfix'];
+  const choreKeywords = ['chore', 'refactor', 'update', 'clean', 'maintain', 'deps', 'dependency', 'style', 'format'];
+  
+  let featScore = 0;
+  let fixScore = 0;
+  let choreScore = 0;
+  
+  // Score based on keyword matches
+  featKeywords.forEach(keyword => {
+    if (commitMessages.includes(keyword)) featScore++;
+  });
+  
+  fixKeywords.forEach(keyword => {
+    if (commitMessages.includes(keyword)) fixScore++;
+  });
+  
+  choreKeywords.forEach(keyword => {
+    if (commitMessages.includes(keyword)) choreScore++;
+  });
+  
+  // Return the type with highest score, default to 'feat'
+  if (fixScore > featScore && fixScore > choreScore) {
+    return 'fix';
+  } else if (choreScore > featScore && choreScore > fixScore) {
+    return 'chore';
+  } else {
+    return 'feat';
+  }
+}
+
+// Generate PR title using LangChain Ollama with commit-based prefix
+async function generatePRTitle(commits, ticketNumber) {
+  try {
+    const commitMessages = commits.map(commit => commit.message).join('\n');
+    
+    const ollama = initializeOllama();
+    
+    const titlePrompt = `Based on the following commit messages from a branch, generate a very short and concise pull request title.
+The title should be clear, professional, and summarize the main purpose of the changes.
+Keep it under 50 characters and use imperative mood (e.g., "Add auth" not "Added authentication").
+Focus on the most important change only.
+DO NOT include any ticket numbers, issue numbers, or identifiers in the title.
+
+Commit messages:
+${commitMessages}
+
+Generate only the title without any ticket numbers or identifiers:`;
+
+    const response = await ollama.invoke(titlePrompt);
+    const aiTitle = response.trim() || 'Generated PR Title';
+    
+    // Determine commit type and format with prefix
+    const commitType = analyzeCommitType(commits);
+    const formattedTitle = `${commitType}(${ticketNumber}): ${aiTitle}`;
+    
+    return formattedTitle;
+  } catch (error) {
+    logger.error('Error generating PR title with Ollama:', error);
+    // Fallback with basic format
+    return `feat(${ticketNumber}): Generated PR Title`;
+  }
+}
+
+// Generate PR title with streaming using LangChain Ollama
+async function generatePRTitleStream(commits, ticketNumber, onChunk) {
+  try {
+    const commitMessages = commits.map(commit => commit.message).join('\n');
+    
+    const ollama = initializeOllama();
+    
+    const titlePrompt = `Based on the following commit messages from a branch, generate a very short and concise pull request title.
+The title should be clear, professional, and summarize the main purpose of the changes.
+Keep it under 50 characters and use imperative mood (e.g., "Add auth" not "Added authentication").
+Focus on the most important change only.
+DO NOT include any ticket numbers, issue numbers, or identifiers in the title.
+
+Commit messages:
+${commitMessages}
+
+Generate only the title without any ticket numbers or identifiers:`;
+
+    let aiTitle = '';
+    const stream = await ollama.stream(titlePrompt);
+    
+    for await (const chunk of stream) {
+      aiTitle += chunk;
+      onChunk(chunk);
+    }
+    
+    aiTitle = aiTitle.trim() || 'Generated PR Title';
+    
+    // Determine commit type and format with prefix
+    const commitType = analyzeCommitType(commits);
+    const formattedTitle = `${commitType}(${ticketNumber}): ${aiTitle}`;
+    
+    return formattedTitle;
+  } catch (error) {
+    logger.error('Error generating PR title with Ollama streaming:', error);
+    // Fallback with basic format
+    const fallbackTitle = `feat(${ticketNumber}): Generated PR Title`;
+    onChunk(fallbackTitle);
+    return fallbackTitle;
+  }
+}
+
+// Generate PR description using LangChain Ollama
+async function generatePRDescription(commitMessages) {
+  const ollama = initializeOllama();
+  
+  const descriptionPrompt = `Based on the following commit messages from a branch, generate a concise pull request description.
+Keep it short and focused. Include only:
+
+## Summary
+Brief overview (1-2 sentences max)
+
+## Changes Made
+- List 3-5 key changes only
+- Focus on the most important changes
+
+Commit messages:
+${commitMessages}
+
+Generate a short, concise description in markdown format (max 200 words):`;
+
+  try {
+    const response = await ollama.invoke(descriptionPrompt);
+    return response.trim() || 'Generated PR Description';
+  } catch (error) {
+    logger.error('Error generating PR description with Ollama:', error);
+    return 'Generated PR Description';
+  }
+}
+
+// Generate PR description with streaming using LangChain Ollama
+async function generatePRDescriptionStream(commitMessages, onChunk) {
+  const ollama = initializeOllama();
+  
+  const descriptionPrompt = `Based on the following commit messages from a branch, generate a concise pull request description.
+Keep it short and focused. Include only:
+
+## Summary
+Brief overview (1-2 sentences max)
+
+## Changes Made
+- List 3-5 key changes only
+- Focus on the most important changes
+
+Commit messages:
+${commitMessages}
+
+Generate a short, concise description in markdown format (max 200 words):`;
+
+  try {
+    let description = '';
+    const stream = await ollama.stream(descriptionPrompt);
+    
+    for await (const chunk of stream) {
+      description += chunk;
+      onChunk(chunk);
+    }
+    
+    return description.trim() || 'Generated PR Description';
+  } catch (error) {
+    logger.error('Error generating PR description with Ollama streaming:', error);
+    const fallbackDescription = 'Generated PR Description';
+    onChunk(fallbackDescription);
+    return fallbackDescription;
+  }
+}
+
+// Create PR with provided title and description
 async function createPullRequest(req, res) {
   const { 
     ticketNumber, 
-    updatedList, 
     branchName, 
     projectKey,
     repoSlug,
+    customTitle,
+    customDescription
   } = req.body;
 
-  if (!ticketNumber || !updatedList || !branchName || !projectKey || !repoSlug) {
+  if (!ticketNumber || !branchName || !projectKey || !repoSlug || !customTitle || !customDescription) {
     return res.status(400).json({ 
-      error: "ticketNumber, updatedList, branchName, projectKey, and repoSlug are required" 
+      error: "ticketNumber, branchName, projectKey, repoSlug, customTitle, and customDescription are required" 
     });
   }
 
@@ -401,28 +628,21 @@ async function createPullRequest(req, res) {
       });
     }
 
+    // Create PR with the provided title and description
     const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests`;
     
-    // Create the pull request payload
-    const prTitle = `feat(CUDI-${ticketNumber}): upgrade ${updatedList}`;
-    const prDescription = `This PR integrates the latest updates for the following packages: ${updatedList}.`;
-
     const payload = {
-      title: prTitle,
-      description: prDescription,
-      source: {
-        branch: {
-          name: branchName
-        }
+      title: customTitle,
+      description: customDescription,
+      fromRef: {
+        id: `refs/heads/${branchName}`
       },
-      destination: {
-        branch: {
-          name: "main"
-        }
+      toRef: {
+        id: "refs/heads/main"
       }
     };
 
-    logger.info(`Creating pull request for ticket ${ticketNumber}`);
+    logger.info(`Creating pull request for ticket ${ticketNumber} with title: "${customTitle}"`);
 
     const response = await axiosInstance.post(url, payload, {
       headers: {
@@ -437,9 +657,12 @@ async function createPullRequest(req, res) {
     
     res.status(201).json({
       message: "Pull request created successfully",
-      pullRequest: data,
-      prTitle,
-      prDescription
+      prTitle: customTitle,
+      prDescription: customDescription,
+      ticketNumber,
+      branchName,
+      pullRequestId: data.id,
+      pullRequestUrl: data.links?.self?.[0]?.href
     });
   } catch (error) {
     logger.error('Error creating pull request:', error);
@@ -457,16 +680,142 @@ async function createPullRequest(req, res) {
   }
 }
 
+// Stream PR preview generation
+async function streamPRPreview(req, res) {
+  const { 
+    ticketNumber, 
+    branchName, 
+    projectKey,
+    repoSlug
+  } = req.body;
+
+  if (!ticketNumber || !branchName || !projectKey || !repoSlug) {
+    return res.status(400).json({ 
+      error: "ticketNumber, branchName, projectKey, and repoSlug are required" 
+    });
+  }
+
+  try {
+    if (!authToken) {
+      return res.status(400).json({ 
+        error: "BITBUCKET_AUTHORIZATION_TOKEN environment variable is required" 
+      });
+    }
+
+    // Set up Server-Sent Events
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Cache-Control'
+    });
+
+    // Send initial status
+    res.write(`data: ${JSON.stringify({ type: 'status', message: 'Starting PR preview generation...' })}\n\n`);
+
+    let prTitle = '';
+    let prDescription = '';
+    let aiGenerated = false;
+
+    try {
+      logger.info(`Generating AI-powered PR content for branch ${branchName} using Ollama`);
+      
+      // Send status update
+      res.write(`data: ${JSON.stringify({ type: 'status', message: 'Fetching commit messages...' })}\n\n`);
+      
+      // Fetch commit messages from the branch
+      const commits = await getCommitMessages(projectKey, repoSlug, branchName);
+      
+      if (commits.length > 0) {
+        // Send status update
+        res.write(`data: ${JSON.stringify({ type: 'status', message: 'Generating PR title...' })}\n\n`);
+        
+        // Format commit messages for AI processing
+        const commitMessages = commits.map(commit => 
+          `- ${commit.message} (by ${commit.author})`
+        ).join('\n');
+
+        // Generate title with streaming
+        const commitType = analyzeCommitType(commits);
+        let titleChunks = '';
+        
+        prTitle = await generatePRTitleStream(commits, ticketNumber, (chunk) => {
+          titleChunks += chunk;
+          res.write(`data: ${JSON.stringify({ type: 'title_chunk', data: chunk })}\n\n`);
+        });
+        
+        // Send complete title
+        res.write(`data: ${JSON.stringify({ type: 'title_complete', data: prTitle })}\n\n`);
+        
+        // Send status update for description
+        res.write(`data: ${JSON.stringify({ type: 'status', message: 'Generating PR description...' })}\n\n`);
+        
+        // Generate description with streaming
+        let descriptionChunks = '';
+        
+        prDescription = await generatePRDescriptionStream(commitMessages, (chunk) => {
+          descriptionChunks += chunk;
+          res.write(`data: ${JSON.stringify({ type: 'description_chunk', data: chunk })}\n\n`);
+        });
+        
+        // Send complete description
+        res.write(`data: ${JSON.stringify({ type: 'description_complete', data: prDescription })}\n\n`);
+        
+        aiGenerated = true;
+        
+        logger.info(`Successfully generated AI-powered PR content`);
+      } else {
+        logger.warn(`No commits found for branch ${branchName}, using fallback title/description`);
+        prTitle = `${ticketNumber}`;
+        prDescription = `This PR contains changes for ticket ${ticketNumber} from branch ${branchName}.`;
+        
+        // Send fallback data
+        res.write(`data: ${JSON.stringify({ type: 'title_complete', data: prTitle })}\n\n`);
+        res.write(`data: ${JSON.stringify({ type: 'description_complete', data: prDescription })}\n\n`);
+      }
+    } catch (ollamaError) {
+      logger.info(`Ollama not available, using basic title/description: ${ollamaError.message}`);
+      prTitle = `${ticketNumber}`;
+      prDescription = `This PR contains changes for ticket ${ticketNumber} from branch ${branchName}.`;
+      
+      // Send fallback data
+      res.write(`data: ${JSON.stringify({ type: 'title_complete', data: prTitle })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: 'description_complete', data: prDescription })}\n\n`);
+    }
+
+    // Send completion event
+    res.write(`data: ${JSON.stringify({ 
+      type: 'complete', 
+      data: { 
+        prTitle, 
+        prDescription, 
+        aiGenerated, 
+        ticketNumber, 
+        branchName 
+      } 
+    })}\n\n`);
+    
+    res.end();
+  } catch (error) {
+    logger.error('Error streaming PR preview:', error);
+    res.write(`data: ${JSON.stringify({ type: 'error', message: error.message })}\n\n`);
+    res.end();
+  }
+}
+
 export {
   getPullRequests,
   getPullRequestDiff,
   reviewPullRequest,
-  createPullRequest
+  createPullRequest,
+  streamPRPreview
 };
 
 export default {
   getPullRequests,
   getPullRequestDiff,
   reviewPullRequest,
-  createPullRequest
+  createPullRequest,
+  streamPRPreview
 };

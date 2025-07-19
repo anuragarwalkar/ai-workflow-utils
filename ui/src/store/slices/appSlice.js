@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  currentView: 'home', // 'home', 'createJira', 'viewJira', 'sendEmail', 'gitStash'
+  currentView: 'home', // 'home', 'createJira', 'viewJira', 'sendEmail', 'gitStash', 'pr'
   isLoading: false,
   error: null,
 };
