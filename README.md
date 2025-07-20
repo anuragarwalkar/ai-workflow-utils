@@ -5,6 +5,8 @@
 ![AI Workflow Utils](https://img.shields.io/badge/AI%20Workflow%20Utils-v1.3.0-blue?style=for-the-badge)
 ![Node.js](https://img.shields.io/badge/Node.js-16%2B-green?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge)
+![LangChain](https://img.shields.io/badge/LangChain-Supported-orange?style=for-the-badge)
+![Express.js](https://img.shields.io/badge/Express.js-5.x-black?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
 **The Ultimate AI-Powered Development Workflow Automation Platform**
