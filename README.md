@@ -11,7 +11,7 @@
 
 *Streamline your development process with intelligent Jira ticket creation, AI-powered code reviews & pull request creation, and seamless attachment management*
 
-<img width="3024" height="2968" alt="AI-Workflow-Utils-07-20-2025_01_52_AM" src="https://github.com/user-attachments/assets/522ee335-e9df-4a24-a422-a4507cd80eca" />
+<img width="3024" height="2968" alt="AI-Workflow-Utils-07-20-2025_09_43_AM" src="https://github.com/user-attachments/assets/6ce0c7f4-acfb-4a9f-8133-012866203e2b" />
 
 </div>
 
