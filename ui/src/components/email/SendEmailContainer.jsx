@@ -29,6 +29,8 @@ const SendEmailContainer = () => {
   const [toEmail, setToEmail] = useState('');
   const [ccEmail, setCcEmail] = useState('');
   const [subject, setSubject] = useState('');
+  const [wikiUrl, setWikiUrl] = useState('');
+  const [wikiBasicAuth, setWikiBasicAuth] = useState('');
 
   // Load email values from localStorage on component mount
   useEffect(() => {
@@ -49,6 +51,19 @@ const SendEmailContainer = () => {
         if (lastVersionData.subject) {
           setSubject(lastVersionData.subject);
         }
+        if (lastVersionData.wikiUrl) {
+          setWikiUrl(lastVersionData.wikiUrl);
+        }
+        if (lastVersionData.wikiBasicAuth) {
+          // Decode from base64 when retrieving from localStorage
+          try {
+            setWikiBasicAuth(atob(lastVersionData.wikiBasicAuth));
+          } catch (decodeError) {
+            console.error('Error decoding wikiBasicAuth from localStorage:', decodeError);
+            // If decoding fails, treat as plain text (for backward compatibility)
+            setWikiBasicAuth(lastVersionData.wikiBasicAuth);
+          }
+        }
       } catch (error) {
         console.error('Error parsing last email version data:', error);
       }
@@ -62,6 +77,9 @@ const SendEmailContainer = () => {
       toEmail,
       ccEmail,
       subject,
+      wikiUrl,
+      // Store wikiBasicAuth as base64 encoded
+      wikiBasicAuth: wikiBasicAuth ? btoa(wikiBasicAuth) : '',
       dryRun
     };
     localStorage.setItem('lastEmailVersion', JSON.stringify(emailVersionData));
@@ -76,7 +94,17 @@ const SendEmailContainer = () => {
   const handleSendEmail = async () => {
     try {
       setSuccess(false);
-      const result = await sendEmail({ version, dryRun }).unwrap();
+      
+      // Prepare the request data
+      const requestData = {
+        version,
+        dryRun,
+        wikiUrl,
+        // wikiBasicAuth is already encoded when sent to server
+        wikiBasicAuth: wikiBasicAuth ? btoa(wikiBasicAuth) : ''
+      };
+      
+      const result = await sendEmail(requestData).unwrap();
       
       setEmailPreview(result);
       dispatch(setEmailData(result));
@@ -142,8 +170,31 @@ ${emailPreview}`;
                 label="Version"
                 value={version}
                 onChange={(e) => setVersion(e.target.value)}
-                placeholder="e.g., 2.0.9"
+                placeholder="e.g., 1.0.0"
                 helperText="Enter the version number for the release notes"
+              />
+            </Grid>
+            
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Wiki URL"
+                value={wikiUrl}
+                onChange={(e) => setWikiUrl(e.target.value)}
+                placeholder="https://your-company.atlassian.net/wiki"
+                helperText="Your Atlassian Wiki URL for release notes"
+              />
+            </Grid>
+            
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                type="password"
+                label="Wiki Basic Auth"
+                value={wikiBasicAuth}
+                onChange={(e) => setWikiBasicAuth(e.target.value)}
+                placeholder="username:password"
+                helperText="Wiki basic authentication (username:password)"
               />
             </Grid>
             
@@ -202,7 +253,7 @@ ${emailPreview}`;
               variant="contained"
               size="large"
               onClick={handleSendEmail}
-              disabled={isLoading || !version.trim()}
+              disabled={isLoading || !version.trim() || !wikiUrl.trim() || !wikiBasicAuth.trim()}
               sx={{ minWidth: 200 }}
             >
               {isLoading ? (

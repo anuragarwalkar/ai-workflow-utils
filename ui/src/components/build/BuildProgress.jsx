@@ -18,7 +18,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { clearBuildLogs } from '../../store/slices/buildSlice';
 import { setCurrentView } from '../../store/slices/appSlice';
 import { useCreatePullRequestMutation } from '../../store/api/prApi';
-import { PR_CONFIG } from '../../private-config';
 import socketService from '../../services/socketService';
 
 const BuildProgress = ({ onReset, onBack }) => {
@@ -69,6 +68,11 @@ const BuildProgress = ({ onReset, onBack }) => {
       return;
     }
 
+    if (!buildConfig.repoKey || !buildConfig.repoSlug) {
+      setPrError('Missing repository key or repository slug configuration');
+      return;
+    }
+
     try {
       setPrStatus('creating');
       setPrError(null);
@@ -87,8 +91,8 @@ const BuildProgress = ({ onReset, onBack }) => {
         ticketNumber: buildConfig.ticketNumber,
         updatedList,
         branchName,
-        projectKey: PR_CONFIG.PROJECT_KEY,
-        repoSlug: PR_CONFIG.REPO_SLUG
+        projectKey: buildConfig.repoKey,
+        repoSlug: buildConfig.repoSlug
       }).unwrap();
 
       setPrStatus('success');

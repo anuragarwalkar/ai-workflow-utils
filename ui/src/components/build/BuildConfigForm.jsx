@@ -12,13 +12,40 @@ import {
   Chip,
   Alert,
 } from "@mui/material";
-import { AVAILABLE_PACKAGES } from '../../private-config';
 
-const BuildConfigForm = ({ config, onChange, onNext }) => {
+const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
   const handleTicketNumberChange = (event) => {
     onChange({
       ...config,
       ticketNumber: event.target.value,
+    });
+  };
+
+  const handleRepoKeyChange = (event) => {
+    onChange({
+      ...config,
+      repoKey: event.target.value,
+    });
+  };
+
+  const handleRepoSlugChange = (event) => {
+    onChange({
+      ...config,
+      repoSlug: event.target.value,
+    });
+  };
+
+  const handleGitReposChange = (event) => {
+    const gitReposValue = event.target.value;
+    const availablePackages = gitReposValue.trim() 
+      ? gitReposValue.split(',').map(repo => repo.trim()).filter(repo => repo)
+      : [];
+    
+    onChange({
+      ...config,
+      gitRepos: gitReposValue,
+      availablePackages: availablePackages,
+      selectedPackages: config.selectedPackages.filter(pkg => availablePackages.includes(pkg))
     });
   };
 
@@ -36,10 +63,10 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
 
   const handleSelectAllPackages = () => {
     const allSelected =
-      config.selectedPackages.length === AVAILABLE_PACKAGES.length;
+      config.selectedPackages.length === config.availablePackages.length;
     onChange({
       ...config,
-      selectedPackages: allSelected ? [] : [...AVAILABLE_PACKAGES],
+      selectedPackages: allSelected ? [] : [...config.availablePackages],
     });
   };
 
@@ -51,7 +78,10 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
   };
 
   const isFormValid = () => {
-    return config.ticketNumber.trim() !== "";
+    return config.ticketNumber.trim() !== "" && 
+           config.repoKey.trim() !== "" && 
+           config.repoSlug.trim() !== "" &&
+           config.gitRepos.trim() !== "";
   };
 
   const getPackageDisplayName = (packageName) => {
@@ -67,6 +97,50 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
       </Typography>
 
       <Grid container spacing={3}>
+        {/* Repository Configuration */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="subtitle1" gutterBottom>
+              Repository Configuration
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Repository Key"
+                  placeholder="e.g., your-repo-key"
+                  value={config.repoKey || ''}
+                  onChange={handleRepoKeyChange}
+                  helperText="Enter the repository key for PR creation"
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Repository Slug"
+                  placeholder="e.g., your-repo-slug"
+                  value={config.repoSlug || ''}
+                  onChange={handleRepoSlugChange}
+                  helperText="Enter the repository slug for PR creation"
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Git Repositories"
+                  placeholder="e.g., example-1,example-2,example-3"
+                  value={config.gitRepos || ''}
+                  onChange={handleGitReposChange}
+                  helperText="Enter comma-separated list of git repositories"
+                  required
+                />
+              </Grid>
+            </Grid>
+          </Paper>
+        </Grid>
+
         {/* Ticket Number */}
         <Grid item xs={12}>
           <Paper sx={{ p: 3 }}>
@@ -97,45 +171,53 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
               }}
             >
               <Typography variant="subtitle1">Package Selection</Typography>
-              <Button
-                size="small"
-                onClick={handleSelectAllPackages}
-                variant="outlined"
-              >
-                {config.selectedPackages.length === AVAILABLE_PACKAGES.length
-                  ? "Deselect All"
-                  : "Select All"}
-              </Button>
+              {config.availablePackages && config.availablePackages.length > 0 && (
+                <Button
+                  size="small"
+                  onClick={handleSelectAllPackages}
+                  variant="outlined"
+                >
+                  {config.selectedPackages.length === config.availablePackages.length
+                    ? "Deselect All"
+                    : "Select All"}
+                </Button>
+              )}
             </Box>
 
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               Select which packages to update to their latest versions:
             </Typography>
 
-            <FormGroup>
-              {AVAILABLE_PACKAGES.map((packageName) => (
-                <FormControlLabel
-                  key={packageName}
-                  control={
-                    <Checkbox
-                      checked={config.selectedPackages.includes(packageName)}
-                      onChange={() => handlePackageToggle(packageName)}
-                    />
-                  }
-                  label={
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Typography variant="body2">{packageName}</Typography>
-                      <Chip
-                        label={getPackageDisplayName(packageName)}
-                        size="small"
-                        variant="outlined"
-                        color="primary"
+            {config.availablePackages && config.availablePackages.length > 0 ? (
+              <FormGroup>
+                {config.availablePackages.map((packageName) => (
+                  <FormControlLabel
+                    key={packageName}
+                    control={
+                      <Checkbox
+                        checked={config.selectedPackages.includes(packageName)}
+                        onChange={() => handlePackageToggle(packageName)}
                       />
-                    </Box>
-                  }
-                />
-              ))}
-            </FormGroup>
+                    }
+                    label={
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Typography variant="body2">{packageName}</Typography>
+                        <Chip
+                          label={getPackageDisplayName(packageName)}
+                          size="small"
+                          variant="outlined"
+                          color="primary"
+                        />
+                      </Box>
+                    }
+                  />
+                ))}
+              </FormGroup>
+            ) : (
+              <Alert severity="info" sx={{ mt: 2 }}>
+                Please enter git repositories above to see available packages for selection
+              </Alert>
+            )}
 
             {config.selectedPackages.length > 0 && (
               <Alert severity="info" sx={{ mt: 2 }}>
@@ -182,7 +264,17 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
             </Button>
             <Button
               variant="contained"
-              onClick={onNext}
+              onClick={() => {
+                // Save repository configuration before proceeding
+                if (onSaveConfig) {
+                  onSaveConfig({
+                    repoKey: config.repoKey,
+                    repoSlug: config.repoSlug,
+                    gitRepos: config.gitRepos
+                  });
+                }
+                onNext();
+              }}
               disabled={!isFormValid()}
             >
               Next: Review Configuration
@@ -193,7 +285,7 @@ const BuildConfigForm = ({ config, onChange, onNext }) => {
 
       {!isFormValid() && (
         <Alert severity="warning" sx={{ mt: 2 }}>
-          Please enter a ticket number to continue
+          Please fill in all required fields: Repository Key, Repository Slug, Git Repositories, and Ticket Number
         </Alert>
       )}
     </Box>

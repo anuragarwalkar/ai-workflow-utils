@@ -1,8 +1,8 @@
-# 🚀 AI Workflow Utils v1.3.2 - Major Feature Release
+# 🚀 AI Workflow Utils v1.4.0 - Major Feature Release
 
 <div align="center">
 
-![AI Workflow Utils](https://img.shields.io/badge/AI%20Workflow%20Utils-v1.3.0-blue?style=for-the-badge)
+![AI Workflow Utils](https://img.shields.io/badge/AI%20Workflow%20Utils-v1.4.0-blue?style=for-the-badge)
 ![Node.js](https://img.shields.io/badge/Node.js-16%2B-green?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge)
 ![LangChain](https://img.shields.io/badge/LangChain-Supported-orange?style=for-the-badge)
@@ -19,7 +19,7 @@
 
 ---
 
-## 🎉 **NEW IN v1.3.2 - Game-Changing Features!**
+## 🎉 **NEW IN v1.4.0 - Game-Changing Features!**
 
 ### 🎯 **Feature #1: AI-Powered Jira Ticket Creation**
 Create professional Jira tickets (Tasks, Bugs, Stories) using AI with multiple provider support:
@@ -78,6 +78,13 @@ The setup wizard will guide you through:
 - ✅ Jira configuration (URL, access token)
 - ✅ AI provider setup (OpenAI Compatible API or Ollama)
 - ✅ Optional integrations (Bitbucket, Email)
+
+**🏠 Configuration Storage**: Your configuration is stored in `~/.ai-workflow-utils/` and persists across package upgrades!
+
+```bash
+# View configuration location and status
+ai-workflow-utils --config-info
+```
 
 ### **Step 3: Ollama Setup (Recommended for Privacy)**
 ```bash

@@ -2,15 +2,20 @@
 
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 const readline = require("readline");
 
 class EnvironmentSetup {
   constructor() {
     this.packageDir = path.dirname(__dirname);
-    this.serverEnvPath = path.join(this.packageDir, ".env");
-    this.uiEnvPath = path.join(this.packageDir, "ui", ".env");
+    
+    // Home directory configuration paths
+    this.configDir = path.join(os.homedir(), ".ai-workflow-utils");
+    this.serverEnvPath = path.join(this.configDir, "config.env");
+    this.configMetaPath = path.join(this.configDir, "config.json");
+    
+    // Package directory paths for examples
     this.serverEnvExamplePath = path.join(this.packageDir, ".env.example");
-    this.uiEnvExamplePath = path.join(this.packageDir, "ui", ".env.example");
 
     this.rl = readline.createInterface({
       input: process.stdin,
@@ -18,104 +23,103 @@ class EnvironmentSetup {
     });
 
     // Environment variable configurations with descriptions and validation
-    // TODO: remove UI ENV from here and add in UI localstorage 
-    // TODO: add some kind of document storage to storage user configuration
-    // TODO: show configuration page to user
-    // TODO: group related configuartion in nested object based on we can ask question to user where to setup.
+    // UI configuration is now handled directly in the UI application
     this.envConfig = {
       server: {
-        // Required configurations
-        JIRA_URL: {
-          description:
-            "Your Jira instance URL (e.g., https://your-company.atlassian.net)",
+        // Jira configuration
+        jira: {
           required: true,
-        },
-        JIRA_TOKEN: {
-          description:
-            "Your Jira API token (create one at: https://id.atlassian.com/manage-profile/security/api-tokens)",
-          required: true,
-          sensitive: true,
-        },
-
-        // Optional but recommended
-         OPENAI_COMPATIBLE_BASE_URL: {
-          description: "AI API base URL (default: https://api.anthropic.com), Else - setup local AI server with ollama",
-          required: false,
-          default: "https://api.anthropic.com",
-        },
-        OPENAI_COMPATIBLE_API_KEY: {
-          description: "Your AI API key (OpenAI, Anthropic, etc.)",
-          required: false,
-          sensitive: true,
-        },
-        OPENAI_COMPATIBLE_MODEL: {
-          description: "AI model to use (default: claude-3-sonnet-20240229)",
-          required: false,
-          default: "claude-3-sonnet-20240229",
+          description: "Jira integration for creating and managing tickets",
+          url: {
+            description:
+              "Your Jira instance URL (e.g., https://your-company.atlassian.net)",
+            required: true,
+            envKey: "JIRA_URL",
+          },
+          token: {
+            description:
+              "Your Jira API token (create one at: https://id.atlassian.com/manage-profile/security/api-tokens)",
+            required: true,
+            sensitive: true,
+            envKey: "JIRA_TOKEN",
+          },
         },
 
-        // Wiki optional
-        WIKI_URL: {
-          description:
-            "Your Atlassian Wiki URL (e.g., https://your-company.atlassian.net/wiki)",
+        // AI configuration
+        openai: {
           required: false,
-        },
-        WIKI_BASIC_AUTH: {
-          description: "Your Wiki basic authentication token username:password converted to based64",
-          required: false,
-          sensitive: true,
-        },
-
-        // Optional configurations
-        BIT_BUCKET_URL: {
-        description: "Your Bitbucket server URL (optional, To create, view & review PR using AI)",
-        required: false,
-        },
-        BITBUCKET_AUTHORIZATION_TOKEN: {
-          description: "Bitbucket API token (optional)",
-          required: false,
-          sensitive: true,
-        },
-        EMAIL_USER: {
-          description: "Email address for notifications (optional) -To setup Gmail email server",
-          required: false,
-        },
-        EMAIL_PASS: {
-          description: "Email app password (optional) -Only support gmail app password]",
-          required: false,
-          sensitive: true,
+          description: "OpenAI/Anthropic compatible AI API configuration",
+          baseUrl: {
+            description: "AI API base URL (default: https://api.anthropic.com), Else - setup local AI server with ollama",
+            required: false,
+            default: "https://api.anthropic.com",
+            envKey: "OPENAI_COMPATIBLE_BASE_URL",
+          },
+          apiKey: {
+            description: "Your AI API key (OpenAI, Anthropic, etc.)",
+            required: false,
+            sensitive: true,
+            envKey: "OPENAI_COMPATIBLE_API_KEY",
+          },
+          model: {
+            description: "AI model to use (default: claude-3-sonnet-20240229)",
+            required: false,
+            default: "claude-3-sonnet-20240229",
+            envKey: "OPENAI_COMPATIBLE_MODEL",
+          },
         },
 
-        // System configurations with defaults
-        NODE_ENV: {
-          description: "Node environment (default: production)",
+        // Bitbucket configuration
+        bitbucket: {
           required: false,
-          default: "production",
+          description: "Bitbucket integration for PR creation and review",
+          url: {
+            description: "Your Bitbucket server URL (optional, To create, view & review PR using AI)",
+            required: false,
+            envKey: "BIT_BUCKET_URL",
+          },
+          token: {
+            description: "Bitbucket API token (optional)",
+            required: false,
+            sensitive: true,
+            envKey: "BITBUCKET_AUTHORIZATION_TOKEN",
+          },
         },
-        PORT: {
-          description: "Server port (default: 3000)",
+
+        // Ollama configuration
+        ollama: {
           required: false,
-          default: "3000",
+          description: "Local Ollama AI server configuration",
+          baseUrl: {
+            description: "Ollama base URL (default: http://localhost:11434)",
+            required: false,
+            default: "http://localhost:11434",
+            envKey: "OLLAMA_BASE_URL",
+          },
+          model: {
+            description: "Ollama model (default: llava)",
+            required: false,
+            default: "llava",
+            envKey: "OLLAMA_MODEL",
+          },
         },
-      },
-      ui: {
-        VITE_API_BASE_URL: {
-          description:
-            "API base URL for the frontend (default: http://localhost:3000)",
+
+        // Server configuration
+        server: {
           required: false,
-          default: "http://localhost:3000",
-        },
-        VITE_PR_CREATION_REPO_KEY: {
-          description: "Repository key for PR creation (optional)",
-          required: false,
-        },
-        VITE_PR_CREATION_REPO_SLUG: {
-          description: "Repository slug for PR creation (optional)",
-          required: false,
-        },
-        VITE_GIT_REPOS: {
-          description: "Comma-separated list of Git repositories (optional)",
-          required: false,
+          description: "Basic server configuration",
+          port: {
+            description: "Server port (default: 3000)",
+            required: false,
+            default: "3000",
+            envKey: "PORT",
+          },
+          environment: {
+            description: "Server environment (default: prod)",
+            required: false,
+            default: "production",
+            envKey: "NODE_ENV",
+          },
         },
       },
     };
@@ -133,14 +137,19 @@ class EnvironmentSetup {
       "This setup will help you configure the application for first use.\n"
     );
 
+    // Ensure config directory exists
+    if (!fs.existsSync(this.configDir)) {
+      fs.mkdirSync(this.configDir, { recursive: true });
+      console.log(`📁 Created configuration directory: ${this.configDir}`);
+    }
+
     // Check if .env files already exist
     const serverEnvExists = fs.existsSync(this.serverEnvPath);
-    const uiEnvExists = fs.existsSync(this.uiEnvPath);
 
-    if (serverEnvExists || uiEnvExists) {
-      console.log("⚠️  Environment files already exist:");
-      if (serverEnvExists) console.log("   - .env (server configuration)");
-      if (uiEnvExists) console.log("   - ui/.env (frontend configuration)");
+    if (serverEnvExists) {
+      console.log("⚠️  Configuration file already exists in:");
+      console.log(`   📁 ${this.configDir}`);
+      console.log("   - config.env (server configuration)");
 
       const overwrite = await this.question(
         "\nDo you want to reconfigure? (y/N): "
@@ -159,9 +168,6 @@ class EnvironmentSetup {
     const existingServerEnv =
       this.loadExistingEnv(this.serverEnvPath) ||
       this.loadExistingEnv(this.serverEnvExamplePath);
-    const existingUiEnv =
-      this.loadExistingEnv(this.uiEnvPath) ||
-      this.loadExistingEnv(this.uiEnvExamplePath);
 
     console.log("\n📋 Let's configure your environment variables...\n");
 
@@ -173,18 +179,15 @@ class EnvironmentSetup {
       existingServerEnv
     );
 
-    console.log("\n🌐 Frontend Configuration:");
-    console.log("=".repeat(50));
-    const uiEnv = await this.configureEnvironment("ui", existingUiEnv);
-
     // Write environment files
     await this.writeEnvFile(this.serverEnvPath, serverEnv);
-    await this.writeEnvFile(this.uiEnvPath, uiEnv);
 
     console.log("\n✅ Configuration complete!");
-    console.log("📁 Environment files created:");
-    console.log("   - .env (server configuration)");
-    console.log("   - ui/.env (frontend configuration)");
+    console.log("📁 Environment file created in:");
+    console.log(`   📁 ${this.configDir}`);
+    console.log("   - config.env (server configuration)");
+    console.log("\n💡 Configuration will persist across package upgrades!");
+    console.log("\n🌐 Frontend configuration is now handled directly in the UI application.");
 
     this.rl.close();
     return true; // Setup completed successfully
@@ -194,51 +197,92 @@ class EnvironmentSetup {
     const config = this.envConfig[type];
     const envVars = {};
 
-    // First, handle required variables
-    const requiredVars = Object.entries(config).filter(
-      ([_, conf]) => conf.required
+    // Separate required and optional configuration sections
+    const requiredSections = Object.entries(config).filter(
+      ([_, conf]) => conf.required && conf.description
     );
-    const optionalVars = Object.entries(config).filter(
-      ([_, conf]) => !conf.required
+    const optionalSections = Object.entries(config).filter(
+      ([_, conf]) => !conf.required && conf.description
     );
 
-    if (requiredVars.length > 0) {
-      console.log("\n🔴 Required Configuration:");
-      for (const [key, conf] of requiredVars) {
-        const value = await this.promptForVariable(key, conf, existingEnv[key]);
-        if (value) envVars[key] = value;
+    // Handle required sections first
+    if (requiredSections.length > 0) {
+      console.log("\n🔴 Required Configuration Sections:");
+      for (const [sectionKey, sectionConf] of requiredSections) {
+        console.log(`\n📋 ${sectionConf.description}`);
+        const setupSection = await this.question(
+          `Do you want to setup ${sectionKey}? (Y/n): `
+        );
+        
+        if (setupSection.toLowerCase() !== "n" && setupSection.toLowerCase() !== "no") {
+          await this.configureSectionVariables(sectionKey, sectionConf, existingEnv, envVars);
+        }
       }
     }
 
-    if (optionalVars.length > 0) {
-      console.log("\n🟡 Optional Configuration:");
-      const configureOptional = await this.question(
-        "Configure optional settings? (y/N): "
-      );
-
-      if (
-        configureOptional.toLowerCase() === "y" ||
-        configureOptional.toLowerCase() === "yes"
-      ) {
-        for (const [key, conf] of optionalVars) {
-          const value = await this.promptForVariable(
-            key,
-            conf,
-            existingEnv[key]
-          );
-          if (value) envVars[key] = value;
+    // Handle optional sections
+    if (optionalSections.length > 0) {
+      console.log("\n🟡 Optional Configuration Sections:");
+      for (const [sectionKey, sectionConf] of optionalSections) {
+        console.log(`\n📋 ${sectionConf.description || `${sectionKey} configuration`}`);
+        const setupSection = await this.question(
+          `Do you want to setup ${sectionKey}? (y/N): `
+        );
+        
+        if (setupSection.toLowerCase() === "y" || setupSection.toLowerCase() === "yes") {
+          await this.configureSectionVariables(sectionKey, sectionConf, existingEnv, envVars);
+        } else {
+          // Apply defaults for this section
+          this.applyDefaultsForSection(sectionConf, envVars);
         }
-      } else {
-        // Use defaults for optional variables
-        for (const [key, conf] of optionalVars) {
-          if (conf.default) {
-            envVars[key] = conf.default;
-          }
+      }
+    }
+
+    // Handle standalone variables (not in sections)
+    const standaloneVars = Object.entries(config).filter(
+      ([_, conf]) => !conf.description || (!conf.required && !conf.description)
+    );
+
+    if (standaloneVars.length > 0) {
+      console.log("\n⚙️  Additional Configuration:");
+      for (const [key, conf] of standaloneVars) {
+        if (conf.envKey) {
+          const value = await this.promptForVariable(key, conf, existingEnv[conf.envKey]);
+          if (value) envVars[conf.envKey] = value;
         }
       }
     }
 
     return envVars;
+  }
+
+  async configureSectionVariables(sectionKey, sectionConf, existingEnv, envVars) {
+    console.log(`\n🔧 Configuring ${sectionKey}:`);
+    
+    for (const [varKey, varConf] of Object.entries(sectionConf)) {
+      // Skip meta properties
+      if (varKey === 'required' || varKey === 'description') continue;
+      
+      if (varConf.envKey) {
+        const value = await this.promptForVariable(
+          `${sectionKey}.${varKey}`, 
+          varConf, 
+          existingEnv[varConf.envKey]
+        );
+        if (value) envVars[varConf.envKey] = value;
+      }
+    }
+  }
+
+  applyDefaultsForSection(sectionConf, envVars) {
+    for (const [varKey, varConf] of Object.entries(sectionConf)) {
+      // Skip meta properties
+      if (varKey === 'required' || varKey === 'description') continue;
+      
+      if (varConf.default && varConf.envKey) {
+        envVars[varConf.envKey] = varConf.default;
+      }
+    }
   }
 
   async promptForVariable(key, config, existingValue) {
@@ -323,13 +367,24 @@ class EnvironmentSetup {
     console.log("\n🔍 Checking configuration health...");
 
     const serverEnv = this.loadExistingEnv(this.serverEnvPath);
-    const requiredServerVars = Object.entries(this.envConfig.server)
-      .filter(([_, conf]) => conf.required)
-      .map(([key]) => key);
+    const missingVars = [];
 
-    const missingVars = requiredServerVars.filter(
-      (key) => !serverEnv[key] || serverEnv[key].includes("your_")
-    );
+    // Check required sections
+    for (const [sectionKey, sectionConf] of Object.entries(this.envConfig.server)) {
+      if (sectionConf.required && sectionConf.description) {
+        // This is a required section, check all its required variables
+        for (const [varKey, varConf] of Object.entries(sectionConf)) {
+          if (varKey === 'required' || varKey === 'description') continue;
+          
+          if (varConf.required && varConf.envKey) {
+            const envValue = serverEnv[varConf.envKey];
+            if (!envValue || envValue.includes("your_")) {
+              missingVars.push(`${sectionKey}.${varKey} (${varConf.envKey})`);
+            }
+          }
+        }
+      }
+    }
 
     if (missingVars.length > 0) {
       console.log("⚠️  Missing required configuration:");
@@ -339,6 +394,23 @@ class EnvironmentSetup {
 
     console.log("✅ Configuration looks good!");
     return true;
+  }
+
+  showConfigurationInfo() {
+    console.log("\n📁 Configuration Information:");
+    console.log("=".repeat(50));
+    console.log(`Configuration directory: ${this.configDir}`);
+    console.log(`Server config file: ${this.serverEnvPath}`);
+    
+    const serverExists = fs.existsSync(this.serverEnvPath);
+    
+    console.log(`\nStatus:`);
+    console.log(`  Server config: ${serverExists ? '✅ Exists' : '❌ Missing'}`);
+    console.log(`  UI config: Handled directly in the UI application`);
+    
+    if (!serverExists) {
+      console.log(`\n💡 Run 'ai-workflow-setup' to create missing configuration file.`);
+    }
   }
 }
 
