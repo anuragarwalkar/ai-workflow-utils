@@ -15,6 +15,7 @@ import {
   useUploadAttachmentMutation,
 } from "../../../store/api/jiraApi";
 import { showNotification } from "../../../store/slices/uiSlice";
+import { saveToLocalStorage } from './utils';
 
 const PreviewSection = () => {
   const dispatch = useDispatch();
@@ -68,13 +69,7 @@ const PreviewSection = () => {
 
     try {
       // Save to localStorage before creating Jira issue
-      const jiraFormData = {
-        projectType,
-        customFieldsByType: {
-          [issueType]: customFields
-        }
-      };
-      localStorage.setItem('jira_form_data', JSON.stringify(jiraFormData));
+      saveToLocalStorage(projectType, issueType, customFields)
 
       // Create Jira issue
       const response = await createJira({

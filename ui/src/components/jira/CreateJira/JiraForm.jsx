@@ -34,6 +34,7 @@ import {
   setStreamingStatus,
   setStreaming,
 } from "../../../store/slices/jiraSlice";
+import { saveToLocalStorage } from "./utils";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -61,29 +62,6 @@ const JiraForm = () => {
   } = useSelector((state) => state.jira.createJira);
 
   const [previewJiraStreaming] = usePreviewJiraStreamingMutation();
-
-  // LocalStorage functions
-  const saveToLocalStorage = () => {
-    try {
-      // Get existing data
-      const existingData = localStorage.getItem('jira_form_data');
-      let jiraFormData = existingData ? JSON.parse(existingData) : {};
-      
-      // Update with current form data
-      jiraFormData = {
-        ...jiraFormData,
-        projectType,
-        customFieldsByType: {
-          ...jiraFormData.customFieldsByType,
-          [issueType]: customFields
-        }
-      };
-      
-      localStorage.setItem('jira_form_data', JSON.stringify(jiraFormData));
-    } catch (error) {
-      console.error('Failed to save to localStorage:', error);
-    }
-  };
 
   const loadFromLocalStorage = useCallback(() => {
     try {
@@ -166,7 +144,7 @@ const JiraForm = () => {
     event.preventDefault();
 
     // save details to storage
-    saveToLocalStorage();
+     saveToLocalStorage(projectType, issueType, customFields)
 
     // Update URL with prompt
     const url = new URL(window.location.href);
@@ -180,7 +158,6 @@ const JiraForm = () => {
 
     const handleStreamingRequest = async (images) => {
       try {
-        saveToLocalStorage();
         const result = await previewJiraStreaming({
           prompt,
           images,

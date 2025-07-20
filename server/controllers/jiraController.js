@@ -850,14 +850,16 @@ async function createJiraIssue(req, res) {
 
     // Create base payload
     const payload = {
-      project: { key: projectType },
-      summary,
-      description,
-      issuetype: { name: issueType },
-      priority: {
-        name: priority,
-      },
-      ...processedCustomFields
+      fields: {
+        project: { key: projectType },
+        summary,
+        description,
+        issuetype: { name: issueType },
+        priority: {
+          name: priority,
+        },
+        ...processedCustomFields
+      }
     };
 
     const response = await axios.post(jiraUrl, payload, {
