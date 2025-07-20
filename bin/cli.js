@@ -12,7 +12,6 @@ const serverPath = path.join(packageDir, 'dist', 'server.js');
 // Use home directory for configuration
 const configDir = path.join(require('os').homedir(), '.ai-workflow-utils');
 const serverEnvPath = path.join(configDir, 'config.env');
-const uiEnvPath = path.join(configDir, 'ui.env');
 
 async function main() {
   // Handle command line arguments
@@ -29,9 +28,8 @@ async function main() {
 
   // Check if this is the first run or if environment files are missing
   const serverEnvExists = fs.existsSync(serverEnvPath);
-  const uiEnvExists = fs.existsSync(uiEnvPath);
   
-  if (!serverEnvExists || !uiEnvExists) {
+  if (!serverEnvExists) {
     console.log('🔧 First time setup required...');
     console.log('Missing environment configuration files.\n');
     
@@ -79,13 +77,27 @@ async function main() {
   console.log(`📁 Package directory: ${packageDir}`);
   console.log(`🖥️  Server path: ${serverPath}`);
 
+  // Load NODE_ENV from config file if it exists
+  let nodeEnv = 'production'; // default
+  if (fs.existsSync(serverEnvPath)) {
+    try {
+      const configContent = fs.readFileSync(serverEnvPath, 'utf8');
+      const nodeEnvMatch = configContent.match(/^NODE_ENV=(.+)$/m);
+      if (nodeEnvMatch) {
+        nodeEnv = nodeEnvMatch[1].trim();
+      }
+    } catch (error) {
+      console.warn('⚠️  Could not read NODE_ENV from config file, using default');
+    }
+  }
+
   // Start the server
   const server = spawn('node', [serverPath], {
     stdio: 'inherit',
     cwd: packageDir,
     env: {
       ...process.env,
-      NODE_ENV: process.env.NODE_ENV || 'production'
+      NODE_ENV: nodeEnv
     }
   });
 
