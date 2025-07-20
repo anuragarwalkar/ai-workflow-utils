@@ -1,4 +1,4 @@
-# 🚀 AI Workflow Utils v1.3.0 - Major Feature Release
+# 🚀 AI Workflow Utils v1.3.2 - Major Feature Release
 
 <div align="center">
 
@@ -17,7 +17,7 @@
 
 ---
 
-## 🎉 **NEW IN v1.3.0 - Game-Changing Features!**
+## 🎉 **NEW IN v1.3.2 - Game-Changing Features!**
 
 ### 🎯 **Feature #1: AI-Powered Jira Ticket Creation**
 Create professional Jira tickets (Tasks, Bugs, Stories) using AI with multiple provider support:
