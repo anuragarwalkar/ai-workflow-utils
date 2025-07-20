@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import http from 'http';
+import os from 'os';
+import fs from 'fs';
 import { Server as SocketIOServer } from 'socket.io';
 import logger from './logger.js';
 import dotenv from 'dotenv';
@@ -16,8 +18,18 @@ import buildRoutes from './routes/buildRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import prRoutes from './routes/prRoutes.js';
 
-// Configure dotenv
-dotenv.config();
+// Configure dotenv to load from home directory configuration
+const configDir = path.join(os.homedir(), '.ai-workflow-utils');
+const serverConfigPath = path.join(configDir, 'config.env');
+
+// Load configuration from home directory if it exists, otherwise use default .env
+if (fs.existsSync(serverConfigPath)) {
+  dotenv.config({ path: serverConfigPath });
+  logger.info(`📁 Loaded configuration from: ${serverConfigPath}`);
+} else {
+  dotenv.config();
+  logger.warn('⚠️  Using default .env configuration. Run setup to configure properly.');
+}
 
 // Determine project root directory
 const projectRoot = process.cwd();
@@ -54,6 +66,7 @@ app.use(express.json({
   limit: process.env.JSON_LIMIT || '10mb',
   strict: true
 }));
+
 app.use(express.urlencoded({ 
   extended: true, 
   limit: process.env.URL_ENCODED_LIMIT || '10mb' 

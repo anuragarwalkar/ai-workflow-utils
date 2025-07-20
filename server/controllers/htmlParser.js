@@ -101,7 +101,7 @@ function getTimeBasedGreeting() {
   }
 }
 
-export const emailBody = (tableData, { version, releaseNoteURL }) => `
+export const emailBody = (tableData, { version, wikiUrl }) => `
   <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #000;">
     <p>${getTimeBasedGreeting()}</p>
     <p>We’re pleased to share the latest update from our mobile app QA build. Please find the details below:</p>
@@ -110,7 +110,7 @@ export const emailBody = (tableData, { version, releaseNoteURL }) => `
     <li><strong>Date:</strong> ${formatDate()}</li>
     <li><strong>Current Build Version:</strong> ${version}</li>
     <li><strong>Status:</strong> Completed</li>
-    <li><strong>Release Note URL:</strong> <a href="${releaseNoteURL}" target="_blank">${releaseNoteURL}</a></li>
+    <li><strong>Release Note URL:</strong> <a href="${wikiUrl}" target="_blank">${wikiUrl}</a></li>
     </ul>
 
     <p>This update includes important bug fixes, enhancements, and tasks related to the value streams. Scroll down to review the full list of changes:</p>

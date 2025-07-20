@@ -3,6 +3,7 @@ import { Box, Button, Paper, Typography, CircularProgress } from '@mui/material'
 import PRForm from './PRForm';
 import PreviewSection from './PreviewSection';
 import { useCreatePullRequestMutation } from '../../../store/api/prApi';
+import { API_BASE_URL } from '../../../config/environment';
 
 const STORAGE_KEY = 'gitstash_project_config';
 
@@ -47,7 +48,7 @@ const CreatePRContainer = () => {
       setShowPreview(true);
 
       // Use fetch with streaming for POST request
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'}/api/pr/stream-preview`, {
+      const response = await fetch(`${API_BASE_URL}/api/pr/stream-preview`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

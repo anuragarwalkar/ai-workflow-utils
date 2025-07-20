@@ -17,7 +17,8 @@ import { useStartBuildMutation } from '../../store/api/buildApi';
 import { 
   startBuild, 
   clearBuildLogs, 
-  resetBuildState 
+  resetBuildState,
+  saveRepoConfig
 } from '../../store/slices/buildSlice';
 import socketService from '../../services/socketService';
 import BuildConfigForm from './BuildConfigForm';
@@ -34,6 +35,10 @@ const ReleaseBuildContainer = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [buildConfig, setBuildConfig] = useState({
     ticketNumber: '',
+    repoKey: '',
+    repoSlug: '',
+    gitRepos: '',
+    availablePackages: [],
     selectedPackages: [],
     createPullRequest: false,
   });
@@ -42,17 +47,31 @@ const ReleaseBuildContainer = () => {
   
   const { 
     isBuilding, 
-    error 
+    error,
+    savedRepoConfig
   } = useSelector((state) => state.build);
 
-  // Connect to WebSocket when component mounts
+  // Connect to WebSocket when component mounts and load saved config
   useEffect(() => {
     socketService.connect();
+    
+    // Load saved configuration from Redux state
+    if (savedRepoConfig) {
+      setBuildConfig(prevConfig => ({
+        ...prevConfig,
+        repoKey: savedRepoConfig.repoKey || '',
+        repoSlug: savedRepoConfig.repoSlug || '',
+        gitRepos: savedRepoConfig.gitRepos || '',
+        availablePackages: savedRepoConfig.gitRepos 
+          ? savedRepoConfig.gitRepos.split(',').map(repo => repo.trim()).filter(repo => repo)
+          : []
+      }));
+    }
     
     return () => {
       // Don't disconnect on unmount as other components might use it
     };
-  }, []);
+  }, [savedRepoConfig]);
 
   // Auto-advance to progress step when build starts
   useEffect(() => {
@@ -85,6 +104,9 @@ const ReleaseBuildContainer = () => {
         ticketNumber: buildConfig.ticketNumber,
         selectedPackages: buildConfig.selectedPackages,
         createPullRequest: buildConfig.createPullRequest,
+        repoKey: buildConfig.repoKey,
+        repoSlug: buildConfig.repoSlug,
+        gitRepos: buildConfig.gitRepos,
       }).unwrap();
       
       // Update Redux state
@@ -119,6 +141,7 @@ const ReleaseBuildContainer = () => {
             config={buildConfig}
             onChange={setBuildConfig}
             onNext={handleNext}
+            onSaveConfig={(repoConfig) => dispatch(saveRepoConfig(repoConfig))}
           />
         );
       case 1:
@@ -129,6 +152,30 @@ const ReleaseBuildContainer = () => {
             </Typography>
             <Paper sx={{ p: 3, mb: 3 }}>
               <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Repository Key:
+                  </Typography>
+                  <Typography variant="body1" sx={{ mb: 2 }}>
+                    {buildConfig.repoKey || 'Not specified'}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Repository Slug:
+                  </Typography>
+                  <Typography variant="body1" sx={{ mb: 2 }}>
+                    {buildConfig.repoSlug || 'Not specified'}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Git Repositories:
+                  </Typography>
+                  <Typography variant="body1" sx={{ mb: 2 }}>
+                    {buildConfig.gitRepos || 'Not specified'}
+                  </Typography>
+                </Grid>
                 <Grid item xs={12}>
                   <Typography variant="subtitle2" color="text.secondary">
                     Ticket Number:

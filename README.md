@@ -79,6 +79,13 @@ The setup wizard will guide you through:
 - ✅ AI provider setup (OpenAI Compatible API or Ollama)
 - ✅ Optional integrations (Bitbucket, Email)
 
+**🏠 Configuration Storage**: Your configuration is stored in `~/.ai-workflow-utils/` and persists across package upgrades!
+
+```bash
+# View configuration location and status
+ai-workflow-utils --config-info
+```
+
 ### **Step 3: Ollama Setup (Recommended for Privacy)**
 ```bash
 # Install Ollama (if not already installed)

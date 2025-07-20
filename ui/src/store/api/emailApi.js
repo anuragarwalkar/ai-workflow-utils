@@ -10,9 +10,16 @@ export const emailApi = createApi({
   tagTypes: ['Email'],
   endpoints: (builder) => ({
     sendEmail: builder.mutation({
-      query: ({ version, dryRun = true }) => ({
+      query: ({ version, dryRun = true, wikiUrl, wikiBasicAuth }) => ({
         url: `/send?version=${version}&dryRun=${dryRun}`,
         method: 'POST',
+        body: JSON.stringify({
+          wikiUrl,
+          wikiBasicAuth
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       }),
     }),
   }),

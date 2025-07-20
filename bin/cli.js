@@ -8,10 +8,22 @@ const EnvironmentSetup = require('./setup.js');
 // Get the directory where the package is installed
 const packageDir = path.dirname(__dirname);
 const serverPath = path.join(packageDir, 'dist', 'server.js');
-const serverEnvPath = path.join(packageDir, '.env');
-const uiEnvPath = path.join(packageDir, 'ui', '.env');
+
+// Use home directory for configuration
+const configDir = path.join(require('os').homedir(), '.ai-workflow-utils');
+const serverEnvPath = path.join(configDir, 'config.env');
+const uiEnvPath = path.join(configDir, 'ui.env');
 
 async function main() {
+  // Handle command line arguments
+  const args = process.argv.slice(2);
+  
+  if (args.includes('--config-info') || args.includes('--show-config')) {
+    const setup = new EnvironmentSetup();
+    setup.showConfigurationInfo();
+    return;
+  }
+
   console.log('🚀 AI Workflow Utils');
   console.log('=' .repeat(50));
 
