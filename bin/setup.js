@@ -18,6 +18,10 @@ class EnvironmentSetup {
     });
 
     // Environment variable configurations with descriptions and validation
+    // TODO: remove UI ENV from here and add in UI localstorage 
+    // TODO: add some kind of document storage to storage user configuration
+    // TODO: show configuration page to user
+    // TODO: group related configuartion in nested object based on we can ask question to user where to setup.
     this.envConfig = {
       server: {
         // Required configurations
@@ -34,15 +38,15 @@ class EnvironmentSetup {
         },
 
         // Optional but recommended
+         OPENAI_COMPATIBLE_BASE_URL: {
+          description: "AI API base URL (default: https://api.anthropic.com), Else - setup local AI server with ollama",
+          required: false,
+          default: "https://api.anthropic.com",
+        },
         OPENAI_COMPATIBLE_API_KEY: {
           description: "Your AI API key (OpenAI, Anthropic, etc.)",
           required: false,
           sensitive: true,
-        },
-        OPENAI_COMPATIBLE_BASE_URL: {
-          description: "AI API base URL (default: https://api.anthropic.com)",
-          required: false,
-          default: "https://api.anthropic.com",
         },
         OPENAI_COMPATIBLE_MODEL: {
           description: "AI model to use (default: claude-3-sonnet-20240229)",
@@ -63,35 +67,35 @@ class EnvironmentSetup {
         },
 
         // Optional configurations
+        BIT_BUCKET_URL: {
+        description: "Your Bitbucket server URL (optional, To create, view & review PR using AI)",
+        required: false,
+        },
         BITBUCKET_AUTHORIZATION_TOKEN: {
-          description: "Bitbucket API token (optional, for PR creation)",
+          description: "Bitbucket API token (optional)",
           required: false,
           sensitive: true,
         },
-        BIT_BUCKET_URL: {
-          description: "Your Bitbucket server URL (optional)",
-          required: false,
-        },
         EMAIL_USER: {
-          description: "Email address for notifications (optional)",
+          description: "Email address for notifications (optional) -To setup Gmail email server",
           required: false,
         },
         EMAIL_PASS: {
-          description: "Email app password (optional)",
+          description: "Email app password (optional) -Only support gmail app password]",
           required: false,
           sensitive: true,
         },
 
         // System configurations with defaults
-        PORT: {
-          description: "Server port (default: 3000)",
-          required: false,
-          default: "3000",
-        },
         NODE_ENV: {
           description: "Node environment (default: production)",
           required: false,
           default: "production",
+        },
+        PORT: {
+          description: "Server port (default: 3000)",
+          required: false,
+          default: "3000",
         },
       },
       ui: {

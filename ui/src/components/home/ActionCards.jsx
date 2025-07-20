@@ -94,7 +94,7 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       shadowColor: 'rgba(102, 126, 234, 0.3)',
       isReleased: true,
-      isBeta: false,
+      isBeta: true,
     },
     {
       id: 'view-jira',
@@ -106,7 +106,7 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
       shadowColor: 'rgba(240, 147, 251, 0.3)',
       isReleased: true,
-      isBeta: false,
+      isBeta: true,
     },
     {
       id: 'send-email',
