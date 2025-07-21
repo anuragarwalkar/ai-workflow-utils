@@ -28,7 +28,7 @@ class EnvironmentSetup {
       server: {
         // Jira configuration
         jira: {
-          required: true,
+          required: false,
           description: "Jira integration for creating and managing tickets",
           url: {
             description:

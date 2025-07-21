@@ -1,0 +1,249 @@
+{
+  "providers": {
+    "ai": {
+      "title": "AI Provider Configuration",
+      "description": "Choose your preferred AI provider for generating content and reviews.",
+      "primary": true,
+      "default": "ollama",
+      "options": [
+        {
+          "value": "anthropic",
+          "label": "Anthropic Claude (Recommended)",
+          "section": "openai",
+          "available": true
+        },
+        {
+          "value": "openai",
+          "label": "OpenAI GPT",
+          "section": "openai_direct",
+          "available": true
+        },
+        {
+          "value": "google",
+          "label": "Google Gemini",
+          "section": "google",
+          "available": true
+        },
+        {
+          "value": "ollama",
+          "label": "Ollama (Local)",
+          "section": "ollama",
+          "available": true
+        }
+      ]
+    },
+    "repository": {
+      "title": "Repository Provider Configuration",
+      "description": "Configure your repository provider for PR creation and review.",
+      "primary": true,
+      "default": "bitbucket",
+      "options": [
+        {
+          "value": "bitbucket",
+          "label": "Bitbucket (GitStash)",
+          "section": "bitbucket",
+          "available": true
+        },
+        {
+          "value": "github",
+          "label": "GitHub",
+          "section": "github",
+          "available": false,
+          "comingSoon": true
+        },
+        {
+          "value": "gitlab",
+          "label": "GitLab",
+          "section": "gitlab",
+          "available": false,
+          "comingSoon": true
+        }
+      ]
+    },
+    "issue": {
+      "title": "Issue Tracking Configuration",
+      "description": "Configure your issue tracking system for creating and managing tickets.",
+      "primary": true,
+      "default": "jira",
+      "options": [
+        {
+          "value": "jira",
+          "label": "Jira",
+          "section": "jira",
+          "available": true
+        },
+        {
+          "value": "linear",
+          "label": "Linear",
+          "section": "linear",
+          "available": false,
+          "comingSoon": true
+        },
+        {
+          "value": "github_issues",
+          "label": "GitHub Issues",
+          "section": "github_issues",
+          "available": false,
+          "comingSoon": true
+        }
+      ]
+    }
+  },
+  "sections": {
+    "jira": {
+      "title": "Jira Configuration",
+      "description": "Configure your Jira instance for issue tracking",
+      "fields": {
+        "JIRA_URL": {
+          "label": "Jira URL",
+          "description": "Your Jira instance URL (e.g., https://your-company.atlassian.net)",
+          "type": "url",
+          "required": false,
+          "sensitive": false
+        },
+        "JIRA_TOKEN": {
+          "label": "Jira API Token",
+          "description": "Your Jira API token",
+          "type": "string",
+          "required": false,
+          "sensitive": true
+        }
+      }
+    },
+    "openai": {
+      "title": "AI Configuration (OpenAI Compatible)",
+      "description": "Configure OpenAI-compatible API (Anthropic Claude, etc.)",
+      "fields": {
+        "OPENAI_COMPATIBLE_BASE_URL": {
+          "label": "AI API Base URL",
+          "description": "AI API base URL (default: https://api.anthropic.com)",
+          "type": "url",
+          "required": false,
+          "sensitive": false,
+          "default": "https://api.anthropic.com"
+        },
+        "OPENAI_COMPATIBLE_API_KEY": {
+          "label": "AI API Key",
+          "description": "Your AI API key (OpenAI, Anthropic, etc.)",
+          "type": "string",
+          "required": false,
+          "sensitive": true
+        },
+        "OPENAI_COMPATIBLE_MODEL": {
+          "label": "AI Model",
+          "description": "AI model to use (default: claude-3-sonnet-20240229)",
+          "type": "string",
+          "required": false,
+          "sensitive": false,
+          "default": "claude-3-sonnet-20240229"
+        }
+      }
+    },
+    "openai_direct": {
+      "title": "OpenAI Direct Configuration",
+      "description": "Configure direct OpenAI API access",
+      "fields": {
+        "OPENAI_API_KEY": {
+          "label": "OpenAI API Key",
+          "description": "Your OpenAI API key",
+          "type": "string",
+          "required": false,
+          "sensitive": true
+        },
+        "OPENAI_MODEL": {
+          "label": "OpenAI Model",
+          "description": "OpenAI model to use (default: gpt-4-vision-preview)",
+          "type": "string",
+          "required": false,
+          "sensitive": false,
+          "default": "gpt-4-vision-preview"
+        }
+      }
+    },
+    "google": {
+      "title": "Google Gemini Configuration",
+      "description": "Configure Google Gemini API",
+      "fields": {
+        "GOOGLE_API_KEY": {
+          "label": "Google API Key",
+          "description": "Your Google API key",
+          "type": "string",
+          "required": false,
+          "sensitive": true
+        },
+        "GOOGLE_MODEL": {
+          "label": "Google Model",
+          "description": "Google model to use (default: gemini-pro-vision)",
+          "type": "string",
+          "required": false,
+          "sensitive": false,
+          "default": "gemini-pro-vision"
+        }
+      }
+    },
+    "bitbucket": {
+      "title": "Bitbucket Configuration",
+      "description": "Configure Bitbucket/GitStash for repository management",
+      "fields": {
+        "BIT_BUCKET_URL": {
+          "label": "Bitbucket URL",
+          "description": "Your Bitbucket server URL",
+          "type": "url",
+          "required": false,
+          "sensitive": false
+        },
+        "BITBUCKET_AUTHORIZATION_TOKEN": {
+          "label": "Bitbucket Token",
+          "description": "Bitbucket API token",
+          "type": "string",
+          "required": false,
+          "sensitive": true
+        }
+      }
+    },
+    "ollama": {
+      "title": "Ollama Configuration",
+      "description": "Configure local Ollama instance",
+      "fields": {
+        "OLLAMA_BASE_URL": {
+          "label": "Ollama Base URL",
+          "description": "Ollama base URL (default: http://localhost:11434)",
+          "type": "url",
+          "required": false,
+          "sensitive": false,
+          "default": "http://localhost:11434"
+        },
+        "OLLAMA_MODEL": {
+          "label": "Ollama Model",
+          "description": "Ollama model (default: llava)",
+          "type": "string",
+          "required": false,
+          "sensitive": false,
+          "default": "llava"
+        }
+      }
+    },
+    "server": {
+      "title": "Server Configuration",
+      "description": "Configure server settings",
+      "fields": {
+        "PORT": {
+          "label": "Server Port",
+          "description": "Server port (default: 3000)",
+          "type": "number",
+          "required": false,
+          "sensitive": false,
+          "default": "3000"
+        },
+        "NODE_ENV": {
+          "label": "Environment",
+          "description": "Server environment (default: production)",
+          "type": "string",
+          "required": false,
+          "sensitive": false,
+          "default": "production"
+        }
+      }
+    }
+  }
+}

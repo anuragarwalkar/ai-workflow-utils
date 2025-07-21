@@ -4,8 +4,7 @@
   "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems.",
   "main": "dist/server.js",
   "bin": {
-    "ai-workflow-utils": "bin/cli.js",
-    "ai-workflow-setup": "bin/setup.js"
+    "ai-workflow-utils": "bin/cli.js"
   },
   "files": [
     "dist/",

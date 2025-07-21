@@ -21,7 +21,7 @@ import { useGetAllTemplatesQuery, useGetSettingsQuery } from '../../store/api/te
 import { setTemplates, setSettings } from '../../store/slices/templateSlice'
 import TemplateSettings from './templates/TemplateSettings'
 import GeneralSettings from './general/GeneralSettings'
-import ApiSettings from './api/ApiSettings'
+import EnvironmentSettings from './environment/EnvironmentSettings'
 import AdvancedSettings from './advanced/AdvancedSettings'
 
 const SettingsContainer = () => {
@@ -66,9 +66,9 @@ const SettingsContainer = () => {
     },
     {
       value: 'api',
-      label: 'API Settings',
+      label: 'Environment',
       icon: <ApiIcon />,
-      component: <ApiSettings />
+      component: <EnvironmentSettings />
     },
     {
       value: 'advanced',
