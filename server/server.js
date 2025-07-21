@@ -17,6 +17,7 @@ import emailRoutes from './routes/emailRoutes.js';
 import buildRoutes from './routes/buildRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import prRoutes from './routes/prRoutes.js';
+import templateRoutes from './routes/templateRoutes.js';
 
 // Configure dotenv to load from home directory configuration
 const configDir = path.join(os.homedir(), '.ai-workflow-utils');
@@ -91,6 +92,7 @@ app.use('/api/email', emailRoutes);
 app.use('/api/build', buildRoutes(io));
 app.use('/api/chat', chatRoutes);
 app.use('/api/pr', prRoutes);
+app.use('/api/templates', templateRoutes);
 
 // Serve static files from React build
 const staticPath = path.join(projectRoot, 'ui/dist');

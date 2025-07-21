@@ -1,0 +1,60 @@
+{
+  "templates": [
+    {
+      "id": "default-bug",
+      "name": "Default Bug Template",
+      "issueType": "Bug",
+      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed bug report. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — {imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.",
+      "variables": ["prompt", "imageReference", "imageContext"],
+      "isDefault": true,
+      "isActive": true
+    },
+    {
+      "id": "default-task",
+      "name": "Default Task Template",
+      "issueType": "Task",
+      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed task description. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the {imageContext}.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.",
+      "variables": ["prompt", "imageReference", "imageContext"],
+      "isDefault": true,
+      "isActive": true
+    },
+    {
+      "id": "default-story",
+      "name": "Default Story Template",
+      "issueType": "Story",
+      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed user story. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the {imageContext}.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.",
+      "variables": ["prompt", "imageReference", "imageContext"],
+      "isDefault": true,
+      "isActive": true
+    },
+    {
+      "id": "default-pr",
+      "name": "Default PR Template",
+      "issueType": "PR",
+      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed pull request description. Format your output like this, and include a blank line between each list item: PR Title: Short, concise PR title - max 8 words Description: * Detailed description of changes made based on the {imageContext}.  Changes Made: # Change 1  # Change 2  # Change 3  Testing: * How the changes were tested.  Breaking Changes: * Any breaking changes (if none, state \"None\").",
+      "variables": ["prompt", "imageReference", "imageContext"],
+      "isDefault": true,
+      "isActive": true
+    },
+    {
+      "id": "default-review",
+      "name": "Default Code Review Template",
+      "issueType": "Review",
+      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed code review. Format your output like this: Review Summary: Brief overview of the review Positive Aspects: * What was done well based on the {imageContext} Areas for Improvement: * Specific suggestions for improvement * Code quality considerations * Best practices recommendations Overall Assessment: * Summary and recommendation",
+      "variables": ["prompt", "imageReference", "imageContext"],
+      "isDefault": true,
+      "isActive": true
+    }
+  ],
+  "settings": {
+    "version": "1.0.0",
+    "activeTemplates": {
+      "Bug": "default-bug",
+      "Task": "default-task",
+      "Story": "default-story",
+      "PR": "default-pr",
+      "Email": "default-email",
+      "Review": "default-review"
+    }
+  }
+}

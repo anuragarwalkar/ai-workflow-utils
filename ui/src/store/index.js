@@ -6,11 +6,13 @@ import uiSlice from './slices/uiSlice';
 import buildSlice from './slices/buildSlice';
 import chatSlice from './slices/chatSlice';
 import prSlice from './slices/prSlice';
+import templateSlice from './slices/templateSlice';
 import { jiraApi } from './api/jiraApi';
 import { emailApi } from './api/emailApi';
 import { buildApi } from './api/buildApi';
 import { chatApi } from './api/chatApi';
 import { prApi } from './api/prApi';
+import { templateApi } from './api/templateApi';
 
 const store = configureStore({
   reducer: {
@@ -21,11 +23,13 @@ const store = configureStore({
     build: buildSlice,
     chat: chatSlice,
     pr: prSlice,
+    templates: templateSlice,
     [jiraApi.reducerPath]: jiraApi.reducer,
     [emailApi.reducerPath]: emailApi.reducer,
     [buildApi.reducerPath]: buildApi.reducer,
     [chatApi.reducerPath]: chatApi.reducer,
     [prApi.reducerPath]: prApi.reducer,
+    [templateApi.reducerPath]: templateApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -33,7 +37,7 @@ const store = configureStore({
         ignoredActions: ['jira/setImageFile'],
         ignoredPaths: ['jira.createJira.imageFile'],
       },
-    }).concat(jiraApi.middleware, emailApi.middleware, buildApi.middleware, chatApi.middleware, prApi.middleware),
+    }).concat(jiraApi.middleware, emailApi.middleware, buildApi.middleware, chatApi.middleware, prApi.middleware, templateApi.middleware),
 });
 
 // Export store for use in components

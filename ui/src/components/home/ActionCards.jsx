@@ -26,7 +26,9 @@ import {
   Analytics as AnalyticsIcon,
   AccountTree as WorkflowIcon,
   Science as ScienceIcon,
-  Security as SecurityIcon
+  Security as SecurityIcon,
+  Settings as SettingsIcon,
+  Tune as TuneIcon
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { setCurrentView } from '../../store/slices/appSlice';
@@ -62,6 +64,10 @@ const ActionCards = () => {
 
   const handleCreatePR = () => {
     dispatch(setCurrentView('pr'));
+  };
+
+  const handleSettings = () => {
+    dispatch(setCurrentView('settings'));
   };
 
   // New unreleased feature handlers
@@ -155,6 +161,17 @@ const ActionCards = () => {
       shadowColor: 'rgba(255, 123, 123, 0.3)',
       isReleased: true,
       isBeta: true,
+    },
+    {
+      id: 'settings',
+      title: 'Settings',
+      description: 'Configure templates, API settings, and app preferences',
+      icon: SettingsIcon,
+      actionIcon: TuneIcon,
+      onClick: handleSettings,
+      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      shadowColor: 'rgba(102, 126, 234, 0.3)',
+      isReleased: true,
     },
     // Unreleased features
     {

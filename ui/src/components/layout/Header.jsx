@@ -1,8 +1,9 @@
 import React from 'react';
-import { Typography, Box, Avatar } from '@mui/material';
+import { Typography, Box, Avatar, IconButton } from '@mui/material';
 import { 
   Psychology as PsychologyIcon,
-  AutoAwesome as AutoAwesomeIcon 
+  AutoAwesome as AutoAwesomeIcon,
+  Settings as SettingsIcon
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { setCurrentView } from '../../store/slices/appSlice';
@@ -20,18 +21,27 @@ const Header = () => {
     dispatch(closeViewJiraModal());
   };
 
+  const handleSettingsClick = () => {
+    dispatch(setCurrentView('settings'));
+  };
+
   return (
     <Box
       sx={{
         width: '100%',
         display: 'flex',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
         minHeight: '60px',
         py: 1,
         mb: 2,
+        px: 2,
       }}
     >
+      {/* Left spacer */}
+      <Box sx={{ width: 48 }} />
+      
+      {/* Center logo */}
       <Box
         onClick={handleLogoClick}
         sx={{
@@ -95,6 +105,25 @@ const Header = () => {
           AI Workflow Utils
         </Typography>
       </Box>
+      
+      {/* Right settings icon */}
+      <IconButton
+        onClick={handleSettingsClick}
+        sx={{
+          color: 'white',
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            background: 'rgba(255, 255, 255, 0.2)',
+            transform: 'scale(1.1)',
+            boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
+          },
+        }}
+      >
+        <SettingsIcon />
+      </IconButton>
     </Box>
   );
 };
