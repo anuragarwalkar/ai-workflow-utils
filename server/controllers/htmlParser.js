@@ -117,6 +117,7 @@ export const emailBody = (tableData, { version, wikiUrl }) => `
     
     ${formatTableByGroup(tableData)}
 
-    <p>Regards,<br/>Anurag</p>
+    <p>Please reach out if you need further details.</p>
+    <p>Thank you</p>
   </div>
 `;
