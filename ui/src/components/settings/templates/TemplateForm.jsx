@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -10,7 +10,6 @@ import {
   Typography,
   Chip,
   Alert,
-  FormHelperText
 } from '@mui/material'
 import { useSelector, useDispatch } from 'react-redux'
 import {
@@ -111,19 +110,13 @@ const TemplateForm = () => {
         content: formData.content.trim()
       }
 
-      console.log('Submitting template data:', templateData)
-
       if (mode === 'edit' && editingTemplate) {
-        console.log('Updating template:', editingTemplate.id)
-        const result = await updateTemplate({
+        await updateTemplate({
           id: editingTemplate.id,
           ...templateData
         }).unwrap()
-        console.log('Update result:', result)
       } else {
-        console.log('Creating new template')
-        const result = await createTemplate(templateData).unwrap()
-        console.log('Create result:', result)
+        await createTemplate(templateData).unwrap()
       }
 
       dispatch(closeForm())
