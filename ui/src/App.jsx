@@ -10,6 +10,7 @@ import SendEmailContainer from './components/email/SendEmailContainer';
 import ReleaseBuildContainer from './components/build/ReleaseBuildContainer';
 import GitStashContainer from './components/gitstash/GitStashContainer';
 import PRContainer from './components/pr/PRContainer';
+import SettingsContainer from './components/settings/SettingsContainer';
 import ViewJiraModal from './components/jira/ViewJira/ViewJiraModal';
 import BuildModal from './components/build/BuildModal';
 import NotificationSnackbar from './components/common/NotificationSnackbar';
@@ -30,6 +31,8 @@ const AppContent = () => {
         return <GitStashContainer />;
       case 'pr':
         return <PRContainer />;
+      case 'settings':
+        return <SettingsContainer />;
       case 'home':
       default:
         return <HomeButtons />;

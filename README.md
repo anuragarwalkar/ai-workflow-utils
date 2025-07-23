@@ -68,27 +68,29 @@ Effortless file management for your Jira tickets:
 npm install -g ai-workflow-utils
 ```
 
-### **Step 2: Initial Setup**
+### **Step 2: Launch the Application**
 ```bash
-# Run the interactive setup wizard
-ai-workflow-setup
+# Start the application directly
+ai-workflow-utils
 ```
 
-The setup wizard will guide you through:
-- ✅ Jira configuration (URL, access token)
-- ✅ AI provider setup (OpenAI Compatible API or Ollama)
-- ✅ Optional integrations (Bitbucket, Email)
+The application will start immediately and be available at `http://localhost:3000`
 
-**🏠 Configuration Storage**: Your configuration is stored in `~/.ai-workflow-utils/` and persists across package upgrades!
+**🌐 Web-Based Configuration**: All settings are configured through the intuitive web interface at `http://localhost:3000/settings/environment`
 
+**🏠 Configuration Storage**: Your configuration is automatically stored in `~/.ai-workflow-utils/environment.json` and persists across package upgrades!
+
+### **Step 3: Configure Through Web Interface**
+Once the application is running, visit `http://localhost:3000/settings/environment` to configure:
+
+- ✅ **AI Provider**: Choose between Anthropic Claude, OpenAI GPT, Google Gemini, or Ollama (Local)
+- ✅ **Jira Integration**: Enter your Jira URL and API token
+- ✅ **Repository Provider**: Configure Bitbucket for PR creation and reviews
+- ✅ **Issue Tracking**: Set up your preferred issue tracking system
+
+### **Step 4: Optional - Ollama Setup (For Local AI)**
 ```bash
-# View configuration location and status
-ai-workflow-utils --config-info
-```
-
-### **Step 3: Ollama Setup (Recommended for Privacy)**
-```bash
-# Install Ollama (if not already installed)
+# Install Ollama (if you want local AI processing)
 # macOS
 brew install ollama
 
@@ -104,16 +106,7 @@ ollama pull llava
 ollama serve
 ```
 
-### **Step 4: Launch the Application**
-```bash
-# Start the application
-ai-workflow-utils
-
-# Or run in development mode
-ai-workflow-utils --dev
-```
-
-The application will be available at `http://localhost:3000`
+Then configure Ollama as your AI provider in the web interface.
 
 ---
 

@@ -4,8 +4,7 @@
   "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems.",
   "main": "dist/server.js",
   "bin": {
-    "ai-workflow-utils": "bin/cli.js",
-    "ai-workflow-setup": "bin/setup.js"
+    "ai-workflow-utils": "bin/cli.js"
   },
   "files": [
     "dist/",
@@ -68,6 +67,7 @@
     "@eslint/js": "^9.30.1",
     "@fontsource/roboto": "^5.2.6",
     "@langchain/core": "^0.3.66",
+    "@langchain/google-genai": "^0.1.0",
     "@langchain/ollama": "^0.2.3",
     "@langchain/openai": "^0.6.2",
     "@mui/icons-material": "^7.2.0",
@@ -87,6 +87,7 @@
     "globals": "^16.3.0",
     "jsdom": "^26.1.0",
     "langchain": "^0.3.30",
+    "lowdb": "^7.0.1",
     "multer": "^1.4.5-lts.2",
     "nodemailer": "^7.0.5",
     "react": "^19.1.0",

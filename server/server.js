@@ -7,6 +7,7 @@ import fs from 'fs';
 import { Server as SocketIOServer } from 'socket.io';
 import logger from './logger.js';
 import dotenv from 'dotenv';
+import configBridge from './services/configBridge.js';
 
 // Import middleware
 import { requestLogger, errorHandler, notFoundHandler } from './middleware/index.js';
@@ -17,19 +18,16 @@ import emailRoutes from './routes/emailRoutes.js';
 import buildRoutes from './routes/buildRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import prRoutes from './routes/prRoutes.js';
+import templateRoutes from './routes/templateRoutes.js';
+import environmentSettingsRoutes from './routes/environmentSettingsRoutes.js';
 
-// Configure dotenv to load from home directory configuration
-const configDir = path.join(os.homedir(), '.ai-workflow-utils');
-const serverConfigPath = path.join(configDir, 'config.env');
+// Load default .env file first (for fallback values)
+dotenv.config();
 
-// Load configuration from home directory if it exists, otherwise use default .env
-if (fs.existsSync(serverConfigPath)) {
-  dotenv.config({ path: serverConfigPath });
-  logger.info(`📁 Loaded configuration from: ${serverConfigPath}`);
-} else {
-  dotenv.config();
-  logger.warn('⚠️  Using default .env configuration. Run setup to configure properly.');
-}
+// Load dynamic configuration from database to process.env
+await configBridge.loadConfigToEnv();
+
+logger.info('� Configuration loaded from database and environment variables');
 
 // Determine project root directory
 const projectRoot = process.cwd();
@@ -91,6 +89,8 @@ app.use('/api/email', emailRoutes);
 app.use('/api/build', buildRoutes(io));
 app.use('/api/chat', chatRoutes);
 app.use('/api/pr', prRoutes);
+app.use('/api/templates', templateRoutes);
+app.use('/api/environment-settings', environmentSettingsRoutes);
 
 // Serve static files from React build
 const staticPath = path.join(projectRoot, 'ui/dist');
