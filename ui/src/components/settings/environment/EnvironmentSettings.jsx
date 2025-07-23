@@ -35,6 +35,8 @@ import {
 
 const EnvironmentSettings = () => {
   const [settings, setSettings] = useState({})
+  const [originalSettings, setOriginalSettings] = useState({})
+  const [changedKeys, setChangedKeys] = useState(new Set())
   const [expandedSections, setExpandedSections] = useState({})
   const [showSensitive, setShowSensitive] = useState({})
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
@@ -47,24 +49,58 @@ const EnvironmentSettings = () => {
   const [testConnection, { isLoading: isTesting }] = useTestConnectionMutation()
   const [resetSettings, { isLoading: isResetting }] = useResetSettingsMutation()
 
-  // Initialize settings when data loads
+    // Initialize settings when data loads
   useEffect(() => {
-    if (environmentData?.data) {
+    if (environmentData?.data && providerConfigData?.data) {
       const flatSettings = {}
-      Object.values(environmentData.data).forEach(section => {
-        Object.entries(section).forEach(([key, config]) => {
-          flatSettings[key] = config.value || ''
+      
+      // Extract settings from each section in data
+      Object.values(environmentData.data).forEach(sectionData => {
+        Object.entries(sectionData).forEach(([key, config]) => {
+          if (config.value !== undefined && config.value !== null) {
+            flatSettings[key] = config.value
+          }
         })
       })
+
+      // Ensure provider settings are set
+      Object.entries(providerConfigData.data).forEach(([providerType, config]) => {
+        const key = `${providerType}_provider`
+        if (!flatSettings[key] && config.default) {
+          flatSettings[key] = config.default
+        }
+      })
+
       setSettings(flatSettings)
+      setOriginalSettings(flatSettings)
+      setChangedKeys(new Set())
     }
-  }, [environmentData])
+  }, [environmentData, providerConfigData])
+
+  // Refetch data when providers change
+  useEffect(() => {
+    if (providersData?.data) {
+      // If providers data changed, refetch environment settings to get updated sections
+      refetch()
+    }
+  }, [providersData?.data, refetch])
 
   const handleInputChange = (key, value) => {
     setSettings(prev => ({
       ...prev,
       [key]: value
     }))
+    
+    // Mark this key as changed if the value is different from original
+    setChangedKeys(prev => {
+      const newSet = new Set(prev)
+      if (value !== originalSettings[key]) {
+        newSet.add(key)
+      } else {
+        newSet.delete(key)
+      }
+      return newSet
+    })
   }
 
   const toggleSectionExpanded = (sectionName) => {
@@ -83,7 +119,46 @@ const EnvironmentSettings = () => {
 
   const handleSave = async () => {
     try {
-      await updateSettings(settings).unwrap()
+      // Include all changed settings
+      const updatedSettings = Array.from(changedKeys).reduce((acc, key) => {
+        acc[key] = settings[key]
+        return acc
+      }, {})
+
+      if (Object.keys(updatedSettings).length === 0) {
+        setSnackbar({
+          open: true,
+          message: 'No settings have been changed',
+          severity: 'info'
+        })
+        return
+      }
+
+      const result = await updateSettings(updatedSettings).unwrap()
+      
+      // Update local settings with server response
+      if (result.data) {
+        // Extract settings from server response
+        const flatSettings = {}
+        Object.values(result.data).forEach(sectionData => {
+          Object.entries(sectionData).forEach(([key, config]) => {
+            if (config.value !== undefined && config.value !== null) {
+              flatSettings[key] = config.value
+            }
+          })
+        })
+        
+        setSettings(flatSettings)
+        setOriginalSettings(flatSettings)
+      }
+      
+      setChangedKeys(new Set())
+      
+      // Force refresh providers and config if provider settings were changed
+      if (updatedSettings.ai_provider || updatedSettings.repository_provider || updatedSettings.issue_provider) {
+        refetch()
+      }
+      
       setSnackbar({
         open: true,
         message: 'Environment settings saved successfully!',
@@ -135,23 +210,39 @@ const EnvironmentSettings = () => {
     }
   }
 
-  const renderProviderStatus = (provider) => {
-    if (!providersData?.data) return null
+  const checkSectionConfigured = (sectionName) => {
+    const sectionData = environmentData?.data?.[sectionName]
+    if (!sectionData) return false
+
+    // Check if all required fields have values
+    const configFields = Object.entries(sectionData)
+    const requiredFields = configFields.filter(([, config]) => config.required)
     
-    const providerInfo = providersData.data[provider]
-    if (!providerInfo) return null
+    if (requiredFields.length === 0) {
+      // If no required fields, check if at least one field has a value
+      return configFields.some(([key]) => Boolean(settings[key]))
+    }
+    
+    // Check if all required fields have values
+    return requiredFields.every(([key]) => Boolean(settings[key]))
+  }
+
+  const renderProviderStatus = (provider) => {
+    if (!environmentData?.data) return null
+    
+    const isConfigured = checkSectionConfigured(provider)
 
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
         <Chip
-          label={providerInfo.configured ? 'Configured' : 'Not Configured'}
-          color={providerInfo.configured ? 'success' : 'default'}
+          label={isConfigured ? 'Configured' : 'Not Configured'}
+          color={isConfigured ? 'success' : 'default'}
           size="small"
         />
         <IconButton
           size="small"
           onClick={() => handleTestConnection(provider)}
-          disabled={isTesting || !providerInfo.configured}
+          disabled={isTesting || !isConfigured}
           title="Test Connection"
         >
           {isTesting ? <CircularProgress size={16} /> : <Science />}
@@ -161,7 +252,10 @@ const EnvironmentSettings = () => {
   }
 
   const renderProviderCard = (providerType, providerConfig) => {
-    const currentSelection = settings[`${providerType}_provider`] || providerConfig.default
+    const key = `${providerType}_provider`
+    
+    // Use the backend settings value directly, without any default fallback
+    const currentSelection = settings[key] || ''
 
     return (
       <Card key={providerType} sx={{ mb: 3, border: '2px solid', borderColor: 'primary.main' }}>
@@ -181,9 +275,18 @@ const EnvironmentSettings = () => {
                 fullWidth
                 label={`Primary ${providerConfig.title.split(' ')[0]} Provider`}
                 value={currentSelection}
-                onChange={(e) => handleInputChange(`${providerType}_provider`, e.target.value)}
+                onChange={(e) => handleInputChange(key, e.target.value)}
                 size="small"
-                SelectProps={{ native: true }}
+                SelectProps={{ 
+                  native: true,
+                  sx: { backgroundColor: 'background.paper' }
+                }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    backgroundColor: 'background.paper',
+                    px: 0.5,
+                  }
+                }}
               >
                 {providerConfig.options.map((option) => (
                   <option 
@@ -223,10 +326,10 @@ const EnvironmentSettings = () => {
             {isExpanded ? <ExpandLess /> : <ExpandMore />}
           </Box>
 
-          {/* Provider status for relevant sections */}
-          {['jira', 'openai', 'openai_direct', 'google', 'ollama', 'bitbucket'].includes(sectionName) && (
+          {/* Provider status for sections */}
+          {sectionName !== 'server' && (
             <Box sx={{ mt: 1 }}>
-              {renderProviderStatus(sectionName === 'openai' ? 'openai_compatible' : sectionName)}
+              {renderProviderStatus(sectionName)}
             </Box>
           )}
 
@@ -269,27 +372,24 @@ const EnvironmentSettings = () => {
   const getVisibleSections = () => {
     if (!environmentData?.data || !providerConfigData?.data) return []
 
-    const visibleSections = []
+    const visibleSections = new Set()
     
-    // Add sections based on selected providers
-    for (const [providerType, providerConfig] of Object.entries(providerConfigData.data)) {
-      const selectedProvider = settings[`${providerType}_provider`] || providerConfig.default
-      const selectedOption = providerConfig.options.find(opt => opt.value === selectedProvider)
+    // Add sections based on selected providers only
+    Object.entries(providerConfigData.data).forEach(([providerType, providerConfig]) => {
+      const currentProvider = settings[`${providerType}_provider`] || providerConfig.default
+      const selectedOption = providerConfig.options.find(opt => opt.value === currentProvider)
       
-      if (selectedOption && selectedOption.available) {
-        const sectionName = selectedOption.section
-        if (environmentData.data[sectionName] && !visibleSections.includes(sectionName)) {
-          visibleSections.push(sectionName)
-        }
+      if (selectedOption?.section && environmentData.data[selectedOption.section]) {
+        visibleSections.add(selectedOption.section)
       }
-    }
-
+    })
+    
     // Always show server configuration
     if (environmentData.data.server) {
-      visibleSections.push('server')
+      visibleSections.add('server')
     }
 
-    return visibleSections
+    return Array.from(visibleSections)
   }
 
   if (isLoading) {

@@ -118,9 +118,18 @@ class EnvironmentDbService {
     try {
       await this.db.read()
       
+      // Only update fields that are present in the updates object
+      // This preserves other environment variables
+      const updatedSettings = {}
+      for (const [key, value] of Object.entries(updates)) {
+        if (value !== undefined && value !== null) {
+          updatedSettings[key] = value
+        }
+      }
+      
       this.db.data.settings = {
         ...this.db.data.settings,
-        ...updates
+        ...updatedSettings
       }
       
       this.db.data.metadata = {

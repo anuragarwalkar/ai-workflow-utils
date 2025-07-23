@@ -38,7 +38,26 @@ class EnvironmentSettingsController {
   // PUT /api/environment-settings - Update configuration
   updateSettings = async (req, res) => {
     try {
-      const updates = req.body
+      const rawUpdates = req.body
+
+      // Filter out empty string values and undefined values
+      const updates = Object.entries(rawUpdates).reduce((acc, [key, value]) => {
+        // Only include values that are not empty strings and not undefined
+        if (value !== undefined && value !== '') {
+          acc[key] = value
+        }
+        return acc
+      }, {})
+
+      // If no valid updates after filtering, return current config
+      if (Object.keys(updates).length === 0) {
+        const currentConfig = await environmentDbService.getStructuredSettings()
+        return res.json({
+          success: true,
+          data: currentConfig,
+          message: 'No valid settings to update'
+        })
+      }
 
       // Validate the updates
       const validationResult = await environmentDbService.validateSettings(updates)
