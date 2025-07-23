@@ -74,19 +74,21 @@ npm install -g ai-workflow-utils
 ai-workflow-utils
 ```
 
+
 The application will start immediately and be available at `http://localhost:3000`
 
-**🌐 Web-Based Configuration**: All settings are configured through the intuitive web interface at `http://localhost:3000/settings/environment`
+### **Step 3: Configure Using the Settings Page**
+All configuration is managed through the web-based settings page:
 
-**🏠 Configuration Storage**: Your configuration is automatically stored in `~/.ai-workflow-utils/environment.json` and persists across package upgrades!
+- Visit [`http://localhost:3000/settings/environment`](http://localhost:3000/settings/environment)
+- Configure your AI provider (Anthropic Claude, OpenAI GPT, Google Gemini, Ollama)
+- Set up Jira integration (URL, API token)
+- Configure repository provider (Bitbucket)
+- Set up issue tracking (Jira, etc.)
 
-### **Step 3: Configure Through Web Interface**
-Once the application is running, visit `http://localhost:3000/settings/environment` to configure:
+All changes are saved to `~/.ai-workflow-utils/environment.json` and persist across upgrades.
 
-- ✅ **AI Provider**: Choose between Anthropic Claude, OpenAI GPT, Google Gemini, or Ollama (Local)
-- ✅ **Jira Integration**: Enter your Jira URL and API token
-- ✅ **Repository Provider**: Configure Bitbucket for PR creation and reviews
-- ✅ **Issue Tracking**: Set up your preferred issue tracking system
+**No manual .env setup required!**
 
 ### **Step 4: Optional - Ollama Setup (For Local AI)**
 ```bash
@@ -188,55 +190,8 @@ Then configure Ollama as your AI provider in the web interface.
 ---
 
 <details>
-<summary><strong>⚙️ Advanced Configuration (For Developers)</strong></summary>
 
-> **Note**: Most users should use the interactive setup wizard (`ai-workflow-setup`) instead of manual configuration.
-
-### **Manual Environment Setup**
-
-Create `.env` file in your project root:
-
-```env
-# === JIRA CONFIGURATION ===
-JIRA_URL=https://your-company.atlassian.net
-JIRA_TOKEN=your-jira-api-token
-
-# === PRIMARY AI PROVIDER (Cloud) ===
-OPENAI_COMPATIBLE_BASE_URL=https://api.openai.com/v1
-OPENAI_COMPATIBLE_API_KEY=your-openai-api-key
-OPENAI_COMPATIBLE_MODEL=gpt-4-vision-preview
-
-# === FALLBACK AI PROVIDER (Local) ===
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llava
-
-# === BITBUCKET INTEGRATION ===
-BITBUCKET_AUTHORIZATION_TOKEN=your-bitbucket-token
-BIT_BUCKET_URL=https://bitbucket.your-company.com
-
-# === SERVER CONFIGURATION ===
-PORT=3000
-NODE_ENV=production
-```
-
-### **Getting Your Tokens**
-
-**Jira API Token:**
-1. Go to [Atlassian Account Settings](https://id.atlassian.com/manage-profile/security/api-tokens)
-2. Click "Create API token"
-3. Copy the generated token
-
-**OpenAI API Key:**
-1. Visit [OpenAI API Keys](https://platform.openai.com/api-keys)
-2. Create new secret key
-3. Copy the key
-
-**Bitbucket Token:**
-1. Go to Bitbucket → Personal Settings → App passwords
-2. Create new app password with repository permissions
-3. Copy the generated password
-
-</details>
+<!-- Manual environment setup is deprecated. All configuration should be done via the web-based settings page. -->
 
 ---
 
