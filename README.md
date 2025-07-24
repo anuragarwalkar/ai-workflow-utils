@@ -1,9 +1,9 @@
-# 🚀 AI Workflow Utils v1.5.0 - Major Feature Release
+# 🚀 AI Workflow Utils
 
 <div align="center">
 
-![AI Workflow Utils](https://img.shields.io/badge/AI%20Workflow%20Utils-v1.5.0-blue?style=for-the-badge)
-![Node.js](https://img.shields.io/badge/Node.js-16%2B-green?style=for-the-badge)
+![AI Workflow Utils](https://img.shields.io/npm/v/ai-workflow-utils?style=for-the-badge)
+![Node.js](https://img.shields.io/badge/Node.js-20%2B-green?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge)
 ![LangChain](https://img.shields.io/badge/LangChain-Supported-orange?style=for-the-badge)
 ![Express.js](https://img.shields.io/badge/Express.js-5.x-black?style=for-the-badge)
@@ -19,7 +19,7 @@
 
 ---
 
-## 🎉 **NEW IN v1.5.0 - Game-Changing Features!**
+## 🎉 **NEW IN v1.x.x - Game-Changing Features!**
 
 ### 🎯 **Feature #1: AI-Powered Jira Ticket Creation**
 Create professional Jira tickets (Tasks, Bugs, Stories) using AI with multiple provider support:
@@ -188,8 +188,6 @@ Then configure Ollama as your AI provider in the web interface.
 </details>
 
 ---
-
-<details>
 
 <!-- Manual environment setup is deprecated. All configuration should be done via the web-based settings page. -->
 
