@@ -20,12 +20,14 @@ import chatRoutes from './routes/chatRoutes.js';
 import prRoutes from './routes/prRoutes.js';
 import templateRoutes from './routes/templateRoutes.js';
 import environmentSettingsRoutes from './routes/environmentSettingsRoutes.js';
+import langchainService from './services/langchainService.js';
 
 // Load default .env file first (for fallback values)
 dotenv.config();
 
 // Load dynamic configuration from database to process.env
 await configBridge.loadConfigToEnv();
+langchainService.initializeProviders();
 
 logger.info('� Configuration loaded from database and environment variables');
 

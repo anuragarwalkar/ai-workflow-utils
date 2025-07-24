@@ -12,7 +12,6 @@ dotenv.config()
 class LangChainService {
   constructor() {
     this.providers = [];
-    this.initializeProviders();
   }
 
   initializeProviders() {
