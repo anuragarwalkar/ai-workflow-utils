@@ -1,5 +1,6 @@
 import logger from '../logger.js'
 import environmentDbService from '../services/environmentDbService.js'
+import langchainService from '../services/langchainService.js'
 
 class EnvironmentSettingsController {
   constructor() {
@@ -73,7 +74,9 @@ class EnvironmentSettingsController {
       await environmentDbService.updateSettings(updates)
       
       // Return the updated structured config
-      const structuredConfig = await environmentDbService.getStructuredSettings()
+      const structuredConfig = await environmentDbService.getStructuredSettings();
+
+      langchainService.initializeProviders();
       
       res.json({
         success: true,

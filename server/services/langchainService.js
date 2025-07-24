@@ -15,6 +15,9 @@ class LangChainService {
   }
 
   initializeProviders() {
+    // Reset providers to avoid duplicates on reinitialization
+    this.providers = [];
+
     // 1. OpenAI (Official ChatGPT API)
     if (process.env.OPENAI_API_KEY) {
       this.providers.push({
