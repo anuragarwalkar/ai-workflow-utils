@@ -2,8 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import http from 'http';
-import os from 'os';
-import fs from 'fs';
 import { Server as SocketIOServer } from 'socket.io';
 import logger from './logger.js';
 import dotenv from 'dotenv';

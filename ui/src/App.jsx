@@ -1,4 +1,5 @@
-import { Provider, useSelector } from 'react-redux';
+import { Provider } from 'react-redux';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import store from './store';
@@ -16,49 +17,36 @@ import BuildModal from './components/build/BuildModal';
 import NotificationSnackbar from './components/common/NotificationSnackbar';
 import ChatOverlay from './components/chat/ChatOverlay';
 
-const AppContent = () => {
-  const currentView = useSelector((state) => state.app.currentView);
+const AppContent = () => (
+  <>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<HomeButtons />} />
+        <Route path="/ai-create-jira" element={<CreateJiraContainer />} />
+        <Route path="/send-email" element={<SendEmailContainer />} />
+        <Route path="/release-build" element={<ReleaseBuildContainer />} />
+        <Route path="/ai-pr-review" element={<GitStashContainer />} />
+      <Route path="/ai-generate-pr" element={<PRContainer />} />
+        <Route path="/settings" element={<SettingsContainer />} />
+      </Routes>
+      <ViewJiraModal />
+      <BuildModal />
+      <NotificationSnackbar />
+    </Layout>
+    <ChatOverlay />
+  </>
+);
 
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case 'createJira':
-        return <CreateJiraContainer />;
-      case 'sendEmail':
-        return <SendEmailContainer />;
-      case 'releaseBuild':
-        return <ReleaseBuildContainer />;
-      case 'gitStash':
-        return <GitStashContainer />;
-      case 'pr':
-        return <PRContainer />;
-      case 'settings':
-        return <SettingsContainer />;
-      case 'home':
-      default:
-        return <HomeButtons />;
-    }
-  };
-
-  return (
-    <>
-      <Layout>
-        {renderCurrentView()}
-        <ViewJiraModal />
-        <BuildModal />
-        <NotificationSnackbar />
-      </Layout>
-      <ChatOverlay />
-    </>
-  );
-};
 
 function App() {
   return (
     <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AppContent />
-      </ThemeProvider>
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <AppContent />
+        </ThemeProvider>
+      </BrowserRouter>
     </Provider>
   );
 }

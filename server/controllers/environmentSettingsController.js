@@ -1,6 +1,7 @@
 import logger from '../logger.js'
 import environmentDbService from '../services/environmentDbService.js'
 import langchainService from '../services/langchainService.js'
+import configBridge from '../services/configBridge.js';
 
 class EnvironmentSettingsController {
   constructor() {

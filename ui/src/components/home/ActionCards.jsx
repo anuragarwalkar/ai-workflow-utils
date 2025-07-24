@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
   Box, 
   Card, 
@@ -25,25 +24,25 @@ import {
   AutoFixHigh as AutoFixHighIcon,
   Analytics as AnalyticsIcon,
   AccountTree as WorkflowIcon,
-  Science as ScienceIcon,
   Security as SecurityIcon,
   Settings as SettingsIcon,
   Tune as TuneIcon
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
-import { setCurrentView } from '../../store/slices/appSlice';
 import { openViewJiraModal } from '../../store/slices/uiSlice';
+import { useNavigate } from 'react-router-dom';
 import { useUnreleasedFeatures } from '../../hooks/useFeatureFlag';
 
 const ActionCards = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Get feature flags using custom hooks
   const [showUnreleasedFeatures] = useUnreleasedFeatures();
 
   // Existing action handlers
   const handleCreateJira = () => {
-    dispatch(setCurrentView('createJira'));
+    navigate('/ai-create-jira');
   };
 
   const handleViewJira = () => {
@@ -51,23 +50,23 @@ const ActionCards = () => {
   };
 
   const handleSendEmail = () => {
-    dispatch(setCurrentView('sendEmail'));
+    navigate('/send-email');
   };
 
   const handleReleaseBuild = () => {
-    dispatch(setCurrentView('releaseBuild'));
+    navigate('/release-build');
   };
 
   const handleGitStash = () => {
-    dispatch(setCurrentView('gitStash'));
+    navigate('/ai-pr-review');
   };
 
   const handleCreatePR = () => {
-    dispatch(setCurrentView('pr'));
+    navigate('/ai-generate-pr');
   };
 
   const handleSettings = () => {
-    dispatch(setCurrentView('settings'));
+    navigate('/settings');
   };
 
   // New unreleased feature handlers

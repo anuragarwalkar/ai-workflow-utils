@@ -1,4 +1,3 @@
-import React from 'react';
 import { Typography, Box, Avatar, IconButton } from '@mui/material';
 import { 
   Psychology as PsychologyIcon,
@@ -6,23 +5,24 @@ import {
   Settings as SettingsIcon
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
-import { setCurrentView } from '../../store/slices/appSlice';
 import { resetCreateJira, resetViewJira } from '../../store/slices/jiraSlice';
 import { closeViewJiraModal } from '../../store/slices/uiSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogoClick = () => {
     // Reset all state and go back to home
-    dispatch(setCurrentView('home'));
+    navigate('/');
     dispatch(resetCreateJira());
     dispatch(resetViewJira());
     dispatch(closeViewJiraModal());
   };
 
   const handleSettingsClick = () => {
-    dispatch(setCurrentView('settings'));
+    navigate('/settings');
   };
 
   return (

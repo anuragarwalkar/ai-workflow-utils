@@ -11,8 +11,8 @@ import {
   Alert,
 } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
-import { setCurrentView } from '../../store/slices/appSlice';
 import { clearPRData } from '../../store/slices/prSlice';
 import GitStashForm from './GitStashForm';
 import PullRequestList from './PullRequestList';
@@ -22,6 +22,7 @@ const steps = ['Select Repository', 'Choose Pull Request', 'Review Changes'];
 
 const GitStashContainer = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [shouldSkipPRList, setShouldSkipPRList] = useState(false);
   const { error, directPRId } = useSelector((state) => state.pr);
@@ -47,7 +48,7 @@ const GitStashContainer = () => {
 
   const handleBack = () => {
     dispatch(clearPRData());
-    dispatch(setCurrentView('home'));
+    navigate('/');
   };
 
   const handleNext = () => {

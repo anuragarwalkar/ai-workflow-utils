@@ -13,13 +13,14 @@ import {
   Grid,
 } from '@mui/material';
 import { Download } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useSendEmailMutation } from '../../store/api/emailApi';
-import { setCurrentView } from '../../store/slices/appSlice';
 import { setEmailData, setLastSentVersion } from '../../store/slices/emailSlice';
 
 const SendEmailContainer = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [sendEmail, { isLoading, error }] = useSendEmailMutation();
   
   const [version, setVersion] = useState('');
@@ -86,7 +87,7 @@ const SendEmailContainer = () => {
   };
 
   const handleBackToHome = () => {
-    dispatch(setCurrentView('home'));
+    navigate('/');
     setEmailPreview(null);
     setSuccess(false);
   };

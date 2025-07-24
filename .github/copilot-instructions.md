@@ -45,6 +45,8 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 - Redux Toolkit Query for API calls
 - CSS-in-JS with emotion/styled
 - File naming: PascalCase for components, camelCase for utilities
+- Use React Router v6+ for navigation
+- Lazy load all route components using React.lazy and Suspense for performance
 
 ### Key Technologies
 - **AI/LLM**: LangChain framework for AI integration
@@ -56,12 +58,14 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 - **State Management**: Redux Toolkit + RTK Query
 - **UI Framework**: Material-UI v5+
 - **Build Tools**: Webpack (server), Vite (client)
+- **Routing**: React Router v6+ (all navigation)
+- **Code Splitting**: Lazy load all route components
 - **Development**: Nodemon, Concurrently for parallel processes
 
 ## Configuration Management
-- Environment settings stored in `~/.ai-workflow-utils/environment.json`
+- All environment settings and sensitive keys are stored in `~/.ai-workflow-utils/environment.json`
 - Schema-driven configuration with provider options
-- Dynamic provider switching (AI, Repository, Issue tracking)
+- Dynamic provider switching (AI, Repository, Issue tracking) via `ai_provider`, `repository_provider`, `issue_provider` keys
 - Settings API for CRUD operations
 
 ## API Patterns
@@ -86,6 +90,8 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 - Loading states with CircularProgress
 - Form handling with controlled components
 - Real-time updates via Socket.IO
+- Use React Router for navigation
+- Lazy load all route components
 
 ### State Management
 - RTK Query for server state
@@ -167,10 +173,10 @@ The application supports multiple providers for different services:
 ### Error Handling
 ```javascript
 try {
-  const result = await operation()
-  res.json({ success: true, data: result })
+  const result = await operation();
+  res.json({ success: true, data: result });
 } catch (error) {
-  res.status(500).json({ success: false, error: error.message })
+  res.status(500).json({ success: false, error: error.message });
 }
 ```
 
@@ -178,22 +184,19 @@ try {
 ```jsx
 const ComponentName = () => {
   // Hooks
-  const [state, setState] = useState()
-  const { data, isLoading, error } = useApiQuery()
-  
+  const [state, setState] = useState();
+  const { data, isLoading, error } = useApiQuery();
   // Event handlers
-  const handleAction = () => {}
-  
+  const handleAction = () => {};
   // Render conditions
-  if (isLoading) return <CircularProgress />
-  if (error) return <Alert severity="error">{error.message}</Alert>
-  
+  if (isLoading) return <CircularProgress />;
+  if (error) return <Alert severity="error">{error.message}</Alert>;
   return (
     <Box>
       {/* Component content */}
     </Box>
-  )
-}
+  );
+};
 ```
 
 ### API Service Pattern
@@ -213,7 +216,7 @@ export const apiSlice = createApi({
 ```
 
 ## Performance Considerations
-- Lazy loading for large components
+- Lazy loading for large components and all route components
 - Memoization for expensive calculations
 - Debounced inputs for search/filter operations
 - Pagination for large data sets
