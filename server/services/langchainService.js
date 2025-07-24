@@ -39,8 +39,8 @@ class LangChainService {
       this.providers.push({
         name: "OpenAI Compatible",
         model: new ChatOpenAI({
-          openAIApiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
-          modelName: process.env.OPENAI_COMPATIBLE_MODEL || "claude-3-sonnet-20240229",
+          apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
+          model: process.env.OPENAI_COMPATIBLE_MODEL || "claude-3-sonnet-20240229",
           temperature: 0.7,
           maxTokens: 2000,
           timeout: 60000,

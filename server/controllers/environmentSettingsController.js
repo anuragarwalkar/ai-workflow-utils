@@ -75,7 +75,8 @@ class EnvironmentSettingsController {
       
       // Return the updated structured config
       const structuredConfig = await environmentDbService.getStructuredSettings();
-
+      
+      await configBridge.loadConfigToEnv();
       langchainService.initializeProviders();
       
       res.json({
