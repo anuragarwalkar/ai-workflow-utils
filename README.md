@@ -189,8 +189,6 @@ Then configure Ollama as your AI provider in the web interface.
 
 ---
 
-<details>
-
 <!-- Manual environment setup is deprecated. All configuration should be done via the web-based settings page. -->
 
 ---
