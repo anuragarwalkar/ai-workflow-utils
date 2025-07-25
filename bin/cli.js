@@ -12,14 +12,64 @@ async function main() {
   // Handle command line arguments
   const args = process.argv.slice(2);
   
+  // Handle startup command
+  if (args[0] === 'startup') {
+    const { spawn } = require('child_process');
+    const startupScript = path.join(packageDir, 'bin', 'startup.js');
+    const startupArgs = args.slice(1);
+    
+    const startupProcess = spawn('node', [startupScript, ...startupArgs], {
+      stdio: 'inherit',
+      cwd: packageDir
+    });
+    
+    startupProcess.on('exit', (code) => {
+      process.exit(code);
+    });
+    
+    return;
+  }
+
+  // Handle validate command
+  if (args[0] === 'validate') {
+    const { spawn } = require('child_process');
+    const validateScript = path.join(packageDir, 'bin', 'validate.js');
+    
+    const validateProcess = spawn('node', [validateScript], {
+      stdio: 'inherit',
+      cwd: packageDir
+    });
+    
+    validateProcess.on('exit', (code) => {
+      process.exit(code);
+    });
+    
+    return;
+  }
+  
   if (args.includes('--help') || args.includes('-h')) {
     console.log('🚀 AI Workflow Utils');
     console.log('=' .repeat(50));
-    console.log('Usage: ai-workflow-utils [options]');
+    console.log('Usage: ai-workflow-utils [command] [options]');
+    console.log('');
+    console.log('Commands:');
+    console.log('  startup        Manage startup service');
+    console.log('    install      Install as startup service');
+    console.log('    uninstall    Remove startup service');
+    console.log('    start        Start the service');
+    console.log('    stop         Stop the service');
+    console.log('    status       Check service status');
+    console.log('  validate       Validate startup configuration');
     console.log('');
     console.log('Options:');
     console.log('  --help, -h     Show this help message');
     console.log('  --version, -v  Show version information');
+    console.log('');
+    console.log('Examples:');
+    console.log('  ai-workflow-utils                    # Start normally');
+    console.log('  ai-workflow-utils startup install   # Install as startup service');
+    console.log('  ai-workflow-utils startup status    # Check service status');
+    console.log('  ai-workflow-utils validate          # Validate configuration');
     console.log('');
     console.log('Configuration:');
     console.log('  All configuration is done through the web interface.');

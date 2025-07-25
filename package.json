@@ -1,7 +1,7 @@
 {
   "name": "ai-workflow-utils",
-  "version": "1.5.8",
-  "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems.",
+  "version": "1.5.9",
+  "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems. Includes startup service management for automatic system boot integration.",
   "main": "dist/server.js",
   "bin": {
     "ai-workflow-utils": "bin/cli.js"
@@ -13,6 +13,7 @@
     "ui/.env.example",
     "bin/",
     "README.md",
+    "STARTUP.md",
     "LICENSE",
     ".env.example"
   ],
@@ -29,7 +30,13 @@
     "ollama",
     "react",
     "express",
-    "nodejs"
+    "nodejs",
+    "startup",
+    "service",
+    "daemon",
+    "systemd",
+    "launchctl",
+    "windows-service"
   ],
   "repository": {
     "type": "git",

@@ -74,8 +74,33 @@ npm install -g ai-workflow-utils
 ai-workflow-utils
 ```
 
-
 The application will start immediately and be available at `http://localhost:3000`
+
+### **Step 2b: Optional - Install as Startup Service**
+For production use or to run automatically on system boot:
+
+```bash
+# Install as a system startup service
+ai-workflow-utils startup install
+
+# The service will now start automatically on boot
+# Access at http://localhost:3000
+```
+
+**Startup Service Management:**
+```bash
+ai-workflow-utils startup status    # Check service status
+ai-workflow-utils startup start     # Start the service
+ai-workflow-utils startup stop      # Stop the service
+ai-workflow-utils startup uninstall # Remove startup service
+```
+
+**Supported Platforms:**
+- **macOS**: Uses LaunchAgents (user-level service)
+- **Windows**: Uses Windows Service Manager
+- **Linux**: Uses systemd
+
+For detailed startup service documentation, see [STARTUP.md](STARTUP.md)
 
 ### **Step 3: Configure Using the Settings Page**
 All configuration is managed through the web-based settings page:
