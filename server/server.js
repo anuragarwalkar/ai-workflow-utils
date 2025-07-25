@@ -27,7 +27,7 @@ dotenv.config();
 await configBridge.loadConfigToEnv();
 langchainService.initializeProviders();
 
-logger.info('� Configuration loaded from database and environment variables');
+logger.info('🔁 Configuration loaded from database and environment variables');
 
 // Determine project root directory
 const projectRoot = process.cwd();
@@ -36,9 +36,10 @@ const app = express();
 const server = http.createServer(app);
 
 // Socket.IO configuration
+// For Deploying on Cloud origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
 const io = new SocketIOServer(server, {
   cors: {
-    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true
   }
@@ -52,8 +53,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Security and CORS middleware
+// For Deploying on Cloud origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
+  origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -94,10 +96,11 @@ app.use('/api/environment-settings', environmentSettingsRoutes);
 
 // Serve static files from React build
 const staticPath = path.join(projectRoot, 'ui/dist');
+
 app.use(express.static(staticPath, {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0',
   etag: true,
-  lastModified: true
+  lastModified: true,
 }));
 
 // Serve React app for all non-API routes (SPA routing)
@@ -106,11 +109,13 @@ app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
     return next();
   }
-  
-  res.sendFile(path.join(staticPath, 'index.html'), (err) => {
+
+  res.sendFile('index.html', { root: staticPath }, (err) => {
     if (err) {
-      logger.error('Error serving index.html:', err);
+      logger.error('❌ Error sending index.html:', err.message, err.path, err.status);
       res.status(500).json({ error: 'Internal server error' });
+    } else {
+      logger.info(`✅ index.html served for: ${req.path}`);
     }
   });
 });

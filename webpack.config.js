@@ -12,10 +12,6 @@ module.exports = {
     clean: true
   },
   externals: [nodeExternals()],
-  node: {
-    __dirname: false,
-    __filename: false
-  },
   module: {
     rules: [
       {
@@ -41,6 +37,9 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.json']
+  },
+  optimization: {
+    minimize: false
   },
   devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
   stats: {

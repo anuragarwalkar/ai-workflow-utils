@@ -234,14 +234,6 @@
           "required": false,
           "sensitive": false,
           "default": "3000"
-        },
-        "NODE_ENV": {
-          "label": "Environment",
-          "description": "Server environment (default: production)",
-          "type": "string",
-          "required": false,
-          "sensitive": false,
-          "default": "production"
         }
       }
     }
