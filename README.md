@@ -61,61 +61,13 @@ Effortless file management for your Jira tickets:
 
 ---
 
-## 🚀 **Quick Start Guide**
+Here’s a cleaned-up and renumbered version of your “Quick Start Guide” section for the README. All step numbers are sequential, and optional sub-steps are clearly labeled. Copy-paste this to replace your existing section:
 
-### **Step 1: Installation**
-```bash
-npm install -g ai-workflow-utils
-```
+---
 
-### **Step 2: Launch the Application**
-```bash
-# Start the application directly
-ai-workflow-utils
-```
+## 🚀 Quick Start Guide
 
-The application will start immediately and be available at `http://localhost:3000`
-
-### **Step 2b: Optional - Install as Startup Service**
-For production use or to run automatically on system boot:
-
-```bash
-# Install as a system startup service
-ai-workflow-utils startup install
-
-# The service will now start automatically on boot
-# Access at http://localhost:3000
-```
-
-**Startup Service Management:**
-```bash
-ai-workflow-utils startup status    # Check service status
-ai-workflow-utils startup start     # Start the service
-ai-workflow-utils startup stop      # Stop the service
-ai-workflow-utils startup uninstall # Remove startup service
-```
-
-**Supported Platforms:**
-- **macOS**: Uses LaunchAgents (user-level service)
-- **Windows**: Uses Windows Service Manager
-- **Linux**: Uses systemd
-
-For detailed startup service documentation, see [STARTUP.md](STARTUP.md)
-
-### **Step 3: Configure Using the Settings Page**
-All configuration is managed through the web-based settings page:
-
-- Visit [`http://localhost:3000/settings/environment`](http://localhost:3000/settings/environment)
-- Configure your AI provider (Anthropic Claude, OpenAI GPT, Google Gemini, Ollama)
-- Set up Jira integration (URL, API token)
-- Configure repository provider (Bitbucket)
-- Set up issue tracking (Jira, etc.)
-
-All changes are saved to `~/.ai-workflow-utils/environment.json` and persist across upgrades.
-
-**No manual .env setup required!**
-
-### **Step 4: Optional - Ollama Setup (For Local AI)**
+### **Step 1: Recommended - Ollama Setup (For Local AI)**
 ```bash
 # Install Ollama (if you want local AI processing)
 # macOS
@@ -132,9 +84,70 @@ ollama pull llava
 # Start Ollama service
 ollama serve
 ```
-
 Then configure Ollama as your AI provider in the web interface.
 
+### **Step 2: Installation**
+```bash
+npm install -g ai-workflow-utils
+```
+
+### **Step 3: Launch the Application**
+```bash
+# Start the application directly
+ai-workflow-utils
+```
+The application will start immediately and be available at `http://localhost:3000`
+
+### **Step 4: (Optional) Install as Startup Service**
+For production use or to run automatically on system boot:
+```bash
+ai-workflow-utils startup install
+```
+The service will now start automatically on boot. Access at `http://localhost:3000`
+
+**Startup Service Management:**
+```bash
+ai-workflow-utils startup status    # Check service status
+ai-workflow-utils startup start     # Start the service
+ai-workflow-utils startup stop      # Stop the service
+ai-workflow-utils startup uninstall # Remove startup service
+```
+**Supported Platforms:**  
+- **macOS**: Uses LaunchAgents (user-level service)  
+- **Windows**: Uses Windows Service Manager  
+- **Linux**: Uses systemd  
+
+For detailed startup service documentation, see [STARTUP.md](STARTUP.md)
+
+### **Step 5: Configure Using the Settings Page**
+All configuration is managed through the web-based settings page:
+
+- Visit [`http://localhost:3000/settings/environment`](http://localhost:3000/settings/environment)
+- Configure your AI provider (Anthropic Claude, OpenAI GPT, Google Gemini, Ollama)
+- Set up Jira integration (URL, API token)
+- Configure repository provider (Bitbucket)
+- Set up issue tracking (Jira, etc.)
+
+All changes are saved to `~/.ai-workflow-utils/environment.json` and persist across upgrades.
+
+**No manual .env setup required!**
+
+### **Step 6: (Optional) PWA Installation (Progressive Web App)**
+**AI Workflow Utils is a fully-featured PWA!** Install it as a native app for the best experience:
+
+**🖥️ Desktop Installation:**
+1. Open `http://localhost:3000` in Chrome, Edge
+2. Look for the "Install" button in the address bar
+3. Click "Install" to add AI Workflow Utils to your desktop
+4. Launch directly from your desktop/dock - no browser needed!
+
+**✨ PWA Benefits:**
+- **🚀 Faster Loading**: Cached resources for instant startup
+- **📱 Native Feel**: Works like a desktop
+- **🔄 Auto Updates**: Always get the latest features
+- **💾 Offline Ready**: Basic functionality works without internet
+- **🎯 Focused Experience**: No browser distractions
+  
 ---
 
 <details>
@@ -211,8 +224,6 @@ Then configure Ollama as your AI provider in the web interface.
 - **Batch Upload**: Multiple files at once
 - **Preview Integration**: View attachments before upload
 </details>
-
----
 
 <!-- Manual environment setup is deprecated. All configuration should be done via the web-based settings page. -->
 
