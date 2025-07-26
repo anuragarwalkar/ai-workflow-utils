@@ -3,11 +3,10 @@ import { JSONFile } from 'lowdb/node'
 import os from 'os'
 import path from 'path'
 import fs from 'fs'
-import { fileURLToPath } from 'url'
 import logger from '../logger.js'
+import { getDirname } from '../utils/moduleUtils.js'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __dirname = getDirname(import.meta.url)
 
 class TemplateDbService {
   constructor() {
