@@ -61,7 +61,11 @@ Effortless file management for your Jira tickets:
 
 ---
 
-## 🚀 **Quick Start Guide**
+Here’s a cleaned-up and renumbered version of your “Quick Start Guide” section for the README. All step numbers are sequential, and optional sub-steps are clearly labeled. Copy-paste this to replace your existing section:
+
+---
+
+## 🚀 Quick Start Guide
 
 ### **Step 1: Recommended - Ollama Setup (For Local AI)**
 ```bash
@@ -80,7 +84,6 @@ ollama pull llava
 # Start Ollama service
 ollama serve
 ```
-
 Then configure Ollama as your AI provider in the web interface.
 
 ### **Step 2: Installation**
@@ -93,19 +96,14 @@ npm install -g ai-workflow-utils
 # Start the application directly
 ai-workflow-utils
 ```
-
 The application will start immediately and be available at `http://localhost:3000`
 
-### **Step 2b: Optional - Install as Startup Service**
+### **Step 4: (Optional) Install as Startup Service**
 For production use or to run automatically on system boot:
-
 ```bash
-# Install as a system startup service
 ai-workflow-utils startup install
-
-# The service will now start automatically on boot
-# Access at http://localhost:3000
 ```
+The service will now start automatically on boot. Access at `http://localhost:3000`
 
 **Startup Service Management:**
 ```bash
@@ -114,15 +112,14 @@ ai-workflow-utils startup start     # Start the service
 ai-workflow-utils startup stop      # Stop the service
 ai-workflow-utils startup uninstall # Remove startup service
 ```
-
-**Supported Platforms:**
-- **macOS**: Uses LaunchAgents (user-level service)
-- **Windows**: Uses Windows Service Manager
-- **Linux**: Uses systemd
+**Supported Platforms:**  
+- **macOS**: Uses LaunchAgents (user-level service)  
+- **Windows**: Uses Windows Service Manager  
+- **Linux**: Uses systemd  
 
 For detailed startup service documentation, see [STARTUP.md](STARTUP.md)
 
-### **Step 3: Configure Using the Settings Page**
+### **Step 5: Configure Using the Settings Page**
 All configuration is managed through the web-based settings page:
 
 - Visit [`http://localhost:3000/settings/environment`](http://localhost:3000/settings/environment)
@@ -135,7 +132,7 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 
 **No manual .env setup required!**
 
-### **Step 5: Optional - PWA Installation (Progressive Web App)**
+### **Step 6: (Optional) PWA Installation (Progressive Web App)**
 **AI Workflow Utils is a fully-featured PWA!** Install it as a native app for the best experience:
 
 **🖥️ Desktop Installation:**
