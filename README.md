@@ -63,12 +63,32 @@ Effortless file management for your Jira tickets:
 
 ## 🚀 **Quick Start Guide**
 
-### **Step 1: Installation**
+### **Step 1: Recommended - Ollama Setup (For Local AI)**
+```bash
+# Install Ollama (if you want local AI processing)
+# macOS
+brew install ollama
+
+# Linux
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Windows - Download from https://ollama.com/
+
+# Download the LLaVA model for image analysis
+ollama pull llava
+
+# Start Ollama service
+ollama serve
+```
+
+Then configure Ollama as your AI provider in the web interface.
+
+### **Step 2: Installation**
 ```bash
 npm install -g ai-workflow-utils
 ```
 
-### **Step 2: Launch the Application**
+### **Step 3: Launch the Application**
 ```bash
 # Start the application directly
 ai-workflow-utils
@@ -115,26 +135,22 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 
 **No manual .env setup required!**
 
-### **Step 4: Optional - Ollama Setup (For Local AI)**
-```bash
-# Install Ollama (if you want local AI processing)
-# macOS
-brew install ollama
+### **Step 5: Optional - PWA Installation (Progressive Web App)**
+**AI Workflow Utils is a fully-featured PWA!** Install it as a native app for the best experience:
 
-# Linux
-curl -fsSL https://ollama.com/install.sh | sh
+**🖥️ Desktop Installation:**
+1. Open `http://localhost:3000` in Chrome, Edge
+2. Look for the "Install" button in the address bar
+3. Click "Install" to add AI Workflow Utils to your desktop
+4. Launch directly from your desktop/dock - no browser needed!
 
-# Windows - Download from https://ollama.com/
-
-# Download the LLaVA model for image analysis
-ollama pull llava
-
-# Start Ollama service
-ollama serve
-```
-
-Then configure Ollama as your AI provider in the web interface.
-
+**✨ PWA Benefits:**
+- **🚀 Faster Loading**: Cached resources for instant startup
+- **📱 Native Feel**: Works like a desktop
+- **🔄 Auto Updates**: Always get the latest features
+- **💾 Offline Ready**: Basic functionality works without internet
+- **🎯 Focused Experience**: No browser distractions
+  
 ---
 
 <details>
@@ -211,8 +227,6 @@ Then configure Ollama as your AI provider in the web interface.
 - **Batch Upload**: Multiple files at once
 - **Preview Integration**: View attachments before upload
 </details>
-
----
 
 <!-- Manual environment setup is deprecated. All configuration should be done via the web-based settings page. -->
 
