@@ -1,6 +1,6 @@
 {
   "name": "ai-workflow-utils",
-  "version": "1.5.11",
+  "version": "1.5.12",
   "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems. Includes startup service management for automatic system boot integration.",
   "main": "dist/server.js",
   "bin": {
@@ -12,7 +12,8 @@
     "ui/dev-dist/",
     "ui/.env.example",
     "bin/",
-    "server/data/",
+    "data/",
+    "dist/data/",
     "README.md",
     "STARTUP.md",
     "LICENSE",
@@ -113,6 +114,7 @@
     "@babel/preset-env": "^7.28.0",
     "babel-loader": "^9.2.1",
     "concurrently": "^9.2.0",
+    "copy-webpack-plugin": "^13.0.0",
     "nodemon": "^3.1.10",
     "vite-plugin-pwa": "^1.0.2",
     "webpack": "^5.100.1",

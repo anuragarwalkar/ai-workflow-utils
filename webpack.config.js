@@ -1,5 +1,6 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 require('dotenv').config();
 
 module.exports = {
@@ -42,6 +43,20 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.json']
   },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'server/data',
+          to: '../data'
+        },
+         {
+          from: 'server/data',
+          to: './data'
+        }
+      ]
+    })
+  ],
   optimization: {
     minimize: false
   },
