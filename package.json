@@ -1,6 +1,6 @@
 {
   "name": "ai-workflow-utils",
-  "version": "1.5.14",
+  "version": "1.5.14-beta.2",
   "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems. Includes startup service management for automatic system boot integration.",
   "main": "dist/server.js",
   "bin": {

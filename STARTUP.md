@@ -209,6 +209,50 @@ If port 3000 is already in use, you may need to:
 2. Check system logs for startup errors
 3. Ensure all dependencies are available at boot time
 
+### Windows Service Issues
+
+If you encounter Windows service errors (especially error 1053):
+
+1. **Error 1053 - Service did not respond in timely fashion**:
+   - This issue has been fixed in recent versions
+   - Ensure you're using the latest version
+   - Try uninstalling and reinstalling the service:
+     ```bash
+     ai-workflow-utils startup uninstall
+     ai-workflow-utils startup install
+     ```
+
+2. **Service won't start automatically**:
+   - Check Windows Services (`services.msc`) for "AI Workflow Utils"
+   - Verify the service is set to "Automatic" startup type
+   - Check the service logs in the `logs/` directory
+
+3. **Service stops unexpectedly**:
+   - Check `logs/service.log` and `logs/service-error.log` for errors
+   - Ensure the `dist/server.js` file exists and is not corrupted
+   - Verify Node.js is properly installed and accessible
+
+4. **Manual Windows Service Management**:
+   ```bash
+   # Query service status
+   sc query "ai-workflow-utils"
+   
+   # Start service manually
+   sc start "ai-workflow-utils"
+   
+   # Stop service manually
+   sc stop "ai-workflow-utils"
+   
+   # View service configuration
+   sc qc "ai-workflow-utils"
+   ```
+
+5. **Validation Before Installation**:
+   ```bash
+   # Run validation to check for common issues
+   ai-workflow-utils validate
+   ```
+
 ## Uninstalling
 
 To completely remove the startup service:
