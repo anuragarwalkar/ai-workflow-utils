@@ -107,8 +107,10 @@
     "react-router-dom": "^7.7.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "unidiff": "^1.0.4",
     "vite": "^7.0.4",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",

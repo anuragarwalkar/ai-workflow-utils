@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, Paper, CircularProgress, TextField } from '@mui/material';
 
-const PreviewSection = ({ preview, onConfirm, isLoading }) => {
+const PreviewSection = ({ preview, onConfirm, isLoading, ticketNumber }) => {
   const [editableTitle, setEditableTitle] = useState('');
   const [editableDescription, setEditableDescription] = useState('');
 
@@ -93,10 +93,16 @@ const PreviewSection = ({ preview, onConfirm, isLoading }) => {
         variant="contained"
         color="primary"
         onClick={handleConfirm}
-        disabled={isLoading || (!editableTitle || !editableDescription)}
+        disabled={isLoading || (!editableTitle || !editableDescription || !ticketNumber)}
       >
         {isLoading ? <CircularProgress size={24} /> : 'Create Pull Request'}
       </Button>
+      
+      {!ticketNumber && (
+        <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+          Ticket number is required to create the pull request
+        </Typography>
+      )}
     </Box>
   );
 };

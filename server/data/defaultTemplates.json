@@ -31,24 +31,14 @@
       "templateType": "Jira"
     },
     {
-      "id": "pr-title-template",
-      "name": "PR Title Generation Template",
-      "templateFor": "PR_TITLE",
-      "content": "Based on the following commit messages from a branch, generate a very short and concise pull request title.\n\nThe title should be:\n- Clear and professional\n- Under 50 characters\n- Use imperative mood (e.g., \"Add auth\" not \"Added authentication\")\n- Focus on the most important change only\n- NOT include any ticket numbers, issue numbers, or identifiers\n\nCommit messages:\n{commitMessages}\n\nGenerate only the title without any ticket numbers or identifiers:",
+      "id": "pr-combined-template",
+      "name": "Combined PR Title and Description Template",
+      "templateFor": "PR_COMBINED",
+      "content": "Based on the following commit messages from a branch, generate both a pull request title and description.\n\nRequirements:\n\nFor the TITLE:\n- Clear and professional\n- Under 50 characters\n- Use imperative mood (e.g., Add auth not Added authentication)\n- Focus on the most important change only\n- NOT include any ticket numbers, issue numbers, or identifiers\n\nFor the DESCRIPTION:\n- Brief overview (1-2 sentences max)\n- List 3-5 key changes only\n- Focus on the most important changes\n- Use markdown format\n- Keep under 200 words\n\nCommit messages:\n{commitMessages}\n",
       "variables": ["commitMessages"],
       "isDefault": true,
       "isActive": true,
       "templateType": "Git"
-    },
-    {
-      "id": "pr-description-template",
-      "name": "PR Description Generation Template",
-      "templateFor": "PR_DESCRIPTION",
-      "content": "Based on the following commit messages from a branch, generate a concise pull request description.\n\nKeep it short and focused. Include only:\n\n## Summary\nBrief overview (1-2 sentences max)\n\n## Changes Made\n- List 3-5 key changes only\n- Focus on the most important changes\n\nCommit messages:\n{commitMessages}\n\nGenerate a short, concise description in markdown format (max 200 words):",
-      "variables": ["commitMessages"],
-      "isDefault": true,
-      "isActive": true,
-        "templateType": "Git"
     },
     {
       "id": "pr-review-template",
@@ -69,6 +59,7 @@
       "JIRA_STORY": "default-jira-story",
       "PR_TITLE": "pr-title-template",
       "PR_DESCRIPTION": "pr-description-template",
+      "PR_COMBINED": "pr-combined-template",
       "PR_REVIEW": "pr-review-template"
     }
   }

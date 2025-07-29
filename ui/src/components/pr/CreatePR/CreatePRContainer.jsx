@@ -209,7 +209,7 @@ const CreatePRContainer = () => {
           <Button
             variant="contained"
             onClick={handlePreview}
-            disabled={isPreviewLoading || isLoading || !formData.projectKey || !formData.repoSlug || !formData.ticketNumber || !formData.branchName}
+            disabled={isPreviewLoading || isLoading || !formData.projectKey || !formData.repoSlug || !formData.branchName}
           >
             {isPreviewLoading ? <CircularProgress size={24} /> : 'Preview'}
           </Button>
@@ -220,6 +220,7 @@ const CreatePRContainer = () => {
             preview={preview}
             onConfirm={handleCreate}
             isLoading={isLoading}
+            ticketNumber={formData.ticketNumber}
           />
         )}
       </Paper>

@@ -31,9 +31,9 @@ const PRForm = ({ formData, onChange }) => {
         label="Ticket Number"
         value={formData.ticketNumber}
         onChange={handleChange('ticketNumber')}
-        placeholder="Enter ticket number (e.g., JIRA-123)"
+        placeholder="Enter ticket number (e.g., JIRA-123) - Required for creating PR"
         fullWidth
-        required
+        helperText="Required only when creating the PR, not for preview"
       />
       <TextField
         label="Branch Name"

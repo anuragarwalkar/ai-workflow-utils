@@ -1,9 +1,15 @@
 import axios from "axios";
 import https from "https";
-import logger from "../logger.js";
 import dotenv from "dotenv";
-import langchainService from "../services/langchainService.js";
+import logger from "../logger.js";
+import { prLangChainService, langChainServiceFactory } from "../services/langchain/index.js";
 import templateDbService from "../services/templateDbService.js";
+import { parsePatch } from "unidiff";
+import { z } from "zod";
+
+// Constants
+const DEFAULT_COMMIT_LIMIT = 20;
+const DEFAULT_TARGET_BRANCH = "main";
 
 // Create axios instance with SSL certificate verification disabled for self-signed certificates
 const axiosInstance = axios.create({
@@ -12,32 +18,377 @@ const axiosInstance = axios.create({
   }),
 });
 
-const getEnv = () => {
-  // Configure dotenv
-  dotenv.config();
+// Environment configuration
+class EnvironmentConfig {
+  static get() {
+    dotenv.config();
 
-  return {
-    bitbucketUrl: process.env.BIT_BUCKET_URL,
-    authToken: process.env.BITBUCKET_AUTHORIZATION_TOKEN,
-    openaiBaseUrl: process.env.OPENAI_COMPATIBLE_BASE_URL,
-    openaiApiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
-    openaiModel: process.env.OPENAI_COMPATIBLE_MODEL,
-  };
-};
+    return {
+      bitbucketUrl: process.env.BIT_BUCKET_URL,
+      authToken: process.env.BITBUCKET_AUTHORIZATION_TOKEN,
+      openaiBaseUrl: process.env.OPENAI_COMPATIBLE_BASE_URL,
+      openaiApiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
+      openaiModel: process.env.OPENAI_COMPATIBLE_MODEL,
+    };
+  }
 
-// Helper function to get PR template from database
-async function getPRTemplate(templateType) {
-  try {
-    await templateDbService.init();
-    const template = await templateDbService.getActiveTemplate(templateType);
-    if (!template) {
-      logger.warn(`No active template found for ${templateType}, using fallback`);
+  static validate() {
+    const { bitbucketUrl, authToken } = this.get();
+    if (!bitbucketUrl || !authToken) {
+      throw new Error("Required environment variables are missing: BIT_BUCKET_URL, BITBUCKET_AUTHORIZATION_TOKEN");
+    }
+  }
+}
+
+// Error handling utility
+class ErrorHandler {
+  static handleApiError(error, context, res) {
+    logger.error(`Error in ${context}:`, error);
+    
+    if (error.response) {
+      return res.status(error.response.status).json({
+        success: false,
+        error: `Failed to ${context}: ${error.response.statusText}`,
+        details: error.response.data,
+      });
+    }
+    
+    return res.status(500).json({
+      success: false,
+      error: `Internal server error while ${context}`,
+      message: error.message,
+    });
+  }
+
+  static handleValidationError(message, res) {
+    return res.status(400).json({
+      success: false,
+      error: message,
+    });
+  }
+}
+
+// Template service wrapper
+class TemplateService {
+  static async getPRTemplate(templateType) {
+    try {
+      await templateDbService.init();
+      const template = await templateDbService.getActiveTemplate(templateType);
+      if (!template) {
+        logger.warn(`No active template found for ${templateType}, using fallback`);
+        return null;
+      }
+      return template;
+    } catch (error) {
+      logger.error(`Error getting ${templateType} template:`, error);
       return null;
     }
-    return template;
-  } catch (error) {
-    logger.error(`Error getting ${templateType} template:`, error);
-    return null;
+  }
+}
+
+// Unidiff-based diff processing utilities
+class UnidiffProcessor {
+  /**
+   * Convert Bitbucket diff data to unified diff format and parse with unidiff
+   */
+  static processWithUnidiff(diffData) {
+    try {
+      // If diffData is already a string in unified diff format, parse it directly
+      if (typeof diffData === "string") {
+        const patches = parsePatch(diffData);
+        return this.formatUnidiffPatches(patches);
+      }
+
+      // Convert Bitbucket format to unified diff string
+      const unifiedDiff = this.convertBitbucketToUnifiedDiff(diffData);
+      if (unifiedDiff) {
+        const patches = parsePatch(unifiedDiff);
+        return this.formatUnidiffPatches(patches);
+      }
+
+      return { codeChanges: "", hasChanges: false };
+    } catch (error) {
+      logger.warn("Failed to process diff with unidiff:", error.message);
+      return { codeChanges: "", hasChanges: false };
+    }
+  }
+
+  /**
+   * Process segment lines for unified diff format
+   */
+  static processSegmentLines(segment) {
+    if (!segment.lines || !Array.isArray(segment.lines)) {
+      return "";
+    }
+
+    return segment.lines.map((line) => {
+      let prefix = " ";
+      if (segment.type === "ADDED") {
+        prefix = "+";
+      } else if (segment.type === "REMOVED") {
+        prefix = "-";
+      }
+      return `${prefix}${line.line || ""}\n`;
+    }).join("");
+  }
+
+  /**
+   * Process hunk segments for unified diff format
+   */
+  static processHunkSegments(hunk) {
+    if (!hunk.segments || !Array.isArray(hunk.segments)) {
+      return "";
+    }
+
+    return hunk.segments.map(segment => this.processSegmentLines(segment)).join("");
+  }
+
+  /**
+   * Process file hunks for unified diff format
+   */
+  static processFileHunks(file) {
+    if (!file.hunks || !Array.isArray(file.hunks)) {
+      return "";
+    }
+
+    return file.hunks.map((hunk) => {
+      const sourceStart = hunk.sourceLine || 0;
+      const sourceSpan = hunk.sourceSpan || 0;
+      const destStart = hunk.destinationLine || 0;
+      const destSpan = hunk.destinationSpan || 0;
+
+      let hunkContent = `@@ -${sourceStart},${sourceSpan} +${destStart},${destSpan} @@\n`;
+      hunkContent += this.processHunkSegments(hunk);
+      return hunkContent;
+    }).join("");
+  }
+
+  /**
+   * Convert Bitbucket diff structure to unified diff format
+   */
+  static convertBitbucketToUnifiedDiff(diffData) {
+    if (!diffData || !diffData.diffs || !Array.isArray(diffData.diffs)) {
+      return null;
+    }
+
+    return diffData.diffs.map((file) => {
+      const sourceFile = file.source?.toString || "/dev/null";
+      const destFile = file.destination?.toString || "/dev/null";
+      
+      let fileContent = `--- ${sourceFile}\n`;
+      fileContent += `+++ ${destFile}\n`;
+      fileContent += this.processFileHunks(file);
+      return fileContent;
+    }).join("") || null;
+  }
+
+  /**
+   * Format parsed unidiff patches into readable markdown
+   */
+  static formatUnidiffPatches(patches) {
+    let codeChanges = "";
+    let hasChanges = false;
+
+    patches.forEach((patch, index) => {
+      const fileName = patch.newFileName || patch.oldFileName || "Unknown file";
+      codeChanges += `### File ${index + 1}: ${fileName}\n\n`;
+
+      if (patch.hunks && patch.hunks.length > 0) {
+        patch.hunks.forEach((hunk, hunkIndex) => {
+          codeChanges += `**Hunk ${hunkIndex + 1}**: Lines ${hunk.oldStart}-${hunk.oldStart + hunk.oldLines - 1} → ${hunk.newStart}-${hunk.newStart + hunk.newLines - 1}\n\n`;
+          codeChanges += "```diff\n";
+
+          hunk.lines.forEach((line) => {
+            codeChanges += `${line.type}${line.content}\n`;
+            hasChanges = true;
+          });
+
+          codeChanges += "```\n\n";
+        });
+      }
+
+      codeChanges += "---\n\n";
+    });
+
+    return { codeChanges, hasChanges };
+  }
+
+  /**
+   * Get a summary of changes from parsed patches
+   */
+  static getChangesSummary(patches) {
+    let addedLines = 0;
+    let removedLines = 0;
+    let modifiedFiles = 0;
+
+    patches.forEach((patch) => {
+      modifiedFiles++;
+      patch.hunks.forEach((hunk) => {
+        hunk.lines.forEach((line) => {
+          if (line.type === "+") addedLines++;
+          if (line.type === "-") removedLines++;
+        });
+      });
+    });
+
+    return { addedLines, removedLines, modifiedFiles };
+  }
+
+  /**
+   * Get detailed diff analysis using unidiff
+   */
+  static analyzeDiff(diffData) {
+    try {
+      const result = this.processWithUnidiff(diffData);
+      if (!result.hasChanges) {
+        return { 
+          ...result, 
+          summary: { addedLines: 0, removedLines: 0, modifiedFiles: 0 }
+        };
+      }
+
+      // Parse again to get statistics
+      let patches = [];
+      if (typeof diffData === "string") {
+        patches = parsePatch(diffData);
+      } else {
+        const unifiedDiff = this.convertBitbucketToUnifiedDiff(diffData);
+        if (unifiedDiff) {
+          patches = parsePatch(unifiedDiff);
+        }
+      }
+
+      const summary = this.getChangesSummary(patches);
+      return { ...result, summary };
+    } catch (error) {
+      logger.warn("Failed to analyze diff:", error.message);
+      return { 
+        codeChanges: "", 
+        hasChanges: false, 
+        summary: { addedLines: 0, removedLines: 0, modifiedFiles: 0 }
+      };
+    }
+  }
+}
+
+// Diff processing utilities
+class DiffProcessor {
+  static processLine(line, segment) {
+    let prefix = " "; // context line
+    if (segment.type === "ADDED") {
+      prefix = "+";
+    } else if (segment.type === "REMOVED") {
+      prefix = "-";
+    }
+    return `${prefix}${line.line}\n`;
+  }
+
+  static processSegment(segment) {
+    if (!segment.lines || !Array.isArray(segment.lines)) {
+      return "";
+    }
+    
+    return segment.lines
+      .map(line => this.processLine(line, segment))
+      .join("");
+  }
+
+  static processHunk(hunk, hunkIndex) {
+    let content = `\n**Hunk ${hunkIndex + 1}**`;
+    if (hunk.context) {
+      content += ` (${hunk.context})`;
+    }
+    content += `:\n`;
+    content += `Lines: ${hunk.sourceLine}-${hunk.sourceLine + hunk.sourceSpan - 1} → ${hunk.destinationLine}-${hunk.destinationLine + hunk.destinationSpan - 1}\n\n`;
+    content += `\`\`\`diff\n`;
+
+    if (hunk.segments && Array.isArray(hunk.segments)) {
+      content += hunk.segments
+        .map(segment => this.processSegment(segment))
+        .join("");
+    }
+    
+    content += `\`\`\`\n\n`;
+    return content;
+  }
+
+  static processBitbucketDiff(diffData) {
+    let codeChanges = "";
+    let hasChanges = false;
+
+    if (diffData && diffData.diffs && Array.isArray(diffData.diffs)) {
+      diffData.diffs.forEach((file, index) => {
+        const fileName = file.source?.toString || file.destination?.toString || "Unknown file";
+        codeChanges += `### File ${index + 1}: ${fileName}\n`;
+
+        if (file.hunks && Array.isArray(file.hunks)) {
+          file.hunks.forEach((hunk, hunkIndex) => {
+            codeChanges += this.processHunk(hunk, hunkIndex);
+            hasChanges = true;
+          });
+        }
+        codeChanges += `\n---\n\n`;
+      });
+    }
+
+    return { codeChanges, hasChanges };
+  }
+
+  static processLegacyDiff(diffData) {
+    let codeChanges = "";
+    let hasChanges = false;
+
+    if (diffData && diffData.values && Array.isArray(diffData.values)) {
+      diffData.values.forEach((file, index) => {
+        const fileName = file.srcPath?.toString || file.path?.toString || file.source?.toString || "Unknown file";
+        codeChanges += `### File ${index + 1}: ${fileName}\n`;
+
+        if (file.hunks && Array.isArray(file.hunks)) {
+          file.hunks.forEach((hunk, hunkIndex) => {
+            codeChanges += `\n**Hunk ${hunkIndex + 1}**:\n`;
+            if (hunk.oldLine !== undefined && hunk.newLine !== undefined) {
+              codeChanges += `Lines: ${hunk.oldLine} → ${hunk.newLine}\n`;
+            }
+            codeChanges += `\`\`\`diff\n`;
+
+            if (hunk.lines && Array.isArray(hunk.lines)) {
+              hunk.lines.forEach((line) => {
+                hasChanges = true;
+                if (line.left && line.right) {
+                  codeChanges += `-${line.left}\n+${line.right}\n`;
+                } else if (line.left) {
+                  codeChanges += `-${line.left}\n`;
+                } else if (line.right) {
+                  codeChanges += `+${line.right}\n`;
+                } else if (line.content) {
+                  let prefix = " ";
+                  if (line.type === "ADDED") {
+                    prefix = "+";
+                  } else if (line.type === "REMOVED") {
+                    prefix = "-";
+                  }
+                  codeChanges += `${prefix}${line.content}\n`;
+                } else if (typeof line === "string") {
+                  codeChanges += `${line}\n`;
+                }
+              });
+            } else if (hunk.content) {
+              hasChanges = true;
+              codeChanges += `${hunk.content}\n`;
+            }
+            codeChanges += `\`\`\`\n\n`;
+          });
+        } else if (file.content || file.diff) {
+          hasChanges = true;
+          codeChanges += `\n\`\`\`diff\n`;
+          codeChanges += `${file.content || file.diff}\n`;
+          codeChanges += `\`\`\`\n\n`;
+        }
+        codeChanges += `\n---\n\n`;
+      });
+    }
+
+    return { codeChanges, hasChanges };
   }
 }
 
@@ -51,115 +402,34 @@ function buildReviewPromptData(diffData, prDetails) {
   let codeChanges = "";
   let hasChanges = false;
 
-  // Handle Bitbucket diff format
-  if (diffData && diffData.diffs && Array.isArray(diffData.diffs)) {
-    diffData.diffs.forEach((file, index) => {
-      const fileName =
-        file.source?.toString || file.destination?.toString || "Unknown file";
-      codeChanges += `### File ${index + 1}: ${fileName}\n`;
-
-      if (file.hunks && Array.isArray(file.hunks)) {
-        file.hunks.forEach((hunk, hunkIndex) => {
-          codeChanges += `\n**Hunk ${hunkIndex + 1}**`;
-          if (hunk.context) {
-            codeChanges += ` (${hunk.context})`;
-          }
-          codeChanges += `:\n`;
-          codeChanges += `Lines: ${hunk.sourceLine}-${
-            hunk.sourceLine + hunk.sourceSpan - 1
-          } → ${hunk.destinationLine}-${
-            hunk.destinationLine + hunk.destinationSpan - 1
-          }\n\n`;
-          codeChanges += `\`\`\`diff\n`;
-
-          if (hunk.segments && Array.isArray(hunk.segments)) {
-            hunk.segments.forEach((segment) => {
-              if (segment.lines && Array.isArray(segment.lines)) {
-                segment.lines.forEach((line) => {
-                  hasChanges = true;
-                  let prefix = " "; // context line
-
-                  if (segment.type === "ADDED") {
-                    prefix = "+";
-                  } else if (segment.type === "REMOVED") {
-                    prefix = "-";
-                  }
-
-                  codeChanges += `${prefix}${line.line}\n`;
-                });
-              }
-            });
-          }
-          codeChanges += `\`\`\`\n\n`;
-        });
-      }
-      codeChanges += `\n---\n\n`;
-    });
-  }
-  // Fallback to old format handling
-  else if (diffData && diffData.values && Array.isArray(diffData.values)) {
-    diffData.values.forEach((file, index) => {
-      const fileName =
-        file.srcPath?.toString ||
-        file.path?.toString ||
-        file.source?.toString ||
-        "Unknown file";
-      codeChanges += `### File ${index + 1}: ${fileName}\n`;
-
-      if (file.hunks && Array.isArray(file.hunks)) {
-        file.hunks.forEach((hunk, hunkIndex) => {
-          codeChanges += `\n**Hunk ${hunkIndex + 1}**:\n`;
-          if (hunk.oldLine !== undefined && hunk.newLine !== undefined) {
-            codeChanges += `Lines: ${hunk.oldLine} → ${hunk.newLine}\n`;
-          }
-          codeChanges += `\`\`\`diff\n`;
-
-          if (hunk.lines && Array.isArray(hunk.lines)) {
-            hunk.lines.forEach((line) => {
-              hasChanges = true;
-              if (line.left && line.right) {
-                codeChanges += `-${line.left}\n+${line.right}\n`;
-              } else if (line.left) {
-                codeChanges += `-${line.left}\n`;
-              } else if (line.right) {
-                codeChanges += `+${line.right}\n`;
-              } else if (line.content) {
-                let prefix = " ";
-                if (line.type === "ADDED") {
-                  prefix = "+";
-                } else if (line.type === "REMOVED") {
-                  prefix = "-";
-                }
-                codeChanges += `${prefix}${line.content}\n`;
-              } else if (typeof line === "string") {
-                codeChanges += `${line}\n`;
-              }
-            });
-          } else if (hunk.content) {
-            hasChanges = true;
-            codeChanges += `${hunk.content}\n`;
-          }
-          codeChanges += `\`\`\`\n\n`;
-        });
-      } else if (file.content || file.diff) {
+  // Try unidiff processing first for better accuracy
+  const unidiffResult = UnidiffProcessor.processWithUnidiff(diffData);
+  if (unidiffResult.hasChanges) {
+    codeChanges = unidiffResult.codeChanges;
+    hasChanges = unidiffResult.hasChanges;
+  } else {
+    // Fallback to Bitbucket diff format
+    const bitbucketResult = DiffProcessor.processBitbucketDiff(diffData);
+    if (bitbucketResult.hasChanges) {
+      codeChanges = bitbucketResult.codeChanges;
+      hasChanges = bitbucketResult.hasChanges;
+    } else {
+      // Fallback to legacy format
+      const legacyResult = DiffProcessor.processLegacyDiff(diffData);
+      if (legacyResult.hasChanges) {
+        codeChanges = legacyResult.codeChanges;
+        hasChanges = legacyResult.hasChanges;
+      } else if (diffData && typeof diffData === "string") {
+        // Handle raw diff string
         hasChanges = true;
-        codeChanges += `\n\`\`\`diff\n`;
-        codeChanges += `${file.content || file.diff}\n`;
-        codeChanges += `\`\`\`\n\n`;
+        codeChanges += `\`\`\`diff\n${diffData}\n\`\`\`\n\n`;
+      } else if (diffData && typeof diffData === "object") {
+        // Handle other diff object structures
+        hasChanges = true;
+        codeChanges += `\`\`\`json\n${JSON.stringify(diffData, null, 2)}\n\`\`\`\n\n`;
+        codeChanges += `Note: The above is the raw diff data structure. Please analyze the changes within this data.\n\n`;
       }
-      codeChanges += `\n---\n\n`;
-    });
-  }
-  // Handle raw diff string
-  else if (diffData && typeof diffData === "string") {
-    hasChanges = true;
-    codeChanges += `\`\`\`diff\n${diffData}\n\`\`\`\n\n`;
-  }
-  // Handle other diff object structures
-  else if (diffData && typeof diffData === "object") {
-    hasChanges = true;
-    codeChanges += `\`\`\`json\n${JSON.stringify(diffData, null, 2)}\n\`\`\`\n\n`;
-    codeChanges += `Note: The above is the raw diff data structure. Please analyze the changes within this data.\n\n`;
+    }
   }
 
   if (!hasChanges) {
@@ -167,11 +437,7 @@ function buildReviewPromptData(diffData, prDetails) {
     codeChanges += `- The diff data structure is different than expected\n`;
     codeChanges += `- The changes are in binary files or very large files\n`;
     codeChanges += `- There might be an issue with how the diff was generated\n\n`;
-    codeChanges += `Raw diff data structure:\n\`\`\`json\n${JSON.stringify(
-      diffData,
-      null,
-      2
-    )}\n\`\`\`\n\n`;
+    codeChanges += `Raw diff data structure:\n\`\`\`json\n${JSON.stringify(diffData, null, 2)}\n\`\`\`\n\n`;
   }
 
   return {
@@ -185,13 +451,14 @@ function buildReviewPromptData(diffData, prDetails) {
 // Get pull requests for a specific project and repository
 async function getPullRequests(req, res) {
   try {
-    const { bitbucketUrl, authToken } = getEnv(); 
+    const { bitbucketUrl, authToken } = EnvironmentConfig.get();
     const { projectKey, repoSlug } = req.params;
 
     if (!projectKey || !repoSlug) {
-      return res.status(400).json({
-        error: "Project key and repository slug are required",
-      });
+      return ErrorHandler.handleValidationError(
+        "Project key and repository slug are required", 
+        res
+      );
     }
 
     const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests`;
@@ -205,24 +472,11 @@ async function getPullRequests(req, res) {
     });
 
     const data = response.data;
-
-    logger.info(
-      `Successfully fetched ${data.values?.length || 0} pull requests`
-    );
+    logger.info(`Successfully fetched ${data.values?.length || 0} pull requests`);
 
     res.json(data);
   } catch (error) {
-    logger.error("Error fetching pull requests:", error);
-    if (error.response) {
-      return res.status(error.response.status).json({
-        error: `Failed to fetch pull requests: ${error.response.statusText}`,
-        details: error.response.data,
-      });
-    }
-    res.status(500).json({
-      error: "Internal server error while fetching pull requests",
-      message: error.message,
-    });
+    ErrorHandler.handleApiError(error, "fetch pull requests", res);
   }
 }
 
@@ -230,16 +484,16 @@ async function getPullRequests(req, res) {
 async function getPullRequestDiff(req, res) {
   try {
     const { projectKey, repoSlug, pullRequestId } = req.params;
-    const { bitbucketUrl, authToken } = getEnv(); 
+    const { bitbucketUrl, authToken } = EnvironmentConfig.get();
 
     if (!projectKey || !repoSlug || !pullRequestId) {
-      return res.status(400).json({
-        error: "Project key, repository slug, and pull request ID are required",
-      });
+      return ErrorHandler.handleValidationError(
+        "Project key, repository slug, and pull request ID are required",
+        res
+      );
     }
 
     const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests/${pullRequestId}/diff`;
-
     logger.info(`Fetching PR diff from: ${url}`);
 
     const response = await axiosInstance.get(url, {
@@ -254,17 +508,7 @@ async function getPullRequestDiff(req, res) {
 
     res.json(data);
   } catch (error) {
-    logger.error("Error fetching pull request diff:", error);
-    if (error.response) {
-      return res.status(error.response.status).json({
-        error: `Failed to fetch pull request diff: ${error.response.statusText}`,
-        details: error.response.data,
-      });
-    }
-    res.status(500).json({
-      error: "Internal server error while fetching pull request diff",
-      message: error.message,
-    });
+    ErrorHandler.handleApiError(error, "fetch pull request diff", res);
   }
 }
 
@@ -284,7 +528,7 @@ async function reviewPullRequest(req, res) {
     // Prepare the prompt data
     const promptData = buildReviewPromptData(diffData, prDetails);
 
-    if (!langchainService.providers || langchainService.providers.length === 0) {
+    if (!langChainServiceFactory.hasProviders()) {
       throw new Error("No AI providers are configured in LangChain service");
     }
 
@@ -304,14 +548,13 @@ async function reviewPullRequest(req, res) {
         });
       }
       
-      // Use LangChain service for review generation
-      const result = await langchainService.generateContent(
+      // Use specialized PR LangChain service for review generation
+      const result = await prLangChainService.generateContent(
         promptData,
         null, // no images for PR review
         "PR_REVIEW",
         false // not streaming
       );
-      console.log('result:', result);
       
       if (!result.content || result.content.trim() === '') {
         throw new Error('AI provider returned empty content');
@@ -354,7 +597,7 @@ async function reviewPullRequest(req, res) {
 // Get commit messages from a branch
 async function getCommitMessages(projectKey, repoSlug, branchName) {
   try {
-    const { bitbucketUrl, authToken } = getEnv(); 
+    const { bitbucketUrl, authToken } = EnvironmentConfig.get(); 
     const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/commits`;
 
     logger.info(`Fetching commits from branch ${branchName}: ${url}`);
@@ -459,119 +702,96 @@ function analyzeCommitType(commits) {
   }
 }
 
-// Generate PR title with streaming using LangChain and custom templates
-async function generatePRTitleStream(commits, ticketNumber, onChunk) {
+// Generate both PR title and description in a single LLM call using structured output
+async function generatePRContentStructured(commits, ticketNumber, branchName, onProgress) {
   const commitMessages = commits
     .map((commit) => `- ${commit.message} (by ${commit.author})`)
     .join("\n");
 
   try {
-    // Use LangChain service for streaming title generation
-    let aiTitle = "";
-    
-    try {
-      const result = await langchainService.generateContent(
-        {commitMessages},
-        null, // no images
-        "PR_TITLE",
-        true // streaming
-      );
+    // Define the Zod schema for structured output
+    const prSchema = z.object({
+      title: z.string().describe("Short, concise PR title under 50 characters without ticket numbers"),
+      description: z.string().describe("Concise PR description in markdown format with summary and key changes")
+    });
 
-      // Handle streaming response
-      if (result.content && typeof result.content.next === 'function') {
-        for await (const chunk of result.content) {
-          if (chunk.content) {
-            aiTitle += chunk.content;
-            onChunk(chunk.content);
-          }
-        }
-      } else {
-        // Fallback to non-streaming if streaming not supported
-        aiTitle = result.content;
-        onChunk(aiTitle);
+    onProgress({ type: "status", message: "Generating PR content with structured output..." });
+
+    const result = await prLangChainService.generateStructuredContent(
+      { commitMessages },
+      prSchema,
+      "PR_COMBINED",
+      false // Non-streaming for structured output
+    );
+
+    let prTitle = "";
+    let prDescription = "";
+
+    // Check if we got structured output
+    if (result.content && typeof result.content === 'object' && result.content.title && result.content.description) {
+      prTitle = result.content.title.trim();
+      prDescription = result.content.description.trim();
+      
+      onProgress({ type: "structured_success", message: "Successfully generated structured PR content" });
+    } else {
+      // Fallback: try to parse the content manually
+      const content = typeof result.content === 'string' ? result.content : JSON.stringify(result.content);
+      
+      // Simple parsing attempt
+      const titleMatch = content.match(/title[:\s]+(.+)/i);
+      const descMatch = content.match(/description[:\s]+([\s\S]+)/i);
+      
+      if (titleMatch) {
+        prTitle = titleMatch[1].trim().replace(/['"]/g, '');
       }
-    } catch (streamError) {
-      logger.warn("Streaming failed, using non-streaming:", streamError.message);
+      if (descMatch) {
+        prDescription = descMatch[1].trim().replace(/['"]/g, '');
+      }
       
-      // Fallback to non-streaming
-      const result = await langchainService.generateContent(
-        {commitMessages},
-        null,
-        "PR_TITLE",
-        false
-      );
-      
-      aiTitle = result.content;
-      onChunk(aiTitle);
+      onProgress({ type: "fallback_parsing", message: "Used fallback parsing for PR content" });
     }
 
-    aiTitle = aiTitle.trim();
+    // Ensure we have content, use fallbacks if needed
+    if (!prTitle) {
+      prTitle = "Update implementation";
+      onProgress({ type: "fallback_title", message: "Used fallback title" });
+    }
+    
+    if (!prDescription) {
+      const ticketRef = ticketNumber ? `for ticket ${ticketNumber}` : `from branch ${branchName || 'feature branch'}`;
+      prDescription = `## Summary\nThis PR contains changes ${ticketRef}.\n\n## Changes Made\n- Implementation updates\n- Code improvements`;
+      onProgress({ type: "fallback_description", message: "Used fallback description" });
+    }
 
-    // Determine commit type and format with prefix
+    // Determine commit type and format title with prefix
     const commitType = analyzeCommitType(commits);
-    const formattedTitle = `${commitType}(${ticketNumber}): ${aiTitle || 'generation failed'}`;
+    const ticketPrefix = ticketNumber ? `${commitType}(${ticketNumber}): ` : `${commitType}: `;
+    const formattedTitle = `${ticketPrefix}${prTitle}`;
 
-    return formattedTitle;
+    return {
+      title: formattedTitle,
+      description: prDescription,
+      aiGenerated: true,
+      provider: result.provider || 'unknown'
+    };
+
   } catch (error) {
-    logger.error("Error generating PR title with LangChain streaming:", error);
-    // Fallback with basic format
-    const fallbackTitle = `feat(${ticketNumber}): generation failed `;
-    onChunk(fallbackTitle);
-    return fallbackTitle;
-  }
-}
-
-// Generate PR description with streaming using LangChain and custom templates
-async function generatePRDescriptionStream(commits, onChunk) {
-   const commitMessages = commits
-    .map((commit) => `- ${commit.message} (by ${commit.author})`)
-    .join("\n");
-
-  try {
-    let description = "";
+    logger.error("Error generating PR content with structured output:", error);
+    onProgress({ type: "error", message: `Error: ${error.message}` });
     
-    try {
-      const result = await langchainService.generateContent(
-        {commitMessages},
-        null, // no images
-        "PR_DESCRIPTION",
-        true // streaming
-      );
-
-      // Handle streaming response
-      if (result.content && typeof result.content.next === 'function') {
-        for await (const chunk of result.content) {
-          if (chunk.content) {
-            description += chunk.content;
-            onChunk(chunk.content);
-          }
-        }
-      } else {
-        // Fallback to non-streaming if streaming not supported
-        description = result.content || "Generated PR Description";
-        onChunk(description);
-      }
-    } catch (streamError) {
-      logger.warn("Streaming failed, using non-streaming:", streamError.message);
-      
-      // Fallback to non-streaming
-      const result = await langchainService.generateContent(
-        {commitMessages},
-        null,
-        "PR_DESCRIPTION",
-        false
-      );
-      
-      description = result.content || "Generated PR Description";
-      onChunk(description);
-    }
-
-    return description.trim() || "Generated PR Description";
-  } catch (error) {
-    logger.error("Error generating PR description with LangChain streaming:", error);
-    const fallbackDescription = "Generated PR Description";
-    onChunk(fallbackDescription);
-    return fallbackDescription;
+    // Complete fallback
+    const commitType = analyzeCommitType(commits);
+    const ticketPrefix = ticketNumber ? `${commitType}(${ticketNumber}): ` : `${commitType}: `;
+    const fallbackTitle = `${ticketPrefix}Update implementation`;
+    const ticketRef = ticketNumber ? `for ticket ${ticketNumber}` : 'based on commit history';
+    const fallbackDescription = `## Summary\nThis PR contains changes ${ticketRef}.\n\n## Changes Made\n- Implementation updates based on commit history`;
+    
+    return {
+      title: fallbackTitle,
+      description: fallbackDescription,
+      aiGenerated: false,
+      provider: 'fallback'
+    };
   }
 }
 
@@ -585,7 +805,7 @@ async function createPullRequest(req, res) {
     customTitle,
     customDescription,
   } = req.body;
-  const { bitbucketUrl, authToken } = getEnv(); 
+  const { bitbucketUrl, authToken } = EnvironmentConfig.get(); 
 
   if (
     !ticketNumber ||
@@ -665,11 +885,11 @@ async function createPullRequest(req, res) {
 // Stream PR preview generation
 async function streamPRPreview(req, res) {
   const { ticketNumber, branchName, projectKey, repoSlug } = req.body;
-  const {authToken} = getEnv();
+  const {authToken} = EnvironmentConfig.get();
 
-  if (!ticketNumber || !branchName || !projectKey || !repoSlug) {
+  if (!branchName || !projectKey || !repoSlug) {
     return res.status(400).json({
-      error: "ticketNumber, branchName, projectKey, and repoSlug are required",
+      error: "branchName, projectKey, and repoSlug are required",
     });
   }
 
@@ -714,30 +934,24 @@ async function streamPRPreview(req, res) {
       const commits = await getCommitMessages(projectKey, repoSlug, branchName);
 
       if (commits.length > 0) {
-        // Send status update
-        res.write(
-          `data: ${JSON.stringify({
-            type: "status",
-            message: "Generating PR title...",
-          })}\n\n`
-        );
-
-        // Generate title with streaming
-        let titleChunks = "";
-
-        prTitle = await generatePRTitleStream(
+        // Use structured output to generate both title and description in a single call
+        const prContent = await generatePRContentStructured(
           commits,
           ticketNumber,
-          (chunk) => {
-            titleChunks += chunk;
+          branchName,
+          (progress) => {
             res.write(
               `data: ${JSON.stringify({
-                type: "title_chunk",
-                data: chunk,
+                type: "progress",
+                ...progress,
               })}\n\n`
             );
           }
         );
+
+        prTitle = prContent.title;
+        prDescription = prContent.description;
+        aiGenerated = prContent.aiGenerated;
 
         // Send complete title
         res.write(
@@ -745,30 +959,6 @@ async function streamPRPreview(req, res) {
             type: "title_complete",
             data: prTitle,
           })}\n\n`
-        );
-
-        // Send status update for description
-        res.write(
-          `data: ${JSON.stringify({
-            type: "status",
-            message: "Generating PR description...",
-          })}\n\n`
-        );
-
-        // Generate description with streaming
-        let descriptionChunks = "";
-
-        prDescription = await generatePRDescriptionStream(
-          commits,
-          (chunk) => {
-            descriptionChunks += chunk;
-            res.write(
-              `data: ${JSON.stringify({
-                type: "description_chunk",
-                data: chunk,
-              })}\n\n`
-            );
-          }
         );
 
         // Send complete description
@@ -779,15 +969,18 @@ async function streamPRPreview(req, res) {
           })}\n\n`
         );
 
-        aiGenerated = true;
-
-        logger.info(`Successfully generated AI-powered PR content`);
+        logger.info(`Successfully generated AI-powered PR content using structured output (${prContent.provider})`);
       } else {
         logger.warn(
           `No commits found for branch ${branchName}, using fallback title/description`
         );
-        prTitle = `${ticketNumber}`;
-        prDescription = `This PR contains changes for ticket ${ticketNumber} from branch ${branchName}.`;
+        const fallbackTitle = ticketNumber ? `${ticketNumber}` : `Update from ${branchName}`;
+        const fallbackDescription = ticketNumber 
+          ? `This PR contains changes for ticket ${ticketNumber} from branch ${branchName}.`
+          : `This PR contains changes from branch ${branchName}.`;
+        
+        prTitle = fallbackTitle;
+        prDescription = fallbackDescription;
 
         // Send fallback data
         res.write(
@@ -805,10 +998,15 @@ async function streamPRPreview(req, res) {
       }
     } catch (ollamaError) {
       logger.info(
-        `Ollama not available, using basic title/description: ${ollamaError.message}`
+        `AI generation not available, using basic title/description: ${ollamaError.message}`
       );
-      prTitle = `${ticketNumber}`;
-      prDescription = `This PR contains changes for ticket ${ticketNumber} from branch ${branchName}.`;
+      const fallbackTitle = ticketNumber ? `${ticketNumber}` : `Update from ${branchName}`;
+      const fallbackDescription = ticketNumber 
+        ? `This PR contains changes for ticket ${ticketNumber} from branch ${branchName}.`
+        : `This PR contains changes from branch ${branchName}.`;
+      
+      prTitle = fallbackTitle;
+      prDescription = fallbackDescription;
 
       // Send fallback data
       res.write(
@@ -852,6 +1050,7 @@ export {
   reviewPullRequest,
   createPullRequest,
   streamPRPreview,
+  generatePRContentStructured,
 };
 
 export default {
@@ -860,4 +1059,5 @@ export default {
   reviewPullRequest,
   createPullRequest,
   streamPRPreview,
+  generatePRContentStructured,
 };

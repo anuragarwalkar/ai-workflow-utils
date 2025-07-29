@@ -4,7 +4,7 @@ import logger from "../logger.js";
 import FormData from "form-data";
 import multer from "multer";
 import { convertMovToMp4 } from "../utils/fileUtils.js";
-import langchainService from "../services/langchainService.js";
+import { jiraLangChainService } from "../services/langchain/index.js";
 
 multer({ dest: "uploads/" }); 
 
@@ -32,8 +32,8 @@ async function previewBugReport(req, res) {
   });
 
   try {
-    // Use the new LangChain service for streaming
-    await langchainService.streamContent({prompt}, images, mapping[issueType], res);
+    // Use the specialized Jira LangChain service for streaming
+    await jiraLangChainService.streamContent({prompt}, images, mapping[issueType], res);
   } catch (error) {
     logger.error(`Error generating ${issueType} preview: ${error.message}`);
     res.write(`data: ${JSON.stringify({
