@@ -113,6 +113,7 @@ class LangChainService {
         // Use user's template (either custom or default from database)
         templateString = template.content;
         logger.info(`Using template for ${issueType}: ${template.name}`);
+        console.log(`Template content for ${issueType}:`, templateString.substring(0, 300) + '...');
       } else {
         // Very basic fallback if no template found at all
         logger.warn(`No template found for ${issueType}, using basic fallback`);
@@ -130,6 +131,7 @@ class LangChainService {
           .replace(/\{imageContext\}/g, "described in the prompt");
       }
 
+      console.log(`Final template string for ${issueType}:`, templateString.substring(0, 300) + '...');
       return PromptTemplate.fromTemplate(templateString);
     } catch (error) {
       logger.error(`Error creating prompt template for ${issueType}:`, error);
@@ -175,15 +177,25 @@ class LangChainService {
   }
 
   // SINGLE METHOD for ALL providers (OpenAI, OpenAI-Compatible, Gemini, Ollama)
-  async generateContent(prompt, images, issueType = "Bug", streaming = false) {
+  async generateContent(promptTemplateFormatter, images, promptTemplateIdentifier, streaming = false) {
     const hasImages = images && images.length > 0;
     
     if (this.providers.length === 0) {
       throw new Error("No AI providers are configured");
     }
 
-    const promptTemplate = await this.createPromptTemplate(issueType, hasImages);
-    const formattedPrompt = await promptTemplate.format({ prompt });
+    console.log(`LangChain generateContent called with:`, {
+      promptTemplateIdentifier,
+      promptTemplateFormatter,
+      streaming,
+      hasImages,
+      providersCount: this.providers.length
+    });
+
+    const promptTemplate = await this.createPromptTemplate(promptTemplateIdentifier, hasImages);
+    const formattedPrompt = await promptTemplate.format({ ...promptTemplateFormatter  });
+
+    console.log(`Formatted prompt for ${promptTemplateIdentifier}:`, formattedPrompt.substring(0, 500) + '...');
 
     // Try each provider in order of priority
     for (const provider of this.providers) {
@@ -210,10 +222,12 @@ class LangChainService {
         } else {
           const response = await provider.model.invoke([message]);
           logger.info(`Successfully generated content using ${provider.name}`);
+          console.log(`Response from ${provider.name}:`, response.content?.substring(0, 200) + '...');
           return { content: response.content, provider: provider.name };
         }
       } catch (error) {
         logger.warn(`Provider ${provider.name} failed: ${error.message}`);
+        console.log(`Provider ${provider.name} error details:`, error);
         
         if (provider === this.providers[this.providers.length - 1]) {
           throw new Error(`All providers failed. Last error from ${provider.name}: ${error.message}`);
@@ -224,8 +238,7 @@ class LangChainService {
     }
   }
 
-  async streamContent(prompt, images, issueType, res) {
-    const hasImages = images && images.length > 0;
+  async streamContent(promptTemplateFormatter, images, issueType, res) {
     let fullContent = "";
 
     res.write(`data: ${JSON.stringify({
@@ -235,7 +248,7 @@ class LangChainService {
     })}\n\n`);
 
     try {
-      const { content: stream, provider } = await this.generateContent(prompt, images, issueType, true);
+      const { content: stream, provider } = await this.generateContent(promptTemplateFormatter, images, issueType, true);
       
       res.write(`data: ${JSON.stringify({
         type: 'status',

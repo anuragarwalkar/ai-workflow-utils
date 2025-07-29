@@ -10,7 +10,13 @@ multer({ dest: "uploads/" });
 
 // Main function to preview bug reports using LangChain
 async function previewBugReport(req, res) {
-  const { prompt, images = [], issueType = "Bug" } = req.body;
+  const { prompt, images = [], issueType } = req.body;
+
+  const mapping = {
+    "Bug": "JIRA_BUG",
+    "Task": "JIRA_TASK",
+    "Story": "JIRA_STORY"
+  }
 
   if (!prompt || !Array.isArray(images)) {
     return res.status(400).json({ error: "Invalid request payload" });
@@ -27,7 +33,7 @@ async function previewBugReport(req, res) {
 
   try {
     // Use the new LangChain service for streaming
-    await langchainService.streamContent(prompt, images, issueType, res);
+    await langchainService.streamContent({prompt}, images, mapping[issueType], res);
   } catch (error) {
     logger.error(`Error generating ${issueType} preview: ${error.message}`);
     res.write(`data: ${JSON.stringify({
@@ -38,48 +44,6 @@ async function previewBugReport(req, res) {
   }
   
   res.end();
-}
-
-// Function to generate Jira content using LangChain (non-streaming)
-async function generateJiraContent(prompt, images, issueType = "Bug") {
-  try {
-    const result = await langchainService.generateContent(prompt, images, issueType, false);
-    
-    if (!result.content) {
-      throw new Error("Invalid response structure from AI provider");
-    }
-
-    const generatedContent = result.content;
-    const usedProvider = result.provider;
-
-    // Parse the content to extract summary and description
-    const summaryMatch = generatedContent.match(
-      /(?:h3\. (?:Issue Summary|Task Summary|Story Summary|Summary):|(?:Issue Summary|Task Summary|Story Summary|Summary):)\s*(.+)/
-    );
-    let summary = summaryMatch?.[1]?.trim();
-    
-    if (summary) {
-      summary = summary.replace(/^\[|\]$/g, '').trim();
-    }
-    
-    let description = generatedContent
-      .replace(/(?:h3\. (?:Issue Summary|Task Summary|Story Summary|Summary):|(?:Issue Summary|Task Summary|Story Summary|Summary):)\s*.+/, "")
-      .trim();
-    
-    if (description) {
-      description = description.replace(/h3\.\s*/g, '').trim();
-    }
-
-    return {
-      summary: summary || `${issueType}: Summary not available`,
-      description: description || "Description not available",
-      bugReport: generatedContent,
-      provider: usedProvider,
-    };
-  } catch (error) {
-    logger.error(`Error generating Jira content: ${error.message}`);
-    throw error;
-  }
 }
 
 async function createJiraIssue(req, res) {
@@ -266,8 +230,7 @@ export {
   uploadImage,
   getJiraIssue,
   fetchJiraIssue,
-  fetchJiraSummaries,
-  generateJiraContent
+  fetchJiraSummaries
 };
 
 export default {
@@ -276,6 +239,5 @@ export default {
   uploadImage,
   getJiraIssue,
   fetchJiraIssue,
-  fetchJiraSummaries,
-  generateJiraContent
+  fetchJiraSummaries
 };

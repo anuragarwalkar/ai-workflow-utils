@@ -2,7 +2,8 @@ import axios from "axios";
 import https from "https";
 import logger from "../logger.js";
 import dotenv from "dotenv";
-import { Ollama } from "@langchain/ollama";
+import langchainService from "../services/langchainService.js";
+import templateDbService from "../services/templateDbService.js";
 
 // Create axios instance with SSL certificate verification disabled for self-signed certificates
 const axiosInstance = axios.create({
@@ -24,23 +25,30 @@ const getEnv = () => {
   };
 };
 
-// Helper function to build review prompt
-function buildReviewPrompt(diffData, prDetails) {
-  let prompt = `Please review the following pull request:\n\n`;
-
-  if (prDetails) {
-    prompt += `**Pull Request Details:**\n`;
-    prompt += `Title: ${prDetails.title || "N/A"}\n`;
-    prompt += `Description: ${prDetails.description || "N/A"}\n`;
-    prompt += `Author: ${
-      prDetails.author?.user?.displayName ||
-      prDetails.author?.displayName ||
-      "N/A"
-    }\n\n`;
+// Helper function to get PR template from database
+async function getPRTemplate(templateType) {
+  try {
+    await templateDbService.init();
+    const template = await templateDbService.getActiveTemplate(templateType);
+    if (!template) {
+      logger.warn(`No active template found for ${templateType}, using fallback`);
+      return null;
+    }
+    return template;
+  } catch (error) {
+    logger.error(`Error getting ${templateType} template:`, error);
+    return null;
   }
+}
 
-  prompt += `**Code Changes:**\n\n`;
+// Helper function to build review prompt data for LangChain
+function buildReviewPromptData(diffData, prDetails) {
+  const prTitle = prDetails?.title || "N/A";
+  const prDescription = prDetails?.description || "N/A";
+  const prAuthor = prDetails?.author?.user?.displayName || 
+                   prDetails?.author?.displayName || "N/A";
 
+  let codeChanges = "";
   let hasChanges = false;
 
   // Handle Bitbucket diff format
@@ -48,21 +56,21 @@ function buildReviewPrompt(diffData, prDetails) {
     diffData.diffs.forEach((file, index) => {
       const fileName =
         file.source?.toString || file.destination?.toString || "Unknown file";
-      prompt += `### File ${index + 1}: ${fileName}\n`;
+      codeChanges += `### File ${index + 1}: ${fileName}\n`;
 
       if (file.hunks && Array.isArray(file.hunks)) {
         file.hunks.forEach((hunk, hunkIndex) => {
-          prompt += `\n**Hunk ${hunkIndex + 1}**`;
+          codeChanges += `\n**Hunk ${hunkIndex + 1}**`;
           if (hunk.context) {
-            prompt += ` (${hunk.context})`;
+            codeChanges += ` (${hunk.context})`;
           }
-          prompt += `:\n`;
-          prompt += `Lines: ${hunk.sourceLine}-${
+          codeChanges += `:\n`;
+          codeChanges += `Lines: ${hunk.sourceLine}-${
             hunk.sourceLine + hunk.sourceSpan - 1
           } → ${hunk.destinationLine}-${
             hunk.destinationLine + hunk.destinationSpan - 1
           }\n\n`;
-          prompt += `\`\`\`diff\n`;
+          codeChanges += `\`\`\`diff\n`;
 
           if (hunk.segments && Array.isArray(hunk.segments)) {
             hunk.segments.forEach((segment) => {
@@ -77,15 +85,15 @@ function buildReviewPrompt(diffData, prDetails) {
                     prefix = "-";
                   }
 
-                  prompt += `${prefix}${line.line}\n`;
+                  codeChanges += `${prefix}${line.line}\n`;
                 });
               }
             });
           }
-          prompt += `\`\`\`\n\n`;
+          codeChanges += `\`\`\`\n\n`;
         });
       }
-      prompt += `\n---\n\n`;
+      codeChanges += `\n---\n\n`;
     });
   }
   // Fallback to old format handling
@@ -96,86 +104,82 @@ function buildReviewPrompt(diffData, prDetails) {
         file.path?.toString ||
         file.source?.toString ||
         "Unknown file";
-      prompt += `### File ${index + 1}: ${fileName}\n`;
+      codeChanges += `### File ${index + 1}: ${fileName}\n`;
 
       if (file.hunks && Array.isArray(file.hunks)) {
         file.hunks.forEach((hunk, hunkIndex) => {
-          prompt += `\n**Hunk ${hunkIndex + 1}**:\n`;
+          codeChanges += `\n**Hunk ${hunkIndex + 1}**:\n`;
           if (hunk.oldLine !== undefined && hunk.newLine !== undefined) {
-            prompt += `Lines: ${hunk.oldLine} → ${hunk.newLine}\n`;
+            codeChanges += `Lines: ${hunk.oldLine} → ${hunk.newLine}\n`;
           }
-          prompt += `\`\`\`diff\n`;
+          codeChanges += `\`\`\`diff\n`;
 
           if (hunk.lines && Array.isArray(hunk.lines)) {
             hunk.lines.forEach((line) => {
               hasChanges = true;
               if (line.left && line.right) {
-                prompt += `-${line.left}\n+${line.right}\n`;
+                codeChanges += `-${line.left}\n+${line.right}\n`;
               } else if (line.left) {
-                prompt += `-${line.left}\n`;
+                codeChanges += `-${line.left}\n`;
               } else if (line.right) {
-                prompt += `+${line.right}\n`;
+                codeChanges += `+${line.right}\n`;
               } else if (line.content) {
-                const prefix =
-                  line.type === "ADDED"
-                    ? "+"
-                    : line.type === "REMOVED"
-                    ? "-"
-                    : " ";
-                prompt += `${prefix}${line.content}\n`;
+                let prefix = " ";
+                if (line.type === "ADDED") {
+                  prefix = "+";
+                } else if (line.type === "REMOVED") {
+                  prefix = "-";
+                }
+                codeChanges += `${prefix}${line.content}\n`;
               } else if (typeof line === "string") {
-                prompt += `${line}\n`;
+                codeChanges += `${line}\n`;
               }
             });
           } else if (hunk.content) {
             hasChanges = true;
-            prompt += `${hunk.content}\n`;
+            codeChanges += `${hunk.content}\n`;
           }
-          prompt += `\`\`\`\n\n`;
+          codeChanges += `\`\`\`\n\n`;
         });
       } else if (file.content || file.diff) {
         hasChanges = true;
-        prompt += `\n\`\`\`diff\n`;
-        prompt += `${file.content || file.diff}\n`;
-        prompt += `\`\`\`\n\n`;
+        codeChanges += `\n\`\`\`diff\n`;
+        codeChanges += `${file.content || file.diff}\n`;
+        codeChanges += `\`\`\`\n\n`;
       }
-      prompt += `\n---\n\n`;
+      codeChanges += `\n---\n\n`;
     });
   }
   // Handle raw diff string
   else if (diffData && typeof diffData === "string") {
     hasChanges = true;
-    prompt += `\`\`\`diff\n${diffData}\n\`\`\`\n\n`;
+    codeChanges += `\`\`\`diff\n${diffData}\n\`\`\`\n\n`;
   }
   // Handle other diff object structures
   else if (diffData && typeof diffData === "object") {
     hasChanges = true;
-    prompt += `\`\`\`json\n${JSON.stringify(diffData, null, 2)}\n\`\`\`\n\n`;
-    prompt += `Note: The above is the raw diff data structure. Please analyze the changes within this data.\n\n`;
+    codeChanges += `\`\`\`json\n${JSON.stringify(diffData, null, 2)}\n\`\`\`\n\n`;
+    codeChanges += `Note: The above is the raw diff data structure. Please analyze the changes within this data.\n\n`;
   }
 
   if (!hasChanges) {
-    prompt += `**Note:** No specific code changes were detected in the provided diff data. This might indicate:\n`;
-    prompt += `- The diff data structure is different than expected\n`;
-    prompt += `- The changes are in binary files or very large files\n`;
-    prompt += `- There might be an issue with how the diff was generated\n\n`;
-    prompt += `Raw diff data structure:\n\`\`\`json\n${JSON.stringify(
+    codeChanges += `**Note:** No specific code changes were detected in the provided diff data. This might indicate:\n`;
+    codeChanges += `- The diff data structure is different than expected\n`;
+    codeChanges += `- The changes are in binary files or very large files\n`;
+    codeChanges += `- There might be an issue with how the diff was generated\n\n`;
+    codeChanges += `Raw diff data structure:\n\`\`\`json\n${JSON.stringify(
       diffData,
       null,
       2
     )}\n\`\`\`\n\n`;
   }
 
-  prompt += `\nPlease provide a comprehensive code review covering:\n`;
-  prompt += `1. Code quality and readability\n`;
-  prompt += `2. Potential bugs or issues\n`;
-  prompt += `3. Security concerns\n`;
-  prompt += `4. Performance implications\n`;
-  prompt += `5. Best practices and suggestions for improvement\n`;
-  prompt += `6. Overall assessment and recommendation\n`;
-  prompt += `\nIf you cannot see specific code changes, please indicate what information you would need to provide a proper review.\n`;
-
-  return prompt;
+  return {
+    prTitle,
+    prDescription,
+    prAuthor,
+    codeChanges
+  };
 }
 
 // Get pull requests for a specific project and repository
@@ -264,12 +268,10 @@ async function getPullRequestDiff(req, res) {
   }
 }
 
-// Review pull request using OpenAI compatible API with fallback
+// Review pull request using LangChain service with customizable templates
 async function reviewPullRequest(req, res) {
   try {
-    const { projectKey, repoSlug, pullRequestId, diffData, prDetails } =
-      req.body;
-    const { openaiBaseUrl, openaiApiKey, openaiModel }= getEnv();
+    const { projectKey, repoSlug, pullRequestId, diffData, prDetails } = req.body;
 
     if (!diffData) {
       return res.status(400).json({
@@ -277,104 +279,59 @@ async function reviewPullRequest(req, res) {
       });
     }
 
-    // Debug logging to understand diff data structure
-    logger.info(`Starting AI review for PR ${pullRequestId}`);
+    logger.info(`Starting AI review for PR ${pullRequestId} using LangChain with custom templates`);
 
-    // Prepare the prompt for AI review
-    const reviewPrompt = buildReviewPrompt(diffData, prDetails);
+    // Prepare the prompt data
+    const promptData = buildReviewPromptData(diffData, prDetails);
+
+    if (!langchainService.providers || langchainService.providers.length === 0) {
+      throw new Error("No AI providers are configured in LangChain service");
+    }
 
     let review = null;
     let aiProvider = "unknown";
 
-    // Try primary OpenAI compatible API first
     try {
-      if (openaiBaseUrl && openaiApiKey && openaiModel) {
-        logger.info(
-          `Attempting review with OpenAI compatible API: ${openaiBaseUrl}/chat/completions`
-        );
-
-        const response = await axios.post(
-          `${openaiBaseUrl}/chat/completions`,
-          {
-            model: openaiModel,
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are an expert code reviewer. Analyze the provided code changes and provide constructive feedback focusing on code quality, potential bugs, security issues, performance concerns, and best practices.",
-              },
-              {
-                role: "user",
-                content: reviewPrompt,
-              },
-            ],
-            max_tokens: 2000,
-            temperature: 0.3,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${openaiApiKey}`,
-              "Content-Type": "application/json",
-            },
-            timeout: 30000, // 30 second timeout
-          }
-        );
-
-        review = response.data.choices?.[0]?.message?.content;
-        aiProvider = "OpenAI Compatible";
-        logger.info(
-          "Successfully generated review using OpenAI compatible API"
-        );
+      console.log('promptData:', promptData);
+      
+      // Ensure all required template variables are present
+      if (!promptData.prTitle || !promptData.prDescription || !promptData.prAuthor || !promptData.codeChanges) {
+        logger.warn('Missing required template variables:', {
+          prTitle: !!promptData.prTitle,
+          prDescription: !!promptData.prDescription,
+          prAuthor: !!promptData.prAuthor,
+          codeChanges: !!promptData.codeChanges
+        });
       }
-    } catch (primaryError) {
-      logger.warn(
-        "Primary API failed, attempting fallback:",
-        primaryError.message
+      
+      // Use LangChain service for review generation
+      const result = await langchainService.generateContent(
+        promptData,
+        null, // no images for PR review
+        "PR_REVIEW",
+        false // not streaming
       );
-
-      // Try Ollama fallback
-      try {
-        const ollamaUrl =
-          process.env.OLLAMA_BASE_URL || "http://localhost:11434";
-        const ollamaModel = process.env.OLLAMA_MODEL || "llama2";
-
-        logger.info(`Attempting review with Ollama: ${ollamaUrl}`);
-
-        const ollamaResponse = await axios.post(
-          `${ollamaUrl}/api/generate`,
-          {
-            model: ollamaModel,
-            prompt: `You are an expert code reviewer. ${reviewPrompt}`,
-            stream: false,
-          },
-          {
-            timeout: 60000, // 60 second timeout for Ollama
-          }
-        );
-
-        review = ollamaResponse.data.response;
-        aiProvider = "ollama";
-        logger.info("Successfully generated review using Ollama");
-      } catch (ollamaError) {
-        logger.error("Ollama fallback also failed:", ollamaError.message);
-
-        // If both fail, provide a basic static review
-        review = generateBasicReview(diffData, prDetails);
-        aiProvider = "static";
-        logger.info("Using static review as final fallback");
+      console.log('result:', result);
+      
+      if (!result.content || result.content.trim() === '') {
+        throw new Error('AI provider returned empty content');
       }
-    }
-
-    if (!review) {
+      
+      review = result.content;
+      aiProvider = result.provider;
+      
+      logger.info(`Successfully generated review using LangChain with ${aiProvider}`);
+    } catch (langchainError) {
+      console.log('langchainError:', langchainError);
+      logger.error("LangChain review failed:", langchainError.message);
       return res.status(500).json({
-        error: "No review content could be generated from any AI provider",
-        details: "Both primary API and fallback options failed",
+        error: "No review content could be generated",
+        details: langchainError.message,
       });
     }
 
-    logger.info(
-      `Successfully generated AI review for PR ${pullRequestId} using ${aiProvider}`
-    );
+
+    logger.info(`Successfully generated AI review for PR ${pullRequestId} using ${aiProvider}`);
 
     res.json({
       review,
@@ -392,41 +349,6 @@ async function reviewPullRequest(req, res) {
       details: error.response?.data || "No additional details available",
     });
   }
-}
-
-// Generate a basic static review when AI services are unavailable
-function generateBasicReview(diffData, prDetails) {
-  let review = `# Pull Request Review\n\n`;
-
-  if (prDetails) {
-    review += `**Pull Request:** ${prDetails.title || "N/A"}\n`;
-    review += `**Author:** ${prDetails.author?.displayName || "N/A"}\n\n`;
-  }
-
-  review += `## Summary\n`;
-  review += `This is a basic review generated when AI services are unavailable.\n\n`;
-
-  if (diffData.values && Array.isArray(diffData.values)) {
-    review += `## Files Changed (${diffData.values.length})\n`;
-    diffData.values.forEach((file, index) => {
-      review += `${index + 1}. ${file.srcPath?.toString || "Unknown file"}\n`;
-    });
-    review += `\n`;
-  }
-
-  review += `## Recommendations\n`;
-  review += `- Please ensure all changes have been tested thoroughly\n`;
-  review += `- Verify that code follows project coding standards\n`;
-  review += `- Check for potential security vulnerabilities\n`;
-  review += `- Ensure proper error handling is in place\n`;
-  review += `- Consider performance implications of the changes\n`;
-  review += `- Update documentation if necessary\n\n`;
-
-  review += `## Note\n`;
-  review += `This review was generated using a static template because AI review services were unavailable. `;
-  review += `Please conduct a manual code review to ensure code quality.\n`;
-
-  return review;
 }
 
 // Get commit messages from a branch
@@ -471,18 +393,6 @@ async function getCommitMessages(projectKey, repoSlug, branchName) {
       }`
     );
   }
-}
-
-// Initialize LangChain Ollama model
-function initializeOllama() {
-  const ollamaBaseUrl = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
-  const ollamaModel = process.env.OLLAMA_MODEL || "llama3.2";
-
-  return new Ollama({
-    baseUrl: ollamaBaseUrl,
-    model: ollamaModel,
-    temperature: 0.7,
-  });
 }
 
 // Analyze commits to determine the type (feat/fix/chore)
@@ -549,143 +459,116 @@ function analyzeCommitType(commits) {
   }
 }
 
-// Generate PR title using LangChain Ollama with commit-based prefix
-async function generatePRTitle(commits, ticketNumber) {
-  try {
-    const commitMessages = commits.map((commit) => commit.message).join("\n");
-
-    const ollama = initializeOllama();
-
-    const titlePrompt = `Based on the following commit messages from a branch, generate a very short and concise pull request title.
-The title should be clear, professional, and summarize the main purpose of the changes.
-Keep it under 50 characters and use imperative mood (e.g., "Add auth" not "Added authentication").
-Focus on the most important change only.
-DO NOT include any ticket numbers, issue numbers, or identifiers in the title.
-
-Commit messages:
-${commitMessages}
-
-Generate only the title without any ticket numbers or identifiers:`;
-
-    const response = await ollama.invoke(titlePrompt);
-    const aiTitle = response.trim() || "Generated PR Title";
-
-    // Determine commit type and format with prefix
-    const commitType = analyzeCommitType(commits);
-    const formattedTitle = `${commitType}(${ticketNumber}): ${aiTitle}`;
-
-    return formattedTitle;
-  } catch (error) {
-    logger.error("Error generating PR title with Ollama:", error);
-    // Fallback with basic format
-    return `feat(${ticketNumber}): Generated PR Title`;
-  }
-}
-
-// Generate PR title with streaming using LangChain Ollama
+// Generate PR title with streaming using LangChain and custom templates
 async function generatePRTitleStream(commits, ticketNumber, onChunk) {
+  const commitMessages = commits
+    .map((commit) => `- ${commit.message} (by ${commit.author})`)
+    .join("\n");
+
   try {
-    const commitMessages = commits.map((commit) => commit.message).join("\n");
-
-    const ollama = initializeOllama();
-
-    const titlePrompt = `Based on the following commit messages from a branch, generate a very short and concise pull request title.
-The title should be clear, professional, and summarize the main purpose of the changes.
-Keep it under 50 characters and use imperative mood (e.g., "Add auth" not "Added authentication").
-Focus on the most important change only.
-DO NOT include any ticket numbers, issue numbers, or identifiers in the title.
-
-Commit messages:
-${commitMessages}
-
-Generate only the title without any ticket numbers or identifiers:`;
-
+    // Use LangChain service for streaming title generation
     let aiTitle = "";
-    const stream = await ollama.stream(titlePrompt);
+    
+    try {
+      const result = await langchainService.generateContent(
+        {commitMessages},
+        null, // no images
+        "PR_TITLE",
+        true // streaming
+      );
 
-    for await (const chunk of stream) {
-      aiTitle += chunk;
-      onChunk(chunk);
+      // Handle streaming response
+      if (result.content && typeof result.content.next === 'function') {
+        for await (const chunk of result.content) {
+          if (chunk.content) {
+            aiTitle += chunk.content;
+            onChunk(chunk.content);
+          }
+        }
+      } else {
+        // Fallback to non-streaming if streaming not supported
+        aiTitle = result.content;
+        onChunk(aiTitle);
+      }
+    } catch (streamError) {
+      logger.warn("Streaming failed, using non-streaming:", streamError.message);
+      
+      // Fallback to non-streaming
+      const result = await langchainService.generateContent(
+        {commitMessages},
+        null,
+        "PR_TITLE",
+        false
+      );
+      
+      aiTitle = result.content;
+      onChunk(aiTitle);
     }
 
-    aiTitle = aiTitle.trim() || "Generated PR Title";
+    aiTitle = aiTitle.trim();
 
     // Determine commit type and format with prefix
     const commitType = analyzeCommitType(commits);
-    const formattedTitle = `${commitType}(${ticketNumber}): ${aiTitle}`;
+    const formattedTitle = `${commitType}(${ticketNumber}): ${aiTitle || 'generation failed'}`;
 
     return formattedTitle;
   } catch (error) {
-    logger.error("Error generating PR title with Ollama streaming:", error);
+    logger.error("Error generating PR title with LangChain streaming:", error);
     // Fallback with basic format
-    const fallbackTitle = `feat(${ticketNumber}): Generated PR Title`;
+    const fallbackTitle = `feat(${ticketNumber}): generation failed `;
     onChunk(fallbackTitle);
     return fallbackTitle;
   }
 }
 
-// Generate PR description using LangChain Ollama
-async function generatePRDescription(commitMessages) {
-  const ollama = initializeOllama();
-
-  const descriptionPrompt = `Based on the following commit messages from a branch, generate a concise pull request description.
-Keep it short and focused. Include only:
-
-## Summary
-Brief overview (1-2 sentences max)
-
-## Changes Made
-- List 3-5 key changes only
-- Focus on the most important changes
-
-Commit messages:
-${commitMessages}
-
-Generate a short, concise description in markdown format (max 200 words):`;
-
-  try {
-    const response = await ollama.invoke(descriptionPrompt);
-    return response.trim() || "Generated PR Description";
-  } catch (error) {
-    logger.error("Error generating PR description with Ollama:", error);
-    return "Generated PR Description";
-  }
-}
-
-// Generate PR description with streaming using LangChain Ollama
-async function generatePRDescriptionStream(commitMessages, onChunk) {
-  const ollama = initializeOllama();
-
-  const descriptionPrompt = `Based on the following commit messages from a branch, generate a concise pull request description.
-Keep it short and focused. Include only:
-
-## Summary
-Brief overview (1-2 sentences max)
-
-## Changes Made
-- List 3-5 key changes only
-- Focus on the most important changes
-
-Commit messages:
-${commitMessages}
-
-Generate a short, concise description in markdown format (max 200 words):`;
+// Generate PR description with streaming using LangChain and custom templates
+async function generatePRDescriptionStream(commits, onChunk) {
+   const commitMessages = commits
+    .map((commit) => `- ${commit.message} (by ${commit.author})`)
+    .join("\n");
 
   try {
     let description = "";
-    const stream = await ollama.stream(descriptionPrompt);
+    
+    try {
+      const result = await langchainService.generateContent(
+        {commitMessages},
+        null, // no images
+        "PR_DESCRIPTION",
+        true // streaming
+      );
 
-    for await (const chunk of stream) {
-      description += chunk;
-      onChunk(chunk);
+      // Handle streaming response
+      if (result.content && typeof result.content.next === 'function') {
+        for await (const chunk of result.content) {
+          if (chunk.content) {
+            description += chunk.content;
+            onChunk(chunk.content);
+          }
+        }
+      } else {
+        // Fallback to non-streaming if streaming not supported
+        description = result.content || "Generated PR Description";
+        onChunk(description);
+      }
+    } catch (streamError) {
+      logger.warn("Streaming failed, using non-streaming:", streamError.message);
+      
+      // Fallback to non-streaming
+      const result = await langchainService.generateContent(
+        {commitMessages},
+        null,
+        "PR_DESCRIPTION",
+        false
+      );
+      
+      description = result.content || "Generated PR Description";
+      onChunk(description);
     }
 
     return description.trim() || "Generated PR Description";
   } catch (error) {
-    logger.error(
-      "Error generating PR description with Ollama streaming:",
-      error
-    );
+    logger.error("Error generating PR description with LangChain streaming:", error);
     const fallbackDescription = "Generated PR Description";
     onChunk(fallbackDescription);
     return fallbackDescription;
@@ -819,10 +702,6 @@ async function streamPRPreview(req, res) {
     let aiGenerated = false;
 
     try {
-      logger.info(
-        `Generating AI-powered PR content for branch ${branchName} using Ollama`
-      );
-
       // Send status update
       res.write(
         `data: ${JSON.stringify({
@@ -843,13 +722,7 @@ async function streamPRPreview(req, res) {
           })}\n\n`
         );
 
-        // Format commit messages for AI processing
-        const commitMessages = commits
-          .map((commit) => `- ${commit.message} (by ${commit.author})`)
-          .join("\n");
-
         // Generate title with streaming
-        const commitType = analyzeCommitType(commits);
         let titleChunks = "";
 
         prTitle = await generatePRTitleStream(
@@ -886,7 +759,7 @@ async function streamPRPreview(req, res) {
         let descriptionChunks = "";
 
         prDescription = await generatePRDescriptionStream(
-          commitMessages,
+          commits,
           (chunk) => {
             descriptionChunks += chunk;
             res.write(
