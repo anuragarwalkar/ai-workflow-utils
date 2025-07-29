@@ -11,13 +11,13 @@ import configBridge from './services/configBridge.js';
 import { requestLogger, errorHandler, notFoundHandler } from './middleware/index.js';
 
 // Import routes
-import jiraRoutes from './routes/jiraRoutes.js';
-import emailRoutes from './routes/emailRoutes.js';
-import buildRoutes from './routes/buildRoutes.js';
-import chatRoutes from './routes/chatRoutes.js';
-import prRoutes from './routes/prRoutes.js';
-import templateRoutes from './routes/templateRoutes.js';
-import environmentSettingsRoutes from './routes/environmentSettingsRoutes.js';
+import jiraRoutes from './routes/jira-routes.js';
+import emailRoutes from './routes/email-routes.js';
+import buildRoutes from './routes/build-routes.js';
+import chatRoutes from './routes/chat-routes.js';
+import prRoutes from './routes/pull-request-routes.js';
+import templateRoutes from './routes/template-routes.js';
+import environmentSettingsRoutes from './routes/environment-routes.js';
 import langchainService from './services/langchainService.js';
 
 // Load default .env file first (for fallback values)

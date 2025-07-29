@@ -13,19 +13,19 @@
 export { default as EmailController } from './emailController.js';
 
 // Models
-export { EmailRequest } from './models/EmailRequest.js';
+export { EmailRequest } from './models/email-request.js';
 
 // Services
-export { WikiService } from './services/wikiService.js';
-export { JiraIntegrationService } from './services/jiraIntegrationService.js';
-export { EmailContentService } from './services/emailContentService.js';
+export { WikiService } from './services/wiki-service.js';
+export { JiraIntegrationService } from './services/jira-integration-service.js';
+export { EmailContentService } from './services/email-content-service.js';
 
 // Processors
-export { TableExtractor } from './processors/tableExtractor.js';
-export { HtmlFormatter } from './processors/htmlFormatter.js';
+export { TableExtractor } from './processors/table-extractor.js';
+export { HtmlFormatter } from './processors/html-formatter.js';
 
 // Utils
-export { ErrorHandler } from './utils/errorHandler.js';
+export { ErrorHandler } from './utils/error-handler.js';
 export { EMAIL_CONSTANTS } from './utils/constants.js';
 
 // Backward compatibility - export the main controller as default

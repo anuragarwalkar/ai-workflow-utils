@@ -1,8 +1,8 @@
-import { WikiService } from './services/wikiService.js';
-import { JiraIntegrationService } from './services/jiraIntegrationService.js';
-import { EmailContentService } from './services/emailContentService.js';
-import { EmailRequest } from './models/EmailRequest.js';
-import { ErrorHandler } from './utils/errorHandler.js';
+import { WikiService } from './services/wiki-service.js';
+import { JiraIntegrationService } from './services/jira-integration-service.js';
+import { EmailContentService } from './services/email-content-service.js';
+import { EmailRequest } from './models/email-request.js';
+import { ErrorHandler } from './utils/error-handler.js';
 import logger from '../../logger.js';
 
 /**
