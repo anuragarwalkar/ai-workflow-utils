@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPullRequests, getPullRequestDiff, reviewPullRequest, createPullRequest, streamPRPreview } from '../controllers/prController.js';
+import { getPullRequests, getPullRequestDiff, reviewPullRequest, createPullRequest, streamPRPreview } from '../controllers/pr/index.js';
 import { asyncHandler, createRateLimit } from '../middleware/index.js';
 
 const router = express.Router();

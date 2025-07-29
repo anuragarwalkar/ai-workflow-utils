@@ -12,7 +12,6 @@
     "ui/dev-dist/",
     "ui/.env.example",
     "bin/",
-    "data/",
     "dist/data/",
     "README.md",
     "STARTUP.md",

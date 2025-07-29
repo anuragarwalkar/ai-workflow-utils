@@ -46,10 +46,6 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin({
       patterns: [
-        {
-          from: 'server/data',
-          to: '../data'
-        },
          {
           from: 'server/data',
           to: './data'

@@ -1,5 +1,5 @@
 import express from 'express';
-import emailController from '../controllers/emailController.js';
+import { EmailController } from '../controllers/email/index.js';
 import { asyncHandler, createRateLimit } from '../middleware/index.js';
 
 const router = express.Router();
@@ -9,7 +9,7 @@ const emailRateLimit = createRateLimit(60 * 60 * 1000, 10); // 10 emails per hou
 router.use(emailRateLimit);
 
 // Route for sending email
-router.post('/send', asyncHandler(emailController));
+router.post('/send', asyncHandler(EmailController.sendEmail));
 
 // Route for email status/health check
 router.get('/status', (req, res) => {

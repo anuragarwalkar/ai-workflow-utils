@@ -1,5 +1,5 @@
 // Stub implementation for email
-import logger from "../logger.js";
+import logger from "../../logger.js";
 import nodemailer from "nodemailer";
 
 const user = "anuragarwalkar@gmail.com";
