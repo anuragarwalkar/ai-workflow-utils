@@ -11,9 +11,9 @@
 
 **The Ultimate AI-Powered Development Workflow Automation Platform**
 
-*Streamline your development process with intelligent Jira ticket creation, AI-powered code reviews & pull request creation, and seamless attachment management*
+*Streamline your development process with intelligent Jira ticket creation, AI-powered code reviews & pull request creation with custom template support*
 
-<img width="1920" height="1188" alt="AI-Workflow-Utils-07-24-2025_02_32_AM" src="https://github.com/user-attachments/assets/7ef3e808-b4e8-4894-8388-9046d33dec3e" />
+<img width="1920" height="1188" alt="AI-Workflow-Utils-07-31-2025_02_27_AM" src="https://github.com/user-attachments/assets/d7ae8249-d6fc-4565-b785-5dfffb1c5b2e" />
 
 </div>
 
@@ -39,25 +39,16 @@ Revolutionary AI-powered pull request creation for Atlassian Bitbucket:
 - **⚡ Real-time Streaming**: Watch AI generate PR content live with streaming updates
 - **🔄 Multi-Model Support**: Uses Ollama for local AI processing with privacy
 - **✏️ Editable Previews**: Review and edit AI-generated content before creating the PR
-- **🎯 Ticket Integration**: Automatically includes ticket numbers in PR titles
 - **💾 Smart Persistence**: Remembers project and repository settings for faster workflow
 
-### 🔍 **Feature #3: GitStash PR AI Review**
+### 🔍 **Feature #3: Ai-Powered Code Review**
 Revolutionary AI-powered pull request reviews for Atlassian Bitbucket:
 
 - **🧠 Intelligent Code Analysis**: AI reviews your code changes
 - **💡 Smart Suggestions**: Get actionable improvement recommendations
 - **🔄 Multi-Model Support**: OpenAI Compatible APIs + Ollama for flexibility
-- **📝 Automated Comments**: AI adds review comments directly to your PRs
-- **⚡ Coming Soon**: Direct comment integration (currently in development)
-
-### 📎 **Feature #4: Simple Jira Attachment Management**
-Effortless file management for your Jira tickets:
-
-- **📁 Drag & Drop Interface**: Simple file uploads
-- **🎥 Video Conversion**: Automatic .mov to .mp4 conversion
-- **📸 Image Optimization**: Smart image processing
-- **🔗 Direct Integration**: Seamless attachment to existing tickets
+- **⚡ Coming Soon**: AI adds review comments directly to your PRs 
+- **⚡ Coming Soon**: Direct comment integration
 
 ---
 
@@ -152,7 +143,7 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 
 <details>
      
-<summary><strong>🎯 Feature Deep Div</strong></summary>
+<summary><strong>🎯 Feature Deep Dive</strong></summary>
 
 ### **🎫 AI Jira Ticket Creation**
 
@@ -200,7 +191,7 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 - **Editable Previews**: Full control over final content before submission
 - **Persistent Settings**: Remembers project and repo settings for faster workflow
 
-### **🔍 GitStash PR AI Review**
+### **🔍 AI Code Review**
 
 **Revolutionary Code Review:**
 - **Context-Aware Analysis**: AI understands your codebase
@@ -215,14 +206,7 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 4. AI analyzes code changes
 5. Get detailed review with suggestions
 6. *Coming Soon*: Direct comment integration
-
-### **📎 Jira Attachment Management**
-
-**Simplified File Handling:**
-- **Universal Format Support**: Images, videos, documents
-- **Smart Conversion**: Automatic .mov to .mp4 for compatibility
-- **Batch Upload**: Multiple files at once
-- **Preview Integration**: View attachments before upload
+   
 </details>
 
 <!-- Manual environment setup is deprecated. All configuration should be done via the web-based settings page. -->
