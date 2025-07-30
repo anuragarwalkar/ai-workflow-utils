@@ -94,7 +94,7 @@ const ActionCards = () => {
     {
       id: 'create-jira',
       title: 'AI Create Jira',
-      description: 'AI-powered Jira ticket creation with smart suggestions',
+      description: 'AI-powered Jira ticket creation with intelligent suggestions',
       icon: BugReportIcon,
       actionIcon: AddIcon,
       onClick: handleCreateJira,
@@ -143,7 +143,7 @@ const ActionCards = () => {
     {
       id: 'git-stash',
       title: 'AI Code Review',
-      description: 'Review pull requests with AI assistance',
+      description: 'AI-powered pull request analysis with code insights',
       icon: CodeIcon,
       actionIcon: ReviewsIcon,
       onClick: handleGitStash,
@@ -155,7 +155,7 @@ const ActionCards = () => {
     {
       id: 'create-pr',
       title: 'AI Draft Pull Request',
-      description: 'Create and preview pull requests with AI assistance',
+      description: 'AI-generated pull request creation with content suggestions',
       icon: MergeIcon,
       actionIcon: CreateIcon,
       onClick: handleCreatePR,
@@ -168,7 +168,7 @@ const ActionCards = () => {
     {
       id: 'ai-chat',
       title: 'AI Chat Assistant',
-      description: 'Assistance for development tasks',
+      description: 'Intelligent conversational AI for development task assistance',
       icon: ChatIcon,
       actionIcon: AutoFixHighIcon,
       onClick: handleAiChat,
@@ -179,7 +179,7 @@ const ActionCards = () => {
     {
       id: 'code-analysis',
       title: 'Code Analysis',
-      description: 'Deep code analysis and optimization suggestions',
+      description: 'AI-driven code analysis with optimization and security insights',
       icon: AnalyticsIcon,
       actionIcon: SecurityIcon,
       onClick: handleCodeAnalysis,
@@ -190,7 +190,7 @@ const ActionCards = () => {
     {
       id: 'workflow-automation',
       title: 'Workflow Automation',
-      description: 'Automate repetitive development workflows',
+      description: 'AI-powered automation of repetitive development workflows',
       icon: WorkflowIcon,
       actionIcon: AutoFixHighIcon,
       onClick: handleWorkflowAutomation,
@@ -201,7 +201,7 @@ const ActionCards = () => {
      {
       id: 'settings',
       title: 'Settings',
-      description: 'Configure templates, API settings, and app preferences',
+      description: 'AI configuration and app preferences management center',
       icon: SettingsIcon,
       actionIcon: TuneIcon,
       onClick: handleSettings,
