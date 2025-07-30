@@ -56,11 +56,11 @@ class PRController {
   }
 
   /**
-   * Review pull request using LangChain service with customizable templates
+   * Review pull request using LangChain service with streaming support
    */
   static async reviewPullRequest(req, res) {
     try {
-      const { projectKey, repoSlug, pullRequestId, diffData, prDetails } = req.body;
+      const { projectKey, repoSlug, pullRequestId, diffData, prDetails, streaming = true } = req.body;
 
       if (!diffData) {
         return res.status(400).json({
@@ -68,68 +68,108 @@ class PRController {
         });
       }
 
-      logger.info(`Starting AI review for PR ${pullRequestId} using LangChain with custom templates`);
+      logger.info(`Starting AI review for PR ${pullRequestId} using LangChain with custom templates (streaming: ${streaming})`);
 
-      // Prepare the prompt data
+      // Set up streaming if requested
+      if (streaming) {
+        StreamingService.setupSSE(res);
+        StreamingService.sendStatus(res, "Starting PR review...");
+      }
+
+      // Prepare the prompt data - DiffProcessorService will handle all diff formats through UnidiffProcessor
       const promptData = DiffProcessorService.buildReviewPromptData(diffData, prDetails);
 
       if (!langChainServiceFactory.hasProviders()) {
-        throw new Error("No AI providers are configured in LangChain service");
+        const error = "No AI providers are configured in LangChain service";
+        if (streaming) {
+          StreamingService.sendError(res, new Error(error));
+          return;
+        }
+        throw new Error(error);
       }
 
       let review = null;
       let aiProvider = "unknown";
 
       try {
-        console.log('promptData:', promptData);
-        
-        // Ensure all required template variables are present
-        if (!promptData.prTitle || !promptData.prDescription || !promptData.prAuthor || !promptData.codeChanges) {
-          logger.warn('Missing required template variables:', {
-            prTitle: !!promptData.prTitle,
-            prDescription: !!promptData.prDescription,
-            prAuthor: !!promptData.prAuthor,
-            codeChanges: !!promptData.codeChanges
+        if (streaming) {
+          StreamingService.sendStatus(res, "Analyzing code changes...");
+          
+          // Create a custom streaming method for PR reviews
+          const result = await PRController.streamPRReview(promptData, res);
+
+          if (!result.content || result.content.trim() === '') {
+            throw new Error('AI provider returned empty content');
+          }
+          
+          review = result.content;
+          aiProvider = result.provider;
+          
+          // Send final results
+          StreamingService.sendSSEData(res, {
+            type: "review_complete",
+            data: {
+              review,
+              projectKey,
+              repoSlug,
+              pullRequestId,
+              aiProvider,
+              reviewedAt: new Date().toISOString(),
+            }
+          });
+          
+          StreamingService.closeSSE(res);
+        } else {
+          // Use non-streaming version
+          const result = await prLangChainService.generateContent(
+            promptData,
+            null, // no images for PR review
+            "PR_REVIEW",
+            false // not streaming
+          );
+
+          if (!result.content || result.content.trim() === '') {
+            throw new Error('AI provider returned empty content');
+          }
+          
+          review = result.content;
+          aiProvider = result.provider;
+          
+          res.json({
+            review,
+            projectKey,
+            repoSlug,
+            pullRequestId,
+            aiProvider,
+            reviewedAt: new Date().toISOString(),
           });
         }
         
-        // Use specialized PR LangChain service for review generation
-        const result = await prLangChainService.generateContent(
-          promptData,
-          null, // no images for PR review
-          "PR_REVIEW",
-          false // not streaming
-        );
-
-        if (!result.content || result.content.trim() === '') {
-          throw new Error('AI provider returned empty content');
-        }
-        
-        review = result.content;
-        aiProvider = result.provider;
-        
         logger.info(`Successfully generated review using LangChain with ${aiProvider}`);
       } catch (langchainError) {
-        console.log('langchainError:', langchainError);
         logger.error("LangChain review failed:", langchainError.message);
-        return res.status(500).json({
-          error: "No review content could be generated",
-          details: langchainError.message,
-        });
+        
+        if (streaming) {
+          StreamingService.sendError(res, langchainError);
+        } else {
+          return res.status(500).json({
+            error: "No review content could be generated",
+            details: langchainError.message,
+          });
+        }
       }
 
-      logger.info(`Successfully generated AI review for PR ${pullRequestId} using ${aiProvider}`);
-
-      res.json({
-        review,
-        projectKey,
-        repoSlug,
-        pullRequestId,
-        aiProvider,
-        reviewedAt: new Date().toISOString(),
-      });
     } catch (error) {
       logger.error("Error reviewing pull request:", error);
+      
+      if (res.headersSent) {
+        // If streaming and headers already sent, just close
+        if (error.name !== 'StreamingError') {
+          StreamingService.sendError(res, error);
+        }
+        return;
+      }
+      
       res.status(500).json({
         error: "Internal server error while reviewing pull request",
         message: error.message,
@@ -144,11 +184,12 @@ class PRController {
   static async createPullRequest(req, res) {
     try {
       const {
-          branchName,
+        branchName,
         projectKey,
         repoSlug,
         customTitle,
         customDescription,
+        ticketNumber = null
       } = req.body;
 
       // Validate input
@@ -293,7 +334,7 @@ class PRController {
    */
   static processStreamResult(result, commits, ticketNumber) {
     if (!result.content) {
-      return PRController.generateEmptyContent(commits, ticketNumber);
+      return PRController.generateEmptyContent();
     }
 
     // Use the parsed title and description from streaming
@@ -307,7 +348,7 @@ class PRController {
       return PRController.buildPRFromParsed({ parsedTitle: parsed.title, parsedDescription: parsed.description }, commits, ticketNumber);
     }
 
-    return PRController.generateEmptyContent(commits, ticketNumber);
+    return PRController.generateEmptyContent();
   }
 
   /**
@@ -328,7 +369,7 @@ class PRController {
   /**
    * Generate empty/fallback PR content
    */
-  static generateEmptyContent(commits, ticketNumber) {
+  static generateEmptyContent() {
     return {
       prTitle: "Update implementation",
       prDescription: `## Summary\nThis PR contains changes based on commit history.\n\n## Changes Made\n- Implementation updates`,
@@ -375,6 +416,28 @@ class PRController {
     });
 
     return { prTitle: baseTitle, prDescription: fallbackDescription };
+  }
+
+  /**
+   * Stream PR review generation
+   */
+  static async streamPRReview(promptData, res) {
+    try {
+      if (!langChainServiceFactory.hasProviders()) {
+        throw new Error("No AI providers are configured");
+      }
+
+      logger.info('Starting PR review streaming with template: PR_REVIEW');
+
+      // Get the base template and format it
+      const promptTemplate = await prLangChainService.createPromptTemplate("PR_REVIEW", false);
+      const formattedPrompt = await promptTemplate.format({ ...promptData });
+      // Use the existing streaming infrastructure from PRLangChainService
+      return await prLangChainService.tryProvidersForStreaming(formattedPrompt, res);
+    } catch (error) {
+      logger.error("Error in streamPRReview:", error);
+      throw error;
+    }
   }
 
   /**

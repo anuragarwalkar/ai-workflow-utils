@@ -17,6 +17,9 @@ import {
   useTheme,
   Tooltip,
   IconButton,
+  Switch,
+  FormControlLabel,
+  LinearProgress,
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
@@ -29,10 +32,12 @@ import {
   FileCopy as FileCopyIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
+  Speed as SpeedIcon,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
 import { useGetPullRequestDiffQuery, useReviewPullRequestMutation, useGetPullRequestsQuery } from '../../store/api/prApi';
 import { setDiffData, setReviewData, setError, setSelectedPullRequest } from '../../store/slices/prSlice';
+import { useStreamingPRReview } from '../../hooks/useStreamingPRReview';
 
 const DiffLine = ({ line, type, lineNumber }) => {
   const theme = useTheme();
@@ -242,6 +247,19 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
   );
 
   const [reviewPullRequest, { isLoading: isReviewing }] = useReviewPullRequestMutation();
+  
+  // Streaming PR review hook
+  const {
+    startReview: startStreamingReview,
+    resetReview: resetStreamingReview,
+    isStreaming,
+    streamingContent,
+    reviewComplete,
+    error: streamingError
+  } = useStreamingPRReview();
+
+  // UI state for streaming toggle
+  const [useStreaming, setUseStreaming] = useState(true);
 
   useEffect(() => {
     if (diff) {
@@ -277,16 +295,36 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
   const handleReview = async () => {
     if (!diffData || (!selectedPullRequest?.id && !directPRId)) return;
 
-    try {
-      const result = await reviewPullRequest({
-        projectKey: selectedProject.projectKey,
-        repoSlug: selectedProject.repoSlug,
-        pullRequestId: selectedPullRequest?.id || directPRId,
-        diffData,
-        prDetails: selectedPullRequest,
-      }).unwrap();
+    // Reset any previous streaming state
+    resetStreamingReview();
 
-      dispatch(setReviewData(result));
+    try {
+      if (useStreaming) {
+        // Use streaming review
+        const result = await startStreamingReview({
+          projectKey: selectedProject.projectKey,
+          repoSlug: selectedProject.repoSlug,
+          pullRequestId: selectedPullRequest?.id || directPRId,
+          diffData,
+          prDetails: selectedPullRequest,
+        });
+
+        // If streaming completes successfully, update the store
+        if (result) {
+          dispatch(setReviewData(result));
+        }
+      } else {
+        // Use non-streaming review (original behavior)
+        const result = await reviewPullRequest({
+          projectKey: selectedProject.projectKey,
+          repoSlug: selectedProject.repoSlug,
+          pullRequestId: selectedPullRequest?.id || directPRId,
+          diffData,
+          prDetails: selectedPullRequest,
+        }).unwrap();
+
+        dispatch(setReviewData(result));
+      }
     } catch (error) {
       dispatch(setError(`Failed to generate review: ${error.data?.error || error.message}`));
     }
@@ -352,12 +390,27 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         <Typography variant="h5" component="h2">
           Review: {selectedPullRequest?.title || `PR #${directPRId || 'Unknown'}`}
         </Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={useStreaming}
+                onChange={(e) => setUseStreaming(e.target.checked)}
+                size="small"
+              />
+            }
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <SpeedIcon fontSize="small" />
+                <Typography variant="body2">Streaming</Typography>
+              </Box>
+            }
+          />
           <Button
             variant="contained"
             startIcon={<AutoAwesomeIcon />}
             onClick={handleReview}
-            disabled={isReviewing || !diffData}
+            disabled={(isReviewing || isStreaming) || !diffData}
             sx={{
               background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
               '&:hover': {
@@ -365,7 +418,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
               },
             }}
           >
-            {isReviewing ? 'Reviewing...' : 'AI Review'}
+            {isStreaming ? 'Streaming...' : (isReviewing ? 'Reviewing...' : 'AI Review')}
           </Button>
           <Button
             variant="outlined"
@@ -444,7 +497,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
           </Card>
         </Grid>
 
-        {reviewData && (
+        {(reviewData || isStreaming || streamingContent || streamingError) && (
           <Grid item xs={12} md={6}>
             <Card elevation={1} sx={{ mb: 3 }}>
               <CardContent>
@@ -453,23 +506,76 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
                   <Typography variant="h6">
                     AI Review
                   </Typography>
-                  <Chip 
-                    label="Generated" 
-                    size="small" 
-                    color="secondary" 
-                    variant="outlined" 
-                  />
+                  {isStreaming && (
+                    <Chip 
+                      label="Streaming..." 
+                      size="small" 
+                      color="primary" 
+                      variant="outlined" 
+                    />
+                  )}
+                  {reviewData && !isStreaming && (
+                    <Chip 
+                      label="Generated" 
+                      size="small" 
+                      color="secondary" 
+                      variant="outlined" 
+                    />
+                  )}
+                  {reviewComplete && (
+                    <Chip 
+                      label="Completed" 
+                      size="small" 
+                      color="success" 
+                      variant="outlined" 
+                    />
+                  )}
                 </Box>
+
+                {isStreaming && (
+                  <Box sx={{ mb: 2 }}>
+                    <LinearProgress variant="indeterminate" />
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                      AI is analyzing your code changes...
+                    </Typography>
+                  </Box>
+                )}
+
+                {streamingError && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    Streaming error: {streamingError}
+                  </Alert>
+                )}
                 
                 <Paper variant="outlined" sx={{ p: 2, backgroundColor: 'grey.50' }}>
                   <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
-                    {reviewData.review}
+                    {isStreaming || streamingContent ? streamingContent : reviewData?.review}
+                    {isStreaming && (
+                      <Box component="span" sx={{ 
+                        animation: 'blink 1s infinite',
+                        '@keyframes blink': {
+                          '0%, 50%': { opacity: 1 },
+                          '51%, 100%': { opacity: 0 }
+                        }
+                      }}>
+                        ▋
+                      </Box>
+                    )}
                   </Typography>
                 </Paper>
                 
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                  Generated on {new Date(reviewData.reviewedAt).toLocaleString()}
-                </Typography>
+                {reviewData?.reviewedAt && !isStreaming && (
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                    Generated on {new Date(reviewData.reviewedAt).toLocaleString()}
+                    {reviewData.aiProvider && ` using ${reviewData.aiProvider}`}
+                  </Typography>
+                )}
+                {reviewComplete?.reviewedAt && (
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                    Generated on {new Date(reviewComplete.reviewedAt).toLocaleString()}
+                    {reviewComplete.aiProvider && ` using ${reviewComplete.aiProvider}`}
+                  </Typography>
+                )}
               </CardContent>
             </Card>
           </Grid>

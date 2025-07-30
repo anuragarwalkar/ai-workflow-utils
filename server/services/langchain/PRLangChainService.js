@@ -139,7 +139,6 @@ export class PRLangChainService extends BaseLangChainService {
     for await (const chunk of stream) {
       if (chunk.content) {
         fullContent += chunk.content;
-        console.log('fullContent:', fullContent);
         // Handle parsing and chunk sending
         const parseResult = this.handleStreamChunk(fullContent, parsedTitle, parsedDescription, res, chunk.content);
         parsedTitle = parseResult.parsedTitle;
