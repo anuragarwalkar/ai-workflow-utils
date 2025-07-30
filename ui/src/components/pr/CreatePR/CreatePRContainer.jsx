@@ -11,7 +11,6 @@ const CreatePRContainer = () => {
   const [formData, setFormData] = useState({
     projectKey: '',
     repoSlug: '',
-    ticketNumber: '',
     branchName: '',
   });
   const [preview, setPreview] = useState(null);
@@ -67,7 +66,6 @@ const CreatePRContainer = () => {
         prTitle: '',
         prDescription: '',
         aiGenerated: false,
-        ticketNumber: formData.ticketNumber,
         branchName: formData.branchName
       };
 
@@ -155,7 +153,6 @@ const CreatePRContainer = () => {
       
       const response = await createPR({
         ...formData,
-        preview: true
       }).unwrap();
 
       // Save project key and repo slug to local storage after successful preview
@@ -177,7 +174,6 @@ const CreatePRContainer = () => {
   const handleCreate = async (editedPreview) => {
     try {
       await createPR({
-        ticketNumber: formData.ticketNumber,
         branchName: formData.branchName,
         projectKey: formData.projectKey,
         repoSlug: formData.repoSlug,
@@ -188,7 +184,6 @@ const CreatePRContainer = () => {
       // Handle success (show notification, reset form, etc.)
       setFormData(prev => ({
         ...prev,
-        ticketNumber: '',
         branchName: ''
       }));
       setShowPreview(false);
@@ -226,7 +221,6 @@ const CreatePRContainer = () => {
             preview={preview}
             onConfirm={handleCreate}
             isLoading={isLoading}
-            ticketNumber={formData.ticketNumber}
           />
         )}
       </Paper>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { TextField, Box } from '@mui/material';
 
 const PRForm = ({ formData, onChange }) => {
@@ -26,14 +25,6 @@ const PRForm = ({ formData, onChange }) => {
         placeholder="Enter repository slug"
         fullWidth
         required
-      />
-      <TextField
-        label="Ticket Number"
-        value={formData.ticketNumber}
-        onChange={handleChange('ticketNumber')}
-        placeholder="Enter ticket number (e.g., JIRA-123) - Required for creating PR"
-        fullWidth
-        helperText="Required only when creating the PR, not for preview"
       />
       <TextField
         label="Branch Name"

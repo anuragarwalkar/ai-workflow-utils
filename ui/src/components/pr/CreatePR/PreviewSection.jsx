@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, Paper, CircularProgress, TextField } from '@mui/material';
 
-const PreviewSection = ({ preview, onConfirm, isLoading, ticketNumber }) => {
+const PreviewSection = ({ preview, onConfirm, isLoading }) => {
   const [editableTitle, setEditableTitle] = useState('');
   const [editableDescription, setEditableDescription] = useState('');
 
@@ -78,9 +78,6 @@ const PreviewSection = ({ preview, onConfirm, isLoading, ticketNumber }) => {
           <Typography variant="subtitle2" color="text.secondary">
             Branch: {preview.branchName}
           </Typography>
-          <Typography variant="subtitle2" color="text.secondary">
-            Ticket: {preview.ticketNumber}
-          </Typography>
           {preview.aiGenerated && (
             <Typography variant="subtitle2" color="primary">
               AI-Generated Content (Streamed)
@@ -93,16 +90,10 @@ const PreviewSection = ({ preview, onConfirm, isLoading, ticketNumber }) => {
         variant="contained"
         color="primary"
         onClick={handleConfirm}
-        disabled={isLoading || (!editableTitle || !editableDescription || !ticketNumber)}
+        disabled={isLoading || (!editableTitle || !editableDescription)}
       >
         {isLoading ? <CircularProgress size={24} /> : 'Create Pull Request'}
       </Button>
-      
-      {!ticketNumber && (
-        <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
-          Ticket number is required to create the pull request
-        </Typography>
-      )}
     </Box>
   );
 };

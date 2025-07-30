@@ -144,8 +144,7 @@ class PRController {
   static async createPullRequest(req, res) {
     try {
       const {
-        ticketNumber,
-        branchName,
+          branchName,
         projectKey,
         repoSlug,
         customTitle,
@@ -172,7 +171,7 @@ class PRController {
       });
 
       logger.info(
-        `Creating pull request for ticket ${ticketNumber} with title: "${customTitle}"`
+        `Creating pull request with title: "${customTitle}" from branch: "${branchName}"`
       );
 
       // Create PR via Bitbucket service
@@ -182,7 +181,7 @@ class PRController {
         pullRequest.toBitbucketPayload()
       );
 
-      logger.info(`Pull request created successfully for ticket ${ticketNumber}`);
+      logger.info(`Pull request created successfully from branch: "${branchName}"`);
 
       res.status(201).json(pullRequest.toResponsePayload({
         pullRequestId: data.id,
