@@ -26,7 +26,9 @@ import {
   AccountTree as WorkflowIcon,
   Security as SecurityIcon,
   Settings as SettingsIcon,
-  Tune as TuneIcon
+  Tune as TuneIcon,
+  MergeType as MergeIcon,
+  Create as CreateIcon
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { openViewJiraModal } from '../../store/slices/uiSlice';
@@ -91,7 +93,7 @@ const ActionCards = () => {
     // Released features
     {
       id: 'create-jira',
-      title: 'Create Jira',
+      title: 'AI Create Jira',
       description: 'AI-powered Jira ticket creation with smart suggestions',
       icon: BugReportIcon,
       actionIcon: AddIcon,
@@ -112,6 +114,7 @@ const ActionCards = () => {
       shadowColor: 'rgba(240, 147, 251, 0.3)',
       isReleased: true,
       isBeta: true,
+      isHidden: () => localStorage.getItem('enableHiddenFeatures') !== 'true',
     },
     {
       id: 'send-email',
@@ -123,7 +126,7 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
       shadowColor: 'rgba(79, 172, 254, 0.3)',
       isReleased: true,
-      isHidden: () => localStorage.getItem('enableSendEmail') !== 'true',
+      isHidden: () => localStorage.getItem('enableHiddenFeatures') !== 'true',
     },
     {
       id: 'release-build',
@@ -135,11 +138,11 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
       shadowColor: 'rgba(250, 112, 154, 0.3)',
       isReleased: true,
-      isHidden: () => localStorage.getItem('enableReleaseBuild') !== 'true',
+      isHidden: () => localStorage.getItem('enableHiddenFeatures') !== 'true',
     },
     {
       id: 'git-stash',
-      title: 'Code Review',
+      title: 'AI Code Review',
       description: 'Review pull requests with AI assistance',
       icon: CodeIcon,
       actionIcon: ReviewsIcon,
@@ -151,10 +154,10 @@ const ActionCards = () => {
     },
     {
       id: 'create-pr',
-      title: 'Generate PR Template',
+      title: 'AI Draft Pull Request',
       description: 'Create and preview pull requests with AI assistance',
-      icon: CodeIcon,
-      actionIcon: AddIcon,
+      icon: MergeIcon,
+      actionIcon: CreateIcon,
       onClick: handleCreatePR,
       gradient: 'linear-gradient(135deg, #ff7b7b 0%, #667eea 100%)',
       shadowColor: 'rgba(255, 123, 123, 0.3)',
