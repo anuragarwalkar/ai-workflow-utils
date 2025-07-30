@@ -70,6 +70,7 @@ class BitbucketService {
         "Content-Type": "application/json",
       },
       params: {
+        since: 'main',
         until: branchName,
         limit: DEFAULT_COMMIT_LIMIT,
       },

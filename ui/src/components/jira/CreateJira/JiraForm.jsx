@@ -169,7 +169,7 @@ const JiraForm = () => {
             dispatch(setStreamingStatus(`${status} (${provider})`));
           },
         }).unwrap();
-
+        
         dispatch(setStreaming(false));
         // The streaming result has the data directly, not nested under .data
         dispatch(setPreviewData(result));

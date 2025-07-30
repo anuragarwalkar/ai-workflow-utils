@@ -91,6 +91,10 @@ const CreatePRContainer = () => {
                     case 'status':
                       console.log('Status:', data.message);
                       break;
+                    case 'content_chunk':
+                      // Real-time content streaming - show progress
+                      console.log('Content chunk received:', data.data?.substring(0, 50));
+                      break;
                     case 'title_chunk':
                       streamedPreview.prTitle += data.data;
                       setPreview({ ...streamedPreview });
@@ -122,6 +126,8 @@ const CreatePRContainer = () => {
                       console.error('Streaming error:', data.message);
                       setIsPreviewLoading(false);
                       throw new Error(data.message);
+                    default:
+                      console.log('Unknown stream event:', data.type);
                   }
                 }
               } catch (parseError) {

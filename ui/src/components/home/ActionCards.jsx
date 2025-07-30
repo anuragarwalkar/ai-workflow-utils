@@ -62,7 +62,7 @@ const ActionCards = () => {
   };
 
   const handleCreatePR = () => {
-    navigate('/ai-generate-pr');
+    navigate('/ai-generate-pr-template');
   };
 
   const handleSettings = () => {
@@ -139,7 +139,7 @@ const ActionCards = () => {
     },
     {
       id: 'git-stash',
-      title: 'GitStash Review',
+      title: 'Code Review',
       description: 'Review pull requests with AI assistance',
       icon: CodeIcon,
       actionIcon: ReviewsIcon,
@@ -151,7 +151,7 @@ const ActionCards = () => {
     },
     {
       id: 'create-pr',
-      title: 'Create PR',
+      title: 'Generate PR Template',
       description: 'Create and preview pull requests with AI assistance',
       icon: CodeIcon,
       actionIcon: AddIcon,

@@ -7,6 +7,7 @@ import { EnvironmentConfig } from "../utils/environment-config.js";
 import { ErrorHandler } from "../utils/error-handler.js";
 import { JIRA_ENDPOINTS } from "../utils/constants.js";
 import logger from "../../../logger.js";
+import { JiraIssue } from "../models/jira-issue.js";
 
 export class JiraApiService {
   /**
@@ -18,15 +19,16 @@ export class JiraApiService {
     try {
       const baseUrl = EnvironmentConfig.getBaseUrl();
       const headers = EnvironmentConfig.getAuthHeaders();
+
       const url = `${baseUrl}${JIRA_ENDPOINTS.ISSUE}`;
 
       logger.info('Creating Jira issue', { 
         url, 
-        summary: payload.fields?.summary,
-        issueType: payload.fields?.issuetype?.name
       });
 
-      const response = await axios.post(url, payload, { headers });
+      const jiraPayload = new JiraIssue(payload)
+
+      const response = await axios.post(url, jiraPayload.toJiraPayload(), { headers });
       
       logger.info('Jira issue created successfully', { 
         issueKey: response.data.key,

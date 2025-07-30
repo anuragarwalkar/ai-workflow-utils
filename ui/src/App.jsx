@@ -26,7 +26,7 @@ const AppContent = () => (
         <Route path="/send-email" element={<SendEmailContainer />} />
         <Route path="/release-build" element={<ReleaseBuildContainer />} />
         <Route path="/ai-pr-review" element={<GitStashContainer />} />
-      <Route path="/ai-generate-pr" element={<PRContainer />} />
+      <Route path="/ai-generate-pr-template" element={<PRContainer />} />
         <Route path="/settings" element={<SettingsContainer />} />
       </Routes>
       <ViewJiraModal />

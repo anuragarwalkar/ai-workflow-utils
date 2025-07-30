@@ -298,7 +298,7 @@ class UnidiffProcessor {
 ```javascript
 try {
   const result = await operation();
-  res.json({ success: true, data: result });
+  res.json(result);
 } catch (error) {
   ErrorHandler.handleApiError(error, "operation context", res);
 }

@@ -1,15 +1,5 @@
 import { BaseLangChainService } from "./BaseLangChainService.js";
-import { z } from "zod";
-import { StructuredOutputParser } from "@langchain/core/output_parsers";
 import logger from "../../logger.js";
-
-// Generic Jira schema that can work with any template format
-const JiraOutputSchema = z.object({
-  summary: z
-    .string()
-    .describe("Concise title extracted from the generated content"),
-  description: z.string().describe("All the detailed content generated"),
-});
 
 /**
  * Jira-specific LangChain service for handling Jira issue generation
@@ -20,38 +10,7 @@ export class JiraLangChainService extends BaseLangChainService {
   }
 
   /**
-   * Create a structured output parser for Jira content
-   */
-  createStructuredOutputParser() {
-    return StructuredOutputParser.fromZodSchema(JiraOutputSchema);
-  }
-
-  /**
-   * Enhanced prompt template creation with structured output instructions
-   */
-  async createStructuredPromptTemplate(issueType, hasImages) {
-    const baseTemplate = await this.createPromptTemplate(issueType, hasImages);
-    const parser = this.createStructuredOutputParser();
-
-    // Get the original template string
-    const originalTemplate = baseTemplate.template;
-
-    // Add minimal JSON formatting instructions
-    const enhancedTemplate = `${originalTemplate}
-
-After generating the content above, also provide the same content in JSON format:
-
-${parser.getFormatInstructions()}`;
-
-    return {
-      template: enhancedTemplate,
-      parser,
-      format: baseTemplate.format.bind(baseTemplate),
-    };
-  }
-
-  /**
-   * Stream content generation specifically for Jira issues with structured output
+   * Stream content generation specifically for Jira issues using templates only
    */
   async streamContent(promptTemplateFormatter, images, issueType, res) {
     let fullContent = "";
@@ -65,8 +24,8 @@ ${parser.getFormatInstructions()}`;
     );
 
     try {
-      // Use structured content generation instead of regular streaming
-      const result = await this.generateStructuredContent(
+      // Use regular template-based content generation instead of structured parsing
+      const result = await this.generateTemplateBasedContent(
         promptTemplateFormatter,
         images,
         issueType
@@ -80,11 +39,11 @@ ${parser.getFormatInstructions()}`;
         })}\n\n`
       );
 
-      // Stream the raw content for display purposes
-      const rawContent = result.rawContent;
-      if (rawContent) {
+      // Stream the content naturally from the template
+      const content = result.content;
+      if (content) {
         // Simulate streaming by sending chunks
-        const words = rawContent.split(" ");
+        const words = content.split(" ");
         for (let i = 0; i < words.length; i += 5) {
           const chunk = words.slice(i, i + 5).join(" ") + " ";
           fullContent += chunk;
@@ -103,18 +62,20 @@ ${parser.getFormatInstructions()}`;
         `data: ${JSON.stringify({
           type: "complete",
           message: `${issueType} preview generated successfully`,
-          bugReport: fullContent || result.structuredData.description,
-          summary: result.structuredData.summary,
-          description: result.structuredData.description,
+          bugReport: fullContent || result.content,
+          summary: this.extractSummaryFromContent(
+            fullContent || result.content
+          ),
+          description: fullContent || result.content,
           provider: result.provider,
         })}\n\n`
       );
 
       logger.info(
-        `Successfully streamed structured Jira content using ${result.provider}`
+        `Successfully streamed template-based Jira content using ${result.provider}`
       );
     } catch (error) {
-      logger.error(`Error in Jira structured streaming: ${error.message}`);
+      logger.error(`Error in Jira template-based streaming: ${error.message}`);
       res.write(
         `data: ${JSON.stringify({
           type: "error",
@@ -126,41 +87,44 @@ ${parser.getFormatInstructions()}`;
   }
 
   /**
-   * Generate structured content for Jira issues
+   * Generate template-based content for Jira issues
    */
-  async generateStructuredContent(promptTemplateFormatter, images, issueType) {
+  async generateTemplateBasedContent(
+    promptTemplateFormatter,
+    images,
+    issueType
+  ) {
     const hasImages = images && images.length > 0;
 
     if (this.providers.length === 0) {
       throw new Error("No AI providers are configured");
     }
 
-    const { parser, format } = await this.createStructuredPromptTemplate(
+    // Get the template and format it
+    const promptTemplate = await this.createPromptTemplate(
       issueType,
       hasImages
     );
-    const formattedPrompt = await format({ ...promptTemplateFormatter });
+    const formattedPrompt = await promptTemplate.format({
+      ...promptTemplateFormatter,
+    });
 
-    return await this.tryProvidersForStructuredContent(
+    return await this.tryProvidersForTemplateContent(
       formattedPrompt,
       images,
-      hasImages,
-      parser
+      hasImages
     );
   }
 
   /**
-   * Try each provider for structured content generation
+   * Try each provider for template-based content generation
    */
-  async tryProvidersForStructuredContent(
-    formattedPrompt,
-    images,
-    hasImages,
-    parser
-  ) {
+  async tryProvidersForTemplateContent(formattedPrompt, images, hasImages) {
     for (const provider of this.providers) {
       try {
-        logger.info(`Trying provider: ${provider.name} for structured output`);
+        logger.info(
+          `Trying provider: ${provider.name} for template-based output`
+        );
 
         const messageContent = this.prepareMessageContentForProvider(
           formattedPrompt,
@@ -177,14 +141,20 @@ ${parser.getFormatInstructions()}`;
         ]);
 
         logger.info(
-          `Successfully generated structured content using ${provider.name}`
+          `Successfully generated template-based content using ${provider.name}`
         );
 
-        return await this.parseStructuredResponse(
-          response.content,
-          parser,
-          provider.name
-        );
+        // Log the raw response for debugging
+        console.log(`Raw Jira response from ${provider.name}:`, {
+          content: response.content,
+          contentType: typeof response.content,
+          contentLength: response.content ? response.content.length : 0,
+        });
+
+        return {
+          content: response.content,
+          provider: provider.name,
+        };
       } catch (error) {
         logger.warn(`Provider ${provider.name} failed: ${error.message}`);
 
@@ -197,6 +167,39 @@ ${parser.getFormatInstructions()}`;
         continue;
       }
     }
+  }
+
+  /**
+   * Extract a simple summary from content (first line or first sentence)
+   */
+  extractSummaryFromContent(content) {
+    if (!content || content.trim() === "") {
+      return "Generated Jira Issue";
+    }
+
+    // Try to extract first meaningful line
+    const lines = content.split("\n").filter((line) => line.trim() !== "");
+    if (lines.length > 0) {
+      const firstLine = lines[0].trim();
+      // If first line looks like a title/summary (not too long), use it
+      if (firstLine.length > 0 && firstLine.length <= 100) {
+        return firstLine;
+      }
+    }
+
+    // Otherwise, try to get first sentence
+    const sentences = content.split(/[.!?]/);
+    if (sentences.length > 0 && sentences[0].trim().length > 0) {
+      const firstSentence = sentences[0].trim();
+      if (firstSentence.length <= 100) {
+        return firstSentence;
+      }
+      // If too long, truncate
+      return firstSentence.substring(0, 97) + "...";
+    }
+
+    // Final fallback
+    return content.substring(0, 50) + "...";
   }
 
   /**
@@ -223,37 +226,23 @@ ${parser.getFormatInstructions()}`;
   }
 
   /**
-   * Parse structured response
+   * Enhanced generation with retry logic using templates only
+   * @param {Object} promptTemplateFormatter - Template variables
+   * @param {Array} images - Image data array
+   * @param {string} issueType - Type of Jira issue
+   * @returns {Promise<Object>} Generated content result
    */
-  async parseStructuredResponse(responseContent, parser, providerName) {
-    let structuredData;
-    const rawContent = responseContent;
-
+  async generateContentWithRetry(promptTemplateFormatter, images, issueType) {
     try {
-      structuredData = await parser.parse(responseContent);
-    } catch (parseError) {
-      logger.error(`Structured parsing failed: ${parseError.message}`);
-      throw new Error(
-        `Failed to parse structured response: ${parseError.message}`
+      return await this.generateTemplateBasedContent(
+        promptTemplateFormatter,
+        images,
+        issueType
       );
+    } catch (error) {
+      logger.error(`Error generating template-based content: ${error.message}`);
+      throw error;
     }
-
-    return {
-      structuredData,
-      rawContent,
-      provider: providerName,
-    };
-  }
-
-  /**
-   * Legacy method for backward compatibility
-   */
-  parseJiraContent(fullContent, issueType) {
-    // This method is kept for backward compatibility but should not be used
-    // in new implementations. Use structured output parsing instead.
-    throw new Error(
-      "Manual parsing is deprecated. Use structured output parsing instead."
-    );
   }
 }
 

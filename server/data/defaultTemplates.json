@@ -57,8 +57,6 @@
       "JIRA_BUG": "default-jira-bug",
       "JIRA_TASK": "default-jira-task",
       "JIRA_STORY": "default-jira-story",
-      "PR_TITLE": "pr-title-template",
-      "PR_DESCRIPTION": "pr-description-template",
       "PR_COMBINED": "pr-combined-template",
       "PR_REVIEW": "pr-review-template"
     }

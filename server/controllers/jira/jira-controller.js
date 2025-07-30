@@ -32,7 +32,7 @@ class JiraController {
   static async getIssueDetails(issueKey) {
     try {
       logger.info('Getting Jira issue details', { issueKey });
-      return await JiraApiService.getIssueDetails(issueKey);
+      return await JiraApiService.fetchIssue(issueKey);
     } catch (error) {
       ErrorHandler.handleApiError(error, 'getIssueDetails');
       throw error;
@@ -78,17 +78,25 @@ class JiraController {
    */
   static async previewBugReport(req, res) {
     try {
-      logger.info('Previewing bug report', { body: req.body });
-      // This would typically generate a preview of the Jira issue content
-      res.json({ 
-        success: true, 
-        preview: "Bug report preview would be generated here",
-        data: req.body 
+      const { prompt, images = [], issueType } = req.body;
+      
+      logger.info('Previewing bug report', { 
+        hasPrompt: !!prompt,
+        imageCount: images.length,
+        issueType
       });
+
+      // Call the streaming preview service
+      await JiraContentService.streamPreviewContent(
+        { prompt, issueType },
+        images,
+        res
+      );
     } catch (error) {
-      ErrorHandler.handleApiError(error, 'previewBugReport');
-      throw error;
+      ErrorHandler.handleApiError(error, 'previewBugReport', res);
     }
+
+    res.end();
   }
 
   /**
@@ -100,8 +108,13 @@ class JiraController {
   static async createJiraIssue(req, res) {
     try {
       logger.info('Creating Jira issue', { body: req.body });
-      const result = await JiraContentService.createJiraContent(req.body);
-      res.json({ success: true, data: result });
+      const result = await JiraApiService.createIssue(req.body);
+
+      res.status(200).json({
+        message: "Jira issue created successfully",
+        jiraIssue: result?.data,
+      });
+      
     } catch (error) {
       ErrorHandler.handleApiError(error, 'createJiraIssue');
       throw error;
@@ -121,7 +134,7 @@ class JiraController {
         return res.status(400).json({ error: 'No file uploaded' });
       }
       const result = await JiraAttachmentService.handleAttachments('temp', [req.file]);
-      res.json({ success: true, data: result });
+      res.json(result);
     } catch (error) {
       ErrorHandler.handleApiError(error, 'uploadImage');
       throw error;
@@ -138,8 +151,8 @@ class JiraController {
     try {
       const { id } = req.params;
       logger.info('Getting Jira issue', { issueId: id });
-      const issue = await this.getIssueDetails(id);
-      res.json({ success: true, data: issue });
+      const issue = await JiraController.getIssueDetails(id);
+      res.json(issue);
     } catch (error) {
       ErrorHandler.handleApiError(error, 'getJiraIssue');
       throw error;
