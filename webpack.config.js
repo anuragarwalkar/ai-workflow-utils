@@ -3,6 +3,7 @@ const nodeExternals = require('webpack-node-externals');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 require('dotenv').config();
 
+// TODO: fix workaround for windows on line 54 copying files to root directory
 module.exports = {
   target: 'node',
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -49,6 +50,10 @@ module.exports = {
          {
           from: 'server/data',
           to: './data'
+        },
+        {
+          from: 'server/data', 
+          to: '../data'
         }
       ]
     })

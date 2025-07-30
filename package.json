@@ -10,6 +10,7 @@
     "dist/",
     "ui/dist/",
     "ui/dev-dist/",
+    "data/",
     "ui/.env.example",
     "bin/",
     "dist/data/",
