@@ -122,7 +122,7 @@ const templateSlice = createSlice({
       state.searchTerm = action.payload
     },
     setFilterType: (state, action) => {
-      state.filterType = action.payload
+      state.templateType = action.payload
     },
     setShowDefaultTemplates: (state, action) => {
       state.showDefaultTemplates = action.payload
@@ -236,7 +236,7 @@ export const selectFilteredTemplates = (state) => {
     }
     
     // Type filter
-    if (filterType !== 'all' && template.issueType !== filterType) {
+    if (filterType !== 'all' && template.templateType !== filterType) {
       return false
     }
     
@@ -252,7 +252,7 @@ export const selectFilteredTemplates = (state) => {
 // Templates by type selector
 export const selectTemplatesByType = (state) => (issueType) => {
   return state.templates.templates.filter(template => 
-    template.issueType === issueType || template.issueType === 'All'
+    template.templateType === issueType || template.templateType === 'All'
   )
 }
 
@@ -268,7 +268,7 @@ export const selectActiveTemplate = (state) => (issueType) => {
 
 // Available issue types selector
 export const selectAvailableIssueTypes = (state) => {
-  const types = new Set(state.templates.templates.map(t => t.issueType))
+  const types = new Set(state.templates.templates.map(t => t.templateType))
   return Array.from(types).filter(type => type !== 'All').sort()
 }
 

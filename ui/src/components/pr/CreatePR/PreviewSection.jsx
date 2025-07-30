@@ -78,9 +78,6 @@ const PreviewSection = ({ preview, onConfirm, isLoading }) => {
           <Typography variant="subtitle2" color="text.secondary">
             Branch: {preview.branchName}
           </Typography>
-          <Typography variant="subtitle2" color="text.secondary">
-            Ticket: {preview.ticketNumber}
-          </Typography>
           {preview.aiGenerated && (
             <Typography variant="subtitle2" color="primary">
               AI-Generated Content (Streamed)

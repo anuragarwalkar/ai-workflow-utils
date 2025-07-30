@@ -11,7 +11,6 @@ const CreatePRContainer = () => {
   const [formData, setFormData] = useState({
     projectKey: '',
     repoSlug: '',
-    ticketNumber: '',
     branchName: '',
   });
   const [preview, setPreview] = useState(null);
@@ -67,7 +66,6 @@ const CreatePRContainer = () => {
         prTitle: '',
         prDescription: '',
         aiGenerated: false,
-        ticketNumber: formData.ticketNumber,
         branchName: formData.branchName
       };
 
@@ -90,6 +88,10 @@ const CreatePRContainer = () => {
                   switch (data.type) {
                     case 'status':
                       console.log('Status:', data.message);
+                      break;
+                    case 'content_chunk':
+                      // Real-time content streaming - show progress
+                      console.log('Content chunk received:', data.data?.substring(0, 50));
                       break;
                     case 'title_chunk':
                       streamedPreview.prTitle += data.data;
@@ -122,6 +124,8 @@ const CreatePRContainer = () => {
                       console.error('Streaming error:', data.message);
                       setIsPreviewLoading(false);
                       throw new Error(data.message);
+                    default:
+                      console.log('Unknown stream event:', data.type);
                   }
                 }
               } catch (parseError) {
@@ -149,7 +153,6 @@ const CreatePRContainer = () => {
       
       const response = await createPR({
         ...formData,
-        preview: true
       }).unwrap();
 
       // Save project key and repo slug to local storage after successful preview
@@ -171,7 +174,6 @@ const CreatePRContainer = () => {
   const handleCreate = async (editedPreview) => {
     try {
       await createPR({
-        ticketNumber: formData.ticketNumber,
         branchName: formData.branchName,
         projectKey: formData.projectKey,
         repoSlug: formData.repoSlug,
@@ -182,7 +184,6 @@ const CreatePRContainer = () => {
       // Handle success (show notification, reset form, etc.)
       setFormData(prev => ({
         ...prev,
-        ticketNumber: '',
         branchName: ''
       }));
       setShowPreview(false);
@@ -209,7 +210,7 @@ const CreatePRContainer = () => {
           <Button
             variant="contained"
             onClick={handlePreview}
-            disabled={isPreviewLoading || isLoading || !formData.projectKey || !formData.repoSlug || !formData.ticketNumber || !formData.branchName}
+            disabled={isPreviewLoading || isLoading || !formData.projectKey || !formData.repoSlug || !formData.branchName}
           >
             {isPreviewLoading ? <CircularProgress size={24} /> : 'Preview'}
           </Button>

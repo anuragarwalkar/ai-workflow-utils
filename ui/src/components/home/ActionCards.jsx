@@ -26,7 +26,9 @@ import {
   AccountTree as WorkflowIcon,
   Security as SecurityIcon,
   Settings as SettingsIcon,
-  Tune as TuneIcon
+  Tune as TuneIcon,
+  MergeType as MergeIcon,
+  Create as CreateIcon
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { openViewJiraModal } from '../../store/slices/uiSlice';
@@ -62,7 +64,7 @@ const ActionCards = () => {
   };
 
   const handleCreatePR = () => {
-    navigate('/ai-generate-pr');
+    navigate('/ai-generate-pr-template');
   };
 
   const handleSettings = () => {
@@ -91,8 +93,8 @@ const ActionCards = () => {
     // Released features
     {
       id: 'create-jira',
-      title: 'Create Jira',
-      description: 'AI-powered Jira ticket creation with smart suggestions',
+      title: 'AI Create Jira',
+      description: 'AI-powered Jira ticket creation with intelligent suggestions',
       icon: BugReportIcon,
       actionIcon: AddIcon,
       onClick: handleCreateJira,
@@ -112,6 +114,7 @@ const ActionCards = () => {
       shadowColor: 'rgba(240, 147, 251, 0.3)',
       isReleased: true,
       isBeta: true,
+      isHidden: () => localStorage.getItem('enableHiddenFeatures') !== 'true',
     },
     {
       id: 'send-email',
@@ -123,7 +126,7 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
       shadowColor: 'rgba(79, 172, 254, 0.3)',
       isReleased: true,
-      isHidden: () => localStorage.getItem('enableSendEmail') !== 'true',
+      isHidden: () => localStorage.getItem('enableHiddenFeatures') !== 'true',
     },
     {
       id: 'release-build',
@@ -135,12 +138,12 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
       shadowColor: 'rgba(250, 112, 154, 0.3)',
       isReleased: true,
-      isHidden: () => localStorage.getItem('enableReleaseBuild') !== 'true',
+      isHidden: () => localStorage.getItem('enableHiddenFeatures') !== 'true',
     },
     {
       id: 'git-stash',
-      title: 'GitStash Review',
-      description: 'Review pull requests with AI assistance',
+      title: 'AI Code Review',
+      description: 'AI-powered pull request analysis with code insights',
       icon: CodeIcon,
       actionIcon: ReviewsIcon,
       onClick: handleGitStash,
@@ -151,10 +154,10 @@ const ActionCards = () => {
     },
     {
       id: 'create-pr',
-      title: 'Create PR',
-      description: 'Create and preview pull requests with AI assistance',
-      icon: CodeIcon,
-      actionIcon: AddIcon,
+      title: 'AI Draft Pull Request',
+      description: 'AI-generated pull request creation with content suggestions',
+      icon: MergeIcon,
+      actionIcon: CreateIcon,
       onClick: handleCreatePR,
       gradient: 'linear-gradient(135deg, #ff7b7b 0%, #667eea 100%)',
       shadowColor: 'rgba(255, 123, 123, 0.3)',
@@ -165,7 +168,7 @@ const ActionCards = () => {
     {
       id: 'ai-chat',
       title: 'AI Chat Assistant',
-      description: 'Assistance for development tasks',
+      description: 'Intelligent conversational AI for development task assistance',
       icon: ChatIcon,
       actionIcon: AutoFixHighIcon,
       onClick: handleAiChat,
@@ -176,7 +179,7 @@ const ActionCards = () => {
     {
       id: 'code-analysis',
       title: 'Code Analysis',
-      description: 'Deep code analysis and optimization suggestions',
+      description: 'AI-driven code analysis with optimization and security insights',
       icon: AnalyticsIcon,
       actionIcon: SecurityIcon,
       onClick: handleCodeAnalysis,
@@ -187,7 +190,7 @@ const ActionCards = () => {
     {
       id: 'workflow-automation',
       title: 'Workflow Automation',
-      description: 'Automate repetitive development workflows',
+      description: 'AI-powered automation of repetitive development workflows',
       icon: WorkflowIcon,
       actionIcon: AutoFixHighIcon,
       onClick: handleWorkflowAutomation,
@@ -198,13 +201,14 @@ const ActionCards = () => {
      {
       id: 'settings',
       title: 'Settings',
-      description: 'Configure templates, API settings, and app preferences',
+      description: 'AI configuration and app preferences management center',
       icon: SettingsIcon,
       actionIcon: TuneIcon,
       onClick: handleSettings,
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       shadowColor: 'rgba(102, 126, 234, 0.3)',
       isReleased: true,
+      isBeta: true,
     },
   ];
 

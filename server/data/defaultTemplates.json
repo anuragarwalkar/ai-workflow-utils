@@ -1,60 +1,64 @@
 {
   "templates": [
     {
-      "id": "default-bug",
-      "name": "Default Bug Template",
-      "issueType": "Bug",
+      "id": "default-jira-bug",
+      "name": "Default Jira Bug Template",
+      "templateFor": "JIRA_BUG",
       "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed bug report. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — {imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.",
       "variables": ["prompt", "imageReference", "imageContext"],
       "isDefault": true,
-      "isActive": true
+      "isActive": true,
+      "templateType": "Jira"
     },
     {
-      "id": "default-task",
-      "name": "Default Task Template",
-      "issueType": "Task",
+      "id": "default-jira-task",
+      "name": "Default Jira Task Template",
+      "templateFor": "JIRA_TASK",
       "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed task description. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the {imageContext}.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.",
       "variables": ["prompt", "imageReference", "imageContext"],
       "isDefault": true,
-      "isActive": true
+      "isActive": true,
+      "templateType": "Jira"
     },
     {
-      "id": "default-story",
-      "name": "Default Story Template",
-      "issueType": "Story",
+      "id": "default-jira-story",
+      "name": "Default Jira Story Template",
+      "templateFor": "JIRA_STORY",
       "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed user story. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the {imageContext}.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.",
       "variables": ["prompt", "imageReference", "imageContext"],
       "isDefault": true,
-      "isActive": true
+      "isActive": true,
+      "templateType": "Jira"
     },
     {
-      "id": "default-pr",
-      "name": "Default PR Template",
-      "issueType": "PR",
-      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed pull request description. Format your output like this, and include a blank line between each list item: PR Title: Short, concise PR title - max 8 words Description: * Detailed description of changes made based on the {imageContext}.  Changes Made: # Change 1  # Change 2  # Change 3  Testing: * How the changes were tested.  Breaking Changes: * Any breaking changes (if none, state \"None\").",
-      "variables": ["prompt", "imageReference", "imageContext"],
+      "id": "pr-combined-template",
+      "name": "Combined PR Title and Description Template",
+      "templateFor": "PR_COMBINED",
+      "content": "Based on the following commit messages from a branch, generate both a pull request title and description.\n\nRequirements:\n\nFor the TITLE:\n- Clear and professional\n- Under 50 characters\n- Use imperative mood (e.g., Add auth not Added authentication)\n- Focus on the most important change only\n- NOT include any ticket numbers, issue numbers, or identifiers\n\nFor the DESCRIPTION:\n- Brief overview (1-2 sentences max)\n- List 3-5 key changes only\n- Focus on the most important changes\n- Use markdown format\n- Keep under 200 words\n\nCommit messages:\n{commitMessages}\n",
+      "variables": ["commitMessages"],
       "isDefault": true,
-      "isActive": true
+      "isActive": true,
+      "templateType": "Git"
     },
     {
-      "id": "default-review",
-      "name": "Default Code Review Template",
-      "issueType": "Review",
-      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed code review. Format your output like this: Review Summary: Brief overview of the review Positive Aspects: * What was done well based on the {imageContext} Areas for Improvement: * Specific suggestions for improvement * Code quality considerations * Best practices recommendations Overall Assessment: * Summary and recommendation",
-      "variables": ["prompt", "imageReference", "imageContext"],
+      "id": "pr-review-template",
+      "name": "PR Code Review Template",
+      "templateFor": "PR_REVIEW",
+      "content": "You are an expert code reviewer. Analyze the provided pull request and provide constructive feedback.\n\n**Pull Request Details:**\nTitle: {prTitle}\nDescription: {prDescription}\nAuthor: {prAuthor}\n\n**Code Changes:**\n{codeChanges}\n\nPlease provide a comprehensive code review covering:\n1. Code quality and readability\n2. Potential bugs or issues\n3. Security concerns\n4. Performance implications\n5. Best practices and suggestions for improvement\n6. Overall assessment and recommendation\n\nFocus on being constructive and helpful in your feedback.",
+      "variables": ["prTitle", "prDescription", "prAuthor", "codeChanges"],
       "isDefault": true,
-      "isActive": true
+      "isActive": true,
+      "templateType": "Git"
     }
   ],
   "settings": {
-    "version": "1.0.0",
+    "version": "2.0.0",
     "activeTemplates": {
-      "Bug": "default-bug",
-      "Task": "default-task",
-      "Story": "default-story",
-      "PR": "default-pr",
-      "Email": "default-email",
-      "Review": "default-review"
+      "JIRA_BUG": "default-jira-bug",
+      "JIRA_TASK": "default-jira-task",
+      "JIRA_STORY": "default-jira-story",
+      "PR_COMBINED": "pr-combined-template",
+      "PR_REVIEW": "pr-review-template"
     }
   }
 }

@@ -14,7 +14,19 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 ```
 ├── bin/                    # CLI entry points
 ├── server/                 # Backend Express server
-│   ├── controllers/        # Route handlers
+│   ├── controllers/        # Route handlers (modular structure)
+│   │   ├── pr/             # Pull Request controller (modular)
+│   │   │   ├── models/     # Data models and validation
+│   │   │   ├── services/   # Business logic services
+│   │   │   ├── processors/ # Data processing utilities
+│   │   │   ├── utils/      # Common utilities
+│   │   │   ├── prController.js  # Main PR orchestrator
+│   │   │   ├── index.js    # Module exports
+│   │   │   └── README.md   # Module documentation
+│   │   ├── chatController.js
+│   │   ├── emailController.js
+│   │   ├── jiraController.js
+│   │   └── prController.js # Backward compatibility layer
 │   ├── services/          # Business logic
 │   ├── routes/            # API routes
 │   ├── middleware/        # Express middleware
@@ -38,6 +50,10 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 - Environment variables for configuration
 - LowDB for data persistence
 - Socket.IO for real-time communication
+- **Modular Architecture**: Use the PR controller pattern for complex features
+  - Separate concerns into models, services, processors, and utilities
+  - Single responsibility principle for each module
+  - Maintain backward compatibility through index exports
 
 ### Frontend (React)
 - Functional components with hooks
@@ -81,6 +97,56 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 - `/api/jira` - Jira integration
 - `/api/pr` - Pull request operations
 - `/api/templates` - Template management
+
+## Modular Architecture Patterns
+
+### PR Controller Module Structure
+The PR controller follows a modular architecture with clear separation of concerns:
+
+```
+server/controllers/pr/
+├── prController.js          # Main orchestrator (delegates to services)
+├── index.js                 # Clean module exports
+├── README.md               # Module documentation
+├── models/
+│   └── PullRequest.js      # Data models with validation
+├── services/
+│   ├── bitbucketService.js    # External API interactions
+│   ├── diffProcessorService.js # Business logic coordination
+│   ├── prContentService.js    # AI-powered content generation
+│   └── streamingService.js    # Real-time SSE handling
+├── processors/
+│   ├── unidiffProcessor.js        # Data transformation utilities
+│   ├── bitbucketDiffProcessor.js  # Format-specific processing
+│   └── legacyDiffProcessor.js     # Backward compatibility
+└── utils/
+    ├── constants.js           # Module constants
+    ├── environmentConfig.js   # Configuration management
+    ├── errorHandler.js        # Error handling utilities
+    └── templateService.js     # Template operations
+```
+
+### Module Responsibilities
+- **Controllers**: Orchestrate operations, handle HTTP requests/responses
+- **Services**: Contain business logic, coordinate between different systems
+- **Processors**: Transform and process data (diffs, formats, etc.)
+- **Models**: Data validation, structure definition, payload generation
+- **Utils**: Common utilities, configuration, error handling, constants
+
+### Modular Import Patterns
+```javascript
+// Import the full controller (backward compatibility)
+import { PRController } from './controllers/pr/index.js';
+
+// Import specific services for targeted operations
+import { BitbucketService, PRContentService } from './controllers/pr/index.js';
+
+// Import individual processors for data transformation
+import { UnidiffProcessor } from './controllers/pr/index.js';
+
+// Import utilities for common operations
+import { ErrorHandler, EnvironmentConfig } from './controllers/pr/index.js';
+```
 
 ## Component Patterns
 
@@ -170,13 +236,71 @@ The application supports multiple providers for different services:
 
 ## Common Patterns to Follow
 
+### Modular Service Pattern
+```javascript
+// Service class with static methods for stateless operations
+class BitbucketService {
+  static async getPullRequests(projectKey, repoSlug) {
+    const { bitbucketUrl, authToken } = EnvironmentConfig.get();
+    // Implementation
+  }
+  
+  static async createPullRequest(projectKey, repoSlug, payload) {
+    // Implementation with proper error handling
+  }
+}
+```
+
+### Data Model Pattern
+```javascript
+// Model with validation and payload generation
+class PullRequest {
+  constructor(data) {
+    this.title = data.title;
+    this.description = data.description;
+  }
+  
+  static validate(data) {
+    const required = ['title', 'description', 'fromBranch'];
+    const missing = required.filter(field => !data[field]);
+    if (missing.length > 0) {
+      throw new Error(`Missing required fields: ${missing.join(', ')}`);
+    }
+  }
+  
+  toBitbucketPayload() {
+    return {
+      title: this.title,
+      description: this.description,
+      // Transform to external API format
+    };
+  }
+}
+```
+
+### Processor Pattern
+```javascript
+// Stateless processors for data transformation
+class UnidiffProcessor {
+  static processWithUnidiff(diffData) {
+    try {
+      // Process and transform data
+      return { codeChanges, hasChanges };
+    } catch (error) {
+      logger.warn("Processing failed:", error.message);
+      return { codeChanges: "", hasChanges: false };
+    }
+  }
+}
+```
+
 ### Error Handling
 ```javascript
 try {
   const result = await operation();
-  res.json({ success: true, data: result });
+  res.json(result);
 } catch (error) {
-  res.status(500).json({ success: false, error: error.message });
+  ErrorHandler.handleApiError(error, "operation context", res);
 }
 ```
 
@@ -236,3 +360,10 @@ When providing suggestions or generating code:
 5. Include proper error handling and loading states
 6. Use Material-UI components for consistency
 7. Follow the API response format standards
+8. **Use modular architecture patterns for complex features**:
+   - Separate concerns into appropriate modules (controllers, services, processors, models, utils)
+   - Maintain single responsibility principle
+   - Use static methods for stateless operations
+   - Implement proper data validation in models
+   - Keep backward compatibility through index exports
+   - Add comprehensive documentation for new modules
