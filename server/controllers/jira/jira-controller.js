@@ -143,6 +143,107 @@ class JiraController {
       throw error;
     }
   }
+
+  /**
+   * Enhance description using AI
+   * @param {Object} req - Express request
+   * @param {Object} res - Express response
+   * @returns {Promise<void>}
+   */
+  static async enhanceDescription(req, res) {
+    try {
+      const { description, issueType = 'Task' } = req.body;
+      
+      if (!description) {
+        return res.status(400).json({
+          success: false,
+          error: 'Description is required'
+        });
+      }
+
+      logger.info('Enhancing Jira description with AI', { issueType, descriptionLength: description.length });
+
+      const enhancedDescription = await JiraContentService.enhanceDescription(description, issueType);
+
+      res.json({
+        success: true,
+        data: {
+          original: description,
+          enhanced: enhancedDescription
+        }
+      });
+    } catch (error) {
+      ErrorHandler.handleApiError(error, 'enhanceDescription', res);
+    }
+  }
+
+  /**
+   * Generate AI comment reply
+   * @param {Object} req - Express request
+   * @param {Object} res - Express response
+   * @returns {Promise<void>}
+   */
+  static async generateCommentReply(req, res) {
+    try {
+      const { comment, context, tone = 'professional' } = req.body;
+      
+      if (!comment) {
+        return res.status(400).json({
+          success: false,
+          error: 'Comment is required'
+        });
+      }
+
+      logger.info('Generating AI comment reply', { commentLength: comment.length, tone });
+
+      const reply = await JiraContentService.generateCommentReply(comment, context, tone);
+
+      res.json({
+        success: true,
+        data: {
+          originalComment: comment,
+          suggestedReply: reply,
+          tone
+        }
+      });
+    } catch (error) {
+      ErrorHandler.handleApiError(error, 'generateCommentReply', res);
+    }
+  }
+
+  /**
+   * Format comment using AI
+   * @param {Object} req - Express request
+   * @param {Object} res - Express response
+   * @returns {Promise<void>}
+   */
+  static async formatComment(req, res) {
+    try {
+      const { comment, format = 'jira' } = req.body;
+      
+      if (!comment) {
+        return res.status(400).json({
+          success: false,
+          error: 'Comment is required'
+        });
+      }
+
+      logger.info('Formatting comment with AI', { commentLength: comment.length, format });
+
+      const formattedComment = await JiraContentService.formatComment(comment, format);
+
+      res.json({
+        success: true,
+        data: {
+          original: comment,
+          formatted: formattedComment,
+          format
+        }
+      });
+    } catch (error) {
+      ErrorHandler.handleApiError(error, 'formatComment', res);
+    }
+  }
 }
 
 // Export the fetchJiraSummaries function for backward compatibility

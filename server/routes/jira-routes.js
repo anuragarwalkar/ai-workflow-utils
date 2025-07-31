@@ -62,5 +62,9 @@ router.post('/upload', (req, res, next) => {
 // Route for fetching a Jira issue by ID
 router.get('/issue/:id', asyncHandler(jiraController.getJiraIssue));
 
+// AI-powered enhancement routes
+router.post('/ai/enhance-description', asyncHandler(jiraController.enhanceDescription));
+router.post('/ai/generate-comment-reply', asyncHandler(jiraController.generateCommentReply));
+router.post('/ai/format-comment', asyncHandler(jiraController.formatComment));
 
 export default router;

@@ -30,13 +30,10 @@ import {
   MergeType as MergeIcon,
   Create as CreateIcon,
 } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
-import { openViewJiraModal } from "../../store/slices/uiSlice";
 import { useNavigate } from "react-router-dom";
 import { useUnreleasedFeatures } from "../../hooks/useFeatureFlag";
 
 const ActionCards = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // Get feature flags using custom hooks
@@ -47,8 +44,8 @@ const ActionCards = () => {
     navigate("/ai-create-jira");
   };
 
-  const handleViewJira = () => {
-    dispatch(openViewJiraModal());
+  const handleFuturisticJiraViewer = () => {
+    navigate("/ai-view-jira/");
   };
 
   const handleSendEmail = () => {
@@ -108,16 +105,17 @@ const ActionCards = () => {
       isBeta: true,
     },
     {
-      id: "view-jira",
-      title: "View Jira",
-      description: "Browse and manage existing Jira tickets",
+      id: "futuristic-jira",
+      title: "AI Jira Viewer",
+      description: "Next-gen AI-powered Jira viewer with advanced features",
       icon: VisibilityIcon,
-      actionIcon: SearchIcon,
-      onClick: handleViewJira,
-      gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-      shadowColor: "rgba(240, 147, 251, 0.3)",
+      actionIcon: AutoFixHighIcon,
+      onClick: handleFuturisticJiraViewer,
+      gradient: "linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)",
+      shadowColor: "rgba(139, 92, 246, 0.4)",
       isReleased: true,
       isBeta: true,
+      isNew: true,
     },
     {
       id: "git-stash",
