@@ -23,7 +23,8 @@ const AppContent = () => (
       <Routes>
         <Route path="/" element={<HomeButtons />} />
         <Route path="/ai-create-jira" element={<CreateJiraContainer />} />
-        <Route path="/send-email" element={<SendEmailContainer />} />
+        <Route path="/send-email" element={() => <>WIP</>} />
+        <Route path="/send-email-legacy" element={<SendEmailContainer />} />
         <Route path="/release-build" element={<ReleaseBuildContainer />} />
         <Route path="/ai-pr-review" element={<GitStashContainer />} />
       <Route path="/ai-generate-pr-template" element={<PRContainer />} />

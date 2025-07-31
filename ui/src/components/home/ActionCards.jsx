@@ -52,7 +52,11 @@ const ActionCards = () => {
   };
 
   const handleSendEmail = () => {
-    navigate('/send-email');
+    // navigate
+  };
+
+  const handleSendEmailLegacy = () => {
+    navigate('/send-email-legacy');
   };
 
   const handleReleaseBuild = () => {
@@ -117,12 +121,12 @@ const ActionCards = () => {
       isHidden: () => localStorage.getItem('enableHiddenFeatures') !== 'true',
     },
     {
-      id: 'send-email',
+      id: 'send-email-legacy',
       title: 'Send Email',
       description: 'Compose and send email notifications',
       icon: EmailIcon,
       actionIcon: SendIcon,
-      onClick: handleSendEmail,
+      onClick: handleSendEmailLegacy,
       gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
       shadowColor: 'rgba(79, 172, 254, 0.3)',
       isReleased: true,
@@ -165,6 +169,17 @@ const ActionCards = () => {
       isBeta: true,
     },
     // Unreleased features
+    {
+    id: 'send-email',
+    title: 'AI Send Email',
+    description: 'AI Compose and send email notifications',
+    icon: EmailIcon,
+    actionIcon: SendIcon,
+    onClick: handleSendEmail,
+    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    shadowColor: 'rgba(79, 172, 254, 0.3)',
+    isReleased: false,
+  },
     {
       id: 'ai-chat',
       title: 'AI Chat Assistant',

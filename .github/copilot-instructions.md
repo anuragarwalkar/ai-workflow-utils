@@ -23,7 +23,14 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 │   │   │   ├── prController.js  # Main PR orchestrator
 │   │   │   ├── index.js    # Module exports
 │   │   │   └── README.md   # Module documentation
-│   │   ├── chatController.js
+│   │   ├── chat/           # Chat controller (modular)
+│   │   │   ├── models/     # Chat data models and validation
+│   │   │   ├── services/   # AI provider services
+│   │   │   ├── processors/ # Message and streaming processors
+│   │   │   ├── utils/      # Chat utilities and config
+│   │   │   ├── chat-controller.js  # Main chat orchestrator
+│   │   │   ├── index.js    # Module exports
+│   │   │   └── README.md   # Module documentation
 │   │   ├── emailController.js
 │   │   ├── jiraController.js
 │   │   └── prController.js # Backward compatibility layer

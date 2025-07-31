@@ -1,6 +1,7 @@
 import { BaseLangChainService } from './BaseLangChainService.js';
 import jiraLangChainService from './JiraLangChainService.js';
 import prLangChainService from './PRLangChainService.js';
+import chatLangChainService from './ChatLangChainService.js';
 import logger from "../../logger.js";
 
 /**
@@ -11,7 +12,8 @@ class LangChainServiceFactory {
     this.services = {
       base: new BaseLangChainService(),
       jira: jiraLangChainService,
-      pr: prLangChainService
+      pr: prLangChainService,
+      chat: chatLangChainService
     };
     
     this.initialized = false;
@@ -46,6 +48,16 @@ class LangChainServiceFactory {
       this.initializeProviders();
     }
     return this.services.pr;
+  }
+
+  /**
+   * Get Chat-specific service
+   */
+  getChatService() {
+    if (!this.initialized) {
+      this.initializeProviders();
+    }
+    return this.services.chat;
   }
 
   /**
