@@ -8,6 +8,7 @@ import Layout from './components/layout/Layout';
 import HomeButtons from './components/home/HomeButtons';
 import CreateJiraContainer from './components/jira/CreateJira/CreateJiraContainer';
 import SendEmailContainer from './components/email/SendEmailContainer';
+import AiEmailComposer from './components/email/AiEmailComposer';
 import ReleaseBuildContainer from './components/build/ReleaseBuildContainer';
 import GitStashContainer from './components/gitstash/GitStashContainer';
 import PRContainer from './components/pr/PRContainer';
@@ -24,7 +25,7 @@ const AppContent = () => (
       <Routes>
         <Route path="/" element={<HomeButtons />} />
         <Route path="/ai-create-jira" element={<CreateJiraContainer />} />
-        <Route path="/send-email" element={() => <>WIP</>} />
+        <Route path="/send-email" element={<AiEmailComposer />} />
         <Route path="/send-email-legacy" element={<SendEmailContainer />} />
         <Route path="/release-build" element={<ReleaseBuildContainer />} />
         <Route path="/ai-pr-review" element={<GitStashContainer />} />

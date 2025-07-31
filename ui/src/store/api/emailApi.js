@@ -22,9 +22,46 @@ export const emailApi = createApi({
         },
       }),
     }),
+    composeWithAI: builder.mutation({
+      query: ({ prompt, attachedImages = [] }) => ({
+        url: '/ai-compose',
+        method: 'POST',
+        body: JSON.stringify({
+          prompt,
+          attachedImages
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        responseHandler: (response) => response.json(),
+      }),
+    }),
+    sendAIEmail: builder.mutation({
+      query: ({ to, subject, body, attachments = [] }) => ({
+        url: '/ai-send',
+        method: 'POST',
+        body: JSON.stringify({
+          to,
+          subject,
+          body,
+          attachments
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        responseHandler: (response) => response.json(),
+      }),
+    }),
+    searchContacts: builder.query({
+      query: (query) => `/contacts/${encodeURIComponent(query)}`,
+      responseHandler: (response) => response.json(),
+    }),
   }),
 });
 
 export const {
   useSendEmailMutation,
+  useComposeWithAIMutation,
+  useSendAIEmailMutation,
+  useSearchContactsQuery,
 } = emailApi;
