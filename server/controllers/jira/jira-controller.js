@@ -40,21 +40,6 @@ class JiraController {
   }
 
   /**
-   * Create Jira issue content using AI
-   * @param {Object} issueData - Issue data
-   * @returns {Promise<Object>} Generated content
-   */
-  static async createJiraContent(issueData) {
-    try {
-      logger.info('Creating Jira content', { issueData });
-      return await JiraContentService.createJiraContent(issueData);
-    } catch (error) {
-      ErrorHandler.handleApiError(error, 'createJiraContent');
-      throw error;
-    }
-  }
-
-  /**
    * Handle Jira attachments
    * @param {string} issueKey - Jira issue key
    * @param {Array} attachments - Attachment files
@@ -112,7 +97,7 @@ class JiraController {
 
       res.status(200).json({
         message: "Jira issue created successfully",
-        jiraIssue: result?.data,
+        jiraIssue: result,
       });
       
     } catch (error) {

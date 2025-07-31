@@ -35,7 +35,7 @@ export class JiraApiService {
         issueId: response.data.id
       });
 
-      return response.data;
+      return response?.data;
     } catch (error) {
       logger.error('Failed to create Jira issue', {
         error: error.message,
