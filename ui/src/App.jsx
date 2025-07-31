@@ -16,6 +16,7 @@ import ViewJiraModal from './components/jira/ViewJira/ViewJiraModal';
 import BuildModal from './components/build/BuildModal';
 import NotificationSnackbar from './components/common/NotificationSnackbar';
 import ChatOverlay from './components/chat/ChatOverlay';
+import AiDevAssistant from './components/ai/AiDevAssistant';
 
 const AppContent = () => (
   <>
@@ -27,7 +28,8 @@ const AppContent = () => (
         <Route path="/send-email-legacy" element={<SendEmailContainer />} />
         <Route path="/release-build" element={<ReleaseBuildContainer />} />
         <Route path="/ai-pr-review" element={<GitStashContainer />} />
-      <Route path="/ai-generate-pr-template" element={<PRContainer />} />
+        <Route path="/ai-generate-pr-template" element={<PRContainer />} />
+        <Route path="/ai-dev-assistant" element={<AiDevAssistant />} />
         <Route path="/settings" element={<SettingsContainer />} />
       </Routes>
       <ViewJiraModal />

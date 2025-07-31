@@ -78,7 +78,7 @@ const ActionCards = () => {
   // New unreleased feature handlers
   const handleAiChat = () => {
     console.log('AI Chat feature clicked');
-    // TODO: Implement AI Chat functionality
+    navigate('/ai-dev-assistant');
   };
 
 
@@ -168,6 +168,18 @@ const ActionCards = () => {
       isReleased: true,
       isBeta: true,
     },
+     {
+      id: 'ai-chat',
+      title: 'AI Chat Assistant',
+      description: 'Intelligent conversational AI for development task assistance',
+      icon: ChatIcon,
+      actionIcon: AutoFixHighIcon,
+      onClick: handleAiChat,
+      gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+      shadowColor: 'rgba(255, 154, 158, 0.3)',
+      isReleased: true,
+      isBeta: true,
+    },
     // Unreleased features
     {
     id: 'send-email',
@@ -180,17 +192,7 @@ const ActionCards = () => {
     shadowColor: 'rgba(79, 172, 254, 0.3)',
     isReleased: false,
   },
-    {
-      id: 'ai-chat',
-      title: 'AI Chat Assistant',
-      description: 'Intelligent conversational AI for development task assistance',
-      icon: ChatIcon,
-      actionIcon: AutoFixHighIcon,
-      onClick: handleAiChat,
-      gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-      shadowColor: 'rgba(255, 154, 158, 0.3)',
-      isReleased: false,
-    },
+   
     {
       id: 'code-analysis',
       title: 'Code Analysis',

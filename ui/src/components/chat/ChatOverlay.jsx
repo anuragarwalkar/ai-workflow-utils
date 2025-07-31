@@ -88,6 +88,7 @@ const ChatOverlay = () => {
       const result = await sendChatMessageStreaming({
         message: messageToSend,
         conversationHistory: conversationHistory,
+        template: 'CHAT_GENERIC', // Use generic template for overlay chat
         onChunk: (chunk, fullContent) => {
           finalContent = fullContent;
           dispatch(setStreamingContent(fullContent));

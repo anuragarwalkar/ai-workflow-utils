@@ -9,14 +9,14 @@ export const chatApi = createApi({
   tagTypes: ['Chat'],
   endpoints: (builder) => ({
     sendChatMessage: builder.mutation({
-      query: ({ message, conversationHistory }) => ({
+      query: ({ message, conversationHistory, template = 'CHAT_GENERIC' }) => ({
         url: '/message',
         method: 'POST',
-        body: { message, conversationHistory },
+        body: { message, conversationHistory, template },
       }),
     }),
     sendChatMessageStreaming: builder.mutation({
-      queryFn: async ({ message, conversationHistory, onChunk, onStatus }, { signal }) => {
+      queryFn: async ({ message, conversationHistory, template = 'CHAT_GENERIC', onChunk, onStatus }, { signal }) => {
         try {
           const baseUrl = `${API_BASE_URL}/api/chat`;
           const url = `${baseUrl}/stream`;
@@ -26,7 +26,7 @@ export const chatApi = createApi({
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ message, conversationHistory }),
+            body: JSON.stringify({ message, conversationHistory, template }),
             signal,
           });
 
@@ -60,7 +60,7 @@ export const chatApi = createApi({
                     
                     if (data.type === 'status') {
                       onStatus?.(data.message, data.provider);
-                    } else if (data.type === 'chunk') {
+                    } else if (data.type === 'token') {
                       fullContent += data.content;
                       onChunk?.(data.content, fullContent);
                     } else if (data.type === 'complete') {
