@@ -14,6 +14,7 @@ import { chatApi } from './api/chatApi';
 import { prApi } from './api/prApi';
 import { templateApi } from './api/templateApi';
 import { environmentSettingsApi } from './api/environmentSettingsApi';
+import { logsApi } from './api/logsApi';
 
 const store = configureStore({
   reducer: {
@@ -32,6 +33,7 @@ const store = configureStore({
     [prApi.reducerPath]: prApi.reducer,
     [templateApi.reducerPath]: templateApi.reducer,
     [environmentSettingsApi.reducerPath]: environmentSettingsApi.reducer,
+    [logsApi.reducerPath]: logsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -39,7 +41,7 @@ const store = configureStore({
         ignoredActions: ['jira/setImageFile'],
         ignoredPaths: ['jira.createJira.imageFile'],
       },
-    }).concat(jiraApi.middleware, emailApi.middleware, buildApi.middleware, chatApi.middleware, prApi.middleware, templateApi.middleware, environmentSettingsApi.middleware),
+    }).concat(jiraApi.middleware, emailApi.middleware, buildApi.middleware, chatApi.middleware, prApi.middleware, templateApi.middleware, environmentSettingsApi.middleware, logsApi.middleware),
 });
 
 // Export store for use in components

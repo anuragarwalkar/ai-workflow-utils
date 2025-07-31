@@ -13,16 +13,17 @@ import {
   Description as TemplateIcon,
   Tune as TuneIcon,
   Api as ApiIcon,
-  Build as BuildIcon
+  Build as BuildIcon,
+  Assignment as LogsIcon
 } from '@mui/icons-material'
 import { useSelector, useDispatch } from 'react-redux'
-import { selectCurrentTab, selectError, setCurrentTab, clearError } from '../../store/slices/templateSlice'
+import { selectCurrentTab, selectError, setCurrentTab, clearError, setTemplates, setSettings } from '../../store/slices/templateSlice'
 import { useGetAllTemplatesQuery, useGetSettingsQuery } from '../../store/api/templateApi'
-import { setTemplates, setSettings } from '../../store/slices/templateSlice'
 import TemplateSettings from './templates/TemplateSettings'
 import GeneralSettings from './general/GeneralSettings'
 import EnvironmentSettings from './environment/EnvironmentSettings'
 import AdvancedSettings from './advanced/AdvancedSettings'
+import LogsViewer from './advanced/LogsViewer'
 
 const SettingsContainer = () => {
   const dispatch = useDispatch()
@@ -75,6 +76,12 @@ const SettingsContainer = () => {
       label: 'Advanced',
       icon: <BuildIcon />,
       component: <AdvancedSettings />
+    },
+    {
+      value: 'logs',
+      label: 'Logs',
+      icon: <LogsIcon />,
+      component: <LogsViewer />
     }
   ]
 

@@ -18,6 +18,7 @@ import chatRoutes from './routes/chat-routes.js';
 import prRoutes from './routes/pull-request-routes.js';
 import templateRoutes from './routes/template-routes.js';
 import environmentSettingsRoutes from './routes/environment-routes.js';
+import logsRoutes from './routes/logs-routes.js';
 import langchainService from './services/langchainService.js';
 
 // Load default .env file first (for fallback values)
@@ -93,6 +94,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/pr', prRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/environment-settings', environmentSettingsRoutes);
+app.use('/api/logs', logsRoutes);
 
 // Serve static files from React build
 const staticPath = path.join(projectRoot, 'ui/dist');

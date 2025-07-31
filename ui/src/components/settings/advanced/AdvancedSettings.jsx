@@ -18,6 +18,7 @@ import {
   Refresh as RefreshIcon,
   BugReport as DebugIcon
 } from '@mui/icons-material'
+import LogsViewer from './LogsViewer'
 
 const AdvancedSettings = () => {
   const handleClearCache = () => {
@@ -177,8 +178,7 @@ const AdvancedSettings = () => {
             Reset All Settings & Data
           </Button>
         </CardContent>
-      </Card>
-      
+      </Card>      
       <Button variant="contained" color="primary">
         Save Advanced Settings
       </Button>
