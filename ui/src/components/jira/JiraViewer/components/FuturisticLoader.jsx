@@ -179,9 +179,6 @@ const FuturisticLoader = () => {
       </Box>
 
       {/* Floating Particles */}
-      />
-
-      {/* Floating Particles */}
       {[...Array(6)].map((_, i) => (
         <MotionDiv
           key={i}
