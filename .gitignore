@@ -18,6 +18,3 @@ scripts/
 
 # ignore server
 dist/
-
-# TODO: duplicated folder for windows
-data/
