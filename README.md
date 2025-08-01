@@ -41,7 +41,7 @@ Revolutionary AI-powered pull request creation for Atlassian Bitbucket:
 - **✏️ Editable Previews**: Review and edit AI-generated content before creating the PR
 - **💾 Smart Persistence**: Remembers project and repository settings for faster workflow
 
-### 🔍 **Feature #3: Ai-Powered Code Review**
+### 🔍 **Feature #3: AI-Powered Code Review**
 Revolutionary AI-powered pull request reviews for Atlassian Bitbucket:
 
 - **🧠 Intelligent Code Analysis**: AI reviews your code changes
@@ -49,6 +49,17 @@ Revolutionary AI-powered pull request reviews for Atlassian Bitbucket:
 - **🔄 Multi-Model Support**: OpenAI Compatible APIs + Ollama for flexibility
 - **⚡ Coming Soon**: AI adds review comments directly to your PRs 
 - **⚡ Coming Soon**: Direct comment integration
+
+### 📊 **Feature #4: Real-time Logs & Monitoring**
+Comprehensive logging and monitoring system for troubleshooting and system insights:
+
+- **📋 Real-time Log Streaming**: Live view of application logs with automatic updates
+- **🔍 Advanced Filtering**: Filter logs by level (Error, Warn, Info, Debug) and search by content
+- **📅 Log History**: Access historical logs with pagination and date filtering
+- **🎨 Syntax Highlighting**: Color-coded log levels for easy identification
+- **💾 Log Management**: Automatic log rotation and size management
+- **🔧 Debug Mode**: Enable detailed debug logging for troubleshooting
+- **📱 Responsive Design**: Access logs from any device with mobile-friendly interface
 
 ---
 
@@ -206,6 +217,29 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 4. AI analyzes code changes
 5. Get detailed review with suggestions
 6. *Coming Soon*: Direct comment integration
+
+### **📊 Real-time Logs & Monitoring**
+
+**Comprehensive System Monitoring:**
+- **Live Log Streaming**: Real-time log updates without page refresh
+- **Multi-level Filtering**: Filter by Error, Warn, Info, Debug levels
+- **Smart Search**: Full-text search across all log entries
+- **Historical Access**: Browse past logs with pagination
+- **Performance Insights**: Monitor API calls, response times, and system health
+
+**How it works:**
+1. Navigate to "Logs" in the web interface
+2. Select log level filters (All, Error, Warn, Info, Debug)
+3. Use search to find specific entries or error messages
+4. View real-time updates as the system operates
+5. Access historical logs for troubleshooting past issues
+
+**Monitoring Features:**
+- **Error Tracking**: Immediate visibility into system errors
+- **API Monitoring**: Track AI provider calls and response times
+- **User Activity**: Monitor feature usage and workflow patterns
+- **System Health**: Resource usage and performance metrics
+- **Debug Support**: Detailed logging for development and troubleshooting
    
 </details>
 
@@ -238,6 +272,12 @@ ai-workflow-utils --debug
 
 # Specify custom port
 ai-workflow-utils --port 8080
+
+# View logs in real-time
+ai-workflow-utils --logs
+
+# Clear log files
+ai-workflow-utils --clear-logs
 ```
 
 ### **Ollama Management**
@@ -293,6 +333,13 @@ API_RATE_WINDOW=900000
 # File upload limits
 MAX_FILE_SIZE=50MB
 ALLOWED_FILE_TYPES=jpg,jpeg,png,gif,mp4,mov,pdf,doc,docx
+
+# Logging configuration
+LOG_LEVEL=info                # error, warn, info, debug
+LOG_MAX_SIZE=10MB            # Maximum log file size
+LOG_MAX_FILES=5              # Number of rotated log files
+LOG_RETENTION_DAYS=30        # Days to keep log files
+ENABLE_REQUEST_LOGGING=true  # Log all HTTP requests
 ```
 
 </details>
