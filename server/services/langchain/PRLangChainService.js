@@ -91,7 +91,6 @@ export class PRLangChainService extends BaseLangChainService {
     // Get the base template and format it
     const promptTemplate = await this.createPromptTemplate(templateIdentifier, false);
     const formattedPrompt = await promptTemplate.format({ ...promptTemplateFormatter });
-    console.log('formattedPrompt:', formattedPrompt);
     // Try each provider in order of priority
     return this.tryProvidersForStreaming(formattedPrompt, res);
   }
@@ -122,7 +121,14 @@ export class PRLangChainService extends BaseLangChainService {
     logger.info(`Trying provider for PR streaming: ${provider.name}`);
     
     const message = new HumanMessage({ content: formattedPrompt });
-    const stream = await provider.model.stream([message]);
+    
+    let stream;
+    try {
+      stream = await provider.model.stream([message]);
+    } catch (error) {
+      logger.error(`Failed to initialize stream with ${provider.name}: ${error.message}`);
+      throw error;
+    }
 
     // Send status update
     res.write(`data: ${JSON.stringify({
@@ -134,19 +140,33 @@ export class PRLangChainService extends BaseLangChainService {
     let fullContent = "";
     let parsedTitle = "";
     let parsedDescription = "";
+    let chunkCount = 0;
 
     // Process the stream
-    for await (const chunk of stream) {
-      if (chunk.content) {
-        fullContent += chunk.content;
-        // Handle parsing and chunk sending
-        const parseResult = this.handleStreamChunk(fullContent, parsedTitle, parsedDescription, res, chunk.content);
-        parsedTitle = parseResult.parsedTitle;
-        parsedDescription = parseResult.parsedDescription;
+    try {
+      for await (const chunk of stream) {
+        chunkCount++;
+        if (chunk.content) {
+          fullContent += chunk.content;
+          // Handle parsing and chunk sending
+          const parseResult = this.handleStreamChunk(fullContent, parsedTitle, parsedDescription, res, chunk.content);
+          console.log('parseResult:', fullContent);
+          parsedTitle = parseResult.parsedTitle;
+          parsedDescription = parseResult.parsedDescription;
+        }
       }
+    } catch (streamError) {
+      logger.error(`Streaming error with ${provider.name}: ${streamError.message}`);
+      throw new Error(`Streaming failed: ${streamError.message}`);
     }
 
-    logger.info(`Successfully streamed PR content using ${provider.name}`);
+    logger.info(`Successfully streamed PR content using ${provider.name}. Received ${chunkCount} chunks, total content length: ${fullContent.length}`);
+    
+    // Validate that content was actually generated
+    if (!fullContent || fullContent.trim() === '') {
+      throw new Error(`Provider ${provider.name} returned empty content after streaming (${chunkCount} chunks received)`);
+    }
+    
     return { 
       content: fullContent, 
       provider: provider.name,
@@ -216,26 +236,74 @@ export class PRLangChainService extends BaseLangChainService {
   parseStructuredContent(content) {
     const lines = content.split('\n');
     let title = "";
-    let description = "";
+    let description = content.trim(); // Always put entire content in description
+    let foundTitle = false;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       
-      // Look for title markers
-      if (!title && this.isTitleLine(line)) {
-        title = line.replace(/^.*title:\s*/i, '').trim();
-        continue;
-      }
-
-      // Look for description markers
-      if (title && this.isDescriptionLine(line)) {
-        const remainingLines = lines.slice(i + 1);
-        description = remainingLines.join('\n').trim();
-        break;
+      // Look for title markers and extract just the title
+      if (!foundTitle && this.isTitleLine(line)) {
+        foundTitle = true;
+        // Extract title from the same line if it contains content after the marker
+        const titleMatch = line.match(/\*\*title:\*\*\s*(.*)/i) || 
+                          line.match(/title:\s*(.*)/i) ||
+                          line.match(/##?\s*title:?\s*(.*)/i);
+        
+        if (titleMatch && titleMatch[1] && titleMatch[1].trim()) {
+          title = titleMatch[1].trim();
+        } else {
+          // Look for title in the next non-empty lines
+          for (let j = i + 1; j < lines.length; j++) {
+            const nextLine = lines[j].trim();
+            if (nextLine && !this.isDescriptionLine(nextLine)) {
+              title = nextLine;
+              break;
+            } else if (this.isDescriptionLine(nextLine)) {
+              break;
+            }
+          }
+        }
+        break; // Stop after finding title
       }
     }
 
-    return { title, description };
+    // If no title found, try to extract from first content line after title marker
+    if (!foundTitle && lines.length > 0) {
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (this.isTitleLine(line)) {
+          // Found title marker, get the next non-empty line
+          for (let j = i + 1; j < lines.length; j++) {
+            const nextLine = lines[j].trim();
+            if (nextLine && !this.isDescriptionLine(nextLine)) {
+              title = nextLine.replace(/^\*\*|\*\*$/g, '').trim(); // Remove markdown bold
+              foundTitle = true;
+              break;
+            }
+          }
+          break;
+        }
+      }
+    }
+
+    // If still no title found, try to extract from first non-empty line
+    if (!foundTitle && lines.length > 0) {
+      for (const line of lines) {
+        const cleanLine = line.trim();
+        if (cleanLine && cleanLine.length < 100 && !this.isDescriptionLine(cleanLine)) {
+          title = cleanLine.replace(/^\*\*|\*\*$/g, '').trim(); // Remove markdown bold
+          break;
+        }
+      }
+    }
+
+    // Fallback title if none found
+    if (!title) {
+      title = "Pull Request";
+    }
+
+    return { title, description }; // Description always contains full content
   }
 
   /**
@@ -244,7 +312,10 @@ export class PRLangChainService extends BaseLangChainService {
   isTitleLine(line) {
     return line.toLowerCase().includes('title:') || 
            line.toLowerCase().includes('pr title:') ||
-           line.toLowerCase().includes('pull request title:');
+           line.toLowerCase().includes('pull request title:') ||
+           line.toLowerCase().includes('**title:**') ||
+           line.toLowerCase().includes('## title') ||
+           line.toLowerCase().includes('# title');
   }
 
   /**
@@ -253,7 +324,10 @@ export class PRLangChainService extends BaseLangChainService {
   isDescriptionLine(line) {
     return line.toLowerCase().includes('description:') || 
            line.toLowerCase().includes('pr description:') ||
-           line.toLowerCase().includes('pull request description:');
+           line.toLowerCase().includes('pull request description:') ||
+           line.toLowerCase().includes('**description:**') ||
+           line.toLowerCase().includes('## description') ||
+           line.toLowerCase().includes('# description');
   }
 
   /**

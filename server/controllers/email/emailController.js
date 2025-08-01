@@ -58,6 +58,92 @@ class EmailController {
       ErrorHandler.handleApiError(error, 'email generation', res);
     }
   }
+
+  /**
+   * Composes email using AI based on natural language prompt
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  static async composeWithAI(req, res) {
+    try {
+      const { prompt, attachedImages = [] } = req.body;
+
+      logger.info('Processing AI email composition request', {
+        prompt: prompt?.substring(0, 100) + '...',
+        imageCount: attachedImages.length
+      });
+
+      // Generate email using AI service
+      const emailDraft = await EmailContentService.generateEmailWithAI({
+        prompt,
+        attachedImages
+      });
+
+      res.json({
+        success: true,
+        data: emailDraft
+      });
+
+    } catch (error) {
+      ErrorHandler.handleApiError(error, 'AI email composition', res);
+    }
+  }
+
+  /**
+   * Sends AI composed email
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  static async sendAIEmail(req, res) {
+    try {
+      const { to, subject, body, attachments = [] } = req.body;
+
+      logger.info('Sending AI composed email', {
+        to,
+        subject: subject?.substring(0, 50) + '...'
+      });
+
+      // Send email using email service
+      const result = await EmailContentService.sendEmail({
+        to,
+        subject,
+        body,
+        attachments
+      });
+
+      res.json({
+        success: true,
+        data: result
+      });
+
+    } catch (error) {
+      ErrorHandler.handleApiError(error, 'AI email sending', res);
+    }
+  }
+
+  /**
+   * Searches for email contacts based on query
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  static async searchContacts(req, res) {
+    try {
+      const { query } = req.params;
+
+      logger.info('Searching email contacts', { query });
+
+      // Search contacts using email service
+      const contacts = await EmailContentService.searchContacts(query);
+
+      res.json({
+        success: true,
+        data: contacts
+      });
+
+    } catch (error) {
+      ErrorHandler.handleApiError(error, 'contact search', res);
+    }
+  }
 }
 
 export default EmailController;

@@ -238,4 +238,139 @@ export class JiraContentService {
       }
     };
   }
+
+  /**
+   * Generate AI comment reply
+   * @param {string} comment - Original comment to reply to
+   * @param {string} context - Additional context about the issue
+   * @param {string} tone - Tone for the reply (professional, friendly, technical)
+   * @returns {Promise<string>} Generated reply
+   */
+  static async generateCommentReply(comment, context = '', tone = 'professional') {
+    try {
+      if (!comment || typeof comment !== 'string') {
+        throw ErrorHandler.createValidationError('Comment is required');
+      }
+
+      const toneInstructions = {
+        professional: 'professional and business-appropriate',
+        friendly: 'friendly and approachable while remaining professional',
+        technical: 'technical and detailed with specific implementation guidance'
+      };
+
+      const toneInstruction = toneInstructions[tone] || toneInstructions.professional;
+
+      const replyPrompt = `Generate a ${toneInstruction} reply to this Jira comment. ${context ? `Context: ${context}` : ''}\n\nOriginal comment:\n${comment}\n\nReply:`;
+      
+      const reply = await this.generateContent({
+        prompt: replyPrompt,
+        issueType: 'Task'
+      });
+
+      logger.info('Comment reply generated successfully', {
+        originalLength: comment.length,
+        replyLength: reply?.length || 0,
+        tone
+      });
+
+      return reply || 'Thank you for your comment. I will review and follow up accordingly.';
+    } catch (error) {
+      logger.error('Error generating comment reply', {
+        error: error.message,
+        tone
+      });
+      return 'Thank you for your comment. I will review and follow up accordingly.';
+    }
+  }
+
+  /**
+   * Format comment using AI for better readability
+   * @param {string} comment - Comment to format
+   * @param {string} format - Target format (jira, markdown, plain)
+   * @returns {Promise<string>} Formatted comment
+   */
+  static async formatComment(comment, format = 'jira') {
+    try {
+      if (!comment || typeof comment !== 'string') {
+        throw ErrorHandler.createValidationError('Comment is required');
+      }
+
+      const formatInstructions = {
+        jira: 'Format this comment using Jira markup syntax for better readability. Use *bold*, _italic_, {{monospace}}, bullet points, numbered lists, and proper line breaks where appropriate.',
+        markdown: 'Format this comment using proper Markdown syntax with **bold**, *italic*, `code`, bullet points, numbered lists, and appropriate headings.',
+        plain: 'Format this comment as plain text with proper paragraph breaks and clear structure.'
+      };
+
+      const formatInstruction = formatInstructions[format] || formatInstructions.jira;
+
+      const formatPrompt = `${formatInstruction}\n\nOriginal comment:\n${comment}\n\nFormatted comment:`;
+      
+      const formatted = await this.generateContent({
+        prompt: formatPrompt,
+        issueType: 'Task'
+      });
+
+      logger.info('Comment formatted successfully', {
+        originalLength: comment.length,
+        formattedLength: formatted?.length || 0,
+        format
+      });
+
+      return formatted || comment; // Fallback to original if formatting fails
+    } catch (error) {
+      logger.error('Error formatting comment', {
+        error: error.message,
+        format
+      });
+      return comment; // Return original comment on error
+    }
+  }
+
+  /**
+   * Analyze comment sentiment and suggest improvements
+   * @param {string} comment - Comment to analyze
+   * @returns {Promise<Object>} Analysis result with sentiment and suggestions
+   */
+  static async analyzeCommentSentiment(comment) {
+    try {
+      if (!comment || typeof comment !== 'string') {
+        throw ErrorHandler.createValidationError('Comment is required');
+      }
+
+      const analysisPrompt = `Analyze the sentiment and tone of this Jira comment and provide suggestions for improvement if needed. Return your analysis in JSON format with fields: sentiment (positive/neutral/negative), tone (professional/casual/aggressive), suggestions (array), and improved_version (string).\n\nComment:\n${comment}`;
+      
+      const analysis = await this.generateContent({
+        prompt: analysisPrompt,
+        issueType: 'Task'
+      });
+
+      // Try to parse JSON response
+      try {
+        const parsed = JSON.parse(analysis);
+        logger.info('Comment sentiment analyzed successfully', {
+          sentiment: parsed.sentiment,
+          tone: parsed.tone
+        });
+        return parsed;
+      } catch (parseError) {
+        // If JSON parsing fails, return a basic analysis
+        return {
+          sentiment: 'neutral',
+          tone: 'professional',
+          suggestions: ['Consider using more specific language'],
+          improved_version: comment
+        };
+      }
+    } catch (error) {
+      logger.error('Error analyzing comment sentiment', {
+        error: error.message
+      });
+      return {
+        sentiment: 'neutral',
+        tone: 'unknown',
+        suggestions: [],
+        improved_version: comment
+      };
+    }
+  }
 }

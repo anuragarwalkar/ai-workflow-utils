@@ -127,6 +127,28 @@ export const jiraApi = createApi({
         { type: 'Jira', id: issueKey },
       ],
     }),
+    // AI-powered enhancement endpoints
+    enhanceDescription: builder.mutation({
+      query: ({ description, issueType }) => ({
+        url: '/ai/enhance-description',
+        method: 'POST',
+        body: { description, issueType },
+      }),
+    }),
+    generateCommentReply: builder.mutation({
+      query: ({ comment, context, tone }) => ({
+        url: '/ai/generate-comment-reply',
+        method: 'POST',
+        body: { comment, context, tone },
+      }),
+    }),
+    formatComment: builder.mutation({
+      query: ({ comment, format }) => ({
+        url: '/ai/format-comment',
+        method: 'POST',
+        body: { comment, format },
+      }),
+    }),
   }),
 });
 
@@ -137,4 +159,7 @@ export const {
   useFetchJiraQuery,
   useLazyFetchJiraQuery,
   useUploadAttachmentMutation,
+  useEnhanceDescriptionMutation,
+  useGenerateCommentReplyMutation,
+  useFormatCommentMutation,
 } = jiraApi;

@@ -49,6 +49,43 @@ class LangChainService {
     return baseService.generateContent(promptTemplateFormatter, images, promptTemplateIdentifier, streaming);
   }
 
+  // Delegate chat operations to chat service
+  async generateChatResponse(sessionId, message, options = {}) {
+    logger.info('LangChainService: Delegating generateChatResponse to chat service');
+    const chatService = this.factory.getChatService();
+    return chatService.generateChatResponse(sessionId, message, options);
+  }
+
+  async generateStreamingChatResponse(sessionId, message, onToken, options = {}) {
+    logger.info('LangChainService: Delegating generateStreamingChatResponse to chat service');
+    const chatService = this.factory.getChatService();
+    return chatService.generateStreamingChatResponse(sessionId, message, onToken, options);
+  }
+
+  clearConversationMemory(sessionId) {
+    logger.info('LangChainService: Delegating clearConversationMemory to chat service');
+    const chatService = this.factory.getChatService();
+    return chatService.clearConversationMemory(sessionId);
+  }
+
+  async getConversationHistory(sessionId) {
+    logger.info('LangChainService: Delegating getConversationHistory to chat service');
+    const chatService = this.factory.getChatService();
+    return chatService.getConversationHistory(sessionId);
+  }
+
+  getChatStats() {
+    logger.info('LangChainService: Delegating getChatStats to chat service');
+    const chatService = this.factory.getChatService();
+    return chatService.getChatStats();
+  }
+
+  async testChatFunctionality(testMessage, provider) {
+    logger.info('LangChainService: Delegating testChatFunctionality to chat service');
+    const chatService = this.factory.getChatService();
+    return chatService.testChatFunctionality(testMessage, provider);
+  }
+
   // Legacy methods that delegate to base service
   modelSupportsVision(modelName) {
     return this.factory.getBaseService().modelSupportsVision(modelName);
