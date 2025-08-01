@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   Box,
   Container,
@@ -66,15 +65,6 @@ const JiraIdPrompt = () => {
     setError('');
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.3, ease: "easeOut" }
-    }
-  };
-
   return (
     <Box 
       sx={{ 
@@ -112,11 +102,7 @@ const JiraIdPrompt = () => {
           px: 3
         }}
       >
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+        <div>
           {/* Header */}
           <Paper
             elevation={0}
@@ -163,64 +149,74 @@ const JiraIdPrompt = () => {
             </Typography>
 
             <Box component="form" onSubmit={handleSubmit} sx={{ mb: 3 }}>
-              <TextField
-                fullWidth
-                size="large"
-                placeholder="e.g., PROJ-123, TEAM-456, BUG-789"
-                value={jiraId}
-                onChange={(e) => {
-                  setJiraId(e.target.value);
-                  setError('');
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Search color="primary" />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        disabled={!jiraId.trim()}
-                        sx={{
-                          background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
-                          boxShadow: '0 4px 16px rgba(102, 126, 234, 0.4)',
-                          '&:hover': {
-                            background: 'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
-                            boxShadow: '0 6px 20px rgba(118, 75, 162, 0.5)',
-                          },
-                          '&:disabled': {
-                            background: 'rgba(0, 0, 0, 0.12)',
-                            boxShadow: 'none',
-                          },
-                        }}
-                      >
-                        <Visibility sx={{ mr: 1 }} />
-                        View
-                      </Button>
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    background: 'rgba(255, 255, 255, 0.9)',
+              <Box sx={{ 
+                display: 'flex', 
+                gap: 2, 
+                alignItems: 'stretch', // Changed from 'center' to 'stretch'
+                width: '100%'
+              }}>
+                <TextField
+                  fullWidth
+                  size="large"
+                  placeholder="e.g., PROJ-123, TEAM-456, BUG-789"
+                  value={jiraId}
+                  onChange={(e) => {
+                    setJiraId(e.target.value);
+                    setError('');
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    flex: 1, // Take up remaining space
+                    '& .MuiOutlinedInput-root': {
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      borderRadius: 2,
+                      fontSize: '1.1rem',
+                      height: '56px', // Explicit height
+                      '& fieldset': {
+                        borderColor: 'rgba(102, 126, 234, 0.3)',
+                        borderWidth: 2,
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'rgba(102, 126, 234, 0.6)',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main',
+                      },
+                    },
+                  }}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={!jiraId.trim()}
+                  sx={{
+                    minWidth: '100px',
+                    height: '56px',
+                    background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                    boxShadow: '0 4px 16px rgba(102, 126, 234, 0.4)',
                     borderRadius: 2,
-                    fontSize: '1.1rem',
-                    '& fieldset': {
-                      borderColor: 'rgba(102, 126, 234, 0.3)',
-                      borderWidth: 2,
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    '&:hover': {
+                      background: 'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
+                      boxShadow: '0 6px 20px rgba(118, 75, 162, 0.5)',
                     },
-                    '&:hover fieldset': {
-                      borderColor: 'rgba(102, 126, 234, 0.6)',
+                    '&:disabled': {
+                      background: 'rgba(0, 0, 0, 0.12)',
+                      boxShadow: 'none',
                     },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                  },
-                }}
-              />
+                  }}
+                >
+                  <Visibility sx={{ mr: 1 }} />
+                  View
+                </Button>
+              </Box>
             </Box>
 
             {error && (
@@ -314,7 +310,7 @@ const JiraIdPrompt = () => {
               />
             </Box>
           </Paper>
-        </motion.div>
+        </div>
       </Container>
     </Box>
   );
