@@ -60,15 +60,32 @@ const FuturisticLoader = () => {
       />
 
       {/* Central Loading Animation */}
-      <Box sx={{ position: 'relative', zIndex: 1 }}>
-        <MotionBox
-          variants={pulseVariants}
-          initial="initial"
-          animate="animate"
-          sx={{ position: 'relative', zIndex: 1 }}
-        >
-          <Box
-            sx={{
+      <Box sx={{ 
+        position: 'relative', 
+        zIndex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        {/* Main Circle with Orbital Rings */}
+        <Box sx={{ 
+          position: 'relative',
+          width: 120,
+          height: 120,
+          mb: 4,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {/* Main Circle */}
+          <MotionBox
+            variants={pulseVariants}
+            initial="initial"
+            animate="animate"
+            sx={{ 
+              position: 'relative', 
+              zIndex: 3,
               width: 120,
               height: 120,
               borderRadius: '50%',
@@ -76,7 +93,6 @@ const FuturisticLoader = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              mb: 4,
               boxShadow: '0 0 50px rgba(102, 126, 234, 0.3)',
             }}
           >
@@ -90,53 +106,63 @@ const FuturisticLoader = () => {
             >
               J
             </Typography>
-          </Box>
-        </MotionBox>
+          </MotionBox>
 
-        {/* Orbital Rings */}
-        <MotionDiv
-          variants={orbitalVariants}
-          animate="animate"
-          style={{
-            position: 'absolute',
-            top: -20,
-            left: -20,
-            width: 160,
-            height: 160,
-            border: '2px solid rgba(102, 126, 234, 0.3)',
-            borderRadius: '50%',
-            borderTopColor: 'rgba(102, 126, 234, 0.8)',
-            zIndex: 0
-          }}
-        />
+          {/* First Orbital Ring */}
+          <MotionDiv
+            variants={orbitalVariants}
+            animate="animate"
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              width: 160,
+              height: 160,
+              marginTop: -80, // Half of height
+              marginLeft: -80, // Half of width
+              border: '2px solid rgba(102, 126, 234, 0.3)',
+              borderRadius: '50%',
+              borderTopColor: 'rgba(102, 126, 234, 0.8)',
+              zIndex: 1
+            }}
+          />
 
-        <MotionDiv
-          variants={{
-            animate: {
-              rotate: -360,
-              transition: {
-                duration: 4,
-                repeat: Infinity,
-                ease: "linear"
+          {/* Second Orbital Ring */}
+          <MotionDiv
+            variants={{
+              animate: {
+                rotate: -360,
+                transition: {
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "linear"
+                }
               }
-            }
-          }}
-          animate="animate"
-          style={{
-            position: 'absolute',
-            top: -30,
-            left: -30,
-            width: 180,
-            height: 180,
-            border: '1px solid rgba(118, 75, 162, 0.2)',
-            borderRadius: '50%',
-            borderBottomColor: 'rgba(118, 75, 162, 0.6)',
-            zIndex: 0
-          }}
-        />
+            }}
+            animate="animate"
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              width: 180,
+              height: 180,
+              marginTop: -90, // Half of height
+              marginLeft: -90, // Half of width
+              border: '1px solid rgba(118, 75, 162, 0.2)',
+              borderRadius: '50%',
+              borderBottomColor: 'rgba(118, 75, 162, 0.6)',
+              zIndex: 0
+            }}
+          />
+        </Box>
 
         {/* Loading Text */}
-        <Box sx={{ textAlign: 'center', mt: 4 }}>
+        <Box sx={{ 
+          textAlign: 'center',
+          width: '100%',
+          maxWidth: 400,
+          mx: 'auto'
+        }}>
           <Typography 
             variant="h5" 
             sx={{ 
@@ -162,7 +188,7 @@ const FuturisticLoader = () => {
             Preparing futuristic view...
           </Typography>
 
-          <Box sx={{ width: 300, mx: 'auto' }}>
+          <Box sx={{ width: '100%', maxWidth: 300, mx: 'auto' }}>
             <LinearProgress 
               sx={{
                 height: 4,
