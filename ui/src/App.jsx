@@ -41,7 +41,7 @@ const AppContent = () => (
           <Route path="/send-email" element={<AiEmailComposer />} />
           <Route path="/send-email-legacy" element={<SendEmailContainer />} />
           <Route path="/release-build" element={<ReleaseBuildContainer />} />
-          <Route path="/ai-pr-review" element={<GitStashContainer />} />
+          <Route path="/ai-pr-code-review" element={<GitStashContainer />} />
           <Route path="/ai-generate-pr-template" element={<PRContainer />} />
           <Route path="/ai-dev-assistant" element={<AiDevAssistant />} />
           <Route path="/settings" element={<SettingsContainer />} />

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPullRequests, getPullRequestDiff, reviewPullRequest, createPullRequest, streamPRPreview } from '../controllers/pull-request/index.js';
+import { getPullRequests, getPullRequestDiff, reviewPullRequest, createPullRequest, streamCreatePRPreview } from '../controllers/pull-request/index.js';
 import { asyncHandler, createRateLimit } from '../middleware/index.js';
 
 const router = express.Router();
@@ -21,6 +21,6 @@ router.post('/review', asyncHandler(reviewPullRequest));
 router.post('/create', asyncHandler(createPullRequest));
 
 // Route to stream PR preview generation
-router.post('/stream-preview', asyncHandler(streamPRPreview));
+router.post('/stream-preview', asyncHandler(streamCreatePRPreview));
 
 export default router;

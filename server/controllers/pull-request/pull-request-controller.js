@@ -98,8 +98,10 @@ class PRController {
           // Create a custom streaming method for PR reviews
           const result = await PRController.streamPRReview(promptData, res);
 
-          if (!result.content || result.content.trim() === '') {
-            throw new Error('AI provider returned empty content');
+          if (!result || !result.content || result.content.trim() === '') {
+            const errorMsg = `AI provider returned empty content. Provider: ${result?.provider || 'unknown'}, Response: ${JSON.stringify(result)}`;
+            logger.error(`LangChain review failed: ${errorMsg}`);
+            throw new Error(errorMsg);
           }
           
           review = result.content;
@@ -128,8 +130,10 @@ class PRController {
             false // not streaming
           );
 
-          if (!result.content || result.content.trim() === '') {
-            throw new Error('AI provider returned empty content');
+          if (!result || !result.content || result.content.trim() === '') {
+            const errorMsg = `AI provider returned empty content. Provider: ${result?.provider || 'unknown'}, Response: ${JSON.stringify(result)}`;
+            logger.error(`LangChain review failed: ${errorMsg}`);
+            throw new Error(errorMsg);
           }
           
           review = result.content;
@@ -424,14 +428,31 @@ class PRController {
   static async streamPRReview(promptData, res) {
     try {
       if (!langChainServiceFactory.hasProviders()) {
-        throw new Error("No AI providers are configured");
+        const error = "No AI providers are configured. Please check your environment configuration.";
+        logger.error(error);
+        throw new Error(error);
       }
 
+      // Log available providers for debugging
+      const availableProviders = langChainServiceFactory.getAvailableProviders();
+      logger.info(`Available providers for PR review: ${JSON.stringify(availableProviders)}`);
+
       logger.info('Starting PR review streaming with template: PR_REVIEW');
+
+      // Validate prompt data
+      if (!promptData || Object.keys(promptData).length === 0) {
+        throw new Error("Empty prompt data provided for PR review");
+      }
 
       // Get the base template and format it
       const promptTemplate = await prLangChainService.createPromptTemplate("PR_REVIEW", false);
       const formattedPrompt = await promptTemplate.format({ ...promptData });
+      
+      if (!formattedPrompt || formattedPrompt.trim() === '') {
+        throw new Error("Generated prompt template is empty");
+      }
+      
+      logger.info(`Formatted prompt length: ${formattedPrompt.length} characters`);
       // Use the existing streaming infrastructure from PRLangChainService
       return await prLangChainService.tryProvidersForStreaming(formattedPrompt, res);
     } catch (error) {
@@ -443,7 +464,7 @@ class PRController {
   /**
    * Stream PR preview generation
    */
-  static async streamPRPreview(req, res) {
+  static async streamCreatePRPreview(req, res) {
     const { ticketNumber, branchName, projectKey, repoSlug } = req.body;
 
     if (!branchName || !projectKey || !repoSlug) {
@@ -505,7 +526,8 @@ export const {
   getPullRequestDiff,
   reviewPullRequest,
   createPullRequest,
-  streamPRPreview,
+  streamCreatePRPreview,
+  streamPRReview,
 } = PRController;
 
 export default PRController;

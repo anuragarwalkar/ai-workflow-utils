@@ -15,16 +15,13 @@ import {
   Email as EmailIcon,
   Build as BuildIcon,
   Add as AddIcon,
-  Search as SearchIcon,
   Send as SendIcon,
   RocketLaunch as RocketLaunchIcon,
   Code as CodeIcon,
   Reviews as ReviewsIcon,
   Chat as ChatIcon,
   AutoFixHigh as AutoFixHighIcon,
-  Analytics as AnalyticsIcon,
   AccountTree as WorkflowIcon,
-  Security as SecurityIcon,
   Settings as SettingsIcon,
   Tune as TuneIcon,
   MergeType as MergeIcon,
@@ -61,7 +58,7 @@ const ActionCards = () => {
   };
 
   const handleGitStash = () => {
-    navigate("/ai-pr-review");
+    navigate("/ai-pr-code-review");
   };
 
   const handleCreatePR = () => {
@@ -76,11 +73,6 @@ const ActionCards = () => {
   const handleAiChat = () => {
     console.log("AI Chat feature clicked");
     navigate("/ai-dev-assistant");
-  };
-
-  const handleCodeAnalysis = () => {
-    console.log("Code Analysis feature clicked");
-    // TODO: Implement Code Analysis functionality
   };
 
   const handleWorkflowAutomation = () => {
@@ -114,11 +106,10 @@ const ActionCards = () => {
       gradient: "linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)",
       shadowColor: "rgba(139, 92, 246, 0.4)",
       isReleased: true,
-      isBeta: true,
-      isNew: true,
+      isAlpha: true,
     },
     {
-      id: "git-stash",
+      id: "ai-pr-code-review",
       title: "AI Code Review",
       description: "AI-powered pull request analysis with code insights",
       icon: CodeIcon,
@@ -127,7 +118,7 @@ const ActionCards = () => {
       gradient: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",
       shadowColor: "rgba(17, 153, 142, 0.3)",
       isReleased: true,
-      isBeta: true,
+      isAlpha: true,
     },
     {
       id: "create-pr",
@@ -140,7 +131,7 @@ const ActionCards = () => {
       gradient: "linear-gradient(135deg, #ff7b7b 0%, #667eea 100%)",
       shadowColor: "rgba(255, 123, 123, 0.3)",
       isReleased: true,
-      isBeta: true,
+      isAlpha: true,
     },
     {
       id: "ai-chat",
@@ -153,7 +144,7 @@ const ActionCards = () => {
       gradient: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)",
       shadowColor: "rgba(255, 154, 158, 0.3)",
       isReleased: true,
-      isBeta: true,
+      isAlpha: true,
     },
     {
       id: "send-email",
@@ -165,7 +156,7 @@ const ActionCards = () => {
       gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
       shadowColor: "rgba(79, 172, 254, 0.3)",
       isReleased: true,
-      isBeta: true,
+      isAlpha: true,
     },
     {
       id: "send-email-legacy",
@@ -190,20 +181,6 @@ const ActionCards = () => {
       shadowColor: "rgba(250, 112, 154, 0.3)",
       isReleased: true,
       isHidden: () => localStorage.getItem("enableHiddenFeatures") !== "true",
-    },
-    // Unreleased features
-
-    {
-      id: "code-analysis",
-      title: "Code Analysis",
-      description:
-        "AI-driven code analysis with optimization and security insights",
-      icon: AnalyticsIcon,
-      actionIcon: SecurityIcon,
-      onClick: handleCodeAnalysis,
-      gradient: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
-      shadowColor: "rgba(255, 236, 210, 0.3)",
-      isReleased: false,
     },
     {
       id: "workflow-automation",
@@ -231,19 +208,53 @@ const ActionCards = () => {
   ];
 
   // Filter cards based on feature flags and hidden status
-  const visibleCards = allActionCards.filter((card) => {
-    // Hide cards that have isHidden function and it returns true
-    if (card.isHidden && card.isHidden()) {
-      return false;
-    }
+  const visibleCards = allActionCards.filter((card) => 
+    !(card.isHidden && card.isHidden()) &&
+    (card.isReleased || showUnreleasedFeatures)
+  );
 
-    // Show unreleased features only if the flag is enabled
-    if (!card.isReleased && !showUnreleasedFeatures) {
-      return false;
-    }
+  // Helper function to render badges with DRY principle
+  const renderBadge = (card) => {
+    const badgeConfigs = {
+      comingSoon: {
+        condition: !card.isReleased,
+        label: "COMING SOON",
+        background: "linear-gradient(45deg, #9c27b0, #e91e63)",
+      },
+      beta: {
+        condition: card.isReleased && card.isBeta,
+        label: "BETA",
+        background: "linear-gradient(45deg, #667eea, #764ba2)",
+      },
+      alpha: {
+        condition: card.isReleased && card.isAlpha,
+        label: "ALPHA",
+        background: "linear-gradient(45deg, #ff9800, #f57c00)",
+      },
+    };
 
-    return true;
-  });
+    for (const config of Object.values(badgeConfigs)) {
+      if (config.condition) {
+        return (
+          <Chip
+            label={config.label}
+            size="small"
+            sx={{
+              position: "absolute",
+              top: 12,
+              right: 12,
+              background: config.background,
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "0.6rem",
+              zIndex: 1,
+            }}
+          />
+        );
+      }
+    }
+    return null;
+  };
 
   return (
     <Box>
@@ -318,41 +329,8 @@ const ActionCards = () => {
                   }}
                   onClick={card.onClick}
                 >
-                  {/* Coming Soon Badge for unreleased features */}
-                  {!card.isReleased && (
-                    <Chip
-                      label="COMING SOON"
-                      size="small"
-                      sx={{
-                        position: "absolute",
-                        top: 12,
-                        right: 12,
-                        background: "linear-gradient(45deg, #ff6b6b, #feca57)",
-                        color: "white",
-                        fontWeight: "bold",
-                        fontSize: "0.6rem",
-                        zIndex: 1,
-                      }}
-                    />
-                  )}
-
-                  {/* Beta Badge for beta features */}
-                  {card.isReleased && card.isBeta && (
-                    <Chip
-                      label="BETA"
-                      size="small"
-                      sx={{
-                        position: "absolute",
-                        top: 12,
-                        right: 12,
-                        background: "linear-gradient(45deg, #667eea, #764ba2)",
-                        color: "white",
-                        fontWeight: "bold",
-                        fontSize: "0.6rem",
-                        zIndex: 1,
-                      }}
-                    />
-                  )}
+                  {/* Render badge using DRY helper function */}
+                  {renderBadge(card)}
 
                   <CardContent
                     sx={{
