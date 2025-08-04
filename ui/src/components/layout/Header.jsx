@@ -1,4 +1,4 @@
-import { Typography, Box, Avatar, IconButton } from '@mui/material';
+import { Typography, Box, Avatar, IconButton, Chip } from '@mui/material';
 import { 
   Psychology as PsychologyIcon,
   AutoAwesome as AutoAwesomeIcon,
@@ -103,6 +103,22 @@ const Header = () => {
           }}
         >
           AI Workflow Utils
+        </Typography>
+        <Typography
+          variant="caption"
+          sx={{ 
+            color: 'rgba(255, 255, 255, 0.8)',
+            fontSize: '0.7rem',
+            fontWeight: 500,
+            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+            px: 1,
+            py: 0.3,
+            borderRadius: '10px',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+          }}
+        >
+          v {__APP_VERSION__}
         </Typography>
       </Box>
       
