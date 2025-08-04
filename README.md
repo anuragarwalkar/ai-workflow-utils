@@ -11,8 +11,7 @@
 
 **The Ultimate AI-Powered Development Workflow Automation Platform**
 
-_Streamline your development process with intelligent Jira ticket creation, AI-powered code reviews & pull request creation with custom template support_
-
+_Streamline your development process with intelligent Jira ticket creation, AI-powered code reviews & pull request creation with custom template support, featuring a beautiful dark/light theme interface_
 <img width="1920" height="1188" alt="AI-Workflow-Utils-08-01-2025_02_33_PM" src="https://github.com/user-attachments/assets/a96cff4b-caac-4e8c-af54-194a83f80f9b" />
 
 </div>
@@ -64,6 +63,18 @@ Comprehensive logging and monitoring system for troubleshooting and system insig
 - **💾 Log Management**: Automatic log rotation and size management
 - **🔧 Debug Mode**: Enable detailed debug logging for troubleshooting
 - **📱 Responsive Design**: Access logs from any device with mobile-friendly interface
+
+### **🌙 Feature #5: Intelligent Dark Theme System**
+
+Beautiful, adaptive interface that automatically adjusts to your preferences:
+
+- **🌓 Auto Theme Detection**: Automatically follows your system's dark/light mode preference
+- **🎨 Manual Theme Control**: Switch between Light, Dark, and Auto modes with a single click
+- **🎭 Persistent Preferences**: Your theme choice is remembered across sessions
+- **🌈 Gradient Design System**: Stunning gradient backgrounds and glass-morphism effects
+- **📱 Consistent Theming**: Dark theme support across all components and pages
+- **👁️ Eye-friendly**: Carefully crafted colors that reduce eye strain during long sessions
+- **🔄 Smooth Transitions**: Elegant animations when switching between themes
 
 ---
 
