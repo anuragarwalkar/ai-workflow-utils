@@ -60,11 +60,11 @@
     "dev-server": "concurrently --names \"watch,server\" \"npm run build-server:watch\" \"npm run start-server-dev\"",
     "start-server-dev": "nodemon dist/server.js",
     "start-ui": "vite",
-    "build-ui": "NODE_ENV=production && vite build",
-    "build-server": "NODE_ENV=production && webpack --config webpack.config.js",
+    "build-ui": "export NODE_ENV=production && vite build",
+    "build-server": "export NODE_ENV=production && webpack --config webpack.config.js",
     "build-server:watch": "webpack --config webpack.config.js --watch",
     "preview": "vite preview",
-    "build": "NODE_ENV=production && concurrently --names \"server,ui\" \"npm run build-server\" \"npm run build-ui\"",
+    "build": "export NODE_ENV=production && concurrently --names \"server,ui\" \"npm run build-server\" \"npm run build-ui\"",
     "prepublishOnly": "npm run build"
   },
   "author": {
