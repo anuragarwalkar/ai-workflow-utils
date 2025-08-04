@@ -12,8 +12,7 @@ import {
   Chip,
   IconButton,
   Collapse,
-  CircularProgress,
-  Snackbar
+  CircularProgress
 } from '@mui/material'
 import {
   Visibility,
@@ -39,7 +38,6 @@ const EnvironmentSettings = () => {
   const [changedKeys, setChangedKeys] = useState(new Set())
   const [expandedSections, setExpandedSections] = useState({})
   const [showSensitive, setShowSensitive] = useState({})
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
 
   // API hooks
   const { data: environmentData, isLoading, error, refetch } = useGetEnvironmentSettingsQuery()
@@ -126,11 +124,7 @@ const EnvironmentSettings = () => {
       }, {})
 
       if (Object.keys(updatedSettings).length === 0) {
-        setSnackbar({
-          open: true,
-          message: 'No settings have been changed',
-          severity: 'info'
-        })
+        // No need for local toast - API will handle this
         return
       }
 
@@ -159,34 +153,18 @@ const EnvironmentSettings = () => {
         refetch()
       }
       
-      setSnackbar({
-        open: true,
-        message: 'Environment settings saved successfully!',
-        severity: 'success'
-      })
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: `Failed to save settings: ${error.data?.error || error.message}`,
-        severity: 'error'
-      })
+      // Toast is now handled by the API layer
+    } catch {
+      // Error toast is now handled by the API layer
     }
   }
 
   const handleTestConnection = async (provider) => {
     try {
-      const result = await testConnection({ provider, config: settings }).unwrap()
-      setSnackbar({
-        open: true,
-        message: `${provider} connection test: ${result.data.message}`,
-        severity: result.data.status === 'success' ? 'success' : 'warning'
-      })
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: `Connection test failed: ${error.data?.error || error.message}`,
-        severity: 'error'
-      })
+      // Toast is now handled by the API layer
+      await testConnection({ provider, config: settings }).unwrap()
+    } catch {
+      // Error toast is now handled by the API layer
     }
   }
 
@@ -194,18 +172,10 @@ const EnvironmentSettings = () => {
     if (window.confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
       try {
         await resetSettings().unwrap()
-        setSnackbar({
-          open: true,
-          message: 'Settings reset to defaults successfully!',
-          severity: 'success'
-        })
+        // Toast is now handled by the API layer
         refetch()
-      } catch (error) {
-        setSnackbar({
-          open: true,
-          message: `Failed to reset settings: ${error.data?.error || error.message}`,
-          severity: 'error'
-        })
+      } catch {
+        // Error toast is now handled by the API layer
       }
     }
   }
@@ -458,20 +428,6 @@ const EnvironmentSettings = () => {
       {environmentData?.data && getVisibleSections().map(sectionName =>
         renderSection(sectionName, environmentData.data[sectionName])
       )}
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }

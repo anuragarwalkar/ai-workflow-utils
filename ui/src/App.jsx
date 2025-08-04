@@ -49,9 +49,9 @@ const AppContent = () => (
       </Suspense>
       <ViewJiraModal />
       <BuildModal />
-      <NotificationSnackbar />
     </Layout>
     <ChatOverlay />
+    <NotificationSnackbar />
   </>
 );
 

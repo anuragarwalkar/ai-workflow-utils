@@ -192,9 +192,19 @@ class TemplateValidationService {
         throw new Error('Invalid template ID parameter');
       }
 
-      // Check if it's a valid UUID format (basic check)
-      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
-        throw new Error('Template ID must be a valid UUID');
+      // Check if it's a valid ID format (alphanumeric, dashes, underscores)
+      if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+        throw new Error('Template ID must contain only alphanumeric characters, dashes, and underscores');
+      }
+
+      // Check minimum length
+      if (id.length < 3) {
+        throw new Error('Template ID must be at least 3 characters long');
+      }
+
+      // Check maximum length
+      if (id.length > 100) {
+        throw new Error('Template ID must be less than 100 characters long');
       }
     } catch (error) {
       logger.warn('Template ID parameter validation failed:', error.message);

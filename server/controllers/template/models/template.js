@@ -9,11 +9,15 @@ class Template {
     this.name = data.name;
     this.issueType = data.issueType;
     this.content = data.content;
-    this.isDefault = data.isDefault || false;
-    this.isActive = data.isActive || false;
+    this.isDefault = !!data.isDefault;
+    this.isActive = !!data.isActive;
     this.createdAt = data.createdAt || new Date().toISOString();
     this.updatedAt = data.updatedAt || new Date().toISOString();
     this.variables = data.variables || this.extractVariables(data.content);
+    this.templateFor = data.templateFor;
+    this.templateType = data.templateType;
+    this.templateCanBeModified = !!data.canBeModified;
+    this.templateCanBeDeleted = !!data.canBeDeleted;
   }
 
   /**
@@ -22,7 +26,7 @@ class Template {
    * @throws {Error} If validation fails
    */
   static validate(data) {
-    const required = ['name', 'issueType', 'content'];
+    const required = ['name', 'content'];
     const missing = required.filter(field => !data[field] || data[field].trim() === '');
     
     if (missing.length > 0) {
@@ -32,11 +36,6 @@ class Template {
     // Validate name length
     if (data.name.length > 100) {
       throw new Error('Template name must be 100 characters or less');
-    }
-
-    // Validate issue type format
-    if (!/^[a-zA-Z0-9_-]+$/.test(data.issueType)) {
-      throw new Error('Issue type can only contain letters, numbers, underscores, and hyphens');
     }
 
     // Validate content length
@@ -114,15 +113,16 @@ class Template {
     return {
       id: this.id,
       name: this.name,
-      issueType: this.issueType,
       content: this.content,
       isDefault: this.isDefault,
       isActive: this.isActive,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       variables: this.variables,
+      templateFor: this.templateFor,
       canBeDeleted: this.canBeDeleted(),
-      canBeModified: this.canBeModified()
+      canBeModified: this.canBeModified(),
+      type: this.templateType,
     };
   }
 
@@ -140,7 +140,7 @@ class Template {
    * @returns {boolean} True if template can be deleted
    */
   canBeDeleted() {
-    return !this.isDefault;
+    return !!this.templateCanBeDeleted;
   }
 
   /**
@@ -148,7 +148,7 @@ class Template {
    * @returns {boolean} True if template can be modified
    */
   canBeModified() {
-    return !this.isDefault;
+    return !!this.templateCanBeModified;
   }
 }
 

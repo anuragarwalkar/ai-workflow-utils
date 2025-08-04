@@ -25,7 +25,10 @@ import langchainService from './services/langchainService.js';
 dotenv.config();
 
 // Load dynamic configuration from database to process.env
-await configBridge.loadConfigToEnv();
+if(process.env.NODE_ENV === 'production') {
+  await configBridge.loadConfigToEnv();
+}
+
 langchainService.initializeProviders();
 
 logger.info('🔁 Configuration loaded from database and environment variables');

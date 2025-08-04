@@ -19,9 +19,27 @@ const NotificationSnackbar = () => {
       open={open}
       autoHideDuration={6000}
       onClose={handleClose}
-      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      sx={{
+        position: 'fixed',
+        top: 16,
+        right: 16,
+        zIndex: 9999,
+        '& .MuiSnackbar-root': {
+          position: 'static',
+        }
+      }}
     >
-      <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
+      <Alert 
+        onClose={handleClose} 
+        severity={severity} 
+        sx={{ 
+          width: '100%',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)'
+        }}
+      >
         {message}
       </Alert>
     </Snackbar>

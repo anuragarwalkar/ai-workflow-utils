@@ -37,7 +37,7 @@ const TemplateForm = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    issueType: '',
+    templateFor: '',
     content: ''
   })
   const [variables, setVariables] = useState([])
@@ -47,14 +47,14 @@ const TemplateForm = () => {
     if (editingTemplate && (mode === 'edit' || mode === 'duplicate')) {
       setFormData({
         name: editingTemplate.name,
-        issueType: editingTemplate.issueType,
+        templateFor: editingTemplate.templateFor || '',
         content: editingTemplate.content
       })
       setVariables(editingTemplate.variables || [])
     } else {
       setFormData({
         name: '',
-        issueType: '',
+        templateFor: '',
         content: ''
       })
       setVariables([])
@@ -94,8 +94,8 @@ const TemplateForm = () => {
         return
       }
       
-      if (!formData.issueType.trim()) {
-        dispatch(setError('Template type is required'))
+      if (!formData.templateFor.trim()) {
+        dispatch(setError('Template for field is required'))
         return
       }
       
@@ -106,7 +106,7 @@ const TemplateForm = () => {
 
       const templateData = {
         name: formData.name.trim(),
-        issueType: formData.issueType.trim(),
+        templateFor: formData.templateFor.trim(),
         content: formData.content.trim()
       }
 
@@ -121,6 +121,8 @@ const TemplateForm = () => {
 
       dispatch(closeForm())
     } catch (error) {
+      // Toast notifications are now handled in Redux API layer
+      // Keep local error for form validation display
       console.error('Template save error:', error)
       const errorMessage = error?.data?.error || error?.message || 'Failed to save template'
       dispatch(setError(errorMessage))
@@ -182,16 +184,16 @@ const TemplateForm = () => {
             placeholder="e.g., Bug Report Template, PR Review Template"
           />
 
-          {/* Template Type */}
+          {/* Template For */}
           <Box>
             <TextField
-              label="Template Type"
-              value={formData.issueType}
-              onChange={handleInputChange('issueType')}
+              label="Template For"
+              value={formData.templateFor}
+              onChange={handleInputChange('templateFor')}
               fullWidth
-              required
-              placeholder="e.g., Bug, Task, Story, PR, Review, Email, etc."
-              helperText="You can use any type - Bug, Task, Story, PR, Review, Email, or create your own custom types"
+              disabled
+              placeholder="e.g., JIRA_BUG, JIRA_TASK, PR_REVIEW"
+              helperText="This field shows what the template is designed for. Editing capability will be available in a future update"
             />
           </Box>
 
@@ -248,18 +250,6 @@ const TemplateForm = () => {
               </Box>
             </Box>
           )}
-
-          {/* Template Examples */}
-          <Alert severity="info">
-            <Typography variant="body2">
-              <strong>Template Examples:</strong><br/>
-              • <strong>Bug:</strong> Generate bug reports with steps to reproduce<br/>
-              • <strong>PR:</strong> Create pull request descriptions<br/>
-              • <strong>Review:</strong> Code review templates<br/>
-              • <strong>Email:</strong> Email templates for notifications<br/>
-              • <strong>Custom:</strong> Any workflow-specific template you need
-            </Typography>
-          </Alert>
         </Box>
       </DialogContent>
 

@@ -46,14 +46,17 @@ const GeneralSettings = () => {
           <FormControlLabel
             control={<Switch defaultChecked />}
             label="Enable notifications"
+            disabled
           />
           <FormControlLabel
             control={<Switch defaultChecked />}
             label="Show success messages"
+            disabled
           />
           <FormControlLabel
             control={<Switch />}
             label="Show debug information"
+            disabled
           />
           
           <Divider sx={{ my: 2 }} />
@@ -64,6 +67,7 @@ const GeneralSettings = () => {
           <FormControlLabel
             control={<Switch defaultChecked />}
             label="Auto-save form data"
+            disabled
           />
           <TextField
             label="Auto-save interval (seconds)"

@@ -1,6 +1,5 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
-require('dotenv').config();
 
 // TODO: fix workaround for windows on line 54 copying files to root directory
 module.exports = {

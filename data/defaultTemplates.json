@@ -4,51 +4,56 @@
       "id": "default-jira-bug",
       "name": "Default Jira Bug Template",
       "templateFor": "JIRA_BUG",
-      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed bug report. Format your output like this, and include a blank line between each list item: Issue Summary: Short, concise bug title - max 8 words Steps to Reproduce: # Step 1  # Step 2  # Step 3  Expected Behavior: * What should happen.  Actual Behavior: * What is happening instead — {imageContext}.  Possible Causes: * List possible reasons — e.g., font rendering, input field style, etc.",
+      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed bug report.\n\nFormat your output like this, and include a blank line between each list item:\n\n**Issue Summary:** Short, concise bug title - max 8 words\n\n**Steps to Reproduce:**\n# Step 1\n# Step 2\n# Step 3\n\n**Expected Behavior:**\n* What should happen.\n\n**Actual Behavior:**\n* What is happening instead — {imageContext}.",
       "variables": ["prompt", "imageReference", "imageContext"],
       "isDefault": true,
       "isActive": true,
-      "templateType": "Jira"
+      "templateType": "Jira",
+      "canBeModified": true
     },
     {
       "id": "default-jira-task",
       "name": "Default Jira Task Template",
       "templateFor": "JIRA_TASK",
-      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed task description. Format your output like this, and include a blank line between each list item: Task Summary: Short, concise task title - max 8 words Description: * Detailed description of what needs to be done based on the {imageContext}.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Implementation Notes: * Technical notes or considerations for implementation.  Dependencies: * Any dependencies or prerequisites needed.",
+      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed task description.\n\nFormat your output like this, and include a blank line between each list item:\n\n**Task Summary:** Short, concise task title - max 8 words\n\n**Description:**\n* Detailed description of what needs to be done based on the {imageContext}.\n\n**Acceptance Criteria:**\n# Criteria 1\n# Criteria 2\n# Criteria 3\n\n**Implementation Notes:**\n* Technical notes or considerations for implementation.\n\n**Dependencies:**\n* Any dependencies or prerequisites needed.",
       "variables": ["prompt", "imageReference", "imageContext"],
       "isDefault": true,
       "isActive": true,
-      "templateType": "Jira"
+      "templateType": "Jira",
+      "canBeModified": true
     },
     {
       "id": "default-jira-story",
       "name": "Default Jira Story Template",
       "templateFor": "JIRA_STORY",
-      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed user story. Format your output like this, and include a blank line between each list item: Story Summary: Short, concise story title - max 8 words User Story: * As a user type, I want functionality so that benefit/value.  Description: * Detailed description based on the {imageContext}.  Acceptance Criteria: # Criteria 1  # Criteria 2  # Criteria 3  Definition of Done: * What constitutes completion of this story.",
+      "content": "{prompt} - Based on the prompt {imageReference}, generate a detailed user story.\n\nFormat your output like this, and include a blank line between each list item:\n\n**Story Summary:** Short, concise story title - max 8 words\n\n**User Story:**\n* As a user type, I want functionality so that benefit/value.\n\n**Description:**\n* Detailed description based on the {imageContext}.\n\n**Acceptance Criteria:**\n# Criteria 1\n# Criteria 2\n# Criteria 3\n\n**Definition of Done:**\n* What constitutes completion of this story.",
       "variables": ["prompt", "imageReference", "imageContext"],
       "isDefault": true,
       "isActive": true,
-      "templateType": "Jira"
+      "templateType": "Jira",
+      "canBeModified": true
     },
     {
       "id": "pr-combined-template",
       "name": "Combined PR Title and Description Template",
       "templateFor": "PR_COMBINED",
-      "content": "Based on the following commit messages from a branch, generate both a pull request title and description.\n\nRequirements:\n\nFor the TITLE:\n- Clear and professional\n- Under 50 characters\n- Use imperative mood (e.g., Add auth not Added authentication)\n- Focus on the most important change only\n- NOT include any ticket numbers, issue numbers, or identifiers\n\nFor the DESCRIPTION:\n- Brief overview (1-2 sentences max)\n- List 3-5 key changes only\n- Focus on the most important changes\n- Use markdown format\n- Keep under 200 words\n\nCommit messages:\n{commitMessages}\n",
+      "content": "Based on the following commit messages from a branch, generate both a pull request title and description.\n\n**Requirements:**\n\n**For the TITLE:**\n- Clear and professional\n- Under 50 characters\n- Use imperative mood (e.g., Add auth not Added authentication)\n- Focus on the most important change only\n- NOT include any ticket numbers, issue numbers, or identifiers\n\n**For the DESCRIPTION:**\n- Brief overview (1-2 sentences max)\n- List 3-5 key changes only\n- Focus on the most important changes\n- Use markdown format\n- Keep under 200 words\n\n**Commit messages:**\n{commitMessages}",
       "variables": ["commitMessages"],
       "isDefault": true,
       "isActive": true,
-      "templateType": "Git"
+      "templateType": "Git",
+      "canBeModified": true
     },
     {
       "id": "pr-review-template",
       "name": "PR Code Review Template",
       "templateFor": "PR_REVIEW",
-      "content": "You are an expert code reviewer. Analyze the provided pull request and provide constructive feedback.\n\n**Pull Request Details:**\nTitle: {prTitle}\nDescription: {prDescription}\nAuthor: {prAuthor}\n\n**Code Changes:**\n{codeChanges}\n\nPlease provide a comprehensive code review covering:\n1. Code quality and readability\n2. Potential bugs or issues\n3. Security concerns\n4. Performance implications\n5. Best practices and suggestions for improvement\n6. Overall assessment and recommendation\n\nFocus on being constructive and helpful in your feedback.",
+      "content": "You are an expert code reviewer. Analyze the provided pull request and provide constructive feedback.\n\n**Pull Request Details:**\n- **Title:** {prTitle}\n- **Description:** {prDescription}\n- **Author:** {prAuthor}\n\n**Code Changes:**\n{codeChanges}\n\nPlease provide a comprehensive code review covering:\n\n1. **Code quality and readability**\n2. **Potential bugs or issues**\n3. **Security concerns**\n4. **Performance implications**\n5. **Best practices and suggestions for improvement**\n6. **Overall assessment and recommendation**\n\nFocus on being constructive and helpful in your feedback.",
       "variables": ["prTitle", "prDescription", "prAuthor", "codeChanges"],
       "isDefault": true,
       "isActive": true,
-      "templateType": "Git"
+      "templateType": "Git",
+      "canBeModified": true
     },
     {
       "id": "chat-dev-assistant",
@@ -58,7 +63,8 @@
       "variables": [],
       "isDefault": true,
       "isActive": true,
-      "templateType": "Chat"
+      "templateType": "Chat",
+      "canBeModified": true
     },
     {
       "id": "chat-generic-assistant",
@@ -68,7 +74,8 @@
       "variables": [],
       "isDefault": true,
       "isActive": true,
-      "templateType": "Chat"
+      "templateType": "Chat",
+      "canBeModified": true
     }
   ],
   "settings": {

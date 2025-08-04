@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_BASE_URL } from '../../config/environment';
+import ToastService from '../../services/toastService';
 
 export const templateApi = createApi({
   reducerPath: 'templateApi',
@@ -46,7 +47,15 @@ export const templateApi = createApi({
         body: template,
       }),
       invalidatesTags: ['Template'],
-      transformResponse: (response) => response.data
+      transformResponse: (response) => response.data,
+      onQueryStarted: async (template, { queryFulfilled }) => {
+        try {
+          await queryFulfilled;
+          ToastService.success(`Template "${template.name}" created successfully`);
+        } catch (error) {
+          ToastService.handleApiError(error, 'Failed to create template');
+        }
+      }
     }),
 
     // Update template
@@ -60,7 +69,16 @@ export const templateApi = createApi({
         { type: 'Template', id },
         'Template'
       ],
-      transformResponse: (response) => response.data
+      transformResponse: (response) => response.data,
+      onQueryStarted: async ({ name, ...updates }, { queryFulfilled }) => {
+        try {
+          await queryFulfilled;
+          const templateName = name || updates.name || 'Template';
+          ToastService.success(`Template "${templateName}" updated successfully`);
+        } catch (error) {
+          ToastService.handleApiError(error, 'Failed to update template');
+        }
+      }
     }),
 
     // Delete template
@@ -70,7 +88,20 @@ export const templateApi = createApi({
         method: 'DELETE',
       }),
       invalidatesTags: ['Template'],
-      transformResponse: (response) => response.data
+      transformResponse: (response) => response.data,
+      onQueryStarted: async (id, { queryFulfilled, getState }) => {
+        try {
+          await queryFulfilled;
+          // Get template name from current state for better message
+          const templates = getState().templateApi?.queries?.getAllTemplates?.data || [];
+          const template = templates.find(t => t.id === id);
+          const templateName = template?.name || 'Template';
+          
+          ToastService.success(`${templateName} deleted successfully`);
+        } catch (error) {
+          ToastService.handleApiError(error, 'Failed to delete template');
+        }
+      }
     }),
 
     // Set active template
@@ -111,7 +142,15 @@ export const templateApi = createApi({
         method: 'POST',
       }),
       invalidatesTags: ['Template', 'Settings'],
-      transformResponse: (response) => response.data
+      transformResponse: (response) => response.data,
+      onQueryStarted: async (_, { queryFulfilled }) => {
+        try {
+          await queryFulfilled;
+          ToastService.success('Templates reset to defaults successfully');
+        } catch (error) {
+          ToastService.handleApiError(error, 'Failed to reset templates');
+        }
+      }
     }),
 
     // Export templates
@@ -120,7 +159,15 @@ export const templateApi = createApi({
         url: '/export',
         method: 'GET',
       }),
-      transformResponse: (response) => response
+      transformResponse: (response) => response,
+      onQueryStarted: async (_, { queryFulfilled }) => {
+        try {
+          await queryFulfilled;
+          ToastService.success('Templates exported successfully');
+        } catch (error) {
+          ToastService.handleApiError(error, 'Failed to export templates');
+        }
+      }
     }),
 
     // Import templates
@@ -131,7 +178,15 @@ export const templateApi = createApi({
         body: importData,
       }),
       invalidatesTags: ['Template'],
-      transformResponse: (response) => response.data
+      transformResponse: (response) => response.data,
+      onQueryStarted: async (_, { queryFulfilled }) => {
+        try {
+          await queryFulfilled;
+          ToastService.success('Templates imported successfully');
+        } catch (error) {
+          ToastService.handleApiError(error, 'Failed to import templates');
+        }
+      }
     }),
 
     // Duplicate template
@@ -142,7 +197,15 @@ export const templateApi = createApi({
         body: { name },
       }),
       invalidatesTags: ['Template'],
-      transformResponse: (response) => response.data
+      transformResponse: (response) => response.data,
+      onQueryStarted: async ({ name }, { queryFulfilled }) => {
+        try {
+          await queryFulfilled;
+          ToastService.success(`Template "${name}" duplicated successfully`);
+        } catch (error) {
+          ToastService.handleApiError(error, 'Failed to duplicate template');
+        }
+      }
     }),
   }),
 })

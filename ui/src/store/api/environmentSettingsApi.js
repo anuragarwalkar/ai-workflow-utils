@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { API_BASE_URL } from '../../config/environment.js';
+import ToastService from '../../services/toastService';
 
 export const environmentSettingsApi = createApi({
   reducerPath: 'environmentSettingsApi',
@@ -26,6 +27,14 @@ export const environmentSettingsApi = createApi({
         body: settings,
       }),
       invalidatesTags: ['EnvironmentSettings', 'Providers'],
+      async onQueryStarted(settings, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          ToastService.success('Environment settings saved successfully!');
+        } catch (error) {
+          ToastService.handleApiError(error, 'Failed to save environment settings');
+        }
+      },
     }),
 
     // Get provider status
@@ -41,6 +50,14 @@ export const environmentSettingsApi = createApi({
         method: 'POST',
         body: { provider, config },
       }),
+      async onQueryStarted({ provider }, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          ToastService.success(`${provider} connection test: ${data.data.message}`);
+        } catch (error) {
+          ToastService.handleApiError(error, 'Connection test failed');
+        }
+      },
     }),
 
     // Get default configuration
@@ -55,6 +72,14 @@ export const environmentSettingsApi = createApi({
         method: 'POST',
       }),
       invalidatesTags: ['EnvironmentSettings', 'Providers'],
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          ToastService.success('Settings reset to defaults successfully!');
+        } catch (error) {
+          ToastService.handleApiError(error, 'Failed to reset settings');
+        }
+      },
     }),
     getProviderConfig: builder.query({
       query: () => '/config',
@@ -69,6 +94,14 @@ export const environmentSettingsApi = createApi({
         url: '/export',
         method: 'POST',
       }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          ToastService.success('Settings exported successfully!');
+        } catch (error) {
+          ToastService.handleApiError(error, 'Failed to export settings');
+        }
+      },
     }),
     importSettings: builder.mutation({
       query: (importData) => ({
@@ -77,6 +110,14 @@ export const environmentSettingsApi = createApi({
         body: importData,
       }),
       invalidatesTags: ['EnvironmentSettings', 'Providers', 'ProviderConfig'],
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          ToastService.success('Settings imported successfully!');
+        } catch (error) {
+          ToastService.handleApiError(error, 'Failed to import settings');
+        }
+      },
     }),
   }),
 })

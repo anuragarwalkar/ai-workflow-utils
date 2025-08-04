@@ -13,6 +13,7 @@ import {
   FormControlLabel,
   Switch,
   Stack,
+  Tooltip,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -57,12 +58,52 @@ const TemplateSettings = () => {
   const [exportTemplates] = useExportTemplatesMutation();
   const [resetToDefaults] = useResetToDefaultsMutation();
 
+  // Helper function to render template chips
+  const renderTemplateChips = (template) => {
+    const chips = [];
+    
+    if (template.templateType) {
+      chips.push({
+        key: 'templateType',
+        label: template.templateType,
+        color: 'primary'
+      });
+    }
+    
+    if (template.type) {
+      chips.push({
+        key: 'type',
+        label: template.type,
+        color: 'info'
+      });
+    }
+    
+    if (template.isDefault) {
+      chips.push({
+        key: 'default',
+        label: 'Default',
+        color: 'secondary'
+      });
+    }
+    
+    return chips.map((chip) => (
+      <Chip
+        key={chip.key}
+        label={chip.label}
+        size="small"
+        color={chip.color}
+        variant="outlined"
+      />
+    ));
+  };
+
   const handleDelete = async (id, name) => {
     if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
       try {
         await deleteTemplate(id).unwrap();
       } catch (error) {
-        console.error("Failed to delete template:", error);
+        // Error handling is now done in Redux API layer
+        console.error("Delete template error:", error);
       }
     }
   };
@@ -83,12 +124,12 @@ const TemplateSettings = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      // Success message is now handled in Redux API layer
     } catch (error) {
-      console.error("Failed to export templates:", error);
+      // Error handling is now done in Redux API layer
+      console.error("Export templates error:", error);
     }
-  };
-
-  const handleReset = async () => {
+  };  const handleReset = async () => {
     if (
       window.confirm(
         "Are you sure you want to reset all templates to defaults? This will keep your custom templates but restore default settings."
@@ -96,8 +137,10 @@ const TemplateSettings = () => {
     ) {
       try {
         await resetToDefaults().unwrap();
+        // Success message is now handled in Redux API layer
       } catch (error) {
-        console.error("Failed to reset templates:", error);
+        // Error handling is now done in Redux API layer
+        console.error("Reset templates error:", error);
       }
     }
   };
@@ -133,13 +176,18 @@ const TemplateSettings = () => {
           >
             Reset
           </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => dispatch(openCreateForm())}
-          >
-            New Template
-          </Button>
+          <Tooltip title="Template filtering feature is currently not available">
+            <span>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => dispatch(openCreateForm())}
+                disabled
+              >
+                New Template
+              </Button>
+            </span>
+          </Tooltip>
         </Stack>
       </Box>
 
@@ -147,54 +195,63 @@ const TemplateSettings = () => {
       <Box sx={{ mb: 3 }}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={4}>
-            <TextField
-              disabled
-              fullWidth
-              select
-              size="small"
-              label="Filter by Type"
-              value={filterType}
-              onChange={(e) => dispatch(setFilterType(e.target.value))}
-              SelectProps={{ native: true }}
-            >
-              <option value="all">All Types</option>
-              {availableTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </TextField>
+            <Tooltip title="Template filtering feature is currently not available">
+              <TextField
+                disabled
+                fullWidth
+                select
+                size="small"
+                label="Filter by Type"
+                value={filterType}
+                onChange={(e) => dispatch(setFilterType(e.target.value))}
+                SelectProps={{ native: true }}
+              >
+                <option value="all">All Types</option>
+                {availableTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </TextField>
+            </Tooltip>
           </Grid>
           <Grid item xs={12} md={3}>
-            <TextField
-              disabled
-              fullWidth
-              size="small"
-              placeholder="Search templates..."
-              style={{ marginBottom: "0" }}
-              value={searchTerm}
-              onChange={(e) => dispatch(setSearchTerm(e.target.value))}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
+            <Tooltip title="Template filtering feature is currently not available">
+              <TextField
+                disabled
+                fullWidth
+                size="small"
+                placeholder="Search templates..."
+                style={{ marginBottom: "0" }}
+                value={searchTerm}
+                onChange={(e) => dispatch(setSearchTerm(e.target.value))}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Tooltip>
           </Grid>
           <Grid item xs={12} md={5} alignItems="center">
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showDefaultTemplates}
-                  onChange={(e) =>
-                    dispatch(setShowDefaultTemplates(e.target.checked))
+            <Tooltip title="Template filtering feature is currently not available">
+              <span>
+                <FormControlLabel
+                  disabled
+                  control={
+                    <Switch
+                      checked={showDefaultTemplates}
+                      onChange={(e) =>
+                        dispatch(setShowDefaultTemplates(e.target.checked))
+                      }
+                    />
                   }
+                  label="Show default templates"
                 />
-              }
-              label="Show default templates"
-            />
+              </span>
+            </Tooltip>
           </Grid>
         </Grid>
       </Box>
@@ -223,22 +280,7 @@ const TemplateSettings = () => {
                     {template.name}
                   </Typography>
                   <Stack direction="row" spacing={0.5}>
-                    {template.templateType && (
-                      <Chip
-                        label={template.templateType}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                      />
-                    )}
-                    {template.isDefault && (
-                      <Chip
-                        label="Default"
-                        size="small"
-                        color="secondary"
-                        variant="outlined"
-                      />
-                    )}
+                    {renderTemplateChips(template)}
                   </Stack>
                 </Box>
 
@@ -314,13 +356,18 @@ const TemplateSettings = () => {
               ? "Try adjusting your search or filter criteria"
               : "Create your first template to get started"}
           </Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => dispatch(openCreateForm())}
-          >
-            Create Template
-          </Button>
+          <Tooltip title="Template filtering feature is currently not available">
+            <span>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => dispatch(openCreateForm())}
+                disabled
+              >
+                Create Template
+              </Button>
+            </span>
+          </Tooltip>
         </Box>
       )}
 
