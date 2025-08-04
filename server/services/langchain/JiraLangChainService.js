@@ -1,5 +1,5 @@
-import { BaseLangChainService } from "./BaseLangChainService.js";
-import logger from "../../logger.js";
+import { BaseLangChainService } from './BaseLangChainService.js';
+import logger from '../../logger.js';
 
 /**
  * Jira-specific LangChain service for handling Jira issue generation
@@ -13,13 +13,13 @@ export class JiraLangChainService extends BaseLangChainService {
    * Stream content generation specifically for Jira issues using templates only
    */
   async streamContent(promptTemplateFormatter, images, issueType, res) {
-    let fullContent = "";
+    let fullContent = '';
 
     res.write(
       `data: ${JSON.stringify({
-        type: "status",
-        message: "Starting content generation...",
-        provider: "Initializing",
+        type: 'status',
+        message: 'Starting content generation...',
+        provider: 'Initializing',
       })}\n\n`
     );
 
@@ -33,7 +33,7 @@ export class JiraLangChainService extends BaseLangChainService {
 
       res.write(
         `data: ${JSON.stringify({
-          type: "status",
+          type: 'status',
           message: `Using ${result.provider}...`,
           provider: result.provider,
         })}\n\n`
@@ -43,24 +43,24 @@ export class JiraLangChainService extends BaseLangChainService {
       const content = result.content;
       if (content) {
         // Simulate streaming by sending chunks
-        const words = content.split(" ");
+        const words = content.split(' ');
         for (let i = 0; i < words.length; i += 5) {
-          const chunk = words.slice(i, i + 5).join(" ") + " ";
+          const chunk = words.slice(i, i + 5).join(' ') + ' ';
           fullContent += chunk;
           res.write(
             `data: ${JSON.stringify({
-              type: "chunk",
+              type: 'chunk',
               content: chunk,
             })}\n\n`
           );
           // Small delay to simulate streaming
-          await new Promise((resolve) => setTimeout(resolve, 50));
+          await new Promise(resolve => setTimeout(resolve, 50));
         }
       }
 
       res.write(
         `data: ${JSON.stringify({
-          type: "complete",
+          type: 'complete',
           message: `${issueType} preview generated successfully`,
           bugReport: fullContent || result.content,
           summary: this.extractSummaryFromContent(
@@ -78,7 +78,7 @@ export class JiraLangChainService extends BaseLangChainService {
       logger.error(`Error in Jira template-based streaming: ${error.message}`);
       res.write(
         `data: ${JSON.stringify({
-          type: "error",
+          type: 'error',
           error: `Failed to generate ${issueType} preview`,
           details: error.message,
         })}\n\n`
@@ -97,7 +97,7 @@ export class JiraLangChainService extends BaseLangChainService {
     const hasImages = images && images.length > 0;
 
     if (this.providers.length === 0) {
-      throw new Error("No AI providers are configured");
+      throw new Error('No AI providers are configured');
     }
 
     // Get the template and format it
@@ -135,7 +135,7 @@ export class JiraLangChainService extends BaseLangChainService {
 
         const response = await provider.model.invoke([
           {
-            role: "human",
+            role: 'human',
             content: messageContent,
           },
         ]);
@@ -173,12 +173,12 @@ export class JiraLangChainService extends BaseLangChainService {
    * Extract a simple summary from content (first line or first sentence)
    */
   extractSummaryFromContent(content) {
-    if (!content || content.trim() === "") {
-      return "Generated Jira Issue";
+    if (!content || content.trim() === '') {
+      return 'Generated Jira Issue';
     }
 
     // Try to extract first meaningful line
-    const lines = content.split("\n").filter((line) => line.trim() !== "");
+    const lines = content.split('\n').filter(line => line.trim() !== '');
     if (lines.length > 0) {
       const firstLine = lines[0].trim();
       // If first line looks like a title/summary (not too long), use it
@@ -195,11 +195,11 @@ export class JiraLangChainService extends BaseLangChainService {
         return firstSentence;
       }
       // If too long, truncate
-      return firstSentence.substring(0, 97) + "...";
+      return firstSentence.substring(0, 97) + '...';
     }
 
     // Final fallback
-    return content.substring(0, 50) + "...";
+    return content.substring(0, 50) + '...';
   }
 
   /**

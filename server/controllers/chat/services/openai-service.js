@@ -14,23 +14,29 @@ class OpenAIService {
    */
   static async generateResponse(messageData) {
     const config = ChatProviderConfig.getOpenAIConfig();
-    
-    logger.info(`Making OpenAI compatible API request to: ${config.baseUrl}/chat/completions`);
+
+    logger.info(
+      `Making OpenAI compatible API request to: ${config.baseUrl}/chat/completions`
+    );
     logger.info(`Using model: ${config.model}`);
 
     const requestPayload = {
       model: config.model,
-      ...messageData
+      ...messageData,
     };
 
     try {
-      const response = await axios.post(`${config.baseUrl}/chat/completions`, requestPayload, {
-        headers: {
-          'Authorization': `Bearer ${config.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        timeout: 60000 // 60 second timeout
-      });
+      const response = await axios.post(
+        `${config.baseUrl}/chat/completions`,
+        requestPayload,
+        {
+          headers: {
+            Authorization: `Bearer ${config.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: 60000, // 60 second timeout
+        }
+      );
 
       logger.info(`OpenAI compatible API response status: ${response.status}`);
       return response.data.choices[0].message.content;
@@ -50,18 +56,22 @@ class OpenAIService {
     const requestPayload = {
       model: config.model,
       ...messageData,
-      stream: true
+      stream: true,
     };
 
     try {
-      const response = await axios.post(`${config.baseUrl}/chat/completions`, requestPayload, {
-        headers: {
-          'Authorization': `Bearer ${config.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        responseType: 'stream',
-        timeout: 60000
-      });
+      const response = await axios.post(
+        `${config.baseUrl}/chat/completions`,
+        requestPayload,
+        {
+          headers: {
+            Authorization: `Bearer ${config.apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          responseType: 'stream',
+          timeout: 60000,
+        }
+      );
 
       return response;
     } catch (error) {
@@ -77,22 +87,36 @@ class OpenAIService {
    */
   static _handleApiError(error) {
     if (error.response) {
-      logger.error(`OpenAI compatible API error - Status: ${error.response.status}`);
-      logger.error(`Error data: ${JSON.stringify(error.response.data, null, 2)}`);
-      
+      logger.error(
+        `OpenAI compatible API error - Status: ${error.response.status}`
+      );
+      logger.error(
+        `Error data: ${JSON.stringify(error.response.data, null, 2)}`
+      );
+
       // Provide more specific error messages based on status code
       if (error.response.status === 400) {
-        throw new Error(`Bad Request (400): ${error.response.data?.error?.message || 'Invalid request format or parameters'}`);
+        throw new Error(
+          `Bad Request (400): ${error.response.data?.error?.message || 'Invalid request format or parameters'}`
+        );
       } else if (error.response.status === 401) {
-        throw new Error(`Unauthorized (401): Invalid API key or authentication failed`);
+        throw new Error(
+          `Unauthorized (401): Invalid API key or authentication failed`
+        );
       } else if (error.response.status === 429) {
-        throw new Error(`Rate Limited (429): Too many requests, please try again later`);
+        throw new Error(
+          `Rate Limited (429): Too many requests, please try again later`
+        );
       } else {
-        throw new Error(`API Error (${error.response.status}): ${error.response.data?.error?.message || error.message}`);
+        throw new Error(
+          `API Error (${error.response.status}): ${error.response.data?.error?.message || error.message}`
+        );
       }
     } else if (error.request) {
       logger.error(`Network error: ${error.message}`);
-      throw new Error(`Network error: Unable to reach OpenAI compatible server`);
+      throw new Error(
+        `Network error: Unable to reach OpenAI compatible server`
+      );
     } else {
       logger.error(`Request setup error: ${error.message}`);
       throw new Error(`Request error: ${error.message}`);

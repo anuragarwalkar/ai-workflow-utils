@@ -7,9 +7,9 @@ export const buildApi = createApi({
     baseUrl: `${API_BASE_URL}/api/build`,
   }),
   tagTypes: ['Build'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     startBuild: builder.mutation({
-      query: (buildConfig) => ({
+      query: buildConfig => ({
         url: '/release',
         method: 'POST',
         body: buildConfig,

@@ -1,4 +1,4 @@
-import { DEFAULT_TARGET_BRANCH } from "../utils/constants.js";
+import { DEFAULT_TARGET_BRANCH } from '../utils/constants.js';
 
 /**
  * Pull Request model for data validation and structure
@@ -18,9 +18,15 @@ class PullRequest {
    * Validate required fields
    */
   static validate(data) {
-    const required = ['title', 'description', 'fromBranch', 'projectKey', 'repoSlug'];
+    const required = [
+      'title',
+      'description',
+      'fromBranch',
+      'projectKey',
+      'repoSlug',
+    ];
     const missing = required.filter(field => !data[field]);
-    
+
     if (missing.length > 0) {
       throw new Error(`Missing required fields: ${missing.join(', ')}`);
     }
@@ -47,12 +53,12 @@ class PullRequest {
    */
   toResponsePayload(additionalData = {}) {
     return {
-      message: "Pull request created successfully",
+      message: 'Pull request created successfully',
       prTitle: this.title,
       prDescription: this.description,
       ticketNumber: this.ticketNumber,
       branchName: this.fromBranch,
-      ...additionalData
+      ...additionalData,
     };
   }
 }

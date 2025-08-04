@@ -20,7 +20,7 @@ class ErrorHandler {
       message: error.message,
       stack: error.stack,
       context,
-      timestamp
+      timestamp,
     });
 
     // Determine error type and response
@@ -30,7 +30,7 @@ class ErrorHandler {
       success: false,
       error: errorResponse.message,
       errorId: errorId,
-      timestamp: timestamp
+      timestamp: timestamp,
     });
   }
 
@@ -41,14 +41,14 @@ class ErrorHandler {
    */
   static handleValidationError(error, res) {
     logger.warn('Email validation error', {
-      message: error.message
+      message: error.message,
     });
 
     res.status(400).json({
       success: false,
       error: error.message,
       type: 'VALIDATION_ERROR',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -64,7 +64,7 @@ class ErrorHandler {
     logger.error(`${service} service error`, {
       errorId,
       message: error.message,
-      service
+      service,
     });
 
     res.status(503).json({
@@ -72,7 +72,7 @@ class ErrorHandler {
       error: `${service} service is currently unavailable. Please try again later.`,
       errorId: errorId,
       service: service,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -89,49 +89,58 @@ class ErrorHandler {
     if (error.message.includes('Missing required fields')) {
       return {
         status: 400,
-        message: error.message
+        message: error.message,
       };
     }
 
     if (error.message.includes('Invalid') && error.message.includes('format')) {
       return {
         status: 400,
-        message: error.message
+        message: error.message,
       };
     }
 
-    if (error.message.includes('not found') || error.message.includes('Not found')) {
+    if (
+      error.message.includes('not found') ||
+      error.message.includes('Not found')
+    ) {
       return {
         status: 404,
-        message: `Resource not found during ${context}`
+        message: `Resource not found during ${context}`,
       };
     }
 
-    if (error.message.includes('fetch failed') || error.message.includes('ENOTFOUND')) {
+    if (
+      error.message.includes('fetch failed') ||
+      error.message.includes('ENOTFOUND')
+    ) {
       return {
         status: 503,
-        message: `External service unavailable during ${context}`
+        message: `External service unavailable during ${context}`,
       };
     }
 
-    if (error.message.includes('Unauthorized') || error.message.includes('401')) {
+    if (
+      error.message.includes('Unauthorized') ||
+      error.message.includes('401')
+    ) {
       return {
         status: 401,
-        message: 'Authentication failed. Please check your credentials.'
+        message: 'Authentication failed. Please check your credentials.',
       };
     }
 
     if (error.message.includes('Forbidden') || error.message.includes('403')) {
       return {
         status: 403,
-        message: 'Access denied. Insufficient permissions.'
+        message: 'Access denied. Insufficient permissions.',
       };
     }
 
     // Default to internal server error
     return {
       status: 500,
-      message: `An unexpected error occurred during ${context}. Please contact support with error ID: ${errorId}`
+      message: `An unexpected error occurred during ${context}. Please contact support with error ID: ${errorId}`,
     };
   }
 
@@ -167,9 +176,11 @@ class ErrorHandler {
     // Don't expose sensitive information in production
     if (process.env.NODE_ENV === 'production') {
       // Only expose validation and user-facing errors
-      if (error.message.includes('Invalid') || 
-          error.message.includes('Missing') ||
-          error.message.includes('not found')) {
+      if (
+        error.message.includes('Invalid') ||
+        error.message.includes('Missing') ||
+        error.message.includes('not found')
+      ) {
         return error.message;
       }
       return defaultMessage;

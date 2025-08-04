@@ -73,7 +73,9 @@ class TemplateDatabaseService {
     try {
       Template.validate(templateData);
       const template = new Template(templateData);
-      const created = await templateDbService.createTemplate(template.toDbFormat());
+      const created = await templateDbService.createTemplate(
+        template.toDbFormat()
+      );
       return Template.fromDb(created);
     } catch (error) {
       logger.error('Error creating template:', error);
@@ -92,21 +94,24 @@ class TemplateDatabaseService {
       // Get existing template first
       const templates = await templateDbService.getAllTemplates();
       const existingTemplate = templates.find(t => t.id === id);
-      
+
       if (!existingTemplate) {
         throw new Error(`Template with ID ${id} not found`);
       }
 
       const template = Template.fromDb(existingTemplate);
-      
+
       if (!template.canBeModified()) {
         throw new Error('Cannot modify default templates');
       }
 
       template.update(updates);
       Template.validate(template);
-      
-      const updated = await templateDbService.updateTemplate(id, template.toDbFormat());
+
+      const updated = await templateDbService.updateTemplate(
+        id,
+        template.toDbFormat()
+      );
       return Template.fromDb(updated);
     } catch (error) {
       logger.error('Error updating template:', error);
@@ -123,13 +128,13 @@ class TemplateDatabaseService {
     try {
       const templates = await templateDbService.getAllTemplates();
       const existingTemplate = templates.find(t => t.id === id);
-      
+
       if (!existingTemplate) {
         throw new Error(`Template with ID ${id} not found`);
       }
 
       const template = Template.fromDb(existingTemplate);
-      
+
       if (!template.canBeDeleted()) {
         throw new Error('Cannot delete default templates');
       }
@@ -150,7 +155,10 @@ class TemplateDatabaseService {
    */
   static async setActiveTemplate(issueType, templateId) {
     try {
-      const updated = await templateDbService.setActiveTemplate(issueType, templateId);
+      const updated = await templateDbService.setActiveTemplate(
+        issueType,
+        templateId
+      );
       return Template.fromDb(updated);
     } catch (error) {
       logger.error('Error setting active template:', error);
@@ -254,7 +262,7 @@ class TemplateDatabaseService {
       const duplicateData = {
         name: newName || `${template.name} (Copy)`,
         issueType: template.issueType,
-        content: template.content
+        content: template.content,
       };
 
       return await this.createTemplate(duplicateData);

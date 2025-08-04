@@ -13,20 +13,14 @@ export const TEMPLATE_CONSTANTS = {
   DEFAULT_MAX_TEMPLATES_PER_TYPE: 10,
 
   // Issue types
-  DEFAULT_ISSUE_TYPES: [
-    'story',
-    'task', 
-    'bug',
-    'epic',
-    'subtask'
-  ],
+  DEFAULT_ISSUE_TYPES: ['story', 'task', 'bug', 'epic', 'subtask'],
 
   // Template statuses
   TEMPLATE_STATUS: {
     ACTIVE: 'active',
     INACTIVE: 'inactive',
     DEFAULT: 'default',
-    USER_CREATED: 'user_created'
+    USER_CREATED: 'user_created',
   },
 
   // Export/Import
@@ -36,19 +30,21 @@ export const TEMPLATE_CONSTANTS = {
   // File patterns
   VARIABLE_PATTERN: /\{\{([^}]+)\}\}/g,
   ISSUE_TYPE_PATTERN: /^[a-zA-Z0-9_-]+$/,
-  UUID_PATTERN: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+  UUID_PATTERN:
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
 
   // Error messages
   ERROR_MESSAGES: {
     TEMPLATE_NOT_FOUND: 'Template not found',
     CANNOT_MODIFY_DEFAULT: 'Cannot modify default templates',
     CANNOT_DELETE_DEFAULT: 'Cannot delete default templates',
-    INVALID_ISSUE_TYPE: 'Issue type can only contain letters, numbers, underscores, and hyphens',
+    INVALID_ISSUE_TYPE:
+      'Issue type can only contain letters, numbers, underscores, and hyphens',
     INVALID_UUID: 'Template ID must be a valid UUID',
     MISSING_REQUIRED_FIELDS: 'Missing required fields',
     INVALID_IMPORT_DATA: 'Invalid import data format',
     NAME_TOO_LONG: 'Template name must be 100 characters or less',
-    CONTENT_TOO_LONG: 'Template content must be 10000 characters or less'
+    CONTENT_TOO_LONG: 'Template content must be 10000 characters or less',
   },
 
   // Success messages
@@ -61,7 +57,7 @@ export const TEMPLATE_CONSTANTS = {
     SETTINGS_UPDATED: 'Settings updated successfully',
     TEMPLATES_RESET: 'Templates reset to defaults successfully',
     TEMPLATES_EXPORTED: 'Templates exported successfully',
-    TEMPLATES_IMPORTED: 'Templates imported successfully'
+    TEMPLATES_IMPORTED: 'Templates imported successfully',
   },
 
   // HTTP status codes
@@ -71,14 +67,14 @@ export const TEMPLATE_CONSTANTS = {
     BAD_REQUEST: 400,
     NOT_FOUND: 404,
     FORBIDDEN: 403,
-    INTERNAL_SERVER_ERROR: 500
+    INTERNAL_SERVER_ERROR: 500,
   },
 
   // Complexity levels
   COMPLEXITY_LEVELS: {
     LOW: 'low',
     MEDIUM: 'medium',
-    HIGH: 'high'
+    HIGH: 'high',
   },
 
   // Sort options
@@ -86,14 +82,14 @@ export const TEMPLATE_CONSTANTS = {
     NAME: 'name',
     ISSUE_TYPE: 'issueType',
     CREATED_AT: 'createdAt',
-    UPDATED_AT: 'updatedAt'
+    UPDATED_AT: 'updatedAt',
   },
 
   // Sort orders
   SORT_ORDERS: {
     ASC: 'asc',
-    DESC: 'desc'
-  }
+    DESC: 'desc',
+  },
 };
 
 export default TEMPLATE_CONSTANTS;

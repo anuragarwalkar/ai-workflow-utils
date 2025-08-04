@@ -3,12 +3,16 @@
  */
 class LegacyDiffProcessor {
   static processLegacyDiff(diffData) {
-    let codeChanges = "";
+    let codeChanges = '';
     let hasChanges = false;
 
     if (diffData && diffData.values && Array.isArray(diffData.values)) {
       diffData.values.forEach((file, index) => {
-        const fileName = file.srcPath?.toString || file.path?.toString || file.source?.toString || "Unknown file";
+        const fileName =
+          file.srcPath?.toString ||
+          file.path?.toString ||
+          file.source?.toString ||
+          'Unknown file';
         codeChanges += `### File ${index + 1}: ${fileName}\n`;
 
         if (file.hunks && Array.isArray(file.hunks)) {
@@ -20,7 +24,7 @@ class LegacyDiffProcessor {
             codeChanges += `\`\`\`diff\n`;
 
             if (hunk.lines && Array.isArray(hunk.lines)) {
-              hunk.lines.forEach((line) => {
+              hunk.lines.forEach(line => {
                 hasChanges = true;
                 if (line.left && line.right) {
                   codeChanges += `-${line.left}\n+${line.right}\n`;
@@ -29,14 +33,14 @@ class LegacyDiffProcessor {
                 } else if (line.right) {
                   codeChanges += `+${line.right}\n`;
                 } else if (line.content) {
-                  let prefix = " ";
-                  if (line.type === "ADDED") {
-                    prefix = "+";
-                  } else if (line.type === "REMOVED") {
-                    prefix = "-";
+                  let prefix = ' ';
+                  if (line.type === 'ADDED') {
+                    prefix = '+';
+                  } else if (line.type === 'REMOVED') {
+                    prefix = '-';
                   }
                   codeChanges += `${prefix}${line.content}\n`;
-                } else if (typeof line === "string") {
+                } else if (typeof line === 'string') {
                   codeChanges += `${line}\n`;
                 }
               });

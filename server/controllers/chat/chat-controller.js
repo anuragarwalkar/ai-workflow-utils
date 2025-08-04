@@ -15,18 +15,22 @@ class ChatController {
    */
   static async sendChatMessage(req, res) {
     try {
-      const { message, conversationHistory = [], template = 'CHAT_GENERIC', sessionId } = req.body;
+      const {
+        message,
+        conversationHistory = [],
+        template = 'CHAT_GENERIC',
+        sessionId,
+      } = req.body;
 
       // Generate response using chat service
       const response = await ChatService.generateResponse({
         message,
         conversationHistory,
-        options: { template, sessionId }
+        options: { template, sessionId },
       });
 
       // Send response in standard API format
       res.json(response.toApiResponse());
-
     } catch (error) {
       ErrorHandler.handleApiError(error, 'sendChatMessage', res);
     }
@@ -39,12 +43,17 @@ class ChatController {
    */
   static async sendChatMessageStreaming(req, res) {
     try {
-      const { message, conversationHistory = [], template = 'CHAT_GENERIC', sessionId } = req.body;
+      const {
+        message,
+        conversationHistory = [],
+        template = 'CHAT_GENERIC',
+        sessionId,
+      } = req.body;
 
       if (!message) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
-          error: 'Message is required' 
+          error: 'Message is required',
         });
       }
 
@@ -52,26 +61,29 @@ class ChatController {
       StreamingProcessor.setupSSEHeaders(res);
 
       // Generate streaming response using chat service
-      await ChatService.generateStreamingResponse({
-        message,
-        conversationHistory,
-        options: { template, sessionId }
-      }, res);
-
+      await ChatService.generateStreamingResponse(
+        {
+          message,
+          conversationHistory,
+          options: { template, sessionId },
+        },
+        res
+      );
     } catch (error) {
       logger.error('Error in streaming chat controller:', error);
-      
+
       // Send error through streaming if headers are already sent
       if (res.headersSent) {
-        StreamingProcessor.sendError(res, 
-          'Failed to process chat message. Please try again.', 
+        StreamingProcessor.sendError(
+          res,
+          'Failed to process chat message. Please try again.',
           'sendChatMessageStreaming'
         );
       } else {
         ErrorHandler.handleApiError(error, 'sendChatMessageStreaming', res);
       }
     }
-    
+
     res.end();
   }
 
@@ -83,18 +95,17 @@ class ChatController {
   static async getChatConfig(req, res) {
     try {
       const { ChatProviderConfig } = await import('./utils/chat-config.js');
-      
+
       const config = {
         availableProviders: ChatProviderConfig.getAvailableProviders(),
         openaiConfigValid: ChatProviderConfig.isOpenAIConfigValid(),
-        ollamaConfigValid: ChatProviderConfig.isOllamaConfigValid()
+        ollamaConfigValid: ChatProviderConfig.isOllamaConfigValid(),
       };
 
       res.json({
         success: true,
-        data: config
+        data: config,
       });
-
     } catch (error) {
       ErrorHandler.handleApiError(error, 'getChatConfig', res);
     }
@@ -113,12 +124,14 @@ class ChatController {
       const health = {
         openai: {
           configured: ChatProviderConfig.isOpenAIConfigValid(),
-          status: ChatProviderConfig.isOpenAIConfigValid() ? 'ready' : 'not_configured'
+          status: ChatProviderConfig.isOpenAIConfigValid()
+            ? 'ready'
+            : 'not_configured',
         },
         ollama: {
           configured: ChatProviderConfig.isOllamaConfigValid(),
-          status: 'checking...'
-        }
+          status: 'checking...',
+        },
       };
 
       // Check Ollama availability if configured
@@ -131,9 +144,8 @@ class ChatController {
 
       res.json({
         success: true,
-        data: health
+        data: health,
       });
-
     } catch (error) {
       ErrorHandler.handleApiError(error, 'checkProviderHealth', res);
     }
@@ -147,11 +159,11 @@ class ChatController {
   static async getConversationHistory(req, res) {
     try {
       const { sessionId } = req.params;
-      
+
       if (!sessionId) {
         return res.status(400).json({
           success: false,
-          error: 'Session ID is required'
+          error: 'Session ID is required',
         });
       }
 
@@ -161,10 +173,9 @@ class ChatController {
         success: true,
         data: {
           sessionId,
-          history
-        }
+          history,
+        },
       });
-
     } catch (error) {
       ErrorHandler.handleApiError(error, 'getConversationHistory', res);
     }
@@ -178,11 +189,11 @@ class ChatController {
   static async clearConversationMemory(req, res) {
     try {
       const { sessionId } = req.params;
-      
+
       if (!sessionId) {
         return res.status(400).json({
           success: false,
-          error: 'Session ID is required'
+          error: 'Session ID is required',
         });
       }
 
@@ -192,10 +203,9 @@ class ChatController {
         success: true,
         data: {
           sessionId,
-          message: 'Conversation memory cleared'
-        }
+          message: 'Conversation memory cleared',
+        },
       });
-
     } catch (error) {
       logger.error('Error in clearing conversation memory:', error);
       ErrorHandler.handleApiError(error, 'clearConversationMemory', res);
@@ -209,15 +219,17 @@ class ChatController {
    */
   static async testChatTemplate(req, res) {
     try {
-      const { template = 'CHAT_GENERIC', message = 'Hello, can you help me?' } = req.body;
-      
-      const result = await ChatService.testChatFunctionality(message, null, { template });
+      const { template = 'CHAT_GENERIC', message = 'Hello, can you help me?' } =
+        req.body;
+
+      const result = await ChatService.testChatFunctionality(message, null, {
+        template,
+      });
 
       res.json({
         success: true,
-        data: result
+        data: result,
       });
-
     } catch (error) {
       ErrorHandler.handleApiError(error, 'testChatTemplate', res);
     }
@@ -234,9 +246,8 @@ class ChatController {
 
       res.json({
         success: true,
-        data: stats
+        data: stats,
       });
-
     } catch (error) {
       ErrorHandler.handleApiError(error, 'getChatStats', res);
     }
@@ -251,13 +262,15 @@ class ChatController {
     try {
       const { testMessage, provider } = req.body;
 
-      const result = await ChatService.testChatFunctionality(testMessage, provider);
+      const result = await ChatService.testChatFunctionality(
+        testMessage,
+        provider
+      );
 
       res.json({
         success: true,
-        data: result
+        data: result,
       });
-
     } catch (error) {
       ErrorHandler.handleApiError(error, 'testChatFunctionality', res);
     }

@@ -2,7 +2,7 @@
  * Environment configuration management for Jira operations
  */
 
-import logger from "../../../logger.js";
+import logger from '../../../logger.js';
 
 export class EnvironmentConfig {
   /**
@@ -12,7 +12,7 @@ export class EnvironmentConfig {
   static get() {
     const config = {
       jiraUrl: process.env.JIRA_URL,
-      jiraToken: process.env.JIRA_TOKEN
+      jiraToken: process.env.JIRA_TOKEN,
     };
 
     // Validate required configuration
@@ -20,8 +20,10 @@ export class EnvironmentConfig {
       const missing = [];
       if (!config.jiraUrl) missing.push('JIRA_URL');
       if (!config.jiraToken) missing.push('JIRA_TOKEN');
-      
-      throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+
+      throw new Error(
+        `Missing required environment variables: ${missing.join(', ')}`
+      );
     }
 
     return config;
@@ -43,9 +45,9 @@ export class EnvironmentConfig {
   static getAuthHeaders() {
     const { jiraToken } = this.get();
     return {
-      'Authorization': `Bearer ${jiraToken}`,
+      Authorization: `Bearer ${jiraToken}`,
       'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      Accept: 'application/json',
     };
   }
 
@@ -57,7 +59,7 @@ export class EnvironmentConfig {
     const { jiraToken } = this.get();
     return {
       'X-Atlassian-Token': 'no-check',
-      'Authorization': `Bearer ${jiraToken}`
+      Authorization: `Bearer ${jiraToken}`,
     };
   }
 

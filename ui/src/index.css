@@ -6,7 +6,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
@@ -21,12 +22,15 @@ html, body {
 }
 
 /* Remove default button and input styles to let Material-UI take over */
-button, input, textarea, select {
+button,
+input,
+textarea,
+select {
   font-family: inherit;
 }
 
 /* Ensure proper file input styling */
-input[type="file"] {
+input[type='file'] {
   font-family: inherit;
 }
 
@@ -51,7 +55,12 @@ input[type="file"] {
 
 /* Smooth animations for all elements */
 * {
-  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 /* Disable transitions during page load */
@@ -69,7 +78,8 @@ input[type="file"] {
 
 /* Floating animation keyframes */
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -83,7 +93,8 @@ input[type="file"] {
 
 /* Pulse animation for AI sparkle */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -103,10 +114,12 @@ input[type="file"] {
 
 /* Blinking cursor animation for streaming */
 @keyframes blink {
-  0%, 50% {
+  0%,
+  50% {
     opacity: 1;
   }
-  51%, 100% {
+  51%,
+  100% {
     opacity: 0;
   }
 }

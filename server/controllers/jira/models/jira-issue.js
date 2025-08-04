@@ -2,8 +2,8 @@
  * Jira Issue data model and validation
  */
 
-import { ValidationUtils } from "../utils/validation-utils.js";
-import { ISSUE_TYPE_MAPPING, PRIORITY_LEVELS } from "../utils/constants.js";
+import { ValidationUtils } from '../utils/validation-utils.js';
+import { ISSUE_TYPE_MAPPING, PRIORITY_LEVELS } from '../utils/constants.js';
 
 export class JiraIssue {
   constructor(data) {
@@ -28,9 +28,13 @@ export class JiraIssue {
 
     // Validate custom fields if provided
     if (data.customFields) {
-      const customFieldValidation = ValidationUtils.validateCustomFields(data.customFields);
+      const customFieldValidation = ValidationUtils.validateCustomFields(
+        data.customFields
+      );
       if (!customFieldValidation.isValid) {
-        throw new Error(`Custom field validation failed: ${customFieldValidation.errors.join(', ')}`);
+        throw new Error(
+          `Custom field validation failed: ${customFieldValidation.errors.join(', ')}`
+        );
       }
     }
   }
@@ -60,8 +64,8 @@ export class JiraIssue {
         description: this.description,
         issuetype: { name: this.issueType },
         priority: { name: this.priority },
-        ...processedCustomFields
-      }
+        ...processedCustomFields,
+      },
     };
   }
 
@@ -78,8 +82,10 @@ export class JiraIssue {
           const val = field.value;
 
           // Check if the value is a string that looks like JSON
-          const isLikelyJson = typeof val === 'string' && 
-            (val.trim().startsWith('{') && val.trim().endsWith('}')) ||
+          const isLikelyJson =
+            (typeof val === 'string' &&
+              val.trim().startsWith('{') &&
+              val.trim().endsWith('}')) ||
             (val.trim().startsWith('[') && val.trim().endsWith(']'));
 
           if (isLikelyJson) {
@@ -89,7 +95,10 @@ export class JiraIssue {
               processedFields[field.key] = JSON.parse(sanitized);
             } catch (parseError) {
               // Fallback to string if JSON parsing fails
-              console.warn(`Failed to parse JSON for field ${field.key}:`, parseError.message);
+              console.warn(
+                `Failed to parse JSON for field ${field.key}:`,
+                parseError.message
+              );
               processedFields[field.key] = val;
             }
           } else {
@@ -121,7 +130,7 @@ export class JiraIssue {
       issueType: this.issueType,
       priority: this.priority,
       projectType: this.projectType,
-      customFields: this.customFields
+      customFields: this.customFields,
     };
   }
 
@@ -135,7 +144,7 @@ export class JiraIssue {
       issueType: this.issueType,
       priority: this.priority,
       project: this.projectType,
-      customFieldsCount: this.customFields.length
+      customFieldsCount: this.customFields.length,
     };
   }
 }

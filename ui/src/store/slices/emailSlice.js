@@ -21,13 +21,13 @@ const emailSlice = createSlice({
       state.error = action.payload;
       state.isLoading = false;
     },
-    clearEmailError: (state) => {
+    clearEmailError: state => {
       state.error = null;
     },
     setLastSentVersion: (state, action) => {
       state.lastSentVersion = action.payload;
     },
-    clearEmailData: (state) => {
+    clearEmailData: state => {
       state.emailData = null;
       state.error = null;
     },

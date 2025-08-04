@@ -10,17 +10,17 @@ class ErrorHandler {
    */
   static handleApiError(error, context, res) {
     console.error(`Error in ${context}:`, error);
-    
+
     // Determine error type and appropriate response
     const errorResponse = this.buildErrorResponse(error, context);
-    
+
     res.status(errorResponse.status).json({
       success: false,
       error: errorResponse.message,
-      context
+      context,
     });
   }
-  
+
   /**
    * Build error response based on error type
    * @param {Error} error - The error object
@@ -32,55 +32,55 @@ class ErrorHandler {
     if (error.code === 'ENOENT') {
       return {
         status: 404,
-        message: 'Logs directory or file not found'
+        message: 'Logs directory or file not found',
       };
     }
-    
+
     if (error.code === 'EACCES') {
       return {
         status: 403,
-        message: 'Permission denied accessing logs'
+        message: 'Permission denied accessing logs',
       };
     }
-    
+
     if (error.code === 'EMFILE' || error.code === 'ENFILE') {
       return {
         status: 500,
-        message: 'Too many open files, please try again later'
+        message: 'Too many open files, please try again later',
       };
     }
-    
+
     // Validation errors
     if (error.name === 'ValidationError') {
       return {
         status: 400,
-        message: error.message
+        message: error.message,
       };
     }
-    
+
     // JSON parsing errors
     if (error instanceof SyntaxError && error.message.includes('JSON')) {
       return {
         status: 400,
-        message: 'Invalid log format detected'
+        message: 'Invalid log format detected',
       };
     }
-    
+
     // Memory errors
     if (error.message.includes('out of memory') || error.code === 'ENOMEM') {
       return {
         status: 500,
-        message: 'Insufficient memory to process logs'
+        message: 'Insufficient memory to process logs',
       };
     }
-    
+
     // Generic server error
     return {
       status: 500,
-      message: `Failed to ${context.replace(/([A-Z])/g, ' $1').toLowerCase()}`
+      message: `Failed to ${context.replace(/([A-Z])/g, ' $1').toLowerCase()}`,
     };
   }
-  
+
   /**
    * Log error with context
    * @param {Error} error - The error object
@@ -95,14 +95,14 @@ class ErrorHandler {
         name: error.name,
         message: error.message,
         stack: error.stack,
-        code: error.code
+        code: error.code,
       },
-      ...additionalInfo
+      ...additionalInfo,
     };
-    
+
     console.error('Logs Controller Error:', JSON.stringify(errorInfo, null, 2));
   }
-  
+
   /**
    * Create a validation error
    * @param {string} message - Error message
@@ -113,7 +113,7 @@ class ErrorHandler {
     error.name = 'ValidationError';
     return error;
   }
-  
+
   /**
    * Create a file system error
    * @param {string} message - Error message
@@ -125,7 +125,7 @@ class ErrorHandler {
     error.code = code;
     return error;
   }
-  
+
   /**
    * Safely execute an async operation with error handling
    * @param {Function} operation - Async operation to execute

@@ -9,7 +9,7 @@ const PRContainer = () => {
   const [tabValue, setTabValue] = useState(0);
   const [config, setConfig] = useState({
     projectKey: '',
-    repoSlug: ''
+    repoSlug: '',
   });
 
   useEffect(() => {
@@ -23,12 +23,12 @@ const PRContainer = () => {
     setTabValue(newValue);
   };
 
-  const handleViewDiff = (pr) => {
+  const handleViewDiff = pr => {
     // TODO: Implement diff viewing logic
     console.log('View diff for PR:', pr);
   };
 
-  const handleRequestReview = (pr) => {
+  const handleRequestReview = pr => {
     // TODO: Implement review request logic
     console.log('Request review for PR:', pr);
   };
@@ -39,21 +39,19 @@ const PRContainer = () => {
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="fullWidth"
+          indicatorColor='primary'
+          textColor='primary'
+          variant='fullWidth'
         >
-          <Tab label="Create PR" />
-          <Tab label="View PRs" />
+          <Tab label='Create PR' />
+          <Tab label='View PRs' />
         </Tabs>
       </Paper>
 
-      {tabValue === 0 && (
-        <CreatePRContainer />
-      )}
+      {tabValue === 0 && <CreatePRContainer />}
 
-      {tabValue === 1 && (
-        config.projectKey && config.repoSlug ? (
+      {tabValue === 1 &&
+        (config.projectKey && config.repoSlug ? (
           <PRList
             projectKey={config.projectKey}
             repoSlug={config.repoSlug}
@@ -62,12 +60,12 @@ const PRContainer = () => {
           />
         ) : (
           <Box sx={{ p: 3, textAlign: 'center' }}>
-            <Typography color="text.secondary">
-              Please create a PR first to configure project key and repository slug
+            <Typography color='text.secondary'>
+              Please create a PR first to configure project key and repository
+              slug
             </Typography>
           </Box>
-        )
-      )}
+        ))}
     </Box>
   );
 };

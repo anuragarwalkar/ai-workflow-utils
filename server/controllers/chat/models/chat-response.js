@@ -10,7 +10,7 @@ export class ChatResponse {
     timestamp = new Date().toISOString(),
     success = true,
     error = null,
-    metadata = {}
+    metadata = {},
   }) {
     this.content = content;
     this.sessionId = sessionId;
@@ -33,8 +33,8 @@ export class ChatResponse {
         sessionId: this.sessionId,
         provider: this.provider,
         timestamp: this.timestamp,
-        metadata: this.metadata
-      }
+        metadata: this.metadata,
+      },
     };
 
     if (!this.success && this.error) {
@@ -57,7 +57,7 @@ export class ChatResponse {
       timestamp: this.timestamp,
       success: this.success,
       error: this.error,
-      metadata: this.metadata
+      metadata: this.metadata,
     };
   }
 
@@ -86,7 +86,7 @@ export class ChatResponse {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -97,14 +97,18 @@ export class ChatResponse {
    * @param {string} provider - Provider name
    * @returns {ChatResponse} Error response instance
    */
-  static createErrorResponse(errorMessage, sessionId = 'error_session', provider = 'unknown') {
+  static createErrorResponse(
+    errorMessage,
+    sessionId = 'error_session',
+    provider = 'unknown'
+  ) {
     return new ChatResponse({
       content: '',
       sessionId,
       provider,
       success: false,
       error: errorMessage,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -123,7 +127,7 @@ export class ChatResponse {
       provider,
       success: true,
       metadata,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 }

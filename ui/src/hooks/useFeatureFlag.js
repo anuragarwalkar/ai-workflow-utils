@@ -12,7 +12,7 @@ export const useFeatureFlag = (flagName, defaultValue = false) => {
     return stored !== null ? stored === 'true' : defaultValue;
   });
 
-  const toggleFlag = (newValue) => {
+  const toggleFlag = newValue => {
     const valueToSet = newValue !== undefined ? newValue : !flagValue;
     localStorage.setItem(flagName, valueToSet.toString());
     setFlagValue(valueToSet);
@@ -20,7 +20,7 @@ export const useFeatureFlag = (flagName, defaultValue = false) => {
 
   // Listen for storage changes (useful for multiple tabs)
   useEffect(() => {
-    const handleStorageChange = (e) => {
+    const handleStorageChange = e => {
       if (e.key === flagName) {
         setFlagValue(e.newValue === 'true');
       }
@@ -64,7 +64,7 @@ export const FEATURE_FLAGS = {
   ENABLE_CODE_ANALYSIS: 'enableCodeAnalysis',
   ENABLE_WORKFLOW_AUTOMATION: 'enableWorkflowAutomation',
   ENABLE_SEND_EMAIL: 'enableSendEmail',
-  ENABLE_RELEASE_BUILD: 'enableReleaseBuild'
+  ENABLE_RELEASE_BUILD: 'enableReleaseBuild',
 };
 
 /**
@@ -86,7 +86,9 @@ export const isFeatureEnabled = (flagName, defaultValue = false) => {
 export const setFeatureFlag = (flagName, enabled) => {
   localStorage.setItem(flagName, enabled.toString());
   // Dispatch custom event for components to listen to
-  window.dispatchEvent(new CustomEvent('featureFlagChanged', {
-    detail: { flagName, enabled }
-  }));
+  window.dispatchEvent(
+    new CustomEvent('featureFlagChanged', {
+      detail: { flagName, enabled },
+    })
+  );
 };

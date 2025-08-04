@@ -23,22 +23,28 @@ class TemplateExportImportProcessor {
             content: template.content,
             createdAt: template.createdAt,
             updatedAt: template.updatedAt,
-            variables: template.variables
+            variables: template.variables,
           })),
         settings: {
           defaultIssueTypes: settings.defaultIssueTypes,
           maxTemplatesPerType: settings.maxTemplatesPerType,
           allowCustomIssueTypes: settings.allowCustomIssueTypes,
           autoBackup: settings.autoBackup,
-          backupRetentionDays: settings.backupRetentionDays
+          backupRetentionDays: settings.backupRetentionDays,
         },
         metadata: {
           totalTemplates: templates.filter(t => !t.isDefault).length,
-          issueTypes: [...new Set(templates.filter(t => !t.isDefault).map(t => t.issueType))]
-        }
+          issueTypes: [
+            ...new Set(
+              templates.filter(t => !t.isDefault).map(t => t.issueType)
+            ),
+          ],
+        },
       };
 
-      logger.info(`Processed export data with ${exportData.templates.length} templates`);
+      logger.info(
+        `Processed export data with ${exportData.templates.length} templates`
+      );
       return exportData;
     } catch (error) {
       logger.error('Error processing export data:', error);
@@ -59,7 +65,7 @@ class TemplateExportImportProcessor {
         isDefault: false, // Imported templates are never default
         isActive: false, // Imported templates start as inactive
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       }));
 
       const processedData = {
@@ -68,11 +74,13 @@ class TemplateExportImportProcessor {
         importStats: {
           templatesCount: processedTemplates.length,
           issueTypes: [...new Set(processedTemplates.map(t => t.issueType))],
-          importDate: new Date().toISOString()
-        }
+          importDate: new Date().toISOString(),
+        },
       };
 
-      logger.info(`Processed import data with ${processedData.templates.length} templates`);
+      logger.info(
+        `Processed import data with ${processedData.templates.length} templates`
+      );
       return processedData;
     } catch (error) {
       logger.error('Error processing import data:', error);
@@ -93,10 +101,12 @@ class TemplateExportImportProcessor {
         issueType: originalTemplate.issueType,
         content: originalTemplate.content,
         isDefault: false,
-        isActive: false
+        isActive: false,
       };
 
-      logger.info(`Processed template duplication: ${originalTemplate.name} -> ${newName}`);
+      logger.info(
+        `Processed template duplication: ${originalTemplate.name} -> ${newName}`
+      );
       return processedTemplate;
     } catch (error) {
       logger.error('Error processing template duplication:', error);
@@ -121,9 +131,9 @@ class TemplateExportImportProcessor {
         matches.push({
           variable,
           position: match.index,
-          length: match[0].length
+          length: match[0].length,
         });
-        
+
         if (!variables.includes(variable)) {
           variables.push(variable);
         }
@@ -135,10 +145,12 @@ class TemplateExportImportProcessor {
         totalMatches: matches.length,
         matches,
         hasVariables: variables.length > 0,
-        complexity: this.calculateComplexity(content, variables.length)
+        complexity: this.calculateComplexity(content, variables.length),
       };
 
-      logger.debug(`Content analysis completed: ${variables.length} unique variables found`);
+      logger.debug(
+        `Content analysis completed: ${variables.length} unique variables found`
+      );
       return analysis;
     } catch (error) {
       logger.error('Error processing content analysis:', error);
@@ -181,9 +193,13 @@ class TemplateExportImportProcessor {
    */
   static processApiResponse(templates) {
     try {
-      const processedTemplates = templates.map(template => template.toApiFormat());
-      
-      logger.debug(`Processed ${processedTemplates.length} templates for API response`);
+      const processedTemplates = templates.map(template =>
+        template.toApiFormat()
+      );
+
+      logger.debug(
+        `Processed ${processedTemplates.length} templates for API response`
+      );
       return processedTemplates;
     } catch (error) {
       logger.error('Error processing API response:', error);
@@ -211,8 +227,8 @@ class TemplateExportImportProcessor {
       // Filter by name (case-insensitive partial match)
       if (filters.name) {
         const nameFilter = filters.name.toLowerCase();
-        filteredTemplates = filteredTemplates.filter(
-          template => template.name.toLowerCase().includes(nameFilter)
+        filteredTemplates = filteredTemplates.filter(template =>
+          template.name.toLowerCase().includes(nameFilter)
         );
       }
 
@@ -235,7 +251,7 @@ class TemplateExportImportProcessor {
         filteredTemplates.sort((a, b) => {
           const aValue = a[filters.sortBy];
           const bValue = b[filters.sortBy];
-          
+
           if (filters.sortOrder === 'desc') {
             return bValue > aValue ? 1 : -1;
           }
@@ -243,7 +259,9 @@ class TemplateExportImportProcessor {
         });
       }
 
-      logger.debug(`Processed search: ${filteredTemplates.length} results from ${templates.length} templates`);
+      logger.debug(
+        `Processed search: ${filteredTemplates.length} results from ${templates.length} templates`
+      );
       return filteredTemplates;
     } catch (error) {
       logger.error('Error processing template search:', error);

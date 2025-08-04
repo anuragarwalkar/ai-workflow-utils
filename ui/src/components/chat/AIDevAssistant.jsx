@@ -73,7 +73,11 @@ const AIDevAssistant = () => {
   const sendMessage = async () => {
     if (!message.trim() || isStreaming) return;
 
-    const userMessage = { role: 'user', content: message.trim(), timestamp: new Date() };
+    const userMessage = {
+      role: 'user',
+      content: message.trim(),
+      timestamp: new Date(),
+    };
     setConversation(prev => [...prev, userMessage]);
     setMessage('');
     setIsStreaming(true);
@@ -84,7 +88,7 @@ const AIDevAssistant = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'text/event-stream',
+          Accept: 'text/event-stream',
         },
         body: JSON.stringify({
           message: userMessage.content,
@@ -113,7 +117,7 @@ const AIDevAssistant = () => {
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
-              
+
               if (data.type === 'token') {
                 accumulatedContent += data.content;
                 setStreamingContent(accumulatedContent);
@@ -122,7 +126,7 @@ const AIDevAssistant = () => {
                   role: 'assistant',
                   content: accumulatedContent,
                   timestamp: new Date(),
-                  provider: data.provider || 'AI'
+                  provider: data.provider || 'AI',
                 };
                 setConversation(prev => [...prev, aiMessage]);
                 setStreamingContent('');
@@ -142,7 +146,7 @@ const AIDevAssistant = () => {
         role: 'assistant',
         content: `⚠️ Sorry, I encountered an error: ${error.message}. Please try again.`,
         timestamp: new Date(),
-        isError: true
+        isError: true,
       };
       setConversation(prev => [...prev, errorMessage]);
       setStreamingContent('');
@@ -155,35 +159,58 @@ const AIDevAssistant = () => {
     setStreamingContent('');
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = e => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
   };
 
-  const formatContent = (content) => {
+  const formatContent = content => {
     // Simple markdown-like formatting for code blocks and emphasis
     return content
-      .replace(/```(.*?)```/gs, '<pre style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 4px; margin: 8px 0;"><code>$1</code></pre>')
-      .replace(/`([^`]+)`/g, '<code style="background: rgba(0,0,0,0.1); padding: 2px 4px; border-radius: 3px;">$1</code>')
+      .replace(
+        /```(.*?)```/gs,
+        '<pre style="background: rgba(0,0,0,0.1); padding: 8px; border-radius: 4px; margin: 8px 0;"><code>$1</code></pre>'
+      )
+      .replace(
+        /`([^`]+)`/g,
+        '<code style="background: rgba(0,0,0,0.1); padding: 2px 4px; border-radius: 3px;">$1</code>'
+      )
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/\n/g, '<br/>');
   };
 
   const quickActions = [
-    { icon: CodeIcon, label: 'Code Review', prompt: 'Help me review this code for best practices and potential improvements' },
-    { icon: BugIcon, label: 'Debug Issue', prompt: 'I have a bug in my application. Can you help me debug it?' },
-    { icon: ArchIcon, label: 'Architecture', prompt: 'I need advice on system architecture and design patterns' },
-    { icon: PsyIcon, label: 'Explain Concept', prompt: 'Can you explain a programming concept or technology?' },
+    {
+      icon: CodeIcon,
+      label: 'Code Review',
+      prompt:
+        'Help me review this code for best practices and potential improvements',
+    },
+    {
+      icon: BugIcon,
+      label: 'Debug Issue',
+      prompt: 'I have a bug in my application. Can you help me debug it?',
+    },
+    {
+      icon: ArchIcon,
+      label: 'Architecture',
+      prompt: 'I need advice on system architecture and design patterns',
+    },
+    {
+      icon: PsyIcon,
+      label: 'Explain Concept',
+      prompt: 'Can you explain a programming concept or technology?',
+    },
   ];
 
   if (!isOpen) {
     return (
-      <Tooltip title="AI Development Assistant" placement="left">
+      <Tooltip title='AI Development Assistant' placement='left'>
         <Fab
-          color="primary"
+          color='primary'
           onClick={() => setIsOpen(true)}
           sx={{
             position: 'fixed',
@@ -205,7 +232,7 @@ const AIDevAssistant = () => {
   }
 
   return (
-    <Slide direction="up" in={isOpen} mountOnEnter unmountOnExit>
+    <Slide direction='up' in={isOpen} mountOnEnter unmountOnExit>
       <Paper
         elevation={24}
         sx={{
@@ -255,10 +282,13 @@ const AIDevAssistant = () => {
               <AIIcon />
             </Avatar>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1rem' }}>
+              <Typography
+                variant='h6'
+                sx={{ fontWeight: 700, fontSize: '1rem' }}
+              >
                 AI Dev Assistant
               </Typography>
-              <Typography variant="caption" sx={{ opacity: 0.9 }}>
+              <Typography variant='caption' sx={{ opacity: 0.9 }}>
                 Powered by LangChain • Development Optimized
               </Typography>
             </Box>
@@ -302,22 +332,32 @@ const AIDevAssistant = () => {
         >
           {conversation.length === 0 && !streamingContent && (
             <Box sx={{ textAlign: 'center', py: 4 }}>
-              <MagicIcon sx={{ fontSize: 48, color: theme.palette.primary.main, mb: 2 }} />
-              <Typography variant="h6" gutterBottom>
+              <MagicIcon
+                sx={{ fontSize: 48, color: theme.palette.primary.main, mb: 2 }}
+              />
+              <Typography variant='h6' gutterBottom>
                 Welcome to AI Dev Assistant
               </Typography>
-              <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-                I'm here to help with code review, debugging, architecture advice, and development questions.
+              <Typography variant='body2' color='textSecondary' sx={{ mb: 3 }}>
+                I'm here to help with code review, debugging, architecture
+                advice, and development questions.
               </Typography>
-              
+
               {/* Quick Actions */}
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 1,
+                  justifyContent: 'center',
+                }}
+              >
                 {quickActions.map((action, index) => (
                   <Chip
                     key={index}
                     icon={<action.icon />}
                     label={action.label}
-                    variant="outlined"
+                    variant='outlined'
                     clickable
                     onClick={() => setMessage(action.prompt)}
                     sx={{
@@ -338,7 +378,8 @@ const AIDevAssistant = () => {
                 sx={{
                   mb: 2,
                   display: 'flex',
-                  justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                  justifyContent:
+                    msg.role === 'user' ? 'flex-end' : 'flex-start',
                 }}
               >
                 <Paper
@@ -346,41 +387,44 @@ const AIDevAssistant = () => {
                   sx={{
                     p: 2,
                     maxWidth: '85%',
-                    background: msg.role === 'user'
-                      ? `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`
-                      : msg.isError
-                      ? alpha(theme.palette.error.main, 0.1)
-                      : alpha(theme.palette.background.paper, 0.9),
+                    background:
+                      msg.role === 'user'
+                        ? `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`
+                        : msg.isError
+                          ? alpha(theme.palette.error.main, 0.1)
+                          : alpha(theme.palette.background.paper, 0.9),
                     color: msg.role === 'user' ? 'white' : 'inherit',
                     borderRadius: 2,
                     border: msg.isError
                       ? `1px solid ${theme.palette.error.main}`
                       : msg.role === 'assistant'
-                      ? `1px solid ${alpha(theme.palette.primary.main, 0.2)}`
-                      : 'none',
+                        ? `1px solid ${alpha(theme.palette.primary.main, 0.2)}`
+                        : 'none',
                   }}
                 >
                   <Typography
-                    variant="body2"
+                    variant='body2'
                     sx={{
                       whiteSpace: 'pre-wrap',
                       '& code': {
-                        fontFamily: 'Monaco, Consolas, "Lucida Console", monospace',
+                        fontFamily:
+                          'Monaco, Consolas, "Lucida Console", monospace',
                         fontSize: '0.85em',
                       },
                       '& pre': {
-                        fontFamily: 'Monaco, Consolas, "Lucida Console", monospace',
+                        fontFamily:
+                          'Monaco, Consolas, "Lucida Console", monospace',
                         fontSize: '0.85em',
                         overflow: 'auto',
                       },
                     }}
                     dangerouslySetInnerHTML={{
-                      __html: formatContent(msg.content)
+                      __html: formatContent(msg.content),
                     }}
                   />
                   {msg.provider && (
                     <Typography
-                      variant="caption"
+                      variant='caption'
                       sx={{
                         display: 'block',
                         mt: 1,
@@ -416,7 +460,7 @@ const AIDevAssistant = () => {
                 }}
               >
                 <Typography
-                  variant="body2"
+                  variant='body2'
                   sx={{
                     whiteSpace: 'pre-wrap',
                     '&::after': {
@@ -430,7 +474,7 @@ const AIDevAssistant = () => {
                     },
                   }}
                   dangerouslySetInnerHTML={{
-                    __html: formatContent(streamingContent)
+                    __html: formatContent(streamingContent),
                   }}
                 />
               </Paper>
@@ -454,10 +498,10 @@ const AIDevAssistant = () => {
               multiline
               maxRows={3}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={e => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me about code, debugging, architecture, or development practices..."
-              variant="outlined"
+              placeholder='Ask me about code, debugging, architecture, or development practices...'
+              variant='outlined'
               disabled={isStreaming}
               sx={{
                 '& .MuiOutlinedInput-root': {
@@ -475,14 +519,16 @@ const AIDevAssistant = () => {
               onClick={sendMessage}
               disabled={!message.trim() || isStreaming}
               sx={{
-                background: message.trim() && !isStreaming
-                  ? `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`
-                  : alpha(theme.palette.action.disabled, 0.1),
+                background:
+                  message.trim() && !isStreaming
+                    ? `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`
+                    : alpha(theme.palette.action.disabled, 0.1),
                 color: 'white',
                 '&:hover': {
-                  background: message.trim() && !isStreaming
-                    ? `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`
-                    : alpha(theme.palette.action.disabled, 0.2),
+                  background:
+                    message.trim() && !isStreaming
+                      ? `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`
+                      : alpha(theme.palette.action.disabled, 0.2),
                 },
                 '&.Mui-disabled': {
                   color: alpha(theme.palette.action.disabled, 0.5),
@@ -492,18 +538,24 @@ const AIDevAssistant = () => {
               <SendIcon />
             </IconButton>
           </Box>
-          
+
           {conversation.length > 0 && (
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="caption" color="textSecondary">
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Typography variant='caption' color='textSecondary'>
                 Session: {sessionId.split('_').slice(-1)[0]}
               </Typography>
               <IconButton
-                size="small"
+                size='small'
                 onClick={clearConversation}
                 sx={{ color: theme.palette.text.secondary }}
               >
-                <ClearIcon fontSize="small" />
+                <ClearIcon fontSize='small' />
               </IconButton>
             </Box>
           )}

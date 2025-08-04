@@ -41,14 +41,15 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
   const dispatch = useDispatch();
   const { isDark } = useAppTheme();
   const [enhanceDescription] = useEnhanceDescriptionMutation();
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedDescription, setEditedDescription] = useState('');
   const [showEnhanceDialog, setShowEnhanceDialog] = useState(false);
   const [enhancedText, setEnhancedText] = useState('');
   const [isEnhancing, setIsEnhancing] = useState(false);
 
-  const description = jiraData?.fields?.description || 'No description provided.';
+  const description =
+    jiraData?.fields?.description || 'No description provided.';
   const issueType = jiraData?.fields?.issuetype?.name || 'Task';
 
   const handleTabChange = (event, newValue) => {
@@ -63,10 +64,12 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
   const handleSave = () => {
     // In a real implementation, you'd save to the server here
     setIsEditing(false);
-    dispatch(showNotification({
-      message: 'Description saved successfully',
-      severity: 'success'
-    }));
+    dispatch(
+      showNotification({
+        message: 'Description saved successfully',
+        severity: 'success',
+      })
+    );
   };
 
   const handleCancel = () => {
@@ -79,16 +82,18 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
     try {
       const result = await enhanceDescription({
         description,
-        issueType
+        issueType,
       }).unwrap();
-      
+
       setEnhancedText(result.data.enhanced);
       setShowEnhanceDialog(true);
     } catch {
-      dispatch(showNotification({
-        message: 'Failed to enhance description',
-        severity: 'error'
-      }));
+      dispatch(
+        showNotification({
+          message: 'Failed to enhance description',
+          severity: 'error',
+        })
+      );
     } finally {
       setIsEnhancing(false);
     }
@@ -108,7 +113,7 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         <SyntaxHighlighter
           style={vscDarkPlus}
           language={match[1]}
-          PreTag="div"
+          PreTag='div'
           {...props}
         >
           {String(children).replace(/\n$/, '')}
@@ -120,22 +125,22 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
       );
     },
     h1: ({ children }) => (
-      <Typography variant="h4" sx={{ mt: 3, mb: 2, fontWeight: 600 }}>
+      <Typography variant='h4' sx={{ mt: 3, mb: 2, fontWeight: 600 }}>
         {children}
       </Typography>
     ),
     h2: ({ children }) => (
-      <Typography variant="h5" sx={{ mt: 2, mb: 1.5, fontWeight: 600 }}>
+      <Typography variant='h5' sx={{ mt: 2, mb: 1.5, fontWeight: 600 }}>
         {children}
       </Typography>
     ),
     h3: ({ children }) => (
-      <Typography variant="h6" sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
+      <Typography variant='h6' sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
         {children}
       </Typography>
     ),
     p: ({ children }) => (
-      <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.7 }}>
+      <Typography variant='body1' sx={{ mb: 2, lineHeight: 1.7 }}>
         {children}
       </Typography>
     ),
@@ -154,17 +159,17 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
       </Box>
     ),
     ul: ({ children }) => (
-      <Box component="ul" sx={{ pl: 3, mb: 2 }}>
+      <Box component='ul' sx={{ pl: 3, mb: 2 }}>
         {children}
       </Box>
     ),
     ol: ({ children }) => (
-      <Box component="ol" sx={{ pl: 3, mb: 2 }}>
+      <Box component='ol' sx={{ pl: 3, mb: 2 }}>
         {children}
       </Box>
     ),
     li: ({ children }) => (
-      <Typography component="li" variant="body1" sx={{ mb: 0.5 }}>
+      <Typography component='li' variant='body1' sx={{ mb: 0.5 }}>
         {children}
       </Typography>
     ),
@@ -180,11 +185,11 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         {isEditing ? (
           <Box sx={{ position: 'relative', height: 400 }}>
             <Editor
-              height="400px"
-              defaultLanguage="markdown"
+              height='400px'
+              defaultLanguage='markdown'
               value={editedDescription}
               onChange={setEditedDescription}
-              theme="vs-dark"
+              theme='vs-dark'
               options={{
                 minimap: { enabled: false },
                 wordWrap: 'on',
@@ -196,17 +201,18 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
             />
             <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
               <Button
-                variant="contained"
+                variant='contained'
                 startIcon={<Save />}
                 onClick={handleSave}
                 sx={{
-                  background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                  background:
+                    'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 }}
               >
                 Save
               </Button>
               <Button
-                variant="outlined"
+                variant='outlined'
                 startIcon={<Close />}
                 onClick={handleCancel}
               >
@@ -236,11 +242,11 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
         sx={{
-          background: isDark 
+          background: isDark
             ? 'rgba(45, 55, 72, 0.95)'
             : 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(20px)',
-          border: isDark 
+          border: isDark
             ? '1px solid rgba(255, 255, 255, 0.1)'
             : '1px solid rgba(255, 255, 255, 0.2)',
           borderRadius: 3,
@@ -250,7 +256,7 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         {/* Header with Tabs and Actions */}
         <Box
           sx={{
-            borderBottom: isDark 
+            borderBottom: isDark
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(0, 0, 0, 0.1)',
             display: 'flex',
@@ -268,7 +274,9 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
                 minHeight: 48,
                 textTransform: 'none',
                 fontWeight: 600,
-                color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                color: isDark
+                  ? 'rgba(255, 255, 255, 0.7)'
+                  : 'rgba(0, 0, 0, 0.7)',
                 '&.Mui-selected': {
                   color: isDark ? '#ffffff' : '#1976d2',
                 },
@@ -282,14 +290,14 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
           >
             <Tab
               icon={<Description />}
-              label="Description"
-              value="description"
-              iconPosition="start"
+              label='Description'
+              value='description'
+              iconPosition='start'
             />
           </Tabs>
 
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Tooltip title="Enhance with AI">
+            <Tooltip title='Enhance with AI'>
               <IconButton
                 onClick={handleEnhance}
                 disabled={isEnhancing}
@@ -300,15 +308,11 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
                   },
                 }}
               >
-                {isEnhancing ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  <AutoAwesome />
-                )}
+                {isEnhancing ? <CircularProgress size={20} /> : <AutoAwesome />}
               </IconButton>
             </Tooltip>
-            
-            <Tooltip title={isEditing ? "Preview" : "Edit"}>
+
+            <Tooltip title={isEditing ? 'Preview' : 'Edit'}>
               <IconButton
                 onClick={isEditing ? () => setIsEditing(false) : handleEdit}
                 sx={{
@@ -326,9 +330,7 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
 
         {/* Content */}
         <Box sx={{ p: 3 }}>
-          <AnimatePresence mode="wait">
-            {tabContent[activeTab]}
-          </AnimatePresence>
+          <AnimatePresence mode='wait'>{tabContent[activeTab]}</AnimatePresence>
         </Box>
       </MotionPaper>
 
@@ -336,15 +338,15 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
       <Dialog
         open={showEnhanceDialog}
         onClose={() => setShowEnhanceDialog(false)}
-        maxWidth="md"
+        maxWidth='md'
         fullWidth
         PaperProps={{
           sx: {
-            background: isDark 
+            background: isDark
               ? 'rgba(45, 55, 72, 0.95)'
               : 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
-            border: isDark 
+            border: isDark
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(0, 0, 0, 0.1)',
           },
@@ -362,38 +364,38 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
           <AutoAwesome />
           AI Enhanced Description
         </DialogTitle>
-        
+
         <DialogContent sx={{ mt: 2 }}>
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography variant='subtitle2' color='text.secondary' sx={{ mb: 2 }}>
             Original:
           </Typography>
           <Paper
             sx={{
               p: 2,
               mb: 3,
-              backgroundColor: isDark 
+              backgroundColor: isDark
                 ? 'rgba(255, 255, 255, 0.05)'
                 : 'rgba(0, 0, 0, 0.05)',
-              border: isDark 
+              border: isDark
                 ? '1px solid rgba(255, 255, 255, 0.1)'
                 : '1px solid rgba(0, 0, 0, 0.1)',
             }}
           >
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant='body2' color='text.secondary'>
               {description.substring(0, 200)}...
             </Typography>
           </Paper>
 
-          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography variant='subtitle2' color='text.secondary' sx={{ mb: 2 }}>
             Enhanced:
           </Typography>
           <Paper
             sx={{
               p: 2,
-              backgroundColor: isDark 
+              backgroundColor: isDark
                 ? 'rgba(102, 126, 234, 0.1)'
                 : 'rgba(102, 126, 234, 0.05)',
-              border: isDark 
+              border: isDark
                 ? '1px solid rgba(102, 126, 234, 0.5)'
                 : '1px solid rgba(102, 126, 234, 0.3)',
             }}
@@ -406,17 +408,17 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
             </ReactMarkdown>
           </Paper>
         </DialogContent>
-        
+
         <DialogActions sx={{ p: 3 }}>
           <Button
             onClick={() => setShowEnhanceDialog(false)}
-            variant="outlined"
+            variant='outlined'
           >
             Cancel
           </Button>
           <Button
             onClick={handleAcceptEnhancement}
-            variant="contained"
+            variant='contained'
             sx={{
               background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
             }}

@@ -22,11 +22,14 @@ class EmailContentService {
 
       logger.info('Generating email content', {
         rowCount: tableData.length,
-        version: metadata.version
+        version: metadata.version,
       });
 
       // Use HTML formatter to generate the complete email body
-      const emailBody = HtmlFormatter.generateCompleteEmailBody(tableData, metadata);
+      const emailBody = HtmlFormatter.generateCompleteEmailBody(
+        tableData,
+        metadata
+      );
 
       if (!emailBody || emailBody.trim().length === 0) {
         throw new Error('Generated email body is empty');
@@ -35,15 +38,14 @@ class EmailContentService {
       const finalEmailBody = emailBody;
 
       logger.info('Email content generated successfully', {
-        contentLength: finalEmailBody.length
+        contentLength: finalEmailBody.length,
       });
 
       return finalEmailBody;
-
     } catch (error) {
       logger.error('Failed to generate email content', {
         error: error.message,
-        metadata
+        metadata,
       });
       throw new Error(`Email content generation failed: ${error.message}`);
     }
@@ -61,17 +63,18 @@ class EmailContentService {
       return emailBody;
     }
 
-    let footer = '<div style="margin-top:30px;padding:15px;background-color:#f5f5f5;border-top:2px solid #801C81;font-family:Arial,sans-serif;font-size:12px;color:#666;">';
+    let footer =
+      '<div style="margin-top:30px;padding:15px;background-color:#f5f5f5;border-top:2px solid #801C81;font-family:Arial,sans-serif;font-size:12px;color:#666;">';
     footer += '<strong>Report Information:</strong><br>';
-    
+
     if (metadata.version) {
       footer += `Version: ${metadata.version}<br>`;
     }
-    
+
     if (metadata.wikiUrl) {
       footer += `Source: <a href="${metadata.wikiUrl}" style="color:#801C81;">${metadata.wikiUrl}</a><br>`;
     }
-    
+
     footer += `Generated: ${new Date().toLocaleString()}`;
     footer += '</div>';
 
@@ -103,30 +106,32 @@ class EmailContentService {
     try {
       logger.info('Generating AI email', {
         promptLength: prompt?.length,
-        imageCount: attachedImages.length
+        imageCount: attachedImages.length,
       });
 
       // Parse prompt to extract recipient, subject, and intent
       const parsedPrompt = await this._parseEmailPrompt(prompt);
-      
+
       // Generate email content using LangChain
-      const emailContent = await this._generateEmailContent(parsedPrompt, attachedImages);
-      
+      const emailContent = await this._generateEmailContent(
+        parsedPrompt,
+        attachedImages
+      );
+
       // Extract recipient information
       const recipient = this._extractRecipient(prompt);
-      
+
       return {
         to: recipient,
         subject: emailContent.subject,
         body: emailContent.body,
         confidence: emailContent.confidence || 90,
-        suggestions: emailContent.suggestions || []
+        suggestions: emailContent.suggestions || [],
       };
-
     } catch (error) {
       logger.error('Failed to generate AI email', {
         error: error.message,
-        prompt: prompt?.substring(0, 100)
+        prompt: prompt?.substring(0, 100),
       });
       throw new Error(`AI email generation failed: ${error.message}`);
     }
@@ -152,14 +157,14 @@ class EmailContentService {
       return {
         success: true,
         messageId: `mock_${Date.now()}`,
-        message: 'Email sent successfully (simulated - Gmail integration pending)'
+        message:
+          'Email sent successfully (simulated - Gmail integration pending)',
       };
-
     } catch (error) {
       logger.error('Failed to send email', {
         error: error.message,
         to,
-        subject
+        subject,
       });
       throw new Error(`Email sending failed: ${error.message}`);
     }
@@ -178,20 +183,27 @@ class EmailContentService {
       // Gmail contacts, company directory, or other contact sources
       const mockContacts = [
         { name: 'Anurag Arwalkar', email: 'anurag@example.com', avatar: 'A' },
-        { name: 'Development Team', email: 'dev-team@example.com', avatar: 'D' },
+        {
+          name: 'Development Team',
+          email: 'dev-team@example.com',
+          avatar: 'D',
+        },
         { name: 'Project Manager', email: 'pm@example.com', avatar: 'P' },
-        { name: 'QA Team', email: 'qa@example.com', avatar: 'Q' }
+        { name: 'QA Team', email: 'qa@example.com', avatar: 'Q' },
       ];
 
-      const filtered = mockContacts.filter(contact => 
-        contact.name.toLowerCase().includes(query.toLowerCase()) ||
-        contact.email.toLowerCase().includes(query.toLowerCase())
+      const filtered = mockContacts.filter(
+        contact =>
+          contact.name.toLowerCase().includes(query.toLowerCase()) ||
+          contact.email.toLowerCase().includes(query.toLowerCase())
       );
 
       return filtered;
-
     } catch (error) {
-      logger.error('Failed to search contacts', { error: error.message, query });
+      logger.error('Failed to search contacts', {
+        error: error.message,
+        query,
+      });
       throw new Error(`Contact search failed: ${error.message}`);
     }
   }
@@ -224,14 +236,16 @@ class EmailContentService {
       );
       return JSON.parse(result);
     } catch (error) {
-      logger.warn('AI prompt parsing failed, using fallback', { error: error.message });
+      logger.warn('AI prompt parsing failed, using fallback', {
+        error: error.message,
+      });
       // Fallback to basic parsing
       return {
         intent: 'general communication',
         tone: 'professional',
         recipient: 'colleague',
         key_points: [prompt],
-        urgency: 'medium'
+        urgency: 'medium',
       };
     }
   }
@@ -266,23 +280,29 @@ class EmailContentService {
         'EMAIL_CONTENT_GENERATION',
         false
       );
-      
+
       const parsed = JSON.parse(result);
-      
+
       return {
         subject: parsed.subject || 'Professional Email',
         body: parsed.body || 'Email content generated by AI.',
         confidence: parsed.confidence || 85,
-        suggestions: parsed.suggestions || []
+        suggestions: parsed.suggestions || [],
       };
     } catch (error) {
-      logger.warn('AI content generation failed, using fallback', { error: error.message });
-      
+      logger.warn('AI content generation failed, using fallback', {
+        error: error.message,
+      });
+
       return {
         subject: 'Professional Email Communication',
         body: `<p>Hello,</p><p>${parsedPrompt.key_points?.join(' ')}</p><p>Best regards,<br>[Your Name]</p>`,
         confidence: 70,
-        suggestions: ['Add specific details', 'Include call to action', 'Personalize greeting']
+        suggestions: [
+          'Add specific details',
+          'Include call to action',
+          'Personalize greeting',
+        ],
       };
     }
   }
@@ -295,7 +315,7 @@ class EmailContentService {
     // Look for email patterns in the prompt
     const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
     const emailMatch = prompt.match(emailRegex);
-    
+
     if (emailMatch) {
       return emailMatch[0];
     }
@@ -304,7 +324,7 @@ class EmailContentService {
     const namePatterns = [
       /send.*to\s+([A-Za-z]+)/i,
       /email\s+([A-Za-z]+)/i,
-      /contact\s+([A-Za-z]+)/i
+      /contact\s+([A-Za-z]+)/i,
     ];
 
     for (const pattern of namePatterns) {
@@ -313,11 +333,11 @@ class EmailContentService {
         const name = match[1].toLowerCase();
         // Map common names to emails (in real app, this would be a proper lookup)
         const nameToEmail = {
-          'anurag': 'anurag@example.com',
-          'team': 'team@example.com',
-          'manager': 'manager@example.com'
+          anurag: 'anurag@example.com',
+          team: 'team@example.com',
+          manager: 'manager@example.com',
         };
-        
+
         return nameToEmail[name] || `${name}@example.com`;
       }
     }

@@ -1,8 +1,8 @@
 import { Typography, Box, Avatar, IconButton } from '@mui/material';
-import { 
+import {
   Psychology as PsychologyIcon,
   AutoAwesome as AutoAwesomeIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { resetCreateJira, resetViewJira } from '../../store/slices/jiraSlice';
@@ -39,7 +39,7 @@ const Header = () => {
     >
       {/* Left spacer */}
       <Box sx={{ width: 48 }} />
-      
+
       {/* Center logo */}
       <Box
         onClick={handleLogoClick}
@@ -76,24 +76,31 @@ const Header = () => {
             },
           }}
         >
-          <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Box
+            sx={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <PsychologyIcon sx={{ fontSize: 24, color: 'white' }} />
-            <AutoAwesomeIcon 
-              sx={{ 
-                fontSize: 12, 
-                color: '#f093fb', 
-                position: 'absolute', 
-                top: -2, 
+            <AutoAwesomeIcon
+              sx={{
+                fontSize: 12,
+                color: '#f093fb',
+                position: 'absolute',
+                top: -2,
                 right: -2,
                 animation: 'pulse 2s infinite',
-              }} 
+              }}
             />
           </Box>
         </Avatar>
-        <Typography 
-          variant="h4" 
-          component="h1" 
-          sx={{ 
+        <Typography
+          variant='h4'
+          component='h1'
+          sx={{
             color: 'white',
             fontWeight: 700,
             letterSpacing: '1px',
@@ -104,8 +111,8 @@ const Header = () => {
           AI Workflow Utils
         </Typography>
         <Typography
-          variant="caption"
-          sx={{ 
+          variant='caption'
+          sx={{
             color: 'rgba(255, 255, 255, 0.8)',
             fontSize: '0.7rem',
             fontWeight: 500,
@@ -120,7 +127,7 @@ const Header = () => {
           v {__APP_VERSION__}
         </Typography>
       </Box>
-      
+
       {/* Right side controls */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <ThemeToggle />

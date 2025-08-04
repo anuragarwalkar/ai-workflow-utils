@@ -15,10 +15,10 @@ export class ConfigurationProcessor {
 
     // Create a deep copy to avoid mutating the original
     const processedConfig = JSON.parse(JSON.stringify(config));
-    
+
     // Mask sensitive values
     this.maskSensitiveFields(processedConfig);
-    
+
     return processedConfig;
   }
 
@@ -34,7 +34,7 @@ export class ConfigurationProcessor {
 
     // Remove any client-side only fields
     const { _clientId, _timestamp, ...storageConfig } = config;
-    
+
     return storageConfig;
   }
 
@@ -44,26 +44,39 @@ export class ConfigurationProcessor {
    */
   static maskSensitiveFields(config) {
     const sensitiveFields = [
-      'token', 'key', 'password', 'secret', 'auth',
-      'JIRA_TOKEN', 'BITBUCKET_AUTHORIZATION_TOKEN', 
-      'OPENAI_COMPATIBLE_API_KEY', 'ANTHROPIC_API_KEY',
-      'GOOGLE_API_KEY', 'OLLAMA_API_KEY'
+      'token',
+      'key',
+      'password',
+      'secret',
+      'auth',
+      'JIRA_TOKEN',
+      'BITBUCKET_AUTHORIZATION_TOKEN',
+      'OPENAI_COMPATIBLE_API_KEY',
+      'ANTHROPIC_API_KEY',
+      'GOOGLE_API_KEY',
+      'OLLAMA_API_KEY',
     ];
 
-    const maskValue = (value) => {
+    const maskValue = value => {
       if (typeof value === 'string' && value.length > 0) {
-        return value.substring(0, 4) + '*'.repeat(Math.max(0, value.length - 4));
+        return (
+          value.substring(0, 4) + '*'.repeat(Math.max(0, value.length - 4))
+        );
       }
       return value;
     };
 
-    const processObject = (obj) => {
+    const processObject = obj => {
       if (!obj || typeof obj !== 'object') return;
-      
+
       Object.keys(obj).forEach(key => {
         if (typeof obj[key] === 'object' && obj[key] !== null) {
           processObject(obj[key]);
-        } else if (sensitiveFields.some(field => key.toLowerCase().includes(field.toLowerCase()))) {
+        } else if (
+          sensitiveFields.some(field =>
+            key.toLowerCase().includes(field.toLowerCase())
+          )
+        ) {
           obj[key] = maskValue(obj[key]);
         }
       });
@@ -79,7 +92,7 @@ export class ConfigurationProcessor {
    */
   static validateStructure(config) {
     const result = { valid: true, errors: [] };
-    
+
     if (!config || typeof config !== 'object') {
       result.valid = false;
       result.errors.push('Configuration must be a valid object');
@@ -88,7 +101,7 @@ export class ConfigurationProcessor {
 
     // Add specific structure validation as needed
     // For now, basic object validation is sufficient
-    
+
     return result;
   }
 }

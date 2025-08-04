@@ -4,9 +4,9 @@ import { ConversationChain } from 'langchain/chains';
 import { BufferMemory } from 'langchain/memory';
 import { BaseLangChainService } from './BaseLangChainService.js';
 import logger from '../../logger.js';
-import templateDbService from "../../services/templateDbService.js";
+import templateDbService from '../../services/templateDbService.js';
 /**
- * 
+ *
  * Chat-specific LangChain service extending the base service
  * Provides advanced chat functionality with conversation memory and streaming
  * Leverages BaseLangChainService for LLM setup and provider management
@@ -16,7 +16,7 @@ class ChatLangChainService extends BaseLangChainService {
     super();
     this.conversationMemories = new Map(); // Store conversation memories by session ID
     this.activeChains = new Map(); // Store active conversation chains
-    
+
     // Initialize providers from base class
     this.initializeProviders();
   }
@@ -28,11 +28,12 @@ class ChatLangChainService extends BaseLangChainService {
    */
   async getChatTemplate(templateType = 'CHAT_GENERIC') {
     try {
-      
       const template = await templateDbService.getActiveTemplate(templateType);
-      
+
       if (template && template.content) {
-        logger.info(`Using chat template: ${template.name} for ${templateType}`);
+        logger.info(
+          `Using chat template: ${template.name} for ${templateType}`
+        );
         return template.content;
       } else {
         logger.warn(`No template found for ${templateType}, using default`);
@@ -50,9 +51,11 @@ class ChatLangChainService extends BaseLangChainService {
    */
   getBestChatModel() {
     if (this.providers.length === 0) {
-      throw new Error('No AI providers are configured. Please check your environment configuration.');
+      throw new Error(
+        'No AI providers are configured. Please check your environment configuration.'
+      );
     }
-    
+
     // Return the highest priority provider (first in sorted array)
     return this.providers[0];
   }
@@ -63,9 +66,11 @@ class ChatLangChainService extends BaseLangChainService {
    * @returns {Object|null} Provider object or null if not found
    */
   getProviderByName(providerName) {
-    return this.providers.find(p => 
-      p.name.toLowerCase().includes(providerName.toLowerCase())
-    ) || null;
+    return (
+      this.providers.find(p =>
+        p.name.toLowerCase().includes(providerName.toLowerCase())
+      ) || null
+    );
   }
 
   /**
@@ -79,7 +84,7 @@ class ChatLangChainService extends BaseLangChainService {
     const {
       systemPrompt = 'You are a helpful AI assistant for developers. Provide clear, concise, and accurate responses.',
       memoryKey = 'history',
-      returnMessages = true
+      returnMessages = true,
     } = options;
 
     // Create or retrieve memory for this session
@@ -89,7 +94,7 @@ class ChatLangChainService extends BaseLangChainService {
         memoryKey,
         returnMessages,
         humanPrefix: 'Human',
-        aiPrefix: 'Assistant'
+        aiPrefix: 'Assistant',
       });
       this.conversationMemories.set(sessionId, memory);
     }
@@ -98,7 +103,7 @@ class ChatLangChainService extends BaseLangChainService {
     const prompt = ChatPromptTemplate.fromMessages([
       ['system', systemPrompt],
       ['placeholder', '{history}'],
-      ['human', '{input}']
+      ['human', '{input}'],
     ]);
 
     // Create conversation chain using the provider's model
@@ -106,7 +111,7 @@ class ChatLangChainService extends BaseLangChainService {
       llm: provider.model,
       memory,
       prompt,
-      verbose: process.env.NODE_ENV === 'development'
+      verbose: process.env.NODE_ENV === 'development',
     });
 
     this.activeChains.set(sessionId, chain);
@@ -119,12 +124,15 @@ class ChatLangChainService extends BaseLangChainService {
    * @param {string} systemPrompt - System prompt for the conversation
    * @returns {RunnableSequence} Simple chat chain
    */
-  createSimpleChatChain(provider, systemPrompt = 'You are a helpful AI assistant for developers.') {
+  createSimpleChatChain(
+    provider,
+    systemPrompt = 'You are a helpful AI assistant for developers.'
+  ) {
     const prompt = ChatPromptTemplate.fromMessages([
       ['system', systemPrompt],
-      ['human', '{input}']
+      ['human', '{input}'],
     ]);
-    
+
     const outputParser = new StringOutputParser();
     return prompt.pipe(provider.model).pipe(outputParser);
   }
@@ -141,10 +149,10 @@ class ChatLangChainService extends BaseLangChainService {
   async generateChatResponse(sessionId, message, options = {}) {
     try {
       logger.info(`Generating chat response for session ${sessionId}`);
-      
+
       // Get the best available provider
       const provider = this.getBestChatModel();
-      
+
       // Get system prompt from template or options
       let systemPrompt = options.systemPrompt;
       if (!systemPrompt && options.template) {
@@ -153,30 +161,34 @@ class ChatLangChainService extends BaseLangChainService {
       if (!systemPrompt) {
         systemPrompt = await this.getChatTemplate('CHAT_GENERIC');
       }
-      
+
       // Create or get conversation chain
       const chain = this.createConversationChain(sessionId, provider, {
-        systemPrompt
+        systemPrompt,
       });
-      
+
       // Generate response
       const response = await chain.call({
-        input: message
+        input: message,
       });
-      
-      logger.info(`Successfully generated chat response for session ${sessionId} using ${provider.name}`);
-      
+
+      logger.info(
+        `Successfully generated chat response for session ${sessionId} using ${provider.name}`
+      );
+
       return {
         content: response.response,
         sessionId,
         provider: provider.name,
         template: options.template || 'CHAT_GENERIC',
         timestamp: new Date().toISOString(),
-        success: true
+        success: true,
       };
-      
     } catch (error) {
-      logger.error(`Chat response generation failed for session ${sessionId}:`, error);
+      logger.error(
+        `Chat response generation failed for session ${sessionId}:`,
+        error
+      );
       throw error;
     }
   }
@@ -191,13 +203,20 @@ class ChatLangChainService extends BaseLangChainService {
    * @param {string} options.systemPrompt - Override system prompt
    * @returns {Promise<Object>} Final response with metadata
    */
-  async generateStreamingChatResponse(sessionId, message, onToken, options = {}) {
+  async generateStreamingChatResponse(
+    sessionId,
+    message,
+    onToken,
+    options = {}
+  ) {
     try {
-      logger.info(`Generating streaming chat response for session ${sessionId}`);
-      
+      logger.info(
+        `Generating streaming chat response for session ${sessionId}`
+      );
+
       // Get the best available provider
       const provider = this.getBestChatModel();
-      
+
       // Get system prompt from template or options
       let systemPrompt = options.systemPrompt;
       if (!systemPrompt && options.template) {
@@ -206,23 +225,23 @@ class ChatLangChainService extends BaseLangChainService {
       if (!systemPrompt) {
         systemPrompt = await this.getChatTemplate('CHAT_GENERIC');
       }
-      
+
       // For streaming, we'll use a simpler approach to handle tokens properly
       const prompt = ChatPromptTemplate.fromMessages([
         ['system', systemPrompt],
-        ['human', '{input}']
+        ['human', '{input}'],
       ]);
-      
+
       let fullContent = '';
-      
+
       // Create streaming chain
       const chain = prompt.pipe(provider.model);
-      
+
       // Stream the response
       const stream = await chain.stream({
-        input: message
+        input: message,
       });
-      
+
       for await (const chunk of stream) {
         const content = chunk.content || '';
         if (content) {
@@ -230,27 +249,31 @@ class ChatLangChainService extends BaseLangChainService {
           onToken(content);
         }
       }
-      
+
       // Update conversation memory manually for streaming responses
       const memory = this.conversationMemories.get(sessionId);
       if (memory) {
         await memory.chatMemory.addUserMessage(message);
         await memory.chatMemory.addAIChatMessage(fullContent);
       }
-      
-      logger.info(`Successfully generated streaming chat response for session ${sessionId} using ${provider.name}`);
-      
+
+      logger.info(
+        `Successfully generated streaming chat response for session ${sessionId} using ${provider.name}`
+      );
+
       return {
         content: fullContent,
         sessionId,
         provider: provider.name,
         template: options.template || 'CHAT_GENERIC',
         timestamp: new Date().toISOString(),
-        success: true
+        success: true,
       };
-      
     } catch (error) {
-      logger.error(`Streaming chat response generation failed for session ${sessionId}:`, error);
+      logger.error(
+        `Streaming chat response generation failed for session ${sessionId}:`,
+        error
+      );
       throw error;
     }
   }
@@ -277,16 +300,19 @@ class ChatLangChainService extends BaseLangChainService {
     if (!memory) {
       return [];
     }
-    
+
     try {
       const history = await memory.chatMemory.getMessages();
       return history.map(msg => ({
         role: msg._getType() === 'human' ? 'user' : 'assistant',
         content: msg.content,
-        timestamp: msg.timestamp || new Date().toISOString()
+        timestamp: msg.timestamp || new Date().toISOString(),
       }));
     } catch (error) {
-      logger.error(`Failed to get conversation history for session ${sessionId}:`, error);
+      logger.error(
+        `Failed to get conversation history for session ${sessionId}:`,
+        error
+      );
       return [];
     }
   }
@@ -308,7 +334,7 @@ class ChatLangChainService extends BaseLangChainService {
       activeSessions: this.conversationMemories.size,
       activeChains: this.activeChains.size,
       availableProviders: this.getAvailableProviders(),
-      currentProvider: this.getEnvironmentConfig().ai_provider || 'openai'
+      currentProvider: this.getEnvironmentConfig().ai_provider || 'openai',
     };
   }
 
@@ -319,43 +345,52 @@ class ChatLangChainService extends BaseLangChainService {
    * @param {Object} options - Additional options including template
    * @returns {Promise<Object>} Test result
    */
-  async testChatFunctionality(testMessage = 'Hello, can you help me?', providerName = null, options = {}) {
+  async testChatFunctionality(
+    testMessage = 'Hello, can you help me?',
+    providerName = null,
+    options = {}
+  ) {
     const testSessionId = `test_${Date.now()}`;
-    
+
     try {
       let provider;
-      
+
       if (providerName) {
         provider = this.getProviderByName(providerName);
         if (!provider) {
-          throw new Error(`Provider '${providerName}' not found or not configured`);
+          throw new Error(
+            `Provider '${providerName}' not found or not configured`
+          );
         }
       } else {
         provider = this.getBestChatModel();
       }
-      
+
       const startTime = Date.now();
-      const response = await this.generateChatResponse(testSessionId, testMessage, options);
+      const response = await this.generateChatResponse(
+        testSessionId,
+        testMessage,
+        options
+      );
       const responseTime = Date.now() - startTime;
-      
+
       // Clean up test session
       this.clearConversationMemory(testSessionId);
-      
+
       return {
         success: true,
         provider: provider.name,
         template: options.template || 'CHAT_GENERIC',
         response: response.content,
-        responseTime
+        responseTime,
       };
-      
     } catch (error) {
       this.clearConversationMemory(testSessionId);
       return {
         success: false,
         provider: providerName || 'default',
         template: options.template || 'CHAT_GENERIC',
-        error: error.message
+        error: error.message,
       };
     }
   }

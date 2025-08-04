@@ -17,15 +17,18 @@ export class AttachmentProcessor {
       // For now, just return the original file
       // In a real implementation, you would use ffmpeg or similar
       const fileName = path.basename(inputPath);
-      
+
       logger.info('MOV to MP4 conversion requested', { inputPath, fileName });
-      
+
       return {
         filePath: inputPath,
-        fileName: fileName
+        fileName: fileName,
       };
     } catch (error) {
-      logger.error('Failed to convert MOV to MP4', { error: error.message, inputPath });
+      logger.error('Failed to convert MOV to MP4', {
+        error: error.message,
+        inputPath,
+      });
       throw error;
     }
   }
@@ -56,13 +59,13 @@ export class AttachmentProcessor {
    */
   static getFileType(mimeType) {
     if (!mimeType) return 'unknown';
-    
+
     if (mimeType.startsWith('image/')) return 'image';
     if (mimeType.startsWith('video/')) return 'video';
     if (mimeType.startsWith('audio/')) return 'audio';
     if (mimeType.includes('pdf')) return 'pdf';
     if (mimeType.includes('text/')) return 'text';
-    
+
     return 'document';
   }
 }

@@ -2,12 +2,12 @@
  * Jira API service for external API interactions
  */
 
-import axios from "axios";
-import { EnvironmentConfig } from "../utils/environment-config.js";
-import { ErrorHandler } from "../utils/error-handler.js";
-import { JIRA_ENDPOINTS } from "../utils/constants.js";
-import logger from "../../../logger.js";
-import { JiraIssue } from "../models/jira-issue.js";
+import axios from 'axios';
+import { EnvironmentConfig } from '../utils/environment-config.js';
+import { ErrorHandler } from '../utils/error-handler.js';
+import { JIRA_ENDPOINTS } from '../utils/constants.js';
+import logger from '../../../logger.js';
+import { JiraIssue } from '../models/jira-issue.js';
 
 export class JiraApiService {
   /**
@@ -22,17 +22,19 @@ export class JiraApiService {
 
       const url = `${baseUrl}${JIRA_ENDPOINTS.ISSUE}`;
 
-      logger.info('Creating Jira issue', { 
-        url, 
+      logger.info('Creating Jira issue', {
+        url,
       });
 
-      const jiraPayload = new JiraIssue(payload)
+      const jiraPayload = new JiraIssue(payload);
 
-      const response = await axios.post(url, jiraPayload.toJiraPayload(), { headers });
-      
-      logger.info('Jira issue created successfully', { 
+      const response = await axios.post(url, jiraPayload.toJiraPayload(), {
+        headers,
+      });
+
+      logger.info('Jira issue created successfully', {
         issueKey: response.data.key,
-        issueId: response.data.id
+        issueId: response.data.id,
       });
 
       return response?.data;
@@ -40,7 +42,7 @@ export class JiraApiService {
       logger.error('Failed to create Jira issue', {
         error: error.message,
         status: error.response?.status,
-        data: error.response?.data
+        data: error.response?.data,
       });
       throw ErrorHandler.createServiceError(
         `Failed to create Jira issue: ${error.response?.data?.errorMessages?.join(', ') || error.message}`,
@@ -63,10 +65,10 @@ export class JiraApiService {
       logger.info('Fetching Jira issue', { issueId, url });
 
       const response = await axios.get(url, { headers });
-      
-      logger.info('Jira issue fetched successfully', { 
+
+      logger.info('Jira issue fetched successfully', {
         issueKey: response.data.key,
-        summary: response.data.fields?.summary
+        summary: response.data.fields?.summary,
       });
 
       return response.data;
@@ -74,7 +76,7 @@ export class JiraApiService {
       logger.error('Failed to fetch Jira issue', {
         issueId,
         error: error.message,
-        status: error.response?.status
+        status: error.response?.status,
       });
       throw ErrorHandler.createServiceError(
         `Failed to fetch Jira issue: ${error.message}`,
@@ -98,16 +100,16 @@ export class JiraApiService {
       // Merge form data headers with authentication headers
       const headers = {
         ...attachmentHeaders,
-        ...formData.getHeaders()
+        ...formData.getHeaders(),
       };
 
       logger.info('Uploading attachment to Jira issue', { issueKey, url });
 
       const response = await axios.post(url, formData, { headers });
-      
-      logger.info('Attachment uploaded successfully', { 
+
+      logger.info('Attachment uploaded successfully', {
         issueKey,
-        attachmentCount: response.data?.length || 0
+        attachmentCount: response.data?.length || 0,
       });
 
       return response.data;
@@ -115,7 +117,7 @@ export class JiraApiService {
       logger.error('Failed to upload attachment', {
         issueKey,
         error: error.message,
-        status: error.response?.status
+        status: error.response?.status,
       });
       throw ErrorHandler.createServiceError(
         `Failed to upload attachment: ${error.message}`,
@@ -135,22 +137,22 @@ export class JiraApiService {
     try {
       const baseUrl = EnvironmentConfig.getBaseUrl();
       const headers = EnvironmentConfig.getAuthHeaders();
-      
+
       const params = new URLSearchParams({
         jql,
         fields: fields.join(','),
-        maxResults: maxResults.toString()
+        maxResults: maxResults.toString(),
       });
-      
+
       const url = `${baseUrl}${JIRA_ENDPOINTS.SEARCH}?${params}`;
 
       logger.info('Searching Jira issues', { jql, fields, maxResults });
 
       const response = await axios.get(url, { headers });
-      
-      logger.info('Jira search completed', { 
+
+      logger.info('Jira search completed', {
         totalResults: response.data.total,
-        returnedResults: response.data.issues?.length || 0
+        returnedResults: response.data.issues?.length || 0,
       });
 
       return response.data;
@@ -158,7 +160,7 @@ export class JiraApiService {
       logger.error('Failed to search Jira issues', {
         jql,
         error: error.message,
-        status: error.response?.status
+        status: error.response?.status,
       });
       throw ErrorHandler.createServiceError(
         `Failed to search Jira issues: ${error.message}`,
@@ -179,7 +181,11 @@ export class JiraApiService {
       }
 
       const jql = `issueKey in (${issueKeys.join(',')})`;
-      const searchResult = await this.searchIssues(jql, ['summary'], issueKeys.length);
+      const searchResult = await this.searchIssues(
+        jql,
+        ['summary'],
+        issueKeys.length
+      );
 
       const summariesMap = {};
       if (searchResult.issues) {
@@ -188,16 +194,16 @@ export class JiraApiService {
         });
       }
 
-      logger.info('Fetched issue summaries', { 
+      logger.info('Fetched issue summaries', {
         requestedCount: issueKeys.length,
-        foundCount: Object.keys(summariesMap).length
+        foundCount: Object.keys(summariesMap).length,
       });
 
       return summariesMap;
     } catch (error) {
       logger.error('Failed to fetch issue summaries', {
         issueKeys,
-        error: error.message
+        error: error.message,
       });
       // Return empty object instead of throwing, to gracefully handle failures
       return {};

@@ -16,11 +16,12 @@ class TemplateErrorHandler {
 
     // Handle specific error types
     const errorResponse = this.categorizeError(error);
-    
+
     res.status(errorResponse.status).json({
       success: false,
       error: errorResponse.message,
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details:
+        process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 
@@ -37,7 +38,7 @@ class TemplateErrorHandler {
     if (this.isValidationError(message)) {
       return {
         status: TEMPLATE_CONSTANTS.HTTP_STATUS.BAD_REQUEST,
-        message: message
+        message: message,
       };
     }
 
@@ -45,7 +46,7 @@ class TemplateErrorHandler {
     if (this.isNotFoundError(message)) {
       return {
         status: TEMPLATE_CONSTANTS.HTTP_STATUS.NOT_FOUND,
-        message: message
+        message: message,
       };
     }
 
@@ -53,14 +54,14 @@ class TemplateErrorHandler {
     if (this.isPermissionError(message)) {
       return {
         status: TEMPLATE_CONSTANTS.HTTP_STATUS.FORBIDDEN,
-        message: message
+        message: message,
       };
     }
 
     // Default to internal server error
     return {
       status: TEMPLATE_CONSTANTS.HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      message: 'Internal server error occurred'
+      message: 'Internal server error occurred',
     };
   }
 
@@ -77,7 +78,7 @@ class TemplateErrorHandler {
       'Invalid',
       'can only contain',
       'must be a valid',
-      'format'
+      'format',
     ];
 
     return validationKeywords.some(keyword => message.includes(keyword));
@@ -93,7 +94,7 @@ class TemplateErrorHandler {
     const notFoundKeywords = [
       'not found',
       'does not exist',
-      'No active template'
+      'No active template',
     ];
 
     return notFoundKeywords.some(keyword => message.includes(keyword));
@@ -111,10 +112,12 @@ class TemplateErrorHandler {
       'Cannot delete',
       'not allowed',
       'permission denied',
-      'forbidden'
+      'forbidden',
     ];
 
-    return permissionKeywords.some(keyword => message.toLowerCase().includes(keyword.toLowerCase()));
+    return permissionKeywords.some(keyword =>
+      message.toLowerCase().includes(keyword.toLowerCase())
+    );
   }
 
   /**
@@ -185,7 +188,7 @@ class TemplateErrorHandler {
       message: error.message,
       code: error.code,
       stack: error.stack,
-      ...metadata
+      ...metadata,
     };
 
     logger.error('Template error occurred:', logData);
@@ -270,7 +273,11 @@ class TemplateErrorHandler {
     this.validateLength(key, value, rule, errors);
 
     // Pattern validation
-    if (rule.pattern && typeof value === 'string' && !rule.pattern.test(value)) {
+    if (
+      rule.pattern &&
+      typeof value === 'string' &&
+      !rule.pattern.test(value)
+    ) {
       errors.push(`Field '${key}' format is invalid`);
     }
 
@@ -307,11 +314,15 @@ class TemplateErrorHandler {
     if (typeof value !== 'string') return;
 
     if (rule.maxLength && value.length > rule.maxLength) {
-      errors.push(`Field '${key}' must be ${rule.maxLength} characters or less`);
+      errors.push(
+        `Field '${key}' must be ${rule.maxLength} characters or less`
+      );
     }
 
     if (rule.minLength && value.length < rule.minLength) {
-      errors.push(`Field '${key}' must be at least ${rule.minLength} characters`);
+      errors.push(
+        `Field '${key}' must be at least ${rule.minLength} characters`
+      );
     }
   }
 }

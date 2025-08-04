@@ -18,7 +18,10 @@ class EnvironmentController {
       await EnvironmentConfigService.initialize();
       logger.info('Environment settings controller initialized');
     } catch (error) {
-      logger.error('Failed to initialize environment settings controller:', error);
+      logger.error(
+        'Failed to initialize environment settings controller:',
+        error
+      );
     }
   }
 
@@ -27,16 +30,17 @@ class EnvironmentController {
    */
   getSettings = async (req, res) => {
     try {
-      const structuredConfig = await EnvironmentConfigService.getStructuredSettings();
-      
+      const structuredConfig =
+        await EnvironmentConfigService.getStructuredSettings();
+
       res.json({
         success: true,
-        data: structuredConfig
+        data: structuredConfig,
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'getting environment settings', res);
     }
-  }
+  };
 
   /**
    * PUT /api/environment-settings - Update configuration
@@ -48,11 +52,12 @@ class EnvironmentController {
 
       // If no valid updates after filtering, return current config
       if (Object.keys(updates).length === 0) {
-        const currentConfig = await EnvironmentConfigService.getStructuredSettings();
+        const currentConfig =
+          await EnvironmentConfigService.getStructuredSettings();
         return res.json({
           success: true,
           data: currentConfig,
-          message: 'No valid settings to update'
+          message: 'No valid settings to update',
         });
       }
 
@@ -61,19 +66,20 @@ class EnvironmentController {
 
       // Update settings
       await EnvironmentConfigService.updateSettings(updates);
-      
+
       // Return the updated structured config
-      const structuredConfig = await EnvironmentConfigService.getStructuredSettings();
-      
+      const structuredConfig =
+        await EnvironmentConfigService.getStructuredSettings();
+
       res.json({
         success: true,
         data: structuredConfig,
-        message: 'Environment settings updated successfully'
+        message: 'Environment settings updated successfully',
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'updating environment settings', res);
     }
-  }
+  };
 
   /**
    * GET /api/environment-settings/providers - Get available providers and their status
@@ -81,15 +87,15 @@ class EnvironmentController {
   getProviders = async (req, res) => {
     try {
       const providers = await EnvironmentConfigService.getProviderStatus();
-      
+
       res.json({
         success: true,
-        data: providers
+        data: providers,
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'getting providers', res);
     }
-  }
+  };
 
   /**
    * GET /api/environment-settings/config - Get provider configuration metadata
@@ -97,15 +103,15 @@ class EnvironmentController {
   getProviderConfig = async (req, res) => {
     try {
       const providerConfig = await EnvironmentConfigService.getProviders();
-      
+
       res.json({
         success: true,
-        data: providerConfig
+        data: providerConfig,
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'getting provider config', res);
     }
-  }
+  };
 
   /**
    * POST /api/environment-settings/test - Test API connections
@@ -117,20 +123,23 @@ class EnvironmentController {
       if (!provider) {
         return res.status(400).json({
           success: false,
-          error: 'Provider is required'
+          error: 'Provider is required',
         });
       }
 
-      const testResult = await ProviderConnectionService.testConnection(provider, testConfig);
-      
+      const testResult = await ProviderConnectionService.testConnection(
+        provider,
+        testConfig
+      );
+
       res.json({
         success: true,
-        data: testResult
+        data: testResult,
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'testing connection', res);
     }
-  }
+  };
 
   /**
    * GET /api/environment-settings/defaults - Get default configuration
@@ -138,15 +147,15 @@ class EnvironmentController {
   getDefaults = async (req, res) => {
     try {
       const defaults = await EnvironmentConfigService.getDefaults();
-      
+
       res.json({
         success: true,
-        data: defaults
+        data: defaults,
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'getting defaults', res);
     }
-  }
+  };
 
   /**
    * POST /api/environment-settings/reset - Reset to default configuration
@@ -154,17 +163,18 @@ class EnvironmentController {
   resetSettings = async (req, res) => {
     try {
       await EnvironmentConfigService.resetToDefaults();
-      const structuredConfig = await EnvironmentConfigService.getStructuredSettings();
-      
+      const structuredConfig =
+        await EnvironmentConfigService.getStructuredSettings();
+
       res.json({
         success: true,
         data: structuredConfig,
-        message: 'Environment settings reset to defaults successfully'
+        message: 'Environment settings reset to defaults successfully',
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'resetting environment settings', res);
     }
-  }
+  };
 
   /**
    * GET /api/environment-settings/schema - Get configuration schema
@@ -172,15 +182,15 @@ class EnvironmentController {
   getSchema = async (req, res) => {
     try {
       const schema = await EnvironmentConfigService.getSchema();
-      
+
       res.json({
         success: true,
-        data: schema
+        data: schema,
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'getting schema', res);
     }
-  }
+  };
 
   /**
    * POST /api/environment-settings/export - Export settings
@@ -188,16 +198,16 @@ class EnvironmentController {
   exportSettings = async (req, res) => {
     try {
       const exportData = await EnvironmentConfigService.exportSettings();
-      
+
       res.json({
         success: true,
         data: exportData,
-        message: 'Settings exported successfully'
+        message: 'Settings exported successfully',
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'exporting settings', res);
     }
-  }
+  };
 
   /**
    * POST /api/environment-settings/import - Import settings
@@ -205,26 +215,27 @@ class EnvironmentController {
   importSettings = async (req, res) => {
     try {
       const importData = req.body;
-      
+
       if (!importData) {
         return res.status(400).json({
           success: false,
-          error: 'Import data is required'
+          error: 'Import data is required',
         });
       }
 
       await EnvironmentConfigService.importSettings(importData);
-      const structuredConfig = await EnvironmentConfigService.getStructuredSettings();
-      
+      const structuredConfig =
+        await EnvironmentConfigService.getStructuredSettings();
+
       res.json({
         success: true,
         data: structuredConfig,
-        message: 'Settings imported successfully'
+        message: 'Settings imported successfully',
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'importing settings', res);
     }
-  }
+  };
 }
 
 export default EnvironmentController;

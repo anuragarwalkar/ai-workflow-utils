@@ -36,7 +36,7 @@ class TemplateValidationService {
       // Create a temporary template with updates to validate
       const tempData = {
         ...existingTemplate.toDbFormat(),
-        ...updates
+        ...updates,
       };
 
       Template.validate(tempData);
@@ -96,7 +96,9 @@ class TemplateValidationService {
         try {
           Template.validate(templateData);
         } catch (error) {
-          throw new Error(`Invalid template at index ${index}: ${error.message}`);
+          throw new Error(
+            `Invalid template at index ${index}: ${error.message}`
+          );
         }
       });
 
@@ -153,7 +155,9 @@ class TemplateValidationService {
 
       // Validate issue type format
       if (!/^[a-zA-Z0-9_-]+$/.test(issueType)) {
-        throw new Error('Issue type can only contain letters, numbers, underscores, and hyphens');
+        throw new Error(
+          'Issue type can only contain letters, numbers, underscores, and hyphens'
+        );
       }
     } catch (error) {
       logger.warn('Active template setting validation failed:', error.message);
@@ -173,7 +177,9 @@ class TemplateValidationService {
       }
 
       if (!/^[a-zA-Z0-9_-]+$/.test(issueType)) {
-        throw new Error('Issue type can only contain letters, numbers, underscores, and hyphens');
+        throw new Error(
+          'Issue type can only contain letters, numbers, underscores, and hyphens'
+        );
       }
     } catch (error) {
       logger.warn('Issue type parameter validation failed:', error.message);
@@ -194,7 +200,9 @@ class TemplateValidationService {
 
       // Check if it's a valid ID format (alphanumeric, dashes, underscores)
       if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
-        throw new Error('Template ID must contain only alphanumeric characters, dashes, and underscores');
+        throw new Error(
+          'Template ID must contain only alphanumeric characters, dashes, and underscores'
+        );
       }
 
       // Check minimum length

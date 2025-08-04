@@ -3,23 +3,21 @@
  */
 class BitbucketDiffProcessor {
   static processLine(line, segment) {
-    let prefix = " "; // context line
-    if (segment.type === "ADDED") {
-      prefix = "+";
-    } else if (segment.type === "REMOVED") {
-      prefix = "-";
+    let prefix = ' '; // context line
+    if (segment.type === 'ADDED') {
+      prefix = '+';
+    } else if (segment.type === 'REMOVED') {
+      prefix = '-';
     }
     return `${prefix}${line.line}\n`;
   }
 
   static processSegment(segment) {
     if (!segment.lines || !Array.isArray(segment.lines)) {
-      return "";
+      return '';
     }
-    
-    return segment.lines
-      .map(line => this.processLine(line, segment))
-      .join("");
+
+    return segment.lines.map(line => this.processLine(line, segment)).join('');
   }
 
   static processHunk(hunk, hunkIndex) {
@@ -34,20 +32,21 @@ class BitbucketDiffProcessor {
     if (hunk.segments && Array.isArray(hunk.segments)) {
       content += hunk.segments
         .map(segment => this.processSegment(segment))
-        .join("");
+        .join('');
     }
-    
+
     content += `\`\`\`\n\n`;
     return content;
   }
 
   static processBitbucketDiff(diffData) {
-    let codeChanges = "";
+    let codeChanges = '';
     let hasChanges = false;
 
     if (diffData && diffData.diffs && Array.isArray(diffData.diffs)) {
       diffData.diffs.forEach((file, index) => {
-        const fileName = file.source?.toString || file.destination?.toString || "Unknown file";
+        const fileName =
+          file.source?.toString || file.destination?.toString || 'Unknown file';
         codeChanges += `### File ${index + 1}: ${fileName}\n`;
 
         if (file.hunks && Array.isArray(file.hunks)) {

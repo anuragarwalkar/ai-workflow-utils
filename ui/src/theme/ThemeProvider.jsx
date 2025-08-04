@@ -16,7 +16,9 @@ export const AppThemeProvider = ({ children }) => {
   };
 
   const [themeMode, setThemeMode] = useState(getInitialThemeMode);
-  const [currentTheme, setCurrentTheme] = useState(() => createAppTheme(themeMode));
+  const [currentTheme, setCurrentTheme] = useState(() =>
+    createAppTheme(themeMode)
+  );
 
   // Update theme when mode changes
   useEffect(() => {
@@ -30,7 +32,7 @@ export const AppThemeProvider = ({ children }) => {
   useEffect(() => {
     if (themeMode === 'auto') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      
+
       const handleChange = () => {
         setCurrentTheme(createAppTheme('auto'));
       };
@@ -42,7 +44,8 @@ export const AppThemeProvider = ({ children }) => {
 
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => {
-    const effectiveThemeMode = themeMode === 'auto' ? getSystemTheme() : themeMode;
+    const effectiveThemeMode =
+      themeMode === 'auto' ? getSystemTheme() : themeMode;
     return {
       themeMode,
       setThemeMode,
@@ -53,9 +56,7 @@ export const AppThemeProvider = ({ children }) => {
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      <MuiThemeProvider theme={currentTheme}>
-        {children}
-      </MuiThemeProvider>
+      <MuiThemeProvider theme={currentTheme}>{children}</MuiThemeProvider>
     </ThemeContext.Provider>
   );
 };

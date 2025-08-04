@@ -2,13 +2,13 @@
  * Jira attachment service for file upload handling
  */
 
-import fs from "fs";
-import FormData from "form-data";
-import { JiraAttachment } from "../models/jira-attachment.js";
-import { JiraApiService } from "./jira-api-service.js";
-import { AttachmentProcessor } from "../processors/attachment-processor.js";
-import { ErrorHandler } from "../utils/error-handler.js";
-import logger from "../../../logger.js";
+import fs from 'fs';
+import FormData from 'form-data';
+import { JiraAttachment } from '../models/jira-attachment.js';
+import { JiraApiService } from './jira-api-service.js';
+import { AttachmentProcessor } from '../processors/attachment-processor.js';
+import { ErrorHandler } from '../utils/error-handler.js';
+import logger from '../../../logger.js';
 
 export class JiraAttachmentService {
   /**
@@ -20,20 +20,20 @@ export class JiraAttachmentService {
    */
   static async uploadFile(file, issueKey, originalFileName) {
     let attachment = null;
-    
+
     try {
       // Create attachment model
       attachment = JiraAttachment.fromRequest({
         file,
         issueKey,
-        fileName: originalFileName
+        fileName: originalFileName,
       });
 
       logger.info('Starting file upload to Jira', {
         issueKey,
         fileName: attachment.getUploadFileName(),
         fileSize: attachment.getFileSize(),
-        mimeType: attachment.getMimeType()
+        mimeType: attachment.getMimeType(),
       });
 
       // Process file if needed (e.g., convert .mov to .mp4)
@@ -44,14 +44,14 @@ export class JiraAttachmentService {
 
       // Upload to Jira
       const uploadResponse = await JiraApiService.uploadAttachment(
-        issueKey, 
+        issueKey,
         formData
       );
 
       logger.info('File uploaded successfully to Jira', {
         issueKey,
         fileName: attachment.getUploadFileName(),
-        attachmentId: uploadResponse[0]?.id
+        attachmentId: uploadResponse[0]?.id,
       });
 
       return {
@@ -59,14 +59,13 @@ export class JiraAttachmentService {
         data: uploadResponse,
         fileName: attachment.getUploadFileName(),
         originalFileName: attachment.fileName,
-        fileSize: attachment.getFileSize()
+        fileSize: attachment.getFileSize(),
       };
-
     } catch (error) {
       logger.error('Failed to upload file to Jira', {
         issueKey,
         fileName: originalFileName,
-        error: error.message
+        error: error.message,
       });
       throw error;
     } finally {
@@ -86,25 +85,26 @@ export class JiraAttachmentService {
       if (attachment.needsConversion()) {
         logger.info('Converting file', {
           originalFile: attachment.getUploadFileName(),
-          conversion: 'mov to mp4'
+          conversion: 'mov to mp4',
         });
 
-        const { filePath, fileName } = await AttachmentProcessor.convertMovToMp4(
-          attachment.getUploadPath(),
-          attachment.getUploadFileName()
-        );
+        const { filePath, fileName } =
+          await AttachmentProcessor.convertMovToMp4(
+            attachment.getUploadPath(),
+            attachment.getUploadFileName()
+          );
 
         attachment.setProcessedFile(filePath, fileName);
 
         logger.info('File conversion completed', {
           originalFile: attachment.fileName,
-          convertedFile: fileName
+          convertedFile: fileName,
         });
       }
     } catch (error) {
       logger.error('File processing failed', {
         fileName: attachment.getUploadFileName(),
-        error: error.message
+        error: error.message,
       });
       throw ErrorHandler.createServiceError(
         `File processing failed: ${error.message}`
@@ -124,19 +124,17 @@ export class JiraAttachmentService {
 
       // Verify file exists
       if (!fs.existsSync(filePath)) {
-        throw ErrorHandler.createServiceError(
-          `File not found: ${filePath}`
-        );
+        throw ErrorHandler.createServiceError(`File not found: ${filePath}`);
       }
 
       const formData = new FormData();
-      formData.append("file", fs.createReadStream(filePath), fileName);
+      formData.append('file', fs.createReadStream(filePath), fileName);
 
       return formData;
     } catch (error) {
       logger.error('Failed to create form data', {
         filePath: attachment.getUploadPath(),
-        error: error.message
+        error: error.message,
       });
       throw ErrorHandler.createServiceError(
         `Failed to prepare file for upload: ${error.message}`
@@ -155,9 +153,9 @@ export class JiraAttachmentService {
       JiraAttachment.validate({ file, issueKey });
       return { isValid: true, errors: [] };
     } catch (error) {
-      return { 
-        isValid: false, 
-        errors: [error.message] 
+      return {
+        isValid: false,
+        errors: [error.message],
       };
     }
   }
@@ -173,7 +171,7 @@ export class JiraAttachmentService {
       videos: ['.mp4', '.mov'],
       archives: ['.zip', '.rar', '.7z'],
       maxSize: '10MB',
-      note: 'MOV files will be automatically converted to MP4'
+      note: 'MOV files will be automatically converted to MP4',
     };
   }
 
@@ -194,7 +192,7 @@ export class JiraAttachmentService {
       } catch (error) {
         errors.push({
           fileName: file.originalname,
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -204,7 +202,7 @@ export class JiraAttachmentService {
       failed: errors,
       totalProcessed: files.length,
       totalSuccessful: results.length,
-      totalFailed: errors.length
+      totalFailed: errors.length,
     };
   }
 
@@ -222,7 +220,7 @@ export class JiraAttachmentService {
       totalSize: 0,
       averageSize: 0,
       fileTypes: {},
-      lastUpload: null
+      lastUpload: null,
     };
   }
 }

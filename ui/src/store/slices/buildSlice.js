@@ -11,12 +11,12 @@ const loadConfigFromStorage = () => {
   }
 };
 
-const saveConfigToStorage = (config) => {
+const saveConfigToStorage = config => {
   try {
     const configToSave = {
       repoKey: config.repoKey || '',
       repoSlug: config.repoSlug || '',
-      gitRepos: config.gitRepos || ''
+      gitRepos: config.gitRepos || '',
     };
     localStorage.setItem('release_build_config', JSON.stringify(configToSave));
   } catch (error) {
@@ -55,21 +55,24 @@ const buildSlice = createSlice({
         ...action.payload,
       };
       state.buildLogs.push(logEntry);
-      
+
       // Update build status based on log type
-      if (action.payload.type === 'success' || action.payload.type === 'error') {
+      if (
+        action.payload.type === 'success' ||
+        action.payload.type === 'error'
+      ) {
         state.isBuilding = false;
         state.buildStatus = action.payload.type;
       }
     },
-    clearBuildLogs: (state) => {
+    clearBuildLogs: state => {
       state.buildLogs = [];
       state.buildStatus = null;
     },
     setBuildModalOpen: (state, action) => {
       state.isModalOpen = action.payload;
     },
-    resetBuildState: (state) => {
+    resetBuildState: state => {
       state.isBuilding = false;
       state.buildLogs = [];
       state.buildStatus = null;
@@ -95,7 +98,7 @@ const buildSlice = createSlice({
       state.savedRepoConfig = {
         repoKey: config.repoKey || '',
         repoSlug: config.repoSlug || '',
-        gitRepos: config.gitRepos || ''
+        gitRepos: config.gitRepos || '',
       };
       // Save to localStorage
       saveConfigToStorage(config);

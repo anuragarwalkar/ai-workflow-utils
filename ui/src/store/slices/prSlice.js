@@ -47,10 +47,10 @@ const prSlice = createSlice({
       state.error = action.payload;
       state.isReviewing = false;
     },
-    clearError: (state) => {
+    clearError: state => {
       state.error = null;
     },
-    clearPRData: (state) => {
+    clearPRData: state => {
       state.selectedPullRequest = null;
       state.directPRId = null;
       state.diffData = null;

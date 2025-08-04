@@ -5,6 +5,7 @@ This document explains how to set up AI Workflow Utils to automatically start on
 ## Overview
 
 The startup service functionality allows you to:
+
 - Install AI Workflow Utils as a system service
 - Automatically start the service on system boot
 - Manage the service (start, stop, status)
@@ -25,6 +26,7 @@ ai-workflow-utils startup install
 ```
 
 This command will:
+
 1. Create the appropriate service configuration for your platform
 2. Register the service with the system
 3. Enable automatic startup on boot
@@ -33,21 +35,25 @@ This command will:
 ## Service Management
 
 ### Check Service Status
+
 ```bash
 ai-workflow-utils startup status
 ```
 
 ### Start Service
+
 ```bash
 ai-workflow-utils startup start
 ```
 
 ### Stop Service
+
 ```bash
 ai-workflow-utils startup stop
 ```
 
 ### Uninstall Service
+
 ```bash
 ai-workflow-utils startup uninstall
 ```
@@ -59,12 +65,14 @@ ai-workflow-utils startup uninstall
 The service is installed as a user LaunchAgent in `~/Library/LaunchAgents/ai-workflow-utils.plist`.
 
 **Features:**
+
 - Automatically starts on user login
 - Keeps the service alive (restarts on crash)
 - Logs to `~/Library/Logs/ai-workflow-utils.log`
 - Error logs to `~/Library/Logs/ai-workflow-utils.error.log`
 
 **Manual Management:**
+
 ```bash
 # Load service
 launchctl load ~/Library/LaunchAgents/ai-workflow-utils.plist
@@ -81,12 +89,14 @@ launchctl list | grep ai-workflow-utils
 The service is registered as a Windows Service using the Service Control Manager.
 
 **Features:**
+
 - Automatically starts on system boot
 - Runs as a Windows Service
 - Can be managed through Windows Services console
 - Automatic restart on failure
 
 **Manual Management:**
+
 ```cmd
 # Start service
 sc start "ai-workflow-utils"
@@ -102,6 +112,7 @@ sc delete "ai-workflow-utils"
 ```
 
 You can also manage the service through:
+
 1. Windows Services console (`services.msc`)
 2. Task Manager > Services tab
 3. Computer Management > Services and Applications > Services
@@ -111,12 +122,14 @@ You can also manage the service through:
 The service is installed as a systemd service in `/etc/systemd/system/ai-workflow-utils.service`.
 
 **Features:**
+
 - Automatically starts on system boot
 - Integrates with systemd logging
 - Automatic restart on failure
 - Can be managed with standard systemd commands
 
 **Manual Management:**
+
 ```bash
 # Start service
 sudo systemctl start ai-workflow-utils
@@ -149,6 +162,7 @@ The service runs with the following default configuration:
 ### Environment Variables
 
 The service sets these environment variables:
+
 - `NODE_ENV=production`
 - `PORT=3000`
 
@@ -171,11 +185,13 @@ Once the service is running, you can access:
 ### Service Won't Start
 
 1. Check that the package is properly built:
+
    ```bash
    npm run build
    ```
 
 2. Verify the service exists:
+
    ```bash
    ai-workflow-utils startup status
    ```
@@ -218,6 +234,7 @@ ai-workflow-utils startup uninstall
 ```
 
 This will:
+
 1. Stop the running service
 2. Disable auto-start
 3. Remove service configuration files

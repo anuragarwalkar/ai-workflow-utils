@@ -16,13 +16,16 @@ import { Download } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useSendEmailMutation } from '../../store/api/emailApi';
-import { setEmailData, setLastSentVersion } from '../../store/slices/emailSlice';
+import {
+  setEmailData,
+  setLastSentVersion,
+} from '../../store/slices/emailSlice';
 
 const SendEmailContainer = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [sendEmail, { isLoading, error }] = useSendEmailMutation();
-  
+
   const [version, setVersion] = useState('');
   const [dryRun, setDryRun] = useState(true);
   const [emailPreview, setEmailPreview] = useState(null);
@@ -36,7 +39,7 @@ const SendEmailContainer = () => {
   // Load email values from localStorage on component mount
   useEffect(() => {
     const lastEmailVersion = localStorage.getItem('lastEmailVersion');
-    
+
     if (lastEmailVersion) {
       try {
         const lastVersionData = JSON.parse(lastEmailVersion);
@@ -60,7 +63,10 @@ const SendEmailContainer = () => {
           try {
             setWikiBasicAuth(atob(lastVersionData.wikiBasicAuth));
           } catch (decodeError) {
-            console.error('Error decoding wikiBasicAuth from localStorage:', decodeError);
+            console.error(
+              'Error decoding wikiBasicAuth from localStorage:',
+              decodeError
+            );
             // If decoding fails, treat as plain text (for backward compatibility)
             setWikiBasicAuth(lastVersionData.wikiBasicAuth);
           }
@@ -81,7 +87,7 @@ const SendEmailContainer = () => {
       wikiUrl,
       // Store wikiBasicAuth as base64 encoded
       wikiBasicAuth: wikiBasicAuth ? btoa(wikiBasicAuth) : '',
-      dryRun
+      dryRun,
     };
     localStorage.setItem('lastEmailVersion', JSON.stringify(emailVersionData));
   };
@@ -95,24 +101,24 @@ const SendEmailContainer = () => {
   const handleSendEmail = async () => {
     try {
       setSuccess(false);
-      
+
       // Prepare the request data
       const requestData = {
         version,
         dryRun,
         wikiUrl,
         // wikiBasicAuth is already encoded when sent to server
-        wikiBasicAuth: wikiBasicAuth ? btoa(wikiBasicAuth) : ''
+        wikiBasicAuth: wikiBasicAuth ? btoa(wikiBasicAuth) : '',
       };
-      
+
       const result = await sendEmail(requestData).unwrap();
-      
+
       setEmailPreview(result);
       dispatch(setEmailData(result));
-      
+
       // Save last version to local storage when preview is successfully generated
       saveEmailDataToLocalStorage();
-      
+
       if (!dryRun) {
         dispatch(setLastSentVersion(version));
         setSuccess(true);
@@ -150,12 +156,19 @@ ${emailPreview}`;
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
       <Paper elevation={3} sx={{ p: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+          }}
+        >
+          <Typography variant='h4' component='h1' gutterBottom>
             Send Email
           </Typography>
           <Button
-            variant="outlined"
+            variant='outlined'
             onClick={handleBackToHome}
             sx={{ minWidth: 120 }}
           >
@@ -168,69 +181,69 @@ ${emailPreview}`;
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Version"
+                label='Version'
                 value={version}
-                onChange={(e) => setVersion(e.target.value)}
-                placeholder="e.g., 1.0.0"
-                helperText="Enter the version number for the release notes"
+                onChange={e => setVersion(e.target.value)}
+                placeholder='e.g., 1.0.0'
+                helperText='Enter the version number for the release notes'
               />
             </Grid>
-            
+
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Wiki URL"
+                label='Wiki URL'
                 value={wikiUrl}
-                onChange={(e) => setWikiUrl(e.target.value)}
-                placeholder="https://your-company.atlassian.net/wiki"
-                helperText="Your Atlassian Wiki URL for release notes"
+                onChange={e => setWikiUrl(e.target.value)}
+                placeholder='https://your-company.atlassian.net/wiki'
+                helperText='Your Atlassian Wiki URL for release notes'
               />
             </Grid>
-            
+
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                type="password"
-                label="Wiki Basic Auth"
+                type='password'
+                label='Wiki Basic Auth'
                 value={wikiBasicAuth}
-                onChange={(e) => setWikiBasicAuth(e.target.value)}
-                placeholder="username:password"
-                helperText="Wiki basic authentication (username:password)"
+                onChange={e => setWikiBasicAuth(e.target.value)}
+                placeholder='username:password'
+                helperText='Wiki basic authentication (username:password)'
               />
             </Grid>
-            
+
             {dryRun && emailPreview && (
               <>
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Subject"
+                    label='Subject'
                     value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Email subject"
-                    helperText="Email subject line"
+                    onChange={e => setSubject(e.target.value)}
+                    placeholder='Email subject'
+                    helperText='Email subject line'
                   />
                 </Grid>
-                
+
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
-                    label="To Email"
+                    label='To Email'
                     value={toEmail}
-                    onChange={(e) => setToEmail(e.target.value)}
-                    placeholder="recipient@example.com"
-                    helperText="Primary recipient email address"
+                    onChange={e => setToEmail(e.target.value)}
+                    placeholder='recipient@example.com'
+                    helperText='Primary recipient email address'
                   />
                 </Grid>
-                
+
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
-                    label="CC Email (Optional)"
+                    label='CC Email (Optional)'
                     value={ccEmail}
-                    onChange={(e) => setCcEmail(e.target.value)}
-                    placeholder="cc@example.com"
-                    helperText="Carbon copy email address"
+                    onChange={e => setCcEmail(e.target.value)}
+                    placeholder='cc@example.com'
+                    helperText='Carbon copy email address'
                   />
                 </Grid>
               </>
@@ -241,20 +254,29 @@ ${emailPreview}`;
             control={
               <Switch
                 checked={dryRun}
-                onChange={(e) => setDryRun(e.target.checked)}
-                color="primary"
+                onChange={e => setDryRun(e.target.checked)}
+                color='primary'
               />
             }
-            label={dryRun ? "Dry Run (Only preview and donwload template)" : "Send Actual Email"}
+            label={
+              dryRun
+                ? 'Dry Run (Only preview and donwload template)'
+                : 'Send Actual Email'
+            }
             sx={{ mt: 3, mb: 3 }}
           />
 
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             <Button
-              variant="contained"
-              size="large"
+              variant='contained'
+              size='large'
               onClick={handleSendEmail}
-              disabled={isLoading || !version.trim() || !wikiUrl.trim() || !wikiBasicAuth.trim()}
+              disabled={
+                isLoading ||
+                !version.trim() ||
+                !wikiUrl.trim() ||
+                !wikiBasicAuth.trim()
+              }
               sx={{ minWidth: 200 }}
             >
               {isLoading ? (
@@ -262,15 +284,21 @@ ${emailPreview}`;
                   <CircularProgress size={20} sx={{ mr: 1 }} />
                   {dryRun ? 'Generating Preview...' : 'Sending Email...'}
                 </>
+              ) : dryRun ? (
+                emailPreview ? (
+                  'Regenerate Preview'
+                ) : (
+                  'Generate Preview'
+                )
               ) : (
-                dryRun ? (emailPreview ? 'Regenerate Preview' : 'Generate Preview') : 'Send Email'
+                'Send Email'
               )}
             </Button>
 
             {dryRun && emailPreview && (
               <Button
-                variant="outlined"
-                size="large"
+                variant='outlined'
+                size='large'
                 onClick={handleDownloadTemplate}
                 startIcon={<Download />}
                 sx={{ minWidth: 200 }}
@@ -282,13 +310,16 @@ ${emailPreview}`;
         </Box>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            Error: {error.data?.message || error.message || 'Failed to process email request'}
+          <Alert severity='error' sx={{ mb: 3 }}>
+            Error:{' '}
+            {error.data?.message ||
+              error.message ||
+              'Failed to process email request'}
           </Alert>
         )}
 
         {success && (
-          <Alert severity="success" sx={{ mb: 3 }}>
+          <Alert severity='success' sx={{ mb: 3 }}>
             Email sent successfully for version {version}!
           </Alert>
         )}
@@ -296,16 +327,16 @@ ${emailPreview}`;
         {emailPreview && (
           <Box sx={{ mt: 4 }}>
             <Divider sx={{ mb: 3 }} />
-            <Typography variant="h6" gutterBottom>
+            <Typography variant='h6' gutterBottom>
               {dryRun ? 'Email Preview' : 'Email Content'}
             </Typography>
-            <Paper 
-              variant="outlined" 
-              sx={{ 
-                p: 0, 
+            <Paper
+              variant='outlined'
+              sx={{
+                p: 0,
                 height: 500,
                 overflow: 'hidden',
-                backgroundColor: '#ffffff'
+                backgroundColor: '#ffffff',
               }}
             >
               <iframe
@@ -314,9 +345,9 @@ ${emailPreview}`;
                   width: '100%',
                   height: '100%',
                   border: 'none',
-                  backgroundColor: 'white'
+                  backgroundColor: 'white',
                 }}
-                title="Email Preview"
+                title='Email Preview'
               />
             </Paper>
           </Box>

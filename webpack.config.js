@@ -9,7 +9,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'server.js',
-    clean: true
+    clean: true,
   },
   externals: [nodeExternals()],
   node: {
@@ -29,21 +29,21 @@ module.exports = {
                 '@babel/preset-env',
                 {
                   targets: {
-                    node: '18'
-                  }
-                }
-              ]
-            ]
-          }
-        }
-      }
-    ]
+                    node: '18',
+                  },
+                },
+              ],
+            ],
+          },
+        },
+      },
+    ],
   },
   resolve: {
-    extensions: ['.js', '.json']
+    extensions: ['.js', '.json'],
   },
   optimization: {
-    minimize: false
+    minimize: false,
   },
   devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
   stats: {
@@ -51,6 +51,6 @@ module.exports = {
     modules: false,
     children: false,
     chunks: false,
-    chunkModules: false
-  }
+    chunkModules: false,
+  },
 };

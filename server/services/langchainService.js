@@ -3,7 +3,7 @@
  * This maintains backward compatibility while using the new modular architecture
  */
 import langChainServiceFactory from './langchain/LangChainServiceFactory.js';
-import logger from "../logger.js";
+import logger from '../logger.js';
 
 /**
  * Legacy wrapper class that delegates to the appropriate specialized service
@@ -32,44 +32,89 @@ class LangChainService {
   async streamContent(promptTemplateFormatter, images, issueType, res) {
     logger.info('LangChainService: Delegating streamContent to Jira service');
     const jiraService = this.factory.getJiraService();
-    return jiraService.streamContent(promptTemplateFormatter, images, issueType, res);
+    return jiraService.streamContent(
+      promptTemplateFormatter,
+      images,
+      issueType,
+      res
+    );
   }
 
   // Delegate structured content to PR service (most common use case)
-  async generateStructuredContent(promptTemplateFormatter, schema, templateIdentifier, streaming = false) {
-    logger.info('LangChainService: Delegating generateStructuredContent to PR service');
+  async generateStructuredContent(
+    promptTemplateFormatter,
+    schema,
+    templateIdentifier,
+    streaming = false
+  ) {
+    logger.info(
+      'LangChainService: Delegating generateStructuredContent to PR service'
+    );
     const prService = this.factory.getPRService();
-    return prService.generateStructuredContent(promptTemplateFormatter, schema, templateIdentifier, streaming);
+    return prService.generateStructuredContent(
+      promptTemplateFormatter,
+      schema,
+      templateIdentifier,
+      streaming
+    );
   }
 
   // Delegate general content generation to base service
-  async generateContent(promptTemplateFormatter, images, promptTemplateIdentifier, streaming = false) {
+  async generateContent(
+    promptTemplateFormatter,
+    images,
+    promptTemplateIdentifier,
+    streaming = false
+  ) {
     logger.info('LangChainService: Delegating generateContent to base service');
     const baseService = this.factory.getBaseService();
-    return baseService.generateContent(promptTemplateFormatter, images, promptTemplateIdentifier, streaming);
+    return baseService.generateContent(
+      promptTemplateFormatter,
+      images,
+      promptTemplateIdentifier,
+      streaming
+    );
   }
 
   // Delegate chat operations to chat service
   async generateChatResponse(sessionId, message, options = {}) {
-    logger.info('LangChainService: Delegating generateChatResponse to chat service');
+    logger.info(
+      'LangChainService: Delegating generateChatResponse to chat service'
+    );
     const chatService = this.factory.getChatService();
     return chatService.generateChatResponse(sessionId, message, options);
   }
 
-  async generateStreamingChatResponse(sessionId, message, onToken, options = {}) {
-    logger.info('LangChainService: Delegating generateStreamingChatResponse to chat service');
+  async generateStreamingChatResponse(
+    sessionId,
+    message,
+    onToken,
+    options = {}
+  ) {
+    logger.info(
+      'LangChainService: Delegating generateStreamingChatResponse to chat service'
+    );
     const chatService = this.factory.getChatService();
-    return chatService.generateStreamingChatResponse(sessionId, message, onToken, options);
+    return chatService.generateStreamingChatResponse(
+      sessionId,
+      message,
+      onToken,
+      options
+    );
   }
 
   clearConversationMemory(sessionId) {
-    logger.info('LangChainService: Delegating clearConversationMemory to chat service');
+    logger.info(
+      'LangChainService: Delegating clearConversationMemory to chat service'
+    );
     const chatService = this.factory.getChatService();
     return chatService.clearConversationMemory(sessionId);
   }
 
   async getConversationHistory(sessionId) {
-    logger.info('LangChainService: Delegating getConversationHistory to chat service');
+    logger.info(
+      'LangChainService: Delegating getConversationHistory to chat service'
+    );
     const chatService = this.factory.getChatService();
     return chatService.getConversationHistory(sessionId);
   }
@@ -81,7 +126,9 @@ class LangChainService {
   }
 
   async testChatFunctionality(testMessage, provider) {
-    logger.info('LangChainService: Delegating testChatFunctionality to chat service');
+    logger.info(
+      'LangChainService: Delegating testChatFunctionality to chat service'
+    );
     const chatService = this.factory.getChatService();
     return chatService.testChatFunctionality(testMessage, provider);
   }
@@ -92,7 +139,9 @@ class LangChainService {
   }
 
   async createPromptTemplate(issueType, hasImages) {
-    return this.factory.getBaseService().createPromptTemplate(issueType, hasImages);
+    return this.factory
+      .getBaseService()
+      .createPromptTemplate(issueType, hasImages);
   }
 
   prepareMessageContent(prompt, images) {

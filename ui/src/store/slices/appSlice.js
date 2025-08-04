@@ -21,11 +21,12 @@ const appSlice = createSlice({
       state.error = action.payload;
       state.isLoading = false;
     },
-    clearError: (state) => {
+    clearError: state => {
       state.error = null;
     },
   },
 });
 
-export const { setCurrentView, setLoading, setError, clearError } = appSlice.actions;
+export const { setCurrentView, setLoading, setError, clearError } =
+  appSlice.actions;
 export default appSlice.reducer;

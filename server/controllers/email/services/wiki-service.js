@@ -14,39 +14,40 @@ class WikiService {
   static async fetchWikiContent(wikiUrl, basicAuth) {
     try {
       const headers = new Headers();
-      headers.append("Accept", "application/json");
-      headers.append("Authorization", `Basic ${basicAuth}`);
+      headers.append('Accept', 'application/json');
+      headers.append('Authorization', `Basic ${basicAuth}`);
 
       const requestOptions = {
-        method: "GET",
+        method: 'GET',
         headers: headers,
-        redirect: "follow",
+        redirect: 'follow',
       };
 
       logger.info('Fetching wiki content', { wikiUrl });
 
       const response = await fetch(wikiUrl, requestOptions);
-      
+
       if (!response.ok) {
-        throw new Error(`Wiki fetch failed with status: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Wiki fetch failed with status: ${response.status} ${response.statusText}`
+        );
       }
 
       const htmlContent = await response.text();
-      
+
       if (!htmlContent || htmlContent.trim().length === 0) {
         throw new Error('Received empty content from wiki');
       }
 
-      logger.info('Wiki content fetched successfully', { 
-        contentLength: htmlContent.length 
+      logger.info('Wiki content fetched successfully', {
+        contentLength: htmlContent.length,
       });
 
       return htmlContent;
-
     } catch (error) {
       logger.error('Failed to fetch wiki content', {
         error: error.message,
-        wikiUrl
+        wikiUrl,
       });
       throw new Error(`Wiki content fetch failed: ${error.message}`);
     }
@@ -62,23 +63,25 @@ class WikiService {
     try {
       logger.info('Extracting table data', { version });
 
-      const tableData = await TableExtractor.extractTableAsArray(htmlContent, version);
-      
+      const tableData = await TableExtractor.extractTableAsArray(
+        htmlContent,
+        version
+      );
+
       if (!Array.isArray(tableData) || tableData.length === 0) {
         throw new Error('No table data extracted from wiki content');
       }
 
       logger.info('Table data extracted successfully', {
         rowCount: tableData.length,
-        columnCount: tableData[0]?.length || 0
+        columnCount: tableData[0]?.length || 0,
       });
 
       return tableData;
-
     } catch (error) {
       logger.error('Failed to extract table data', {
         error: error.message,
-        version
+        version,
       });
       throw new Error(`Table extraction failed: ${error.message}`);
     }

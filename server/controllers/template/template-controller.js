@@ -18,7 +18,10 @@ class TemplateController {
       await TemplateDatabaseService.init();
       logger.info('Template controller initialized');
     } catch (error) {
-      TemplateErrorHandler.logError(error, 'Template controller initialization');
+      TemplateErrorHandler.logError(
+        error,
+        'Template controller initialization'
+      );
       throw error;
     }
   }
@@ -29,11 +32,12 @@ class TemplateController {
   async getAllTemplates(req, res) {
     try {
       const templates = await TemplateDatabaseService.getAllTemplates();
-      const processedTemplates = TemplateExportImportProcessor.processApiResponse(templates);
+      const processedTemplates =
+        TemplateExportImportProcessor.processApiResponse(templates);
 
       res.json({
         success: true,
-        data: processedTemplates
+        data: processedTemplates,
       });
     } catch (error) {
       TemplateErrorHandler.handleApiError(error, 'Getting all templates', res);
@@ -48,15 +52,21 @@ class TemplateController {
       const { issueType } = req.params;
       TemplateValidationService.validateIssueTypeParameter(issueType);
 
-      const templates = await TemplateDatabaseService.getTemplatesByType(issueType);
-      const processedTemplates = TemplateExportImportProcessor.processApiResponse(templates);
+      const templates =
+        await TemplateDatabaseService.getTemplatesByType(issueType);
+      const processedTemplates =
+        TemplateExportImportProcessor.processApiResponse(templates);
 
       res.json({
         success: true,
-        data: processedTemplates
+        data: processedTemplates,
       });
     } catch (error) {
-      TemplateErrorHandler.handleApiError(error, 'Getting templates by type', res);
+      TemplateErrorHandler.handleApiError(
+        error,
+        'Getting templates by type',
+        res
+      );
     }
   }
 
@@ -68,21 +78,26 @@ class TemplateController {
       const { issueType } = req.params;
       TemplateValidationService.validateIssueTypeParameter(issueType);
 
-      const template = await TemplateDatabaseService.getActiveTemplate(issueType);
-      
+      const template =
+        await TemplateDatabaseService.getActiveTemplate(issueType);
+
       if (!template) {
         return res.status(TEMPLATE_CONSTANTS.HTTP_STATUS.NOT_FOUND).json({
           success: false,
-          error: `No active template found for issue type: ${issueType}`
+          error: `No active template found for issue type: ${issueType}`,
         });
       }
 
       res.json({
         success: true,
-        data: template.toApiFormat()
+        data: template.toApiFormat(),
       });
     } catch (error) {
-      TemplateErrorHandler.handleApiError(error, 'Getting active template', res);
+      TemplateErrorHandler.handleApiError(
+        error,
+        'Getting active template',
+        res
+      );
     }
   }
 
@@ -92,19 +107,32 @@ class TemplateController {
   async createTemplate(req, res) {
     try {
       const templateData = TemplateErrorHandler.validateInput(req.body, {
-        name: { required: true, type: 'string', maxLength: TEMPLATE_CONSTANTS.MAX_NAME_LENGTH },
-        issueType: { required: true, type: 'string', pattern: TEMPLATE_CONSTANTS.ISSUE_TYPE_PATTERN },
-        content: { required: true, type: 'string', maxLength: TEMPLATE_CONSTANTS.MAX_CONTENT_LENGTH }
+        name: {
+          required: true,
+          type: 'string',
+          maxLength: TEMPLATE_CONSTANTS.MAX_NAME_LENGTH,
+        },
+        issueType: {
+          required: true,
+          type: 'string',
+          pattern: TEMPLATE_CONSTANTS.ISSUE_TYPE_PATTERN,
+        },
+        content: {
+          required: true,
+          type: 'string',
+          maxLength: TEMPLATE_CONSTANTS.MAX_CONTENT_LENGTH,
+        },
       });
 
       TemplateValidationService.validateTemplateCreation(templateData);
 
-      const template = await TemplateDatabaseService.createTemplate(templateData);
+      const template =
+        await TemplateDatabaseService.createTemplate(templateData);
 
       res.status(TEMPLATE_CONSTANTS.HTTP_STATUS.CREATED).json({
         success: true,
         data: template.toApiFormat(),
-        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATE_CREATED
+        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATE_CREATED,
       });
     } catch (error) {
       TemplateErrorHandler.handleApiError(error, 'Creating template', res);
@@ -126,7 +154,7 @@ class TemplateController {
       if (!existingTemplate) {
         return res.status(TEMPLATE_CONSTANTS.HTTP_STATUS.NOT_FOUND).json({
           success: false,
-          error: TEMPLATE_CONSTANTS.ERROR_MESSAGES.TEMPLATE_NOT_FOUND
+          error: TEMPLATE_CONSTANTS.ERROR_MESSAGES.TEMPLATE_NOT_FOUND,
         });
       }
 
@@ -136,14 +164,20 @@ class TemplateController {
       delete updates.createdAt;
       delete updates.variables; // Auto-generated
 
-      TemplateValidationService.validateTemplateUpdate(updates, existingTemplate);
+      TemplateValidationService.validateTemplateUpdate(
+        updates,
+        existingTemplate
+      );
 
-      const template = await TemplateDatabaseService.updateTemplate(id, updates);
+      const template = await TemplateDatabaseService.updateTemplate(
+        id,
+        updates
+      );
 
       res.json({
         success: true,
         data: template.toApiFormat(),
-        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATE_UPDATED
+        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATE_UPDATED,
       });
     } catch (error) {
       TemplateErrorHandler.handleApiError(error, 'Updating template', res);
@@ -163,7 +197,7 @@ class TemplateController {
       res.json({
         success: true,
         data: deletedTemplate.toApiFormat(),
-        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATE_DELETED
+        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATE_DELETED,
       });
     } catch (error) {
       TemplateErrorHandler.handleApiError(error, 'Deleting template', res);
@@ -176,17 +210,27 @@ class TemplateController {
   async setActiveTemplate(req, res) {
     try {
       const { issueType, templateId } = req.params;
-      TemplateValidationService.validateActiveTemplateSet(issueType, templateId);
+      TemplateValidationService.validateActiveTemplateSet(
+        issueType,
+        templateId
+      );
 
-      const template = await TemplateDatabaseService.setActiveTemplate(issueType, templateId);
+      const template = await TemplateDatabaseService.setActiveTemplate(
+        issueType,
+        templateId
+      );
 
       res.json({
         success: true,
         data: template.toApiFormat(),
-        message: `${TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.ACTIVE_TEMPLATE_SET} for ${issueType}`
+        message: `${TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.ACTIVE_TEMPLATE_SET} for ${issueType}`,
       });
     } catch (error) {
-      TemplateErrorHandler.handleApiError(error, 'Setting active template', res);
+      TemplateErrorHandler.handleApiError(
+        error,
+        'Setting active template',
+        res
+      );
     }
   }
 
@@ -196,10 +240,10 @@ class TemplateController {
   async getSettings(req, res) {
     try {
       const settings = await TemplateDatabaseService.getSettings();
-      
+
       res.json({
         success: true,
-        data: settings.toApiFormat()
+        data: settings.toApiFormat(),
       });
     } catch (error) {
       TemplateErrorHandler.handleApiError(error, 'Getting settings', res);
@@ -222,7 +266,7 @@ class TemplateController {
       res.json({
         success: true,
         data: settings.toApiFormat(),
-        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.SETTINGS_UPDATED
+        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.SETTINGS_UPDATED,
       });
     } catch (error) {
       TemplateErrorHandler.handleApiError(error, 'Updating settings', res);
@@ -235,11 +279,11 @@ class TemplateController {
   async resetToDefaults(req, res) {
     try {
       const data = await TemplateDatabaseService.resetToDefaults();
-      
+
       res.json({
         success: true,
         data: data,
-        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATES_RESET
+        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATES_RESET,
       });
     } catch (error) {
       TemplateErrorHandler.handleApiError(error, 'Resetting to defaults', res);
@@ -253,15 +297,18 @@ class TemplateController {
     try {
       const templates = await TemplateDatabaseService.getAllTemplates();
       const settings = await TemplateDatabaseService.getSettings();
-      
-      const exportData = TemplateExportImportProcessor.processExport(templates, settings);
-      
+
+      const exportData = TemplateExportImportProcessor.processExport(
+        templates,
+        settings
+      );
+
       res.setHeader('Content-Type', 'application/json');
       res.setHeader(
-        'Content-Disposition', 
+        'Content-Disposition',
         `attachment; filename="templates-export-${new Date().toISOString().split('T')[0]}.json"`
       );
-      
+
       res.json(exportData);
     } catch (error) {
       TemplateErrorHandler.handleApiError(error, 'Exporting templates', res);
@@ -274,16 +321,20 @@ class TemplateController {
   async importTemplates(req, res) {
     try {
       const importData = req.body;
-      
+
       TemplateValidationService.validateImportData(importData);
-      
-      const processedData = TemplateExportImportProcessor.processImport(importData);
-      const importedTemplates = await TemplateDatabaseService.importTemplates(processedData);
+
+      const processedData =
+        TemplateExportImportProcessor.processImport(importData);
+      const importedTemplates =
+        await TemplateDatabaseService.importTemplates(processedData);
 
       res.json({
         success: true,
-        data: TemplateExportImportProcessor.processApiResponse(importedTemplates),
-        message: `${TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATES_IMPORTED}: ${importedTemplates.length} templates`
+        data: TemplateExportImportProcessor.processApiResponse(
+          importedTemplates
+        ),
+        message: `${TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATES_IMPORTED}: ${importedTemplates.length} templates`,
       });
     } catch (error) {
       TemplateErrorHandler.handleApiError(error, 'Importing templates', res);
@@ -300,12 +351,15 @@ class TemplateController {
 
       TemplateValidationService.validateTemplateDuplication(id, name);
 
-      const duplicateTemplate = await TemplateDatabaseService.duplicateTemplate(id, name);
+      const duplicateTemplate = await TemplateDatabaseService.duplicateTemplate(
+        id,
+        name
+      );
 
       res.status(TEMPLATE_CONSTANTS.HTTP_STATUS.CREATED).json({
         success: true,
         data: duplicateTemplate.toApiFormat(),
-        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATE_DUPLICATED
+        message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATE_DUPLICATED,
       });
     } catch (error) {
       TemplateErrorHandler.handleApiError(error, 'Duplicating template', res);
@@ -319,17 +373,21 @@ class TemplateController {
     try {
       const templates = await TemplateDatabaseService.getAllTemplates();
       const filters = req.query;
-      
-      const filteredTemplates = TemplateExportImportProcessor.processSearch(templates, filters);
-      const processedTemplates = TemplateExportImportProcessor.processApiResponse(filteredTemplates);
+
+      const filteredTemplates = TemplateExportImportProcessor.processSearch(
+        templates,
+        filters
+      );
+      const processedTemplates =
+        TemplateExportImportProcessor.processApiResponse(filteredTemplates);
 
       res.json({
         success: true,
         data: processedTemplates,
         pagination: {
           total: processedTemplates.length,
-          filters: filters
-        }
+          filters: filters,
+        },
       });
     } catch (error) {
       TemplateErrorHandler.handleApiError(error, 'Searching templates', res);

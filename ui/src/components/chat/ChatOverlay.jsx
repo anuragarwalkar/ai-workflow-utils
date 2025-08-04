@@ -52,7 +52,7 @@ const ChatOverlay = () => {
     streamingContent,
     error,
     provider,
-  } = useSelector((state) => state.chat);
+  } = useSelector(state => state.chat);
 
   const [sendChatMessageStreaming] = useSendChatMessageStreamingMutation();
   const messagesEndRef = useRef(null);
@@ -117,7 +117,7 @@ const ChatOverlay = () => {
     }
   };
 
-  const handleKeyPress = (event) => {
+  const handleKeyPress = event => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       handleSendMessage();
@@ -128,7 +128,7 @@ const ChatOverlay = () => {
     dispatch(clearConversation());
   };
 
-  const formatMessage = (content) => {
+  const formatMessage = content => {
     return content.split('\n').map((line, index) => (
       <React.Fragment key={index}>
         {line}
@@ -152,15 +152,17 @@ const ChatOverlay = () => {
         }}
       >
         <Fab
-          color="primary"
-          aria-label="chat"
+          color='primary'
+          aria-label='chat'
           sx={{
             width: '80px', // Made bigger horizontally
             height: '60px', // Slightly taller
             borderRadius: '30px', // More oval shape
-            animation: 'chatPulse 2s ease-in-out infinite, chatFloat 3s ease-in-out infinite',
+            animation:
+              'chatPulse 2s ease-in-out infinite, chatFloat 3s ease-in-out infinite',
             '&:hover': {
-              animation: 'chatBounce 0.6s ease-in-out infinite, chatGlow 1s ease-in-out infinite',
+              animation:
+                'chatBounce 0.6s ease-in-out infinite, chatGlow 1s ease-in-out infinite',
               transform: 'scale(1.1)',
               transition: 'transform 0.3s ease',
             },
@@ -199,30 +201,33 @@ const ChatOverlay = () => {
                 boxShadow: '0 0 5px rgba(25, 118, 210, 0.5)',
               },
               '50%': {
-                boxShadow: '0 0 20px rgba(25, 118, 210, 0.8), 0 0 30px rgba(25, 118, 210, 0.6)',
+                boxShadow:
+                  '0 0 20px rgba(25, 118, 210, 0.8), 0 0 30px rgba(25, 118, 210, 0.6)',
               },
             },
           }}
           onClick={() => dispatch(toggleChat())}
         >
-          <ChatIcon sx={{ 
-            fontSize: '2rem',
-            animation: 'iconWiggle 2s ease-in-out infinite',
-            '@keyframes iconWiggle': {
-              '0%, 100%': {
-                transform: 'rotate(0deg)',
+          <ChatIcon
+            sx={{
+              fontSize: '2rem',
+              animation: 'iconWiggle 2s ease-in-out infinite',
+              '@keyframes iconWiggle': {
+                '0%, 100%': {
+                  transform: 'rotate(0deg)',
+                },
+                '25%': {
+                  transform: 'rotate(-5deg)',
+                },
+                '75%': {
+                  transform: 'rotate(5deg)',
+                },
               },
-              '25%': {
-                transform: 'rotate(-5deg)',
-              },
-              '75%': {
-                transform: 'rotate(5deg)',
-              },
-            },
-          }} />
+            }}
+          />
         </Fab>
         <Typography
-          variant="caption"
+          variant='caption'
           sx={{
             color: 'primary.main',
             fontWeight: 'bold',
@@ -282,11 +287,11 @@ const ChatOverlay = () => {
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <ChatIcon />
-          <Typography variant="subtitle2">AI Assistant</Typography>
+          <Typography variant='subtitle2'>AI Assistant</Typography>
           {provider && (
             <Chip
               label={provider}
-              size="small"
+              size='small'
               sx={{
                 bgcolor: 'rgba(255, 255, 255, 0.2)',
                 color: 'inherit',
@@ -299,20 +304,20 @@ const ChatOverlay = () => {
         <Box>
           {!isMinimized && (
             <IconButton
-              size="small"
+              size='small'
               onClick={() => dispatch(minimizeChat())}
               sx={{ color: 'inherit', mr: 0.5 }}
             >
-              <MinimizeIcon fontSize="small" />
+              <MinimizeIcon fontSize='small' />
             </IconButton>
           )}
           <IconButton
-            size="small"
+            size='small'
             onClick={() => dispatch(closeChat())}
             sx={{ color: 'inherit' }}
-            title="Close chat"
+            title='Close chat'
           >
-            <CloseIcon fontSize="small" />
+            <CloseIcon fontSize='small' />
           </IconButton>
         </Box>
       </Box>
@@ -339,7 +344,7 @@ const ChatOverlay = () => {
                   textAlign: 'center',
                 }}
               >
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant='body2' color='text.secondary'>
                   Hi! I'm your AI assistant. How can I help you today?
                 </Typography>
               </Box>
@@ -351,7 +356,8 @@ const ChatOverlay = () => {
                   key={index}
                   sx={{
                     flexDirection: 'column',
-                    alignItems: message.role === 'user' ? 'flex-end' : 'flex-start',
+                    alignItems:
+                      message.role === 'user' ? 'flex-end' : 'flex-start',
                     p: 0.5,
                   }}
                 >
@@ -360,17 +366,21 @@ const ChatOverlay = () => {
                     sx={{
                       p: 1,
                       maxWidth: '85%',
-                      bgcolor: message.role === 'user' ? 'primary.main' : 'white',
-                      color: message.role === 'user' ? 'primary.contrastText' : 'text.primary',
+                      bgcolor:
+                        message.role === 'user' ? 'primary.main' : 'white',
+                      color:
+                        message.role === 'user'
+                          ? 'primary.contrastText'
+                          : 'text.primary',
                       borderRadius: 2,
                     }}
                   >
-                    <Typography variant="body2">
+                    <Typography variant='body2'>
                       {formatMessage(message.content)}
                     </Typography>
                     {message.provider && (
                       <Typography
-                        variant="caption"
+                        variant='caption'
                         sx={{
                           display: 'block',
                           mt: 0.5,
@@ -404,7 +414,7 @@ const ChatOverlay = () => {
                       position: 'relative',
                     }}
                   >
-                    <Typography variant="body2">
+                    <Typography variant='body2'>
                       {formatMessage(streamingContent)}
                     </Typography>
                     <Box
@@ -415,7 +425,7 @@ const ChatOverlay = () => {
                       }}
                     >
                       <CircularProgress size={12} sx={{ mr: 0.5 }} />
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant='caption' color='text.secondary'>
                         Typing...
                       </Typography>
                     </Box>
@@ -434,7 +444,7 @@ const ChatOverlay = () => {
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <CircularProgress size={16} />
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant='caption' color='text.secondary'>
                       AI is thinking...
                     </Typography>
                   </Box>
@@ -448,7 +458,7 @@ const ChatOverlay = () => {
           {/* Error Display */}
           {error && (
             <Alert
-              severity="error"
+              severity='error'
               onClose={() => dispatch(clearError())}
               sx={{ mx: 1, mb: 1 }}
             >
@@ -480,7 +490,7 @@ const ChatOverlay = () => {
                 }}
               >
                 <IconButton
-                  size="small"
+                  size='small'
                   onClick={handleClearConversation}
                   sx={{
                     color: 'text.secondary',
@@ -494,16 +504,16 @@ const ChatOverlay = () => {
                     },
                     transition: 'all 0.2s ease-in-out',
                   }}
-                  title="Clear conversation"
+                  title='Clear conversation'
                 >
-                  <ClearIcon fontSize="small" />
-                  <Typography variant="caption" sx={{ ml: 0.5 }}>
+                  <ClearIcon fontSize='small' />
+                  <Typography variant='caption' sx={{ ml: 0.5 }}>
                     Clear Chat
                   </Typography>
                 </IconButton>
               </Box>
             )}
-            
+
             {/* Input row */}
             <Box
               sx={{
@@ -518,12 +528,12 @@ const ChatOverlay = () => {
                 fullWidth
                 multiline
                 maxRows={3}
-                placeholder="Type your message..."
+                placeholder='Type your message...'
                 value={currentMessage}
-                onChange={(e) => dispatch(setCurrentMessage(e.target.value))}
+                onChange={e => dispatch(setCurrentMessage(e.target.value))}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading || isStreaming}
-                size="small"
+                size='small'
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 3,
@@ -535,11 +545,11 @@ const ChatOverlay = () => {
                       bgcolor: 'white',
                     },
                   },
-                  marginBottom: 0
+                  marginBottom: 0,
                 }}
               />
               <IconButton
-                color="primary"
+                color='primary'
                 onClick={handleSendMessage}
                 disabled={!currentMessage.trim() || isLoading || isStreaming}
                 sx={{
@@ -559,7 +569,7 @@ const ChatOverlay = () => {
                   transition: 'all 0.2s ease-in-out',
                 }}
               >
-                <SendIcon fontSize="small" />
+                <SendIcon fontSize='small' />
               </IconButton>
             </Box>
           </Box>

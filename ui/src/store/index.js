@@ -35,13 +35,22 @@ const store = configureStore({
     [environmentSettingsApi.reducerPath]: environmentSettingsApi.reducer,
     [logsApi.reducerPath]: logsApi.reducer,
   },
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: ['jira/setImageFile'],
         ignoredPaths: ['jira.createJira.imageFile'],
       },
-    }).concat(jiraApi.middleware, emailApi.middleware, buildApi.middleware, chatApi.middleware, prApi.middleware, templateApi.middleware, environmentSettingsApi.middleware, logsApi.middleware),
+    }).concat(
+      jiraApi.middleware,
+      emailApi.middleware,
+      buildApi.middleware,
+      chatApi.middleware,
+      prApi.middleware,
+      templateApi.middleware,
+      environmentSettingsApi.middleware,
+      logsApi.middleware
+    ),
 });
 
 // Export store for use in components

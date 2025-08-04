@@ -5,17 +5,17 @@ export const emailApi = createApi({
   reducerPath: 'emailApi',
   baseQuery: fetchBaseQuery({
     baseUrl: `${API_BASE_URL}/api/email`,
-    responseHandler: (response) => response.text(),
+    responseHandler: response => response.text(),
   }),
   tagTypes: ['Email'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     sendEmail: builder.mutation({
       query: ({ version, dryRun = true, wikiUrl, wikiBasicAuth }) => ({
         url: `/send?version=${version}&dryRun=${dryRun}`,
         method: 'POST',
         body: JSON.stringify({
           wikiUrl,
-          wikiBasicAuth
+          wikiBasicAuth,
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -28,12 +28,12 @@ export const emailApi = createApi({
         method: 'POST',
         body: JSON.stringify({
           prompt,
-          attachedImages
+          attachedImages,
         }),
         headers: {
           'Content-Type': 'application/json',
         },
-        responseHandler: (response) => response.json(),
+        responseHandler: response => response.json(),
       }),
     }),
     sendAIEmail: builder.mutation({
@@ -44,17 +44,17 @@ export const emailApi = createApi({
           to,
           subject,
           body,
-          attachments
+          attachments,
         }),
         headers: {
           'Content-Type': 'application/json',
         },
-        responseHandler: (response) => response.json(),
+        responseHandler: response => response.json(),
       }),
     }),
     searchContacts: builder.query({
-      query: (query) => `/contacts/${encodeURIComponent(query)}`,
-      responseHandler: (response) => response.json(),
+      query: query => `/contacts/${encodeURIComponent(query)}`,
+      responseHandler: response => response.json(),
     }),
   }),
 });

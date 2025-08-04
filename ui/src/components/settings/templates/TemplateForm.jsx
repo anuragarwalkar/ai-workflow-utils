@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,8 +10,8 @@ import {
   Typography,
   Chip,
   Alert,
-} from '@mui/material'
-import { useSelector, useDispatch } from 'react-redux'
+} from '@mui/material';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   selectIsFormOpen,
   selectFormMode,
@@ -19,28 +19,28 @@ import {
   selectIsSaving,
   closeForm,
   setError,
-} from '../../../store/slices/templateSlice'
+} from '../../../store/slices/templateSlice';
 import {
   useCreateTemplateMutation,
-  useUpdateTemplateMutation
-} from '../../../store/api/templateApi'
+  useUpdateTemplateMutation,
+} from '../../../store/api/templateApi';
 
 const TemplateForm = () => {
-  const dispatch = useDispatch()
-  const isOpen = useSelector(selectIsFormOpen)
-  const mode = useSelector(selectFormMode)
-  const editingTemplate = useSelector(selectEditingTemplate)
-  const isSaving = useSelector(selectIsSaving)
+  const dispatch = useDispatch();
+  const isOpen = useSelector(selectIsFormOpen);
+  const mode = useSelector(selectFormMode);
+  const editingTemplate = useSelector(selectEditingTemplate);
+  const isSaving = useSelector(selectIsSaving);
 
-  const [createTemplate] = useCreateTemplateMutation()
-  const [updateTemplate] = useUpdateTemplateMutation()
+  const [createTemplate] = useCreateTemplateMutation();
+  const [updateTemplate] = useUpdateTemplateMutation();
 
   const [formData, setFormData] = useState({
     name: '',
     templateFor: '',
-    content: ''
-  })
-  const [variables, setVariables] = useState([])
+    content: '',
+  });
+  const [variables, setVariables] = useState([]);
 
   // Load template data when editing
   useEffect(() => {
@@ -48,167 +48,174 @@ const TemplateForm = () => {
       setFormData({
         name: editingTemplate.name,
         templateFor: editingTemplate.templateFor || '',
-        content: editingTemplate.content
-      })
-      setVariables(editingTemplate.variables || [])
+        content: editingTemplate.content,
+      });
+      setVariables(editingTemplate.variables || []);
     } else {
       setFormData({
         name: '',
         templateFor: '',
-        content: ''
-      })
-      setVariables([])
+        content: '',
+      });
+      setVariables([]);
     }
-  }, [editingTemplate, mode])
+  }, [editingTemplate, mode]);
 
   // Extract variables from template content
   useEffect(() => {
-    const variableRegex = /\{([^}]+)\}/g
-    const foundVariables = []
-    let match
-    
+    const variableRegex = /\{([^}]+)\}/g;
+    const foundVariables = [];
+    let match;
+
     while ((match = variableRegex.exec(formData.content)) !== null) {
       if (!foundVariables.includes(match[1])) {
-        foundVariables.push(match[1])
+        foundVariables.push(match[1]);
       }
     }
-    
-    setVariables(foundVariables)
-  }, [formData.content])
 
-  const handleInputChange = (field) => (event) => {
+    setVariables(foundVariables);
+  }, [formData.content]);
+
+  const handleInputChange = field => event => {
     setFormData(prev => ({
       ...prev,
-      [field]: event.target.value
-    }))
-  }
+      [field]: event.target.value,
+    }));
+  };
 
   const handleSubmit = async () => {
     try {
       // Clear any previous errors
-      dispatch(setError(null))
-      
+      dispatch(setError(null));
+
       // Validation
       if (!formData.name.trim()) {
-        dispatch(setError('Template name is required'))
-        return
+        dispatch(setError('Template name is required'));
+        return;
       }
-      
+
       if (!formData.templateFor.trim()) {
-        dispatch(setError('Template for field is required'))
-        return
+        dispatch(setError('Template for field is required'));
+        return;
       }
-      
+
       if (!formData.content.trim()) {
-        dispatch(setError('Template content is required'))
-        return
+        dispatch(setError('Template content is required'));
+        return;
       }
 
       const templateData = {
         name: formData.name.trim(),
         templateFor: formData.templateFor.trim(),
-        content: formData.content.trim()
-      }
+        content: formData.content.trim(),
+      };
 
       if (mode === 'edit' && editingTemplate) {
         await updateTemplate({
           id: editingTemplate.id,
-          ...templateData
-        }).unwrap()
+          ...templateData,
+        }).unwrap();
       } else {
-        await createTemplate(templateData).unwrap()
+        await createTemplate(templateData).unwrap();
       }
 
-      dispatch(closeForm())
+      dispatch(closeForm());
     } catch (error) {
       // Toast notifications are now handled in Redux API layer
       // Keep local error for form validation display
-      console.error('Template save error:', error)
-      const errorMessage = error?.data?.error || error?.message || 'Failed to save template'
-      dispatch(setError(errorMessage))
+      console.error('Template save error:', error);
+      const errorMessage =
+        error?.data?.error || error?.message || 'Failed to save template';
+      dispatch(setError(errorMessage));
     }
-  }
+  };
 
   const handleClose = () => {
-    dispatch(closeForm())
-  }
+    dispatch(closeForm());
+  };
 
   const getDialogTitle = () => {
     switch (mode) {
       case 'edit':
-        return 'Edit Template'
+        return 'Edit Template';
       case 'duplicate':
-        return 'Duplicate Template'
+        return 'Duplicate Template';
       default:
-        return 'Create New Template'
+        return 'Create New Template';
     }
-  }
+  };
 
-  const insertVariable = (variable) => {
-    const textarea = document.getElementById('template-content')
+  const insertVariable = variable => {
+    const textarea = document.getElementById('template-content');
     if (textarea) {
-      const start = textarea.selectionStart
-      const end = textarea.selectionEnd
-      const newContent = formData.content.substring(0, start) + `{${variable}}` + formData.content.substring(end)
-      setFormData(prev => ({ ...prev, content: newContent }))
-      
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const newContent =
+        formData.content.substring(0, start) +
+        `{${variable}}` +
+        formData.content.substring(end);
+      setFormData(prev => ({ ...prev, content: newContent }));
+
       // Set cursor position after the inserted variable
       setTimeout(() => {
-        textarea.focus()
-        textarea.setSelectionRange(start + variable.length + 2, start + variable.length + 2)
-      }, 0)
+        textarea.focus();
+        textarea.setSelectionRange(
+          start + variable.length + 2,
+          start + variable.length + 2
+        );
+      }, 0);
     }
-  }
+  };
 
   return (
     <Dialog
       open={isOpen}
       onClose={handleClose}
-      maxWidth="md"
+      maxWidth='md'
       fullWidth
       PaperProps={{
-        sx: { minHeight: '600px' }
+        sx: { minHeight: '600px' },
       }}
     >
       <DialogTitle>{getDialogTitle()}</DialogTitle>
-      
+
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}>
           {/* Template Name */}
           <TextField
-            label="Template Name"
+            label='Template Name'
             value={formData.name}
             onChange={handleInputChange('name')}
             fullWidth
             required
-            placeholder="e.g., Bug Report Template, PR Review Template"
+            placeholder='e.g., Bug Report Template, PR Review Template'
           />
 
           {/* Template For */}
           <Box>
             <TextField
-              label="Template For"
+              label='Template For'
               value={formData.templateFor}
               onChange={handleInputChange('templateFor')}
               fullWidth
               disabled
-              placeholder="e.g., JIRA_BUG, JIRA_TASK, PR_REVIEW"
-              helperText="This field shows what the template is designed for. Editing capability will be available in a future update"
+              placeholder='e.g., JIRA_BUG, JIRA_TASK, PR_REVIEW'
+              helperText='This field shows what the template is designed for. Editing capability will be available in a future update'
             />
           </Box>
 
           {/* Variable Helper */}
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography variant='subtitle2' gutterBottom>
               Common Variables (click to insert):
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-              {['prompt', 'imageReference', 'imageContext'].map((variable) => (
+              {['prompt', 'imageReference', 'imageContext'].map(variable => (
                 <Chip
                   key={variable}
                   label={`{${variable}}`}
-                  size="small"
-                  variant="outlined"
+                  size='small'
+                  variant='outlined'
                   clickable
                   onClick={() => insertVariable(variable)}
                   sx={{ cursor: 'pointer' }}
@@ -219,32 +226,32 @@ const TemplateForm = () => {
 
           {/* Template Content */}
           <TextField
-            id="template-content"
-            label="Template Content"
+            id='template-content'
+            label='Template Content'
             value={formData.content}
             onChange={handleInputChange('content')}
             multiline
             rows={12}
             fullWidth
             required
-            placeholder="Enter your template content here. Use {prompt} for user input, {imageReference} for image context, etc."
-            helperText="Use curly braces {} to define variables that will be replaced when the template is used"
+            placeholder='Enter your template content here. Use {prompt} for user input, {imageReference} for image context, etc.'
+            helperText='Use curly braces {} to define variables that will be replaced when the template is used'
           />
 
           {/* Detected Variables */}
           {variables.length > 0 && (
             <Box>
-              <Typography variant="subtitle2" gutterBottom>
+              <Typography variant='subtitle2' gutterBottom>
                 Detected Variables:
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {variables.map((variable) => (
+                {variables.map(variable => (
                   <Chip
                     key={variable}
                     label={`{${variable}}`}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
+                    size='small'
+                    color='primary'
+                    variant='outlined'
                   />
                 ))}
               </Box>
@@ -257,16 +264,12 @@ const TemplateForm = () => {
         <Button onClick={handleClose} disabled={isSaving}>
           Cancel
         </Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={isSaving}
-        >
-          {isSaving ? 'Saving...' : (mode === 'edit' ? 'Update' : 'Create')}
+        <Button onClick={handleSubmit} variant='contained' disabled={isSaving}>
+          {isSaving ? 'Saving...' : mode === 'edit' ? 'Update' : 'Create'}
         </Button>
       </DialogActions>
     </Dialog>
-  )
-}
+  );
+};
 
-export default TemplateForm
+export default TemplateForm;

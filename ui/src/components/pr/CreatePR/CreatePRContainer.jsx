@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Box, Button, Paper, Typography, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Button,
+  Paper,
+  Typography,
+  CircularProgress,
+} from '@mui/material';
 import PRForm from './PRForm';
 import PreviewSection from './PreviewSection';
 import { useCreatePullRequestMutation } from '../../../store/api/prApi';
@@ -27,12 +33,12 @@ const CreatePRContainer = () => {
       setFormData(prev => ({
         ...prev,
         projectKey,
-        repoSlug
+        repoSlug,
       }));
     }
   }, []);
 
-  const handleFormChange = (newData) => {
+  const handleFormChange = newData => {
     setFormData(newData);
     setShowPreview(false);
   };
@@ -41,7 +47,7 @@ const CreatePRContainer = () => {
     try {
       // Set loading state
       setIsPreviewLoading(true);
-      
+
       // Reset preview state
       setPreview(null);
       setShowPreview(true);
@@ -52,7 +58,7 @@ const CreatePRContainer = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
@@ -66,32 +72,35 @@ const CreatePRContainer = () => {
         prTitle: '',
         prDescription: '',
         aiGenerated: false,
-        branchName: formData.branchName
+        branchName: formData.branchName,
       };
 
       try {
         while (true) {
           const { done, value } = await reader.read();
-          
+
           if (done) break;
-          
+
           const chunk = decoder.decode(value);
           const lines = chunk.split('\n');
-          
+
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               try {
                 const jsonStr = line.slice(6); // Remove 'data: ' prefix
                 if (jsonStr.trim()) {
                   const data = JSON.parse(jsonStr);
-                  
+
                   switch (data.type) {
                     case 'status':
                       console.log('Status:', data.message);
                       break;
                     case 'content_chunk':
                       // Real-time content streaming - show progress
-                      console.log('Content chunk received:', data.data?.substring(0, 50));
+                      console.log(
+                        'Content chunk received:',
+                        data.data?.substring(0, 50)
+                      );
                       break;
                     case 'title_chunk':
                       streamedPreview.prTitle += data.data;
@@ -112,12 +121,15 @@ const CreatePRContainer = () => {
                     case 'complete':
                       streamedPreview = data.data;
                       setPreview(streamedPreview);
-                      
+
                       // Save project key and repo slug to local storage after successful preview
-                      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                        projectKey: formData.projectKey,
-                        repoSlug: formData.repoSlug
-                      }));
+                      localStorage.setItem(
+                        STORAGE_KEY,
+                        JSON.stringify({
+                          projectKey: formData.projectKey,
+                          repoSlug: formData.repoSlug,
+                        })
+                      );
                       setIsPreviewLoading(false);
                       return; // Exit the loop
                     case 'error':
@@ -138,7 +150,6 @@ const CreatePRContainer = () => {
         reader.releaseLock();
         setIsPreviewLoading(false);
       }
-
     } catch (error) {
       console.error('Failed to start streaming preview:', error);
       setIsPreviewLoading(false);
@@ -150,16 +161,19 @@ const CreatePRContainer = () => {
   const handlePreviewFallback = async () => {
     try {
       setIsPreviewLoading(true);
-      
+
       const response = await createPR({
         ...formData,
       }).unwrap();
 
       // Save project key and repo slug to local storage after successful preview
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        projectKey: formData.projectKey,
-        repoSlug: formData.repoSlug
-      }));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          projectKey: formData.projectKey,
+          repoSlug: formData.repoSlug,
+        })
+      );
 
       setPreview(response);
       setShowPreview(true);
@@ -171,20 +185,20 @@ const CreatePRContainer = () => {
     }
   };
 
-  const handleCreate = async (editedPreview) => {
+  const handleCreate = async editedPreview => {
     try {
       await createPR({
         branchName: formData.branchName,
         projectKey: formData.projectKey,
         repoSlug: formData.repoSlug,
         customTitle: editedPreview.prTitle,
-        customDescription: editedPreview.prDescription
+        customDescription: editedPreview.prDescription,
       }).unwrap();
 
       // Handle success (show notification, reset form, etc.)
       setFormData(prev => ({
         ...prev,
-        branchName: ''
+        branchName: '',
       }));
       setShowPreview(false);
       setPreview(null);
@@ -197,20 +211,23 @@ const CreatePRContainer = () => {
   return (
     <Box sx={{ width: '100%', mt: 2 }}>
       <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant='h6' gutterBottom>
           Create Pull Request
         </Typography>
 
-        <PRForm 
-          formData={formData} 
-          onChange={handleFormChange} 
-        />
+        <PRForm formData={formData} onChange={handleFormChange} />
 
         <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
           <Button
-            variant="contained"
+            variant='contained'
             onClick={handlePreview}
-            disabled={isPreviewLoading || isLoading || !formData.projectKey || !formData.repoSlug || !formData.branchName}
+            disabled={
+              isPreviewLoading ||
+              isLoading ||
+              !formData.projectKey ||
+              !formData.repoSlug ||
+              !formData.branchName
+            }
           >
             {isPreviewLoading ? <CircularProgress size={24} /> : 'Preview'}
           </Button>

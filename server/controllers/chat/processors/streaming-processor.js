@@ -13,9 +13,9 @@ class StreamingProcessor {
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
+      Connection: 'keep-alive',
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Cache-Control'
+      'Access-Control-Allow-Headers': 'Cache-Control',
     });
   }
 
@@ -29,9 +29,9 @@ class StreamingProcessor {
     const statusData = {
       type: 'status',
       message,
-      provider
+      provider,
     };
-    
+
     res.write(`data: ${JSON.stringify(statusData)}\n\n`);
     logger.debug(`Streaming status: ${message} (${provider})`);
   }
@@ -44,9 +44,9 @@ class StreamingProcessor {
   static sendChunk(res, content) {
     const chunkData = {
       type: 'chunk',
-      content
+      content,
     };
-    
+
     res.write(`data: ${JSON.stringify(chunkData)}\n\n`);
   }
 
@@ -60,11 +60,13 @@ class StreamingProcessor {
     const completeData = {
       type: 'complete',
       response: fullResponse,
-      provider
+      provider,
     };
-    
+
     res.write(`data: ${JSON.stringify(completeData)}\n\n`);
-    logger.info(`Streaming complete: ${fullResponse.length} characters from ${provider}`);
+    logger.info(
+      `Streaming complete: ${fullResponse.length} characters from ${provider}`
+    );
   }
 
   /**
@@ -77,9 +79,9 @@ class StreamingProcessor {
     const errorData = {
       type: 'error',
       error,
-      context
+      context,
     };
-    
+
     res.write(`data: ${JSON.stringify(errorData)}\n\n`);
     logger.error(`Streaming error in ${context}: ${error}`);
   }
@@ -93,7 +95,7 @@ class StreamingProcessor {
     if (typeof data !== 'string') {
       return '';
     }
-    
+
     // Remove any potential SSE-breaking characters
     return data.replace(/\n\n/g, ' ').replace(/data:/g, '');
   }
@@ -115,7 +117,7 @@ class StreamingProcessor {
         return false;
       }
     }
-    
+
     return false;
   }
 }

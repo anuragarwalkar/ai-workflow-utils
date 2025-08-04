@@ -12,14 +12,14 @@ class EnvironmentConfig {
   static getEmailConfig() {
     try {
       const envSettings = EnvironmentDbService.getAllSettings();
-      
+
       return {
         service: envSettings.email_service || 'gmail',
         user: envSettings.email_user,
         password: envSettings.email_password,
         host: envSettings.email_host,
         port: envSettings.email_port,
-        secure: envSettings.email_secure !== false
+        secure: envSettings.email_secure !== false,
       };
     } catch (error) {
       logger.error('Failed to get email config', { error: error.message });

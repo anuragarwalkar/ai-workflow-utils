@@ -35,44 +35,53 @@ import {
   Speed as SpeedIcon,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
-import { useGetPullRequestDiffQuery, useReviewPullRequestMutation, useGetPullRequestsQuery } from '../../store/api/prApi';
-import { setDiffData, setReviewData, setError, setSelectedPullRequest } from '../../store/slices/prSlice';
+import {
+  useGetPullRequestDiffQuery,
+  useReviewPullRequestMutation,
+  useGetPullRequestsQuery,
+} from '../../store/api/prApi';
+import {
+  setDiffData,
+  setReviewData,
+  setError,
+  setSelectedPullRequest,
+} from '../../store/slices/prSlice';
 import { useStreamingPRReview } from '../../hooks/useStreamingPRReview';
 
 const DiffLine = ({ line, type, lineNumber }) => {
   const theme = useTheme();
-  
-  const getLineStyle = (segmentType) => {
+
+  const getLineStyle = segmentType => {
     switch (segmentType) {
       case 'ADDED':
         return {
           backgroundColor: theme.palette.success.light + '20',
           borderLeft: `3px solid ${theme.palette.success.main}`,
-          color: theme.palette.success.dark
+          color: theme.palette.success.dark,
         };
       case 'REMOVED':
         return {
           backgroundColor: theme.palette.error.light + '20',
           borderLeft: `3px solid ${theme.palette.error.main}`,
-          color: theme.palette.error.dark
+          color: theme.palette.error.dark,
         };
       case 'CONTEXT':
         return {
           backgroundColor: theme.palette.grey[50],
           borderLeft: `3px solid ${theme.palette.grey[300]}`,
-          color: theme.palette.text.primary
+          color: theme.palette.text.primary,
         };
       default:
         return {};
     }
   };
 
-  const getLineIcon = (segmentType) => {
+  const getLineIcon = segmentType => {
     switch (segmentType) {
       case 'ADDED':
-        return <AddIcon fontSize="small" color="success" />;
+        return <AddIcon fontSize='small' color='success' />;
       case 'REMOVED':
-        return <RemoveIcon fontSize="small" color="error" />;
+        return <RemoveIcon fontSize='small' color='error' />;
       default:
         return null;
     }
@@ -87,15 +96,21 @@ const DiffLine = ({ line, type, lineNumber }) => {
         fontSize: '0.875rem',
         padding: '2px 8px',
         minHeight: '20px',
-        ...getLineStyle(type)
+        ...getLineStyle(type),
       }}
     >
       <Box sx={{ minWidth: '20px', display: 'flex', alignItems: 'center' }}>
         {getLineIcon(type)}
       </Box>
-      <Box sx={{ minWidth: '60px', color: theme.palette.text.secondary, marginRight: 2 }}>
+      <Box
+        sx={{
+          minWidth: '60px',
+          color: theme.palette.text.secondary,
+          marginRight: 2,
+        }}
+      >
         {lineNumber && (
-          <Typography variant="caption" sx={{ fontFamily: 'monospace' }}>
+          <Typography variant='caption' sx={{ fontFamily: 'monospace' }}>
             {lineNumber}
           </Typography>
         )}
@@ -109,24 +124,29 @@ const DiffLine = ({ line, type, lineNumber }) => {
 
 const FileChanges = ({ file, expanded, onToggle }) => {
   const theme = useTheme();
-  
+
   const getFileStatus = () => {
     if (!file.source && file.destination) return 'ADDED';
     if (file.source && !file.destination) return 'REMOVED';
     return 'MODIFIED';
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = status => {
     switch (status) {
-      case 'ADDED': return 'success';
-      case 'REMOVED': return 'error';
-      case 'MODIFIED': return 'warning';
-      default: return 'default';
+      case 'ADDED':
+        return 'success';
+      case 'REMOVED':
+        return 'error';
+      case 'MODIFIED':
+        return 'warning';
+      default:
+        return 'default';
     }
   };
 
   const status = getFileStatus();
-  const fileName = file.destination?.toString || file.source?.toString || 'Unknown file';
+  const fileName =
+    file.destination?.toString || file.source?.toString || 'Unknown file';
 
   return (
     <Accordion
@@ -134,50 +154,58 @@ const FileChanges = ({ file, expanded, onToggle }) => {
       onChange={onToggle}
       sx={{ mb: 1, border: `1px solid ${theme.palette.divider}` }}
     >
-      <AccordionSummary 
+      <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
-        sx={{ 
+        sx={{
           backgroundColor: theme.palette.grey[50],
-          '&:hover': { backgroundColor: theme.palette.grey[100] }
+          '&:hover': { backgroundColor: theme.palette.grey[100] },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-          <Typography 
-            variant="subtitle1" 
-            sx={{ 
-              fontFamily: 'monospace', 
+        <Box
+          sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}
+        >
+          <Typography
+            variant='subtitle1'
+            sx={{
+              fontFamily: 'monospace',
               flex: 1,
               wordBreak: 'break-all',
               whiteSpace: 'normal',
               lineHeight: 1.2,
-              minWidth: 0
+              minWidth: 0,
             }}
           >
             {fileName}
           </Typography>
-          <Chip 
-            label={status} 
-            size="small" 
+          <Chip
+            label={status}
+            size='small'
             color={getStatusColor(status)}
-            variant="outlined" 
+            variant='outlined'
           />
-          <Chip 
-            label={`${file.hunks?.length || 0} hunks`} 
-            size="small" 
-            variant="outlined" 
+          <Chip
+            label={`${file.hunks?.length || 0} hunks`}
+            size='small'
+            variant='outlined'
           />
         </Box>
       </AccordionSummary>
       <AccordionDetails sx={{ p: 0 }}>
         {file.hunks?.map((hunk, hunkIndex) => (
           <Box key={hunkIndex} sx={{ mb: 2 }}>
-            <Box sx={{ 
-              backgroundColor: theme.palette.primary.light + '20', 
-              p: 1, 
-              borderBottom: `1px solid ${theme.palette.divider}` 
-            }}>
-              <Typography variant="subtitle2" sx={{ color: 'primary.main', fontFamily: 'monospace' }}>
-                {hunk.context || `@@ -${hunk.sourceLine},${hunk.sourceSpan} +${hunk.destinationLine},${hunk.destinationSpan} @@`}
+            <Box
+              sx={{
+                backgroundColor: theme.palette.primary.light + '20',
+                p: 1,
+                borderBottom: `1px solid ${theme.palette.divider}`,
+              }}
+            >
+              <Typography
+                variant='subtitle2'
+                sx={{ color: 'primary.main', fontFamily: 'monospace' }}
+              >
+                {hunk.context ||
+                  `@@ -${hunk.sourceLine},${hunk.sourceSpan} +${hunk.destinationLine},${hunk.destinationSpan} @@`}
               </Typography>
             </Box>
             <Box>
@@ -203,26 +231,38 @@ const FileChanges = ({ file, expanded, onToggle }) => {
 
 const PullRequestDiff = ({ onPrevious, onReset }) => {
   const dispatch = useDispatch();
-  const { selectedProject, selectedPullRequest, diffData, reviewData, directPRId } = useSelector((state) => state.pr);
+  const {
+    selectedProject,
+    selectedPullRequest,
+    diffData,
+    reviewData,
+    directPRId,
+  } = useSelector(state => state.pr);
   const [expandedFiles, setExpandedFiles] = useState({});
 
   // Fetch PR list if we have a direct PR ID but no selected PR details
-  const {
-    data: pullRequests,
-    isLoading: isPRListLoading
-  } = useGetPullRequestsQuery(
-    {
-      projectKey: selectedProject.projectKey,
-      repoSlug: selectedProject.repoSlug,
-    },
-    {
-      skip: !directPRId || !selectedProject.projectKey || !selectedProject.repoSlug || (selectedPullRequest && selectedPullRequest.title),
-    }
-  );
+  const { data: pullRequests, isLoading: isPRListLoading } =
+    useGetPullRequestsQuery(
+      {
+        projectKey: selectedProject.projectKey,
+        repoSlug: selectedProject.repoSlug,
+      },
+      {
+        skip:
+          !directPRId ||
+          !selectedProject.projectKey ||
+          !selectedProject.repoSlug ||
+          (selectedPullRequest && selectedPullRequest.title),
+      }
+    );
 
   // Set the selected PR from the list if we have a direct PR ID
   useEffect(() => {
-    if (directPRId && pullRequests?.values && (!selectedPullRequest || !selectedPullRequest.title)) {
+    if (
+      directPRId &&
+      pullRequests?.values &&
+      (!selectedPullRequest || !selectedPullRequest.title)
+    ) {
       const targetPR = pullRequests.values.find(pr => pr.id === directPRId);
       if (targetPR) {
         dispatch(setSelectedPullRequest(targetPR));
@@ -234,7 +274,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
     data: diff,
     error: diffError,
     isLoading: isDiffLoading,
-    refetch: refetchDiff
+    refetch: refetchDiff,
   } = useGetPullRequestDiffQuery(
     {
       projectKey: selectedProject.projectKey,
@@ -242,12 +282,16 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
       pullRequestId: selectedPullRequest?.id || directPRId,
     },
     {
-      skip: !selectedProject.projectKey || !selectedProject.repoSlug || (!selectedPullRequest?.id && !directPRId),
+      skip:
+        !selectedProject.projectKey ||
+        !selectedProject.repoSlug ||
+        (!selectedPullRequest?.id && !directPRId),
     }
   );
 
-  const [reviewPullRequest, { isLoading: isReviewing }] = useReviewPullRequestMutation();
-  
+  const [reviewPullRequest, { isLoading: isReviewing }] =
+    useReviewPullRequestMutation();
+
   // Streaming PR review hook
   const {
     startReview: startStreamingReview,
@@ -255,7 +299,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
     isStreaming,
     streamingContent,
     reviewComplete,
-    error: streamingError
+    error: streamingError,
   } = useStreamingPRReview();
 
   // UI state for streaming toggle
@@ -269,14 +313,18 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
 
   useEffect(() => {
     if (diffError) {
-      dispatch(setError(`Failed to fetch diff: ${diffError.data?.error || diffError.message}`));
+      dispatch(
+        setError(
+          `Failed to fetch diff: ${diffError.data?.error || diffError.message}`
+        )
+      );
     }
   }, [diffError, dispatch]);
 
-  const handleFileToggle = (fileIndex) => {
+  const handleFileToggle = fileIndex => {
     setExpandedFiles(prev => ({
       ...prev,
-      [fileIndex]: !prev[fileIndex]
+      [fileIndex]: !prev[fileIndex],
     }));
   };
 
@@ -326,16 +374,20 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         dispatch(setReviewData(result));
       }
     } catch (error) {
-      dispatch(setError(`Failed to generate review: ${error.data?.error || error.message}`));
+      dispatch(
+        setError(
+          `Failed to generate review: ${error.data?.error || error.message}`
+        )
+      );
     }
   };
 
   const getDiffStats = () => {
     if (!diffData?.diffs) return { files: 0, additions: 0, deletions: 0 };
-    
+
     let additions = 0;
     let deletions = 0;
-    
+
     diffData.diffs.forEach(file => {
       file.hunks?.forEach(hunk => {
         hunk.segments?.forEach(segment => {
@@ -347,20 +399,29 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         });
       });
     });
-    
+
     return {
       files: diffData.diffs.length,
       additions,
-      deletions
+      deletions,
     };
   };
 
   if (isDiffLoading || isPRListLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 300 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: 300,
+        }}
+      >
         <CircularProgress size={60} />
-        <Typography variant="h6" sx={{ ml: 2 }}>
-          {isPRListLoading ? 'Loading pull request details...' : 'Loading diff...'}
+        <Typography variant='h6' sx={{ ml: 2 }}>
+          {isPRListLoading
+            ? 'Loading pull request details...'
+            : 'Loading diff...'}
         </Typography>
       </Box>
     );
@@ -369,13 +430,13 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
   if (diffError) {
     return (
       <Box sx={{ textAlign: 'center' }}>
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert severity='error' sx={{ mb: 3 }}>
           Failed to load diff. Please try again.
         </Alert>
-        <Button variant="outlined" onClick={refetchDiff} sx={{ mr: 2 }}>
+        <Button variant='outlined' onClick={refetchDiff} sx={{ mr: 2 }}>
           Retry
         </Button>
-        <Button variant="outlined" onClick={onPrevious}>
+        <Button variant='outlined' onClick={onPrevious}>
           Go Back
         </Button>
       </Box>
@@ -386,31 +447,39 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" component="h2">
-          Review: {selectedPullRequest?.title || `PR #${directPRId || 'Unknown'}`}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+        }}
+      >
+        <Typography variant='h5' component='h2'>
+          Review:{' '}
+          {selectedPullRequest?.title || `PR #${directPRId || 'Unknown'}`}
         </Typography>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <FormControlLabel
             control={
               <Switch
                 checked={useStreaming}
-                onChange={(e) => setUseStreaming(e.target.checked)}
-                size="small"
+                onChange={e => setUseStreaming(e.target.checked)}
+                size='small'
               />
             }
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <SpeedIcon fontSize="small" />
-                <Typography variant="body2">Streaming</Typography>
+                <SpeedIcon fontSize='small' />
+                <Typography variant='body2'>Streaming</Typography>
               </Box>
             }
           />
           <Button
-            variant="contained"
+            variant='contained'
             startIcon={<AutoAwesomeIcon />}
             onClick={handleReview}
-            disabled={(isReviewing || isStreaming) || !diffData}
+            disabled={isReviewing || isStreaming || !diffData}
             sx={{
               background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
               '&:hover': {
@@ -418,10 +487,14 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
               },
             }}
           >
-            {isStreaming ? 'Streaming...' : (isReviewing ? 'Reviewing...' : 'AI Review')}
+            {isStreaming
+              ? 'Streaming...'
+              : isReviewing
+                ? 'Reviewing...'
+                : 'AI Review'}
           </Button>
           <Button
-            variant="outlined"
+            variant='outlined'
             startIcon={<RefreshIcon />}
             onClick={refetchDiff}
           >
@@ -434,50 +507,71 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         <Grid item xs={12} md={reviewData ? 6 : 12}>
           <Card elevation={1} sx={{ mb: 3 }}>
             <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  mb: 2,
+                }}
+              >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CodeIcon color="primary" />
-                  <Typography variant="h6">
-                    Code Changes
-                  </Typography>
-                  <Chip 
-                    label={`${stats.files} files`} 
-                    size="small" 
-                    color="primary" 
-                    variant="outlined" 
+                  <CodeIcon color='primary' />
+                  <Typography variant='h6'>Code Changes</Typography>
+                  <Chip
+                    label={`${stats.files} files`}
+                    size='small'
+                    color='primary'
+                    variant='outlined'
                   />
-                  <Chip 
-                    label={`+${stats.additions} -${stats.deletions}`} 
-                    size="small" 
-                    color="secondary" 
-                    variant="outlined" 
+                  <Chip
+                    label={`+${stats.additions} -${stats.deletions}`}
+                    size='small'
+                    color='secondary'
+                    variant='outlined'
                   />
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Tooltip title="Expand All">
-                    <IconButton size="small" onClick={handleExpandAll}>
+                  <Tooltip title='Expand All'>
+                    <IconButton size='small' onClick={handleExpandAll}>
                       <VisibilityIcon />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Collapse All">
-                    <IconButton size="small" onClick={handleCollapseAll}>
+                  <Tooltip title='Collapse All'>
+                    <IconButton size='small' onClick={handleCollapseAll}>
                       <VisibilityOffIcon />
                     </IconButton>
                   </Tooltip>
                 </Box>
               </Box>
-              
+
               {!diffData?.diffs || diffData.diffs.length === 0 ? (
-                <Card elevation={0} sx={{ textAlign: 'center', py: 4, backgroundColor: 'grey.50' }}>
+                <Card
+                  elevation={0}
+                  sx={{
+                    textAlign: 'center',
+                    py: 4,
+                    backgroundColor: 'grey.50',
+                  }}
+                >
                   <CardContent>
-                    <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                    <Typography
+                      variant='h6'
+                      color='text.secondary'
+                      sx={{ mb: 2 }}
+                    >
                       📄 No Changes Found
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    <Typography
+                      variant='body2'
+                      color='text.secondary'
+                      sx={{ mb: 2 }}
+                    >
                       This pull request doesn't contain any file changes.
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      This might be a documentation-only PR or the changes haven't been committed yet.
+                    <Typography variant='caption' color='text.secondary'>
+                      This might be a documentation-only PR or the changes
+                      haven't been committed yet.
                     </Typography>
                   </CardContent>
                 </Card>
@@ -501,79 +595,105 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
           <Grid item xs={12} md={6}>
             <Card elevation={1} sx={{ mb: 3 }}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <AutoAwesomeIcon color="secondary" />
-                  <Typography variant="h6">
-                    AI Review
-                  </Typography>
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}
+                >
+                  <AutoAwesomeIcon color='secondary' />
+                  <Typography variant='h6'>AI Review</Typography>
                   {isStreaming && (
-                    <Chip 
-                      label="Streaming..." 
-                      size="small" 
-                      color="primary" 
-                      variant="outlined" 
+                    <Chip
+                      label='Streaming...'
+                      size='small'
+                      color='primary'
+                      variant='outlined'
                     />
                   )}
                   {reviewData && !isStreaming && (
-                    <Chip 
-                      label="Generated" 
-                      size="small" 
-                      color="secondary" 
-                      variant="outlined" 
+                    <Chip
+                      label='Generated'
+                      size='small'
+                      color='secondary'
+                      variant='outlined'
                     />
                   )}
                   {reviewComplete && (
-                    <Chip 
-                      label="Completed" 
-                      size="small" 
-                      color="success" 
-                      variant="outlined" 
+                    <Chip
+                      label='Completed'
+                      size='small'
+                      color='success'
+                      variant='outlined'
                     />
                   )}
                 </Box>
 
                 {isStreaming && (
                   <Box sx={{ mb: 2 }}>
-                    <LinearProgress variant="indeterminate" />
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                    <LinearProgress variant='indeterminate' />
+                    <Typography
+                      variant='caption'
+                      color='text.secondary'
+                      sx={{ mt: 1, display: 'block' }}
+                    >
                       AI is analyzing your code changes...
                     </Typography>
                   </Box>
                 )}
 
                 {streamingError && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
+                  <Alert severity='error' sx={{ mb: 2 }}>
                     Streaming error: {streamingError}
                   </Alert>
                 )}
-                
-                <Paper variant="outlined" sx={{ p: 2, backgroundColor: 'grey.50' }}>
-                  <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
-                    {isStreaming || streamingContent ? streamingContent : reviewData?.review}
+
+                <Paper
+                  variant='outlined'
+                  sx={{ p: 2, backgroundColor: 'grey.50' }}
+                >
+                  <Typography
+                    variant='body1'
+                    sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}
+                  >
+                    {isStreaming || streamingContent
+                      ? streamingContent
+                      : reviewData?.review}
                     {isStreaming && (
-                      <Box component="span" sx={{ 
-                        animation: 'blink 1s infinite',
-                        '@keyframes blink': {
-                          '0%, 50%': { opacity: 1 },
-                          '51%, 100%': { opacity: 0 }
-                        }
-                      }}>
+                      <Box
+                        component='span'
+                        sx={{
+                          animation: 'blink 1s infinite',
+                          '@keyframes blink': {
+                            '0%, 50%': { opacity: 1 },
+                            '51%, 100%': { opacity: 0 },
+                          },
+                        }}
+                      >
                         ▋
                       </Box>
                     )}
                   </Typography>
                 </Paper>
-                
+
                 {reviewData?.reviewedAt && !isStreaming && (
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                    Generated on {new Date(reviewData.reviewedAt).toLocaleString()}
+                  <Typography
+                    variant='caption'
+                    color='text.secondary'
+                    sx={{ mt: 1, display: 'block' }}
+                  >
+                    Generated on{' '}
+                    {new Date(reviewData.reviewedAt).toLocaleString()}
                     {reviewData.aiProvider && ` using ${reviewData.aiProvider}`}
                   </Typography>
                 )}
                 {reviewComplete?.reviewedAt && (
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                    Generated on {new Date(reviewComplete.reviewedAt).toLocaleString()}
-                    {reviewComplete.aiProvider && ` using ${reviewComplete.aiProvider}`}
+                  <Typography
+                    variant='caption'
+                    color='text.secondary'
+                    sx={{ mt: 1, display: 'block' }}
+                  >
+                    Generated on{' '}
+                    {new Date(reviewComplete.reviewedAt).toLocaleString()}
+                    {reviewComplete.aiProvider &&
+                      ` using ${reviewComplete.aiProvider}`}
                   </Typography>
                 )}
               </CardContent>
@@ -586,16 +706,13 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Button
-          variant="outlined"
+          variant='outlined'
           startIcon={<ArrowBackIcon />}
           onClick={onPrevious}
         >
           Back to PRs
         </Button>
-        <Button
-          variant="outlined"
-          onClick={onReset}
-        >
+        <Button variant='outlined' onClick={onReset}>
           Start Over
         </Button>
       </Box>

@@ -25,7 +25,7 @@ router.get('/status', (req, res) => {
   res.json({
     status: 'OK',
     service: 'Email Service',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 

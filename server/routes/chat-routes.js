@@ -24,6 +24,9 @@ router.get('/stats', ChatController.getChatStats);
 
 // Conversation management endpoints
 router.get('/conversation/:sessionId', ChatController.getConversationHistory);
-router.delete('/conversation/:sessionId', ChatController.clearConversationMemory);
+router.delete(
+  '/conversation/:sessionId',
+  ChatController.clearConversationMemory
+);
 
 export default router;

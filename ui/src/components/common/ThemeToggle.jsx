@@ -1,10 +1,6 @@
 import React from 'react';
 import { IconButton, Tooltip } from '@mui/material';
-import { 
-  LightMode, 
-  DarkMode, 
-  SettingsBrightness 
-} from '@mui/icons-material';
+import { LightMode, DarkMode, SettingsBrightness } from '@mui/icons-material';
 import { useAppTheme } from '../../theme/useAppTheme';
 
 const ThemeToggle = () => {
@@ -12,9 +8,9 @@ const ThemeToggle = () => {
 
   const cycleTheme = () => {
     const nextTheme = {
-      'light': 'dark',
-      'dark': 'auto',
-      'auto': 'light'
+      light: 'dark',
+      dark: 'auto',
+      auto: 'light',
     };
     setThemeMode(nextTheme[themeMode] || 'auto');
   };

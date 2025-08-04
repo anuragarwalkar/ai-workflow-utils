@@ -16,24 +16,24 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
-    toggleChat: (state) => {
+    toggleChat: state => {
       state.isOpen = !state.isOpen;
       if (state.isOpen) {
         state.isMinimized = false;
       }
     },
-    openChat: (state) => {
+    openChat: state => {
       state.isOpen = true;
       state.isMinimized = false;
     },
-    closeChat: (state) => {
+    closeChat: state => {
       state.isOpen = false;
       state.isMinimized = false;
     },
-    minimizeChat: (state) => {
+    minimizeChat: state => {
       state.isMinimized = true;
     },
-    maximizeChat: (state) => {
+    maximizeChat: state => {
       state.isMinimized = false;
     },
     setCurrentMessage: (state, action) => {
@@ -62,13 +62,13 @@ const chatSlice = createSlice({
       state.isLoading = false;
       state.isStreaming = false;
     },
-    clearError: (state) => {
+    clearError: state => {
       state.error = null;
     },
     setProvider: (state, action) => {
       state.provider = action.payload;
     },
-    clearConversation: (state) => {
+    clearConversation: state => {
       state.conversationHistory = [];
       state.currentMessage = '';
       state.streamingContent = '';

@@ -1,5 +1,5 @@
-import logger from "../../../logger.js";
-import { SSE_HEADERS } from "../utils/constants.js";
+import logger from '../../../logger.js';
+import { SSE_HEADERS } from '../utils/constants.js';
 
 /**
  * Service for handling Server-Sent Events streaming
@@ -24,7 +24,7 @@ class StreamingService {
    */
   static sendStatus(res, message) {
     this.sendSSEData(res, {
-      type: "status",
+      type: 'status',
       message: message,
     });
   }
@@ -34,7 +34,7 @@ class StreamingService {
    */
   static sendProgress(res, progress) {
     this.sendSSEData(res, {
-      type: "progress",
+      type: 'progress',
       ...progress,
     });
   }
@@ -44,7 +44,7 @@ class StreamingService {
    */
   static sendComplete(res, data) {
     this.sendSSEData(res, {
-      type: "complete",
+      type: 'complete',
       data: data,
     });
   }
@@ -53,9 +53,9 @@ class StreamingService {
    * Send error and close connection
    */
   static sendError(res, error) {
-    logger.error("Streaming error:", error);
+    logger.error('Streaming error:', error);
     this.sendSSEData(res, {
-      type: "error",
+      type: 'error',
       message: error.message,
     });
     res.end();

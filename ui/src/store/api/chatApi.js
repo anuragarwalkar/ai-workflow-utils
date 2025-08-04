@@ -7,7 +7,7 @@ export const chatApi = createApi({
     baseUrl: `${API_BASE_URL}/api/chat`,
   }),
   tagTypes: ['Chat'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     sendChatMessage: builder.mutation({
       query: ({ message, conversationHistory, template = 'CHAT_GENERIC' }) => ({
         url: '/message',
@@ -16,11 +16,20 @@ export const chatApi = createApi({
       }),
     }),
     sendChatMessageStreaming: builder.mutation({
-      queryFn: async ({ message, conversationHistory, template = 'CHAT_GENERIC', onChunk, onStatus }, { signal }) => {
+      queryFn: async (
+        {
+          message,
+          conversationHistory,
+          template = 'CHAT_GENERIC',
+          onChunk,
+          onStatus,
+        },
+        { signal }
+      ) => {
         try {
           const baseUrl = `${API_BASE_URL}/api/chat`;
           const url = `${baseUrl}/stream`;
-          
+
           const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -31,11 +40,11 @@ export const chatApi = createApi({
           });
 
           if (!response.ok) {
-            return { 
-              error: { 
-                status: response.status, 
-                data: `HTTP error! status: ${response.status}` 
-              } 
+            return {
+              error: {
+                status: response.status,
+                data: `HTTP error! status: ${response.status}`,
+              },
             };
           }
 
@@ -57,7 +66,7 @@ export const chatApi = createApi({
                 if (line.startsWith('data: ')) {
                   try {
                     const data = JSON.parse(line.slice(6));
-                    
+
                     if (data.type === 'status') {
                       onStatus?.(data.message, data.provider);
                     } else if (data.type === 'token') {
@@ -66,14 +75,14 @@ export const chatApi = createApi({
                     } else if (data.type === 'complete') {
                       finalResult = {
                         response: data.response,
-                        provider: data.provider
+                        provider: data.provider,
                       };
                     } else if (data.type === 'error') {
-                      return { 
-                        error: { 
-                          status: 'STREAMING_ERROR', 
-                          data: data.error 
-                        } 
+                      return {
+                        error: {
+                          status: 'STREAMING_ERROR',
+                          data: data.error,
+                        },
                       };
                     }
                   } catch (parseError) {
@@ -90,11 +99,11 @@ export const chatApi = createApi({
           // Return in RTK Query expected format
           return { data: finalResult };
         } catch (error) {
-          return { 
-            error: { 
-              status: 'FETCH_ERROR', 
-              data: error.message 
-            } 
+          return {
+            error: {
+              status: 'FETCH_ERROR',
+              data: error.message,
+            },
           };
         }
       },

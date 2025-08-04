@@ -32,16 +32,17 @@ class LogsProcessor {
         message: jsonLog.message || '',
         module: jsonLog.module || source.replace('.log', ''),
         meta: jsonLog.meta || {},
-        source
+        source,
       };
     } catch (e) {
       // Parse Winston formatted logs with ANSI codes
       const cleanLine = this.cleanAnsiCodes(line);
-      
+
       // Pattern: [timestamp] [LEVEL]: message
-      const winstonPattern = /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s+\[(\w+)\]:\s+(.+)$/;
+      const winstonPattern =
+        /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s+\[(\w+)\]:\s+(.+)$/;
       const match = cleanLine.match(winstonPattern);
-      
+
       if (match) {
         const [, timestamp, level, message] = match;
         return {
@@ -50,10 +51,10 @@ class LogsProcessor {
           message: message.trim(),
           module: source.replace('.log', ''),
           meta: {},
-          source
+          source,
         };
       }
-      
+
       // Fallback for other formats
       return {
         timestamp: new Date().toISOString(),
@@ -61,7 +62,7 @@ class LogsProcessor {
         message: cleanLine.trim(),
         module: source.replace('.log', ''),
         meta: {},
-        source
+        source,
       };
     }
   }
@@ -74,43 +75,43 @@ class LogsProcessor {
    */
   static processLogs(logs, options = {}) {
     const { level = 'all', search = '', page = 1, limit = 25 } = options;
-    
+
     // Filter by level
-    let filteredLogs = level === 'all' 
-      ? logs 
-      : logs.filter(log => log.level === level);
-    
+    let filteredLogs =
+      level === 'all' ? logs : logs.filter(log => log.level === level);
+
     // Filter by search term
     if (search) {
       const searchTerm = search.toLowerCase();
-      filteredLogs = filteredLogs.filter(log => 
-        log.message?.toLowerCase().includes(searchTerm) ||
-        log.module?.toLowerCase().includes(searchTerm) ||
-        log.source?.toLowerCase().includes(searchTerm)
+      filteredLogs = filteredLogs.filter(
+        log =>
+          log.message?.toLowerCase().includes(searchTerm) ||
+          log.module?.toLowerCase().includes(searchTerm) ||
+          log.source?.toLowerCase().includes(searchTerm)
       );
     }
-    
+
     // Sort by timestamp (newest first)
     filteredLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
+
     // Calculate statistics
     const stats = this.calculateStats(filteredLogs);
-    
+
     // Paginate
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
     const paginatedLogs = filteredLogs.slice(startIndex, endIndex);
-    
+
     return {
       logs: paginatedLogs,
       total: filteredLogs.length,
       stats,
       page,
       limit,
-      totalPages: Math.ceil(filteredLogs.length / limit)
+      totalPages: Math.ceil(filteredLogs.length / limit),
     };
   }
-  
+
   /**
    * Calculate statistics for logs
    * @param {Array} logs - Log entries
@@ -122,7 +123,7 @@ class LogsProcessor {
       return acc;
     }, {});
   }
-  
+
   /**
    * Format log entry for display
    * @param {Object} log - Log entry
@@ -133,10 +134,10 @@ class LogsProcessor {
       ...log,
       formattedTimestamp: this.formatTimestamp(log.timestamp),
       levelColor: this.getLevelColor(log.level),
-      severity: this.getLevelSeverity(log.level)
+      severity: this.getLevelSeverity(log.level),
     };
   }
-  
+
   /**
    * Format timestamp for display
    * @param {string} timestamp - ISO timestamp
@@ -149,10 +150,10 @@ class LogsProcessor {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
+      second: '2-digit',
     });
   }
-  
+
   /**
    * Get color for log level
    * @param {string} level - Log level
@@ -163,11 +164,11 @@ class LogsProcessor {
       error: 'error',
       warn: 'warning',
       info: 'info',
-      debug: 'default'
+      debug: 'default',
     };
     return colors[level] || 'default';
   }
-  
+
   /**
    * Get severity number for log level
    * @param {string} level - Log level
@@ -178,11 +179,11 @@ class LogsProcessor {
       error: 4,
       warn: 3,
       info: 2,
-      debug: 1
+      debug: 1,
     };
     return severities[level] || 0;
   }
-  
+
   /**
    * Group logs by time period
    * @param {Array} logs - Log entries
@@ -191,11 +192,11 @@ class LogsProcessor {
    */
   static groupLogsByTime(logs, period = 'day') {
     const grouped = {};
-    
+
     logs.forEach(log => {
       const date = new Date(log.timestamp);
       let key;
-      
+
       switch (period) {
         case 'hour':
           key = date.toISOString().slice(0, 13) + ':00:00';
@@ -210,13 +211,13 @@ class LogsProcessor {
         default:
           key = date.toISOString().slice(0, 10);
       }
-      
+
       if (!grouped[key]) {
         grouped[key] = [];
       }
       grouped[key].push(log);
     });
-    
+
     return grouped;
   }
 }

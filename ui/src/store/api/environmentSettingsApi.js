@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_BASE_URL } from '../../config/environment.js';
 import ToastService from '../../services/toastService';
 
@@ -6,13 +6,13 @@ export const environmentSettingsApi = createApi({
   reducerPath: 'environmentSettingsApi',
   baseQuery: fetchBaseQuery({
     baseUrl: `${API_BASE_URL}/api/environment-settings`,
-    prepareHeaders: (headers) => {
-      headers.set('Content-Type', 'application/json')
-      return headers
+    prepareHeaders: headers => {
+      headers.set('Content-Type', 'application/json');
+      return headers;
     },
   }),
   tagTypes: ['EnvironmentSettings', 'Providers'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     // Get current environment settings
     getEnvironmentSettings: builder.query({
       query: () => '/',
@@ -21,7 +21,7 @@ export const environmentSettingsApi = createApi({
 
     // Update environment settings
     updateEnvironmentSettings: builder.mutation({
-      query: (settings) => ({
+      query: settings => ({
         url: '/',
         method: 'PUT',
         body: settings,
@@ -32,7 +32,10 @@ export const environmentSettingsApi = createApi({
           await queryFulfilled;
           ToastService.success('Environment settings saved successfully!');
         } catch (error) {
-          ToastService.handleApiError(error, 'Failed to save environment settings');
+          ToastService.handleApiError(
+            error,
+            'Failed to save environment settings'
+          );
         }
       },
     }),
@@ -53,7 +56,9 @@ export const environmentSettingsApi = createApi({
       async onQueryStarted({ provider }, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          ToastService.success(`${provider} connection test: ${data.data.message}`);
+          ToastService.success(
+            `${provider} connection test: ${data.data.message}`
+          );
         } catch (error) {
           ToastService.handleApiError(error, 'Connection test failed');
         }
@@ -104,7 +109,7 @@ export const environmentSettingsApi = createApi({
       },
     }),
     importSettings: builder.mutation({
-      query: (importData) => ({
+      query: importData => ({
         url: '/import',
         method: 'POST',
         body: importData,
@@ -120,7 +125,7 @@ export const environmentSettingsApi = createApi({
       },
     }),
   }),
-})
+});
 
 export const {
   useGetEnvironmentSettingsQuery,
@@ -133,4 +138,4 @@ export const {
   useGetSchemaQuery,
   useExportSettingsMutation,
   useImportSettingsMutation,
-} = environmentSettingsApi
+} = environmentSettingsApi;

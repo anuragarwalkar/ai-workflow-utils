@@ -11,10 +11,12 @@ class ToastService {
    * @param {string} message - The message to display
    */
   static success(message) {
-    store.dispatch(showNotification({
-      message,
-      severity: 'success'
-    }));
+    store.dispatch(
+      showNotification({
+        message,
+        severity: 'success',
+      })
+    );
   }
 
   /**
@@ -22,10 +24,12 @@ class ToastService {
    * @param {string} message - The error message to display
    */
   static error(message) {
-    store.dispatch(showNotification({
-      message,
-      severity: 'error'
-    }));
+    store.dispatch(
+      showNotification({
+        message,
+        severity: 'error',
+      })
+    );
   }
 
   /**
@@ -33,10 +37,12 @@ class ToastService {
    * @param {string} message - The warning message to display
    */
   static warning(message) {
-    store.dispatch(showNotification({
-      message,
-      severity: 'warning'
-    }));
+    store.dispatch(
+      showNotification({
+        message,
+        severity: 'warning',
+      })
+    );
   }
 
   /**
@@ -44,10 +50,12 @@ class ToastService {
    * @param {string} message - The info message to display
    */
   static info(message) {
-    store.dispatch(showNotification({
-      message,
-      severity: 'info'
-    }));
+    store.dispatch(
+      showNotification({
+        message,
+        severity: 'info',
+      })
+    );
   }
 
   /**
@@ -80,7 +88,10 @@ class ToastService {
    * @param {Object} response - The response object from RTK Query
    * @param {string} defaultMessage - Default message to show
    */
-  static handleApiSuccess(response, defaultMessage = 'Operation completed successfully') {
+  static handleApiSuccess(
+    response,
+    defaultMessage = 'Operation completed successfully'
+  ) {
     let message = defaultMessage;
 
     if (response?.message) {

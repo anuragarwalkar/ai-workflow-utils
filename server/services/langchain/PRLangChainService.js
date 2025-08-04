@@ -1,6 +1,6 @@
 import { BaseLangChainService } from './BaseLangChainService.js';
-import { HumanMessage } from "@langchain/core/messages";
-import logger from "../../logger.js";
+import { HumanMessage } from '@langchain/core/messages';
+import logger from '../../logger.js';
 
 /**
  * Pull Request-specific LangChain service for handling PR generation
@@ -13,18 +13,32 @@ export class PRLangChainService extends BaseLangChainService {
   /**
    * Generate template-based content specifically for PR creation
    */
-  async generateTemplateBasedContent(promptTemplateFormatter, templateIdentifier, streaming = false) {
+  async generateTemplateBasedContent(
+    promptTemplateFormatter,
+    templateIdentifier,
+    streaming = false
+  ) {
     if (this.providers.length === 0) {
-      throw new Error("No AI providers are configured");
+      throw new Error('No AI providers are configured');
     }
 
-    logger.info(`PR LangChain generateTemplateBasedContent called with template: ${templateIdentifier}`);
+    logger.info(
+      `PR LangChain generateTemplateBasedContent called with template: ${templateIdentifier}`
+    );
 
     // Get the base template and format it
-    const promptTemplate = await this.createPromptTemplate(templateIdentifier, false);
-    const formattedPrompt = await promptTemplate.format({ ...promptTemplateFormatter });
-    
-    console.log(`Formatted template-based PR prompt for ${templateIdentifier}:`, formattedPrompt);
+    const promptTemplate = await this.createPromptTemplate(
+      templateIdentifier,
+      false
+    );
+    const formattedPrompt = await promptTemplate.format({
+      ...promptTemplateFormatter,
+    });
+
+    console.log(
+      `Formatted template-based PR prompt for ${templateIdentifier}:`,
+      formattedPrompt
+    );
 
     // Try each provider in order of priority
     return this.tryProvidersForContent(formattedPrompt, streaming);
@@ -36,8 +50,10 @@ export class PRLangChainService extends BaseLangChainService {
   async tryProvidersForContent(formattedPrompt, streaming) {
     for (const provider of this.providers) {
       try {
-        logger.info(`Trying provider for PR template-based output: ${provider.name}`);
-        
+        logger.info(
+          `Trying provider for PR template-based output: ${provider.name}`
+        );
+
         const message = new HumanMessage({ content: formattedPrompt });
 
         if (streaming) {
@@ -46,8 +62,10 @@ export class PRLangChainService extends BaseLangChainService {
           return { content: stream, provider: provider.name };
         } else {
           const response = await provider.model.invoke([message]);
-          logger.info(`Successfully generated PR template-based content using ${provider.name}`);
-          
+          logger.info(
+            `Successfully generated PR template-based content using ${provider.name}`
+          );
+
           // Log the raw response for debugging
           console.log(`Raw response from ${provider.name}:`, {
             content: response.content,
@@ -57,20 +75,26 @@ export class PRLangChainService extends BaseLangChainService {
 
           // Check if response is empty
           if (!response.content || response.content.trim() === '') {
-            logger.warn(`Provider ${provider.name} returned empty content for template-based output`);
+            logger.warn(
+              `Provider ${provider.name} returned empty content for template-based output`
+            );
             continue;
           }
 
           return {
             content: response.content,
-            provider: provider.name
+            provider: provider.name,
           };
         }
       } catch (error) {
-        logger.warn(`Provider ${provider.name} failed for PR template-based output: ${error.message}`);
+        logger.warn(
+          `Provider ${provider.name} failed for PR template-based output: ${error.message}`
+        );
 
         if (provider === this.providers[this.providers.length - 1]) {
-          throw new Error(`All providers failed for PR template-based output. Last error from ${provider.name}: ${error.message}`);
+          throw new Error(
+            `All providers failed for PR template-based output. Last error from ${provider.name}: ${error.message}`
+          );
         }
 
         continue;
@@ -83,14 +107,21 @@ export class PRLangChainService extends BaseLangChainService {
    */
   async streamPRContent(promptTemplateFormatter, templateIdentifier, res) {
     if (this.providers.length === 0) {
-      throw new Error("No AI providers are configured");
+      throw new Error('No AI providers are configured');
     }
 
-    logger.info(`PR LangChain streamPRContent called with template: ${templateIdentifier}`);
+    logger.info(
+      `PR LangChain streamPRContent called with template: ${templateIdentifier}`
+    );
 
     // Get the base template and format it
-    const promptTemplate = await this.createPromptTemplate(templateIdentifier, false);
-    const formattedPrompt = await promptTemplate.format({ ...promptTemplateFormatter });
+    const promptTemplate = await this.createPromptTemplate(
+      templateIdentifier,
+      false
+    );
+    const formattedPrompt = await promptTemplate.format({
+      ...promptTemplateFormatter,
+    });
     // Try each provider in order of priority
     return this.tryProvidersForStreaming(formattedPrompt, res);
   }
@@ -101,13 +132,21 @@ export class PRLangChainService extends BaseLangChainService {
   async tryProvidersForStreaming(formattedPrompt, res) {
     for (const provider of this.providers) {
       try {
-        const result = await this.streamWithProvider(provider, formattedPrompt, res);
+        const result = await this.streamWithProvider(
+          provider,
+          formattedPrompt,
+          res
+        );
         return result;
       } catch (error) {
-        logger.warn(`Provider ${provider.name} failed for PR streaming: ${error.message}`);
+        logger.warn(
+          `Provider ${provider.name} failed for PR streaming: ${error.message}`
+        );
 
         if (provider === this.providers[this.providers.length - 1]) {
-          throw new Error(`All providers failed for PR streaming. Last error from ${provider.name}: ${error.message}`);
+          throw new Error(
+            `All providers failed for PR streaming. Last error from ${provider.name}: ${error.message}`
+          );
         }
         continue;
       }
@@ -119,27 +158,31 @@ export class PRLangChainService extends BaseLangChainService {
    */
   async streamWithProvider(provider, formattedPrompt, res) {
     logger.info(`Trying provider for PR streaming: ${provider.name}`);
-    
+
     const message = new HumanMessage({ content: formattedPrompt });
-    
+
     let stream;
     try {
       stream = await provider.model.stream([message]);
     } catch (error) {
-      logger.error(`Failed to initialize stream with ${provider.name}: ${error.message}`);
+      logger.error(
+        `Failed to initialize stream with ${provider.name}: ${error.message}`
+      );
       throw error;
     }
 
     // Send status update
-    res.write(`data: ${JSON.stringify({
-      type: "status",
-      message: `Generating with ${provider.name}...`,
-      provider: provider.name
-    })}\n\n`);
+    res.write(
+      `data: ${JSON.stringify({
+        type: 'status',
+        message: `Generating with ${provider.name}...`,
+        provider: provider.name,
+      })}\n\n`
+    );
 
-    let fullContent = "";
-    let parsedTitle = "";
-    let parsedDescription = "";
+    let fullContent = '';
+    let parsedTitle = '';
+    let parsedDescription = '';
     let chunkCount = 0;
 
     // Process the stream
@@ -149,70 +192,96 @@ export class PRLangChainService extends BaseLangChainService {
         if (chunk.content) {
           fullContent += chunk.content;
           // Handle parsing and chunk sending
-          const parseResult = this.handleStreamChunk(fullContent, parsedTitle, parsedDescription, res, chunk.content);
+          const parseResult = this.handleStreamChunk(
+            fullContent,
+            parsedTitle,
+            parsedDescription,
+            res,
+            chunk.content
+          );
           console.log('parseResult:', fullContent);
           parsedTitle = parseResult.parsedTitle;
           parsedDescription = parseResult.parsedDescription;
         }
       }
     } catch (streamError) {
-      logger.error(`Streaming error with ${provider.name}: ${streamError.message}`);
+      logger.error(
+        `Streaming error with ${provider.name}: ${streamError.message}`
+      );
       throw new Error(`Streaming failed: ${streamError.message}`);
     }
 
-    logger.info(`Successfully streamed PR content using ${provider.name}. Received ${chunkCount} chunks, total content length: ${fullContent.length}`);
-    
+    logger.info(
+      `Successfully streamed PR content using ${provider.name}. Received ${chunkCount} chunks, total content length: ${fullContent.length}`
+    );
+
     // Validate that content was actually generated
     if (!fullContent || fullContent.trim() === '') {
-      throw new Error(`Provider ${provider.name} returned empty content after streaming (${chunkCount} chunks received)`);
+      throw new Error(
+        `Provider ${provider.name} returned empty content after streaming (${chunkCount} chunks received)`
+      );
     }
-    
-    return { 
-      content: fullContent, 
+
+    return {
+      content: fullContent,
       provider: provider.name,
       parsedTitle: parsedTitle,
-      parsedDescription: parsedDescription
+      parsedDescription: parsedDescription,
     };
   }
 
   /**
    * Handle individual stream chunks and send updates
    */
-  handleStreamChunk(fullContent, currentTitle, currentDescription, res, chunkContent) {
+  handleStreamChunk(
+    fullContent,
+    currentTitle,
+    currentDescription,
+    res,
+    chunkContent
+  ) {
     // Parse content in real-time to extract title and description
     const parsed = this.parseStreamingContent(fullContent);
-    
+
     // Send title chunks if found
     if (parsed.title && parsed.title !== currentTitle) {
       const titleChunk = parsed.title.slice(currentTitle.length);
       if (titleChunk) {
-        res.write(`data: ${JSON.stringify({
-          type: "title_chunk",
-          data: titleChunk
-        })}\n\n`);
+        res.write(
+          `data: ${JSON.stringify({
+            type: 'title_chunk',
+            data: titleChunk,
+          })}\n\n`
+        );
       }
     }
 
     // Send description chunks if found
     if (parsed.description && parsed.description !== currentDescription) {
-      const descriptionChunk = parsed.description.slice(currentDescription.length);
+      const descriptionChunk = parsed.description.slice(
+        currentDescription.length
+      );
       if (descriptionChunk) {
-        res.write(`data: ${JSON.stringify({
-          type: "description_chunk", 
-          data: descriptionChunk
-        })}\n\n`);
+        res.write(
+          `data: ${JSON.stringify({
+            type: 'description_chunk',
+            data: descriptionChunk,
+          })}\n\n`
+        );
       }
     }
-    
+
     // Send streaming chunk to frontend
-    res.write(`data: ${JSON.stringify({
-      type: "content_chunk",
-      data: chunkContent
-    })}\n\n`);
+    res.write(
+      `data: ${JSON.stringify({
+        type: 'content_chunk',
+        data: chunkContent,
+      })}\n\n`
+    );
 
     return {
       parsedTitle: parsed.title,
-      parsedDescription: parsed.description
+      parsedDescription: parsed.description,
     };
   }
 
@@ -235,21 +304,22 @@ export class PRLangChainService extends BaseLangChainService {
    */
   parseStructuredContent(content) {
     const lines = content.split('\n');
-    let title = "";
+    let title = '';
     let description = content.trim(); // Always put entire content in description
     let foundTitle = false;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      
+
       // Look for title markers and extract just the title
       if (!foundTitle && this.isTitleLine(line)) {
         foundTitle = true;
         // Extract title from the same line if it contains content after the marker
-        const titleMatch = line.match(/\*\*title:\*\*\s*(.*)/i) || 
-                          line.match(/title:\s*(.*)/i) ||
-                          line.match(/##?\s*title:?\s*(.*)/i);
-        
+        const titleMatch =
+          line.match(/\*\*title:\*\*\s*(.*)/i) ||
+          line.match(/title:\s*(.*)/i) ||
+          line.match(/##?\s*title:?\s*(.*)/i);
+
         if (titleMatch && titleMatch[1] && titleMatch[1].trim()) {
           title = titleMatch[1].trim();
         } else {
@@ -291,7 +361,11 @@ export class PRLangChainService extends BaseLangChainService {
     if (!foundTitle && lines.length > 0) {
       for (const line of lines) {
         const cleanLine = line.trim();
-        if (cleanLine && cleanLine.length < 100 && !this.isDescriptionLine(cleanLine)) {
+        if (
+          cleanLine &&
+          cleanLine.length < 100 &&
+          !this.isDescriptionLine(cleanLine)
+        ) {
           title = cleanLine.replace(/^\*\*|\*\*$/g, '').trim(); // Remove markdown bold
           break;
         }
@@ -300,7 +374,7 @@ export class PRLangChainService extends BaseLangChainService {
 
     // Fallback title if none found
     if (!title) {
-      title = "Pull Request";
+      title = 'Pull Request';
     }
 
     return { title, description }; // Description always contains full content
@@ -310,24 +384,28 @@ export class PRLangChainService extends BaseLangChainService {
    * Check if line contains title marker
    */
   isTitleLine(line) {
-    return line.toLowerCase().includes('title:') || 
-           line.toLowerCase().includes('pr title:') ||
-           line.toLowerCase().includes('pull request title:') ||
-           line.toLowerCase().includes('**title:**') ||
-           line.toLowerCase().includes('## title') ||
-           line.toLowerCase().includes('# title');
+    return (
+      line.toLowerCase().includes('title:') ||
+      line.toLowerCase().includes('pr title:') ||
+      line.toLowerCase().includes('pull request title:') ||
+      line.toLowerCase().includes('**title:**') ||
+      line.toLowerCase().includes('## title') ||
+      line.toLowerCase().includes('# title')
+    );
   }
 
   /**
    * Check if line contains description marker
-   */  
+   */
   isDescriptionLine(line) {
-    return line.toLowerCase().includes('description:') || 
-           line.toLowerCase().includes('pr description:') ||
-           line.toLowerCase().includes('pull request description:') ||
-           line.toLowerCase().includes('**description:**') ||
-           line.toLowerCase().includes('## description') ||
-           line.toLowerCase().includes('# description');
+    return (
+      line.toLowerCase().includes('description:') ||
+      line.toLowerCase().includes('pr description:') ||
+      line.toLowerCase().includes('pull request description:') ||
+      line.toLowerCase().includes('**description:**') ||
+      line.toLowerCase().includes('## description') ||
+      line.toLowerCase().includes('# description')
+    );
   }
 
   /**
@@ -335,14 +413,14 @@ export class PRLangChainService extends BaseLangChainService {
    */
   parseFallbackContent(content) {
     if (content.length < 50) {
-      return { title: content.trim(), description: "" };
+      return { title: content.trim(), description: '' };
     }
 
     const sections = content.split('\n\n');
     if (sections.length >= 2) {
       return {
         title: sections[0].trim(),
-        description: sections.slice(1).join('\n\n').trim()
+        description: sections.slice(1).join('\n\n').trim(),
       };
     }
 
@@ -351,56 +429,72 @@ export class PRLangChainService extends BaseLangChainService {
     if (firstLineEnd > 0) {
       return {
         title: content.substring(0, firstLineEnd).trim(),
-        description: content.substring(firstLineEnd + 1).trim()
+        description: content.substring(firstLineEnd + 1).trim(),
       };
     }
 
-    return { title: content.trim(), description: "" };
+    return { title: content.trim(), description: '' };
   }
 
   /**
    * Send final parsed results via SSE
    */
-  sendFinalResults(res, title, description, aiGenerated, ticketNumber, branchName) {
+  sendFinalResults(
+    res,
+    title,
+    description,
+    aiGenerated,
+    ticketNumber,
+    branchName
+  ) {
     // Send complete title
-    res.write(`data: ${JSON.stringify({
-      type: "title_complete",
-      data: title
-    })}\n\n`);
+    res.write(
+      `data: ${JSON.stringify({
+        type: 'title_complete',
+        data: title,
+      })}\n\n`
+    );
 
-    // Send complete description  
-    res.write(`data: ${JSON.stringify({
-      type: "description_complete",
-      data: description
-    })}\n\n`);
+    // Send complete description
+    res.write(
+      `data: ${JSON.stringify({
+        type: 'description_complete',
+        data: description,
+      })}\n\n`
+    );
 
     // Send completion event
-    res.write(`data: ${JSON.stringify({
-      type: "complete",
-      data: {
-        prTitle: title,
-        prDescription: description,
-        aiGenerated,
-        ticketNumber,
-        branchName
-      }
-    })}\n\n`);
+    res.write(
+      `data: ${JSON.stringify({
+        type: 'complete',
+        data: {
+          prTitle: title,
+          prDescription: description,
+          aiGenerated,
+          ticketNumber,
+          branchName,
+        },
+      })}\n\n`
+    );
   }
 
   /**
    * Generate PR description with commit messages using templates only
    */
-  async generatePRDescription(commitMessages, templateIdentifier = "PR_DESCRIPTION") {
+  async generatePRDescription(
+    commitMessages,
+    templateIdentifier = 'PR_DESCRIPTION'
+  ) {
     try {
       const result = await this.generateTemplateBasedContent(
         { commitMessages },
         templateIdentifier,
         false
       );
-      
+
       return {
         content: result.content,
-        provider: result.provider
+        provider: result.provider,
       };
     } catch (error) {
       logger.error(`Error generating PR description: ${error.message}`);
@@ -411,17 +505,17 @@ export class PRLangChainService extends BaseLangChainService {
   /**
    * Generate PR title from commit messages using templates only
    */
-  async generatePRTitle(commitMessages, templateIdentifier = "PR_TITLE") {
+  async generatePRTitle(commitMessages, templateIdentifier = 'PR_TITLE') {
     try {
       const result = await this.generateTemplateBasedContent(
         { commitMessages },
         templateIdentifier,
         false
       );
-      
+
       return {
         content: result.content,
-        provider: result.provider
+        provider: result.provider,
       };
     } catch (error) {
       logger.error(`Error generating PR title: ${error.message}`);
@@ -432,17 +526,20 @@ export class PRLangChainService extends BaseLangChainService {
   /**
    * Generate combined PR content (title + description) using templates only
    */
-  async generateCombinedPRContent(commitMessages, templateIdentifier = "PR_COMBINED") {
+  async generateCombinedPRContent(
+    commitMessages,
+    templateIdentifier = 'PR_COMBINED'
+  ) {
     try {
       const result = await this.generateTemplateBasedContent(
         { commitMessages },
         templateIdentifier,
         false
       );
-      
+
       return {
         content: result.content,
-        provider: result.provider
+        provider: result.provider,
       };
     } catch (error) {
       logger.error(`Error generating combined PR content: ${error.message}`);
@@ -459,17 +556,17 @@ export class PRLangChainService extends BaseLangChainService {
     if (!content || content.trim() === '') {
       return {
         title: 'PR Title',
-        description: 'PR Description'
+        description: 'PR Description',
       };
     }
 
     // Try to split content into title and description based on common patterns
     const lines = content.split('\n').filter(line => line.trim() !== '');
-    
+
     if (lines.length === 0) {
       return {
         title: 'PR Title',
-        description: content.trim()
+        description: content.trim(),
       };
     }
 
@@ -477,7 +574,7 @@ export class PRLangChainService extends BaseLangChainService {
     if (lines.length === 1) {
       return {
         title: lines[0].trim(),
-        description: lines[0].trim()
+        description: lines[0].trim(),
       };
     }
 
@@ -487,7 +584,7 @@ export class PRLangChainService extends BaseLangChainService {
 
     return {
       title: title || 'PR Title',
-      description: description || title || 'PR Description'
+      description: description || title || 'PR Description',
     };
   }
 }

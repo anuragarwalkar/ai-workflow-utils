@@ -17,7 +17,7 @@ class MessageProcessor {
       .filter(msg => msg && msg.role && msg.content)
       .map(msg => ({
         role: this._validateRole(msg.role),
-        content: this._sanitizeContent(msg.content)
+        content: this._sanitizeContent(msg.content),
       }))
       .slice(-10); // Keep last 10 messages to prevent context overflow
   }
@@ -30,7 +30,8 @@ class MessageProcessor {
    * @returns {Object} Formatted message data
    */
   static formatForProvider(message, conversationHistory, provider) {
-    const processedHistory = this.processConversationHistory(conversationHistory);
+    const processedHistory =
+      this.processConversationHistory(conversationHistory);
     const sanitizedMessage = this._sanitizeContent(message);
 
     switch (provider) {
@@ -69,7 +70,7 @@ class MessageProcessor {
     if (!content || typeof content !== 'string') {
       return 0;
     }
-    
+
     // Rough approximation: 1 token ≈ 4 characters
     return Math.ceil(content.length / 4);
   }
@@ -82,11 +83,11 @@ class MessageProcessor {
    */
   static truncateToTokenLimit(content, maxTokens = 4000) {
     const currentTokens = this.estimateTokenCount(content);
-    
+
     if (currentTokens <= maxTokens) {
       return content;
     }
-    
+
     const maxChars = maxTokens * 4;
     return content.slice(0, maxChars) + '...';
   }
@@ -100,16 +101,17 @@ class MessageProcessor {
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful AI assistant integrated into a workflow utility application. You can help users with general questions, provide guidance on using the application features, and assist with various tasks. Be concise and helpful in your responses.'
+          content:
+            'You are a helpful AI assistant integrated into a workflow utility application. You can help users with general questions, provide guidance on using the application features, and assist with various tasks. Be concise and helpful in your responses.',
         },
         ...conversationHistory,
         {
           role: 'user',
-          content: message
-        }
+          content: message,
+        },
       ],
       max_tokens: 500,
-      temperature: 0.7
+      temperature: 0.7,
     };
   }
 
@@ -118,8 +120,9 @@ class MessageProcessor {
    * @private
    */
   static _formatForOllama(message, conversationHistory) {
-    let fullPrompt = "You are a helpful AI assistant integrated into a workflow utility application. You can help users with general questions, provide guidance on using the application features, and assist with various tasks. Be concise and helpful in your responses.\n\n";
-    
+    let fullPrompt =
+      'You are a helpful AI assistant integrated into a workflow utility application. You can help users with general questions, provide guidance on using the application features, and assist with various tasks. Be concise and helpful in your responses.\n\n';
+
     // Add conversation history
     conversationHistory.forEach(msg => {
       if (msg.role === 'user') {
@@ -128,13 +131,13 @@ class MessageProcessor {
         fullPrompt += `Assistant: ${msg.content}\n`;
       }
     });
-    
+
     // Add current message
     fullPrompt += `User: ${message}\nAssistant: `;
 
     return {
       prompt: this.truncateToTokenLimit(fullPrompt),
-      stream: false
+      stream: false,
     };
   }
 
@@ -145,11 +148,11 @@ class MessageProcessor {
   static _validateRole(role) {
     const validRoles = ['user', 'assistant', 'system'];
     const normalizedRole = role.toLowerCase();
-    
+
     if (validRoles.includes(normalizedRole)) {
       return normalizedRole;
     }
-    
+
     return 'user'; // Default fallback
   }
 
@@ -161,7 +164,7 @@ class MessageProcessor {
     if (typeof content !== 'string') {
       return String(content || '');
     }
-    
+
     // Remove any potentially harmful or problematic characters
     return content
       .trim()

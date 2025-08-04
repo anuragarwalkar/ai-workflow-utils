@@ -6,7 +6,11 @@ class TemplateSettings {
     this.version = data.version || '1.0.0';
     this.lastUpdated = data.lastUpdated || new Date().toISOString();
     this.defaultIssueTypes = data.defaultIssueTypes || [
-      'story', 'task', 'bug', 'epic', 'subtask'
+      'story',
+      'task',
+      'bug',
+      'epic',
+      'subtask',
     ];
     this.maxTemplatesPerType = data.maxTemplatesPerType || 10;
     this.allowCustomIssueTypes = data.allowCustomIssueTypes !== false;
@@ -20,11 +24,17 @@ class TemplateSettings {
    * @throws {Error} If validation fails
    */
   static validate(data) {
-    if (data.maxTemplatesPerType && (data.maxTemplatesPerType < 1 || data.maxTemplatesPerType > 50)) {
+    if (
+      data.maxTemplatesPerType &&
+      (data.maxTemplatesPerType < 1 || data.maxTemplatesPerType > 50)
+    ) {
       throw new Error('maxTemplatesPerType must be between 1 and 50');
     }
 
-    if (data.backupRetentionDays && (data.backupRetentionDays < 1 || data.backupRetentionDays > 365)) {
+    if (
+      data.backupRetentionDays &&
+      (data.backupRetentionDays < 1 || data.backupRetentionDays > 365)
+    ) {
       throw new Error('backupRetentionDays must be between 1 and 365');
     }
 
@@ -39,10 +49,13 @@ class TemplateSettings {
    */
   update(updates) {
     const allowedFields = [
-      'defaultIssueTypes', 'maxTemplatesPerType', 'allowCustomIssueTypes',
-      'autoBackup', 'backupRetentionDays'
+      'defaultIssueTypes',
+      'maxTemplatesPerType',
+      'allowCustomIssueTypes',
+      'autoBackup',
+      'backupRetentionDays',
     ];
-    
+
     Object.keys(updates).forEach(key => {
       if (allowedFields.includes(key) && updates[key] !== undefined) {
         this[key] = updates[key];
@@ -64,7 +77,7 @@ class TemplateSettings {
       maxTemplatesPerType: this.maxTemplatesPerType,
       allowCustomIssueTypes: this.allowCustomIssueTypes,
       autoBackup: this.autoBackup,
-      backupRetentionDays: this.backupRetentionDays
+      backupRetentionDays: this.backupRetentionDays,
     };
   }
 

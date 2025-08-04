@@ -2,8 +2,8 @@
  * Jira Attachment data model and validation
  */
 
-import { ValidationUtils } from "../utils/validation-utils.js";
-import path from "path";
+import { ValidationUtils } from '../utils/validation-utils.js';
+import path from 'path';
 
 export class JiraAttachment {
   constructor(data) {
@@ -21,7 +21,10 @@ export class JiraAttachment {
    * @throws {Error} If validation fails
    */
   static validate(data) {
-    const validation = ValidationUtils.validateFileUpload(data.file, data.issueKey);
+    const validation = ValidationUtils.validateFileUpload(
+      data.file,
+      data.issueKey
+    );
     if (!validation.isValid) {
       throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
     }
@@ -107,7 +110,7 @@ export class JiraAttachment {
       fileSize: this.getFileSize(),
       mimeType: this.getMimeType(),
       extension: this.getFileExtension(),
-      needsConversion: this.needsConversion()
+      needsConversion: this.needsConversion(),
     };
   }
 
@@ -120,7 +123,7 @@ export class JiraAttachment {
       issueKey: this.issueKey,
       fileName: this.getUploadFileName(),
       fileSize: `${(this.getFileSize() / 1024 / 1024).toFixed(2)} MB`,
-      extension: this.getFileExtension()
+      extension: this.getFileExtension(),
     };
   }
 
@@ -129,24 +132,32 @@ export class JiraAttachment {
    */
   cleanup() {
     const fs = require('fs');
-    
+
     // Clean up original file if it exists
     if (this.originalPath && fs.existsSync(this.originalPath)) {
       try {
         fs.unlinkSync(this.originalPath);
       } catch (error) {
-        console.warn(`Failed to clean up original file ${this.originalPath}:`, error.message);
+        console.warn(
+          `Failed to clean up original file ${this.originalPath}:`,
+          error.message
+        );
       }
     }
 
     // Clean up processed file if it exists and is different from original
-    if (this.processedPath && 
-        this.processedPath !== this.originalPath && 
-        fs.existsSync(this.processedPath)) {
+    if (
+      this.processedPath &&
+      this.processedPath !== this.originalPath &&
+      fs.existsSync(this.processedPath)
+    ) {
       try {
         fs.unlinkSync(this.processedPath);
       } catch (error) {
-        console.warn(`Failed to clean up processed file ${this.processedPath}:`, error.message);
+        console.warn(
+          `Failed to clean up processed file ${this.processedPath}:`,
+          error.message
+        );
       }
     }
   }

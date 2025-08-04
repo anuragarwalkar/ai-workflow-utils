@@ -23,7 +23,7 @@ class TableExtractor {
 
       logger.info('Parsing HTML content for table extraction', {
         htmlLength: htmlString.length,
-        buildNumber
+        buildNumber,
       });
 
       const dom = new JSDOM(htmlString);
@@ -31,27 +31,26 @@ class TableExtractor {
 
       // Find the heading for the specified build
       const heading = this._findBuildHeading(document, buildNumber);
-      
+
       // Find the table associated with this heading
       const table = this._findAssociatedTable(heading);
-      
+
       // Extract and clean table data
       const tableData = this._extractTableData(table);
-      
+
       // Filter out empty rows
       const filteredData = this._filterEmptyRows(tableData);
 
       logger.info('Table extraction completed', {
         rowsExtracted: filteredData.length,
-        buildNumber
+        buildNumber,
       });
 
       return filteredData;
-
     } catch (error) {
       logger.error('Table extraction failed', {
         error: error.message,
-        buildNumber
+        buildNumber,
       });
       throw error;
     }
@@ -67,12 +66,12 @@ class TableExtractor {
   static _findBuildHeading(document, buildNumber) {
     // Escape special regex characters in build number
     const safeBuild = buildNumber
-      .replace(/\./g, "\\.")
-      .replace(/\(/g, "\\(")
-      .replace(/\)/g, "\\)");
+      .replace(/\./g, '\\.')
+      .replace(/\(/g, '\\(')
+      .replace(/\)/g, '\\)');
 
     const heading = document.querySelector(`h2[id*="${safeBuild}"]`);
-    
+
     if (!heading) {
       throw new Error(`Heading not found for build: ${buildNumber}`);
     }
@@ -92,15 +91,18 @@ class TableExtractor {
 
     // Look for table in following siblings until next heading
     while (currentElement && !/^H[1-6]$/i.test(currentElement.tagName)) {
-      if (currentElement.matches(".table-wrap") && currentElement.querySelector("table")) {
-        table = currentElement.querySelector("table");
+      if (
+        currentElement.matches('.table-wrap') &&
+        currentElement.querySelector('table')
+      ) {
+        table = currentElement.querySelector('table');
         break;
       }
       currentElement = currentElement.nextElementSibling;
     }
 
     if (!table) {
-      throw new Error("Table not found for the build section");
+      throw new Error('Table not found for the build section');
     }
 
     return table;
@@ -113,14 +115,14 @@ class TableExtractor {
    * @returns {Array} 2D array of raw table data
    */
   static _extractTableData(table) {
-    const rows = Array.from(table.querySelectorAll("tr"));
-    
-    return rows.map((row) => {
-      const cells = Array.from(row.querySelectorAll("th, td"));
-      return cells.map((cell) => {
-        let text = cell.textContent.replace(/\s+/g, " ").trim();
+    const rows = Array.from(table.querySelectorAll('tr'));
+
+    return rows.map(row => {
+      const cells = Array.from(row.querySelectorAll('th, td'));
+      return cells.map(cell => {
+        let text = cell.textContent.replace(/\s+/g, ' ').trim();
         // Clean up common artifacts
-        text = text.replace(/\s+-\s+Getting issue details.*$/i, "");
+        text = text.replace(/\s+-\s+Getting issue details.*$/i, '');
         return text;
       });
     });
@@ -133,7 +135,7 @@ class TableExtractor {
    * @returns {Array} Filtered table data
    */
   static _filterEmptyRows(tableData) {
-    return tableData.filter((row) => {
+    return tableData.filter(row => {
       return !row.every(cell => cell.trim() === '');
     });
   }
@@ -149,8 +151,9 @@ class TableExtractor {
     }
 
     // Check if all rows are arrays and have at least one non-empty cell
-    return tableData.every(row => 
-      Array.isArray(row) && row.some(cell => cell && cell.trim().length > 0)
+    return tableData.every(
+      row =>
+        Array.isArray(row) && row.some(cell => cell && cell.trim().length > 0)
     );
   }
 }

@@ -7,7 +7,7 @@ export const jiraApi = createApi({
     baseUrl: `${API_BASE_URL}/api/jira`,
   }),
   tagTypes: ['Jira'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     previewJira: builder.mutation({
       query: ({ prompt, images, issueType }) => ({
         url: '/preview',
@@ -16,12 +16,15 @@ export const jiraApi = createApi({
       }),
     }),
     previewJiraStreaming: builder.mutation({
-      queryFn: async ({ prompt, images, issueType, onChunk, onStatus }, { signal }) => {
+      queryFn: async (
+        { prompt, images, issueType, onChunk, onStatus },
+        { signal }
+      ) => {
         try {
           // Use a more RTK Query-like approach while maintaining streaming capability
           const baseUrl = `${API_BASE_URL}/api/jira`;
           const url = `${baseUrl}/preview`;
-          
+
           const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -32,11 +35,11 @@ export const jiraApi = createApi({
           });
 
           if (!response.ok) {
-            return { 
-              error: { 
-                status: response.status, 
-                data: `HTTP error! status: ${response.status}` 
-              } 
+            return {
+              error: {
+                status: response.status,
+                data: `HTTP error! status: ${response.status}`,
+              },
             };
           }
 
@@ -58,7 +61,7 @@ export const jiraApi = createApi({
                 if (line.startsWith('data: ')) {
                   try {
                     const data = JSON.parse(line.slice(6));
-                    
+
                     if (data.type === 'status') {
                       onStatus?.(data.message, data.provider);
                     } else if (data.type === 'chunk') {
@@ -70,14 +73,14 @@ export const jiraApi = createApi({
                         summary: data.summary,
                         description: data.description,
                         message: data.message,
-                        provider: data.provider
+                        provider: data.provider,
                       };
                     } else if (data.type === 'error') {
-                      return { 
-                        error: { 
-                          status: 'STREAMING_ERROR', 
-                          data: data.error 
-                        } 
+                      return {
+                        error: {
+                          status: 'STREAMING_ERROR',
+                          data: data.error,
+                        },
                       };
                     }
                   } catch (parseError) {
@@ -94,25 +97,39 @@ export const jiraApi = createApi({
           // Return in RTK Query expected format
           return { data: finalResult };
         } catch (error) {
-          return { 
-            error: { 
-              status: 'FETCH_ERROR', 
-              data: error.message 
-            } 
+          return {
+            error: {
+              status: 'FETCH_ERROR',
+              data: error.message,
+            },
           };
         }
       },
     }),
     createJira: builder.mutation({
-      query: ({ summary, description, issueType, priority, projectType, customFields }) => ({
+      query: ({
+        summary,
+        description,
+        issueType,
+        priority,
+        projectType,
+        customFields,
+      }) => ({
         url: '/generate',
         method: 'POST',
-        body: { summary, description, issueType, priority, projectType, customFields },
+        body: {
+          summary,
+          description,
+          issueType,
+          priority,
+          projectType,
+          customFields,
+        },
       }),
       invalidatesTags: ['Jira'],
     }),
     fetchJira: builder.query({
-      query: (jiraId) => `/issue/${jiraId}`,
+      query: jiraId => `/issue/${jiraId}`,
       providesTags: (result, error, jiraId) => [{ type: 'Jira', id: jiraId }],
       // Use keepUnusedDataFor to cache results and reduce API calls
       keepUnusedDataFor: 60, // Keep data for 60 seconds

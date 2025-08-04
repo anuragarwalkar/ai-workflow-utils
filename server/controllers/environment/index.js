@@ -1,6 +1,6 @@
 /**
  * Environment Module - Modular environment settings management system
- * 
+ *
  * This module follows the established modular architecture pattern with clear separation of concerns:
  * - Controllers: Orchestrate operations and handle HTTP requests/responses
  * - Services: Contain business logic and coordinate between different systems

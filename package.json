@@ -26,7 +26,6 @@
     "jira",
     "bitbucket",
     "email",
-    "build-management",
     "development-tools",
     "openai",
     "ollama",
@@ -65,7 +64,11 @@
     "build-server:watch": "webpack --config webpack.config.js --watch",
     "preview": "vite preview",
     "build": "export NODE_ENV=production && concurrently --names \"server,ui\" \"npm run build-server\" \"npm run build-ui\"",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "format": "prettier --write \"ui/src/**/*.{js,jsx,ts,tsx,json,css,md}\" \"server/**/*.{js,ts,json}\" \"*.{js,ts,json,md}\"",
+    "format:check": "prettier --check \"ui/src/**/*.{js,jsx,ts,tsx,json,css,md}\" \"server/**/*.{js,ts,json}\" \"*.{js,ts,json,md}\"",
+    "lint": "cd ui && eslint .",
+    "lint:fix": "cd ui && eslint . --fix"
   },
   "author": {
     "name": "Anurag Arwalkar",
@@ -126,7 +129,10 @@
     "babel-loader": "^9.2.1",
     "concurrently": "^9.2.0",
     "copy-webpack-plugin": "^13.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
     "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
     "vite-plugin-pwa": "^1.0.2",
     "webpack": "^5.100.1",
     "webpack-cli": "^5.1.4",

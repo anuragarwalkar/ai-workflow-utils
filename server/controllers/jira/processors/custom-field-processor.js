@@ -2,7 +2,7 @@
  * Custom field processor for Jira field data processing
  */
 
-import logger from "../../../logger.js";
+import logger from '../../../logger.js';
 
 export class CustomFieldProcessor {
   /**
@@ -20,7 +20,9 @@ export class CustomFieldProcessor {
     customFields.forEach((field, index) => {
       try {
         if (!field.key || field.value === undefined || field.value === null) {
-          logger.warn(`Skipping invalid custom field at index ${index}`, { field });
+          logger.warn(`Skipping invalid custom field at index ${index}`, {
+            field,
+          });
           return;
         }
 
@@ -30,12 +32,12 @@ export class CustomFieldProcessor {
         logger.debug('Processed custom field', {
           key: field.key,
           originalType: typeof field.value,
-          processedType: typeof processedValue
+          processedType: typeof processedValue,
         });
       } catch (error) {
         logger.error(`Error processing custom field at index ${index}`, {
           field,
-          error: error.message
+          error: error.message,
         });
         // Continue processing other fields even if one fails
       }
@@ -81,7 +83,7 @@ export class CustomFieldProcessor {
    */
   static processObjectValue(obj) {
     const processed = {};
-    
+
     for (const [key, val] of Object.entries(obj)) {
       processed[key] = this.processFieldValue(val);
     }
@@ -116,7 +118,7 @@ export class CustomFieldProcessor {
       } catch (error) {
         logger.warn('Failed to parse JSON-like string, using as string', {
           value: trimmedValue.substring(0, 100),
-          error: error.message
+          error: error.message,
         });
         return value;
       }
@@ -141,23 +143,23 @@ export class CustomFieldProcessor {
       case 'number':
         const num = parseFloat(value);
         return isNaN(num) ? value : num;
-      
+
       case 'boolean':
         return this.parseBoolean(value);
-      
+
       case 'date':
         return this.parseDate(value);
-      
+
       case 'multi-select':
       case 'array':
         return this.parseCommaSeparatedList(value);
-      
+
       case 'user':
         return this.parseUserValue(value);
-      
+
       case 'option':
         return { value: value };
-      
+
       default:
         return value;
     }
@@ -169,8 +171,10 @@ export class CustomFieldProcessor {
    * @returns {boolean} True if JSON-like
    */
   static isJsonLike(str) {
-    return (str.startsWith('{') && str.endsWith('}')) ||
-           (str.startsWith('[') && str.endsWith(']'));
+    return (
+      (str.startsWith('{') && str.endsWith('}')) ||
+      (str.startsWith('[') && str.endsWith(']'))
+    );
   }
 
   /**
@@ -189,9 +193,9 @@ export class CustomFieldProcessor {
    * @returns {boolean} True if comma-separated
    */
   static isCommaSeparatedList(str) {
-    return str.includes(',') && 
-           !this.isJsonLike(str) && 
-           str.split(',').length > 1;
+    return (
+      str.includes(',') && !this.isJsonLike(str) && str.split(',').length > 1
+    );
   }
 
   /**
@@ -200,7 +204,8 @@ export class CustomFieldProcessor {
    * @returns {Array} Array of trimmed values
    */
   static parseCommaSeparatedList(str) {
-    return str.split(',')
+    return str
+      .split(',')
       .map(item => item.trim())
       .filter(item => item.length > 0);
   }
@@ -265,13 +270,15 @@ export class CustomFieldProcessor {
         // Check if value can be serialized (no circular references, etc.)
         JSON.stringify(value);
       } catch (error) {
-        errors.push(`Custom field '${key}' contains invalid data: ${error.message}`);
+        errors.push(
+          `Custom field '${key}' contains invalid data: ${error.message}`
+        );
       }
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 

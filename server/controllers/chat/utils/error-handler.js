@@ -17,12 +17,12 @@ export class ErrorHandler {
 
     // Determine error type and appropriate response
     const errorInfo = this._categorizeError(error);
-    
+
     res.status(errorInfo.statusCode).json({
       success: false,
       error: errorInfo.message,
       context,
-      type: errorInfo.type
+      type: errorInfo.type,
     });
   }
 
@@ -36,13 +36,15 @@ export class ErrorHandler {
     logger.error(`Streaming error in ${context}:`, error);
 
     const errorInfo = this._categorizeError(error);
-    
-    res.write(`data: ${JSON.stringify({
-      type: 'error',
-      error: errorInfo.message,
-      context,
-      errorType: errorInfo.type
-    })}\n\n`);
+
+    res.write(
+      `data: ${JSON.stringify({
+        type: 'error',
+        error: errorInfo.message,
+        context,
+        errorType: errorInfo.type,
+      })}\n\n`
+    );
   }
 
   /**
@@ -59,43 +61,59 @@ export class ErrorHandler {
       return {
         statusCode: 429,
         message: 'API rate limit exceeded. Please try again later.',
-        type: ChatConstants.ERROR_TYPES.RATE_LIMIT
+        type: ChatConstants.ERROR_TYPES.RATE_LIMIT,
       };
     }
 
     // Authentication errors
-    if (message.includes('401') || message.includes('Unauthorized') || message.includes('Invalid API key')) {
+    if (
+      message.includes('401') ||
+      message.includes('Unauthorized') ||
+      message.includes('Invalid API key')
+    ) {
       return {
         statusCode: 401,
         message: 'Invalid API key configuration.',
-        type: ChatConstants.ERROR_TYPES.AUTH
+        type: ChatConstants.ERROR_TYPES.AUTH,
       };
     }
 
     // Validation errors
-    if (message.includes('required') || message.includes('validation') || message.includes('Invalid')) {
+    if (
+      message.includes('required') ||
+      message.includes('validation') ||
+      message.includes('Invalid')
+    ) {
       return {
         statusCode: 400,
         message: message,
-        type: ChatConstants.ERROR_TYPES.VALIDATION
+        type: ChatConstants.ERROR_TYPES.VALIDATION,
       };
     }
 
     // Network errors
-    if (message.includes('Network error') || message.includes('Unable to reach') || message.includes('timeout')) {
+    if (
+      message.includes('Network error') ||
+      message.includes('Unable to reach') ||
+      message.includes('timeout')
+    ) {
       return {
         statusCode: 503,
         message: 'Service temporarily unavailable. Please try again later.',
-        type: ChatConstants.ERROR_TYPES.NETWORK
+        type: ChatConstants.ERROR_TYPES.NETWORK,
       };
     }
 
     // Provider-specific errors
-    if (message.includes('API Error') || message.includes('OpenAI') || message.includes('Ollama')) {
+    if (
+      message.includes('API Error') ||
+      message.includes('OpenAI') ||
+      message.includes('Ollama')
+    ) {
       return {
         statusCode: 502,
         message: 'AI service error. Please try again.',
-        type: ChatConstants.ERROR_TYPES.PROVIDER
+        type: ChatConstants.ERROR_TYPES.PROVIDER,
       };
     }
 
@@ -103,7 +121,7 @@ export class ErrorHandler {
     return {
       statusCode: 500,
       message: 'Failed to process chat message. Please try again.',
-      type: 'INTERNAL_ERROR'
+      type: 'INTERNAL_ERROR',
     };
   }
 

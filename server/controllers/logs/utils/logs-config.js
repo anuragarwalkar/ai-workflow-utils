@@ -11,7 +11,7 @@ class LogsConfig {
   static getLogsDirectory() {
     return path.join(process.cwd(), 'logs');
   }
-  
+
   /**
    * Get server logs directory path
    * @returns {string} Server logs directory path
@@ -19,7 +19,7 @@ class LogsConfig {
   static getServerLogsDirectory() {
     return path.join(process.cwd(), 'server', 'logs');
   }
-  
+
   /**
    * Get supported log file extensions
    * @returns {Array} Array of file extensions
@@ -27,7 +27,7 @@ class LogsConfig {
   static getSupportedExtensions() {
     return ['.log', '.txt'];
   }
-  
+
   /**
    * Get maximum file size for log processing (in bytes)
    * @returns {number} Maximum file size
@@ -35,7 +35,7 @@ class LogsConfig {
   static getMaxFileSize() {
     return 10 * 1024 * 1024; // 10MB
   }
-  
+
   /**
    * Get default pagination limit
    * @returns {number} Default limit
@@ -43,7 +43,7 @@ class LogsConfig {
   static getDefaultLimit() {
     return 25;
   }
-  
+
   /**
    * Get maximum pagination limit
    * @returns {number} Maximum limit
@@ -51,7 +51,7 @@ class LogsConfig {
   static getMaxLimit() {
     return 100;
   }
-  
+
   /**
    * Get log levels in order of severity
    * @returns {Array} Log levels
@@ -59,7 +59,7 @@ class LogsConfig {
   static getLogLevels() {
     return ['error', 'warn', 'info', 'debug'];
   }
-  
+
   /**
    * Get log level colors for UI
    * @returns {Object} Level to color mapping
@@ -69,10 +69,10 @@ class LogsConfig {
       error: 'error',
       warn: 'warning',
       info: 'info',
-      debug: 'default'
+      debug: 'default',
     };
   }
-  
+
   /**
    * Get log level severities
    * @returns {Object} Level to severity mapping
@@ -82,10 +82,10 @@ class LogsConfig {
       error: 4,
       warn: 3,
       info: 2,
-      debug: 1
+      debug: 1,
     };
   }
-  
+
   /**
    * Check if a file extension is supported
    * @param {string} extension - File extension
@@ -94,7 +94,7 @@ class LogsConfig {
   static isSupportedExtension(extension) {
     return this.getSupportedExtensions().includes(extension.toLowerCase());
   }
-  
+
   /**
    * Check if a log level is valid
    * @param {string} level - Log level

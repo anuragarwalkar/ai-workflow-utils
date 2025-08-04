@@ -20,11 +20,11 @@ import {
   Clear as ClearIcon,
 } from '@mui/icons-material';
 import { useSelector, useDispatch } from 'react-redux';
-import { 
-  setBuildModalOpen, 
-  clearBuildLogs, 
+import {
+  setBuildModalOpen,
+  clearBuildLogs,
   resetBuildState,
-  startBuild 
+  startBuild,
 } from '../../store/slices/buildSlice';
 import { useStartBuildMutation } from '../../store/api/buildApi';
 import socketService from '../../services/socketService';
@@ -32,15 +32,11 @@ import socketService from '../../services/socketService';
 const BuildModal = () => {
   const dispatch = useDispatch();
   const logContainerRef = useRef(null);
-  const [startBuildMutation, { isLoading: isStartingBuild }] = useStartBuildMutation();
-  
-  const { 
-    isModalOpen, 
-    isBuilding, 
-    buildLogs, 
-    buildStatus, 
-    error 
-  } = useSelector((state) => state.build);
+  const [startBuildMutation, { isLoading: isStartingBuild }] =
+    useStartBuildMutation();
+
+  const { isModalOpen, isBuilding, buildLogs, buildStatus, error } =
+    useSelector(state => state.build);
 
   // Auto-scroll to bottom when new logs are added
   useEffect(() => {
@@ -54,7 +50,7 @@ const BuildModal = () => {
     if (isModalOpen) {
       socketService.connect();
     }
-    
+
     return () => {
       // Don't disconnect on unmount as other components might use it
     };
@@ -68,13 +64,12 @@ const BuildModal = () => {
     try {
       // Clear previous logs
       dispatch(clearBuildLogs());
-      
+
       // Start the build process
       const result = await startBuildMutation().unwrap();
-      
+
       // Update Redux state
       dispatch(startBuild({ buildId: result.buildId }));
-      
     } catch (error) {
       console.error('Failed to start build:', error);
     }
@@ -88,7 +83,7 @@ const BuildModal = () => {
     dispatch(resetBuildState());
   };
 
-  const getLogColor = (logType) => {
+  const getLogColor = logType => {
     switch (logType) {
       case 'start':
         return '#2196f3';
@@ -110,47 +105,31 @@ const BuildModal = () => {
       return (
         <Chip
           icon={<CircularProgress size={16} />}
-          label="Building..."
-          color="primary"
-          variant="outlined"
+          label='Building...'
+          color='primary'
+          variant='outlined'
         />
       );
     }
-    
+
     if (buildStatus === 'success') {
       return (
-        <Chip
-          label="Build Completed"
-          color="success"
-          variant="outlined"
-        />
+        <Chip label='Build Completed' color='success' variant='outlined' />
       );
     }
-    
+
     if (buildStatus === 'error') {
-      return (
-        <Chip
-          label="Build Failed"
-          color="error"
-          variant="outlined"
-        />
-      );
+      return <Chip label='Build Failed' color='error' variant='outlined' />;
     }
-    
-    return (
-      <Chip
-        label="Ready"
-        color="default"
-        variant="outlined"
-      />
-    );
+
+    return <Chip label='Ready' color='default' variant='outlined' />;
   };
 
   return (
     <Dialog
       open={isModalOpen}
       onClose={handleClose}
-      maxWidth="lg"
+      maxWidth='lg'
       fullWidth
       PaperProps={{
         sx: {
@@ -168,44 +147,44 @@ const BuildModal = () => {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography variant="h6">Mobile App Build Release</Typography>
+          <Typography variant='h6'>Mobile App Build Release</Typography>
           {getStatusChip()}
         </Box>
-        <IconButton onClick={handleClose} size="small">
+        <IconButton onClick={handleClose} size='small'>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
       <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
         {error && (
-          <Alert severity="error" sx={{ m: 2, mb: 1 }}>
+          <Alert severity='error' sx={{ m: 2, mb: 1 }}>
             {error}
           </Alert>
         )}
-        
+
         <Box sx={{ p: 2, pb: 1 }}>
           <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
             <Button
-              variant="contained"
+              variant='contained'
               startIcon={isBuilding ? <StopIcon /> : <PlayArrowIcon />}
               onClick={handleStartBuild}
               disabled={isStartingBuild || isBuilding}
-              color={isBuilding ? "error" : "primary"}
+              color={isBuilding ? 'error' : 'primary'}
             >
               {isBuilding ? 'Building...' : 'Start Build'}
             </Button>
-            
+
             <Button
-              variant="outlined"
+              variant='outlined'
               startIcon={<ClearIcon />}
               onClick={handleClearLogs}
               disabled={isBuilding}
             >
               Clear Logs
             </Button>
-            
+
             <Button
-              variant="outlined"
+              variant='outlined'
               onClick={handleReset}
               disabled={isBuilding}
             >
@@ -242,7 +221,7 @@ const BuildModal = () => {
               No build logs yet. Click "Start Build" to begin the process.
             </Typography>
           ) : (
-            buildLogs.map((log) => (
+            buildLogs.map(log => (
               <Box
                 key={log.id}
                 sx={{
@@ -252,7 +231,7 @@ const BuildModal = () => {
                 }}
               >
                 <Typography
-                  component="span"
+                  component='span'
                   sx={{
                     color: '#888',
                     fontSize: '11px',
@@ -262,7 +241,7 @@ const BuildModal = () => {
                   [{new Date(log.timestamp).toLocaleTimeString()}]
                 </Typography>
                 <Typography
-                  component="span"
+                  component='span'
                   sx={{
                     color: getLogColor(log.type),
                     fontWeight: log.type === 'error' ? 'bold' : 'normal',
@@ -277,8 +256,11 @@ const BuildModal = () => {
       </DialogContent>
 
       <DialogActions sx={{ p: 2, pt: 1 }}>
-        <Typography variant="caption" color="text.secondary" sx={{ flex: 1 }}>
-          WebSocket Status: {socketService.isSocketConnected() ? '🟢 Connected' : '🔴 Disconnected'}
+        <Typography variant='caption' color='text.secondary' sx={{ flex: 1 }}>
+          WebSocket Status:{' '}
+          {socketService.isSocketConnected()
+            ? '🟢 Connected'
+            : '🔴 Disconnected'}
         </Typography>
         <Button onClick={handleClose}>Close</Button>
       </DialogActions>

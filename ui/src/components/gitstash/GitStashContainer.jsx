@@ -25,7 +25,7 @@ const GitStashContainer = () => {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [shouldSkipPRList, setShouldSkipPRList] = useState(false);
-  const { error, directPRId } = useSelector((state) => state.pr);
+  const { error, directPRId } = useSelector(state => state.pr);
 
   // Reset shouldSkipPRList on component mount if there's no directPRId
   useEffect(() => {
@@ -52,11 +52,11 @@ const GitStashContainer = () => {
   };
 
   const handleNext = () => {
-    setActiveStep((prevStep) => prevStep + 1);
+    setActiveStep(prevStep => prevStep + 1);
   };
 
   const handlePrevious = () => {
-    setActiveStep((prevStep) => prevStep - 1);
+    setActiveStep(prevStep => prevStep - 1);
   };
 
   const handleDirectNext = () => {
@@ -70,25 +70,19 @@ const GitStashContainer = () => {
     dispatch(clearPRData());
   };
 
-  const getStepContent = (step) => {
+  const getStepContent = step => {
     switch (step) {
       case 0:
         return (
-          <GitStashForm 
-            onNext={handleNext}
-            onDirectNext={handleDirectNext}
-          />
+          <GitStashForm onNext={handleNext} onDirectNext={handleDirectNext} />
         );
       case 1:
         return (
-          <PullRequestList 
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-          />
+          <PullRequestList onNext={handleNext} onPrevious={handlePrevious} />
         );
       case 2:
         return (
-          <PullRequestDiff 
+          <PullRequestDiff
             onPrevious={shouldSkipPRList ? handleReset : handlePrevious}
             onReset={handleReset}
           />
@@ -99,7 +93,7 @@ const GitStashContainer = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container maxWidth='xl' sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <Button
@@ -109,20 +103,20 @@ const GitStashContainer = () => {
           >
             Back to Home
           </Button>
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+          <Typography variant='h4' component='h1' sx={{ fontWeight: 600 }}>
             GitStash PR Review
           </Typography>
         </Box>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
+          <Alert severity='error' sx={{ mb: 3 }}>
             {error}
           </Alert>
         )}
 
         <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
           <Stepper activeStep={activeStep} alternativeLabel>
-            {steps.map((label) => (
+            {steps.map(label => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
               </Step>
@@ -130,7 +124,10 @@ const GitStashContainer = () => {
           </Stepper>
         </Paper>
 
-        <Paper elevation={2} sx={{ p: 3, minHeight: activeStep === 0 ? 'auto' : '60vh' }}>
+        <Paper
+          elevation={2}
+          sx={{ p: 3, minHeight: activeStep === 0 ? 'auto' : '60vh' }}
+        >
           {getStepContent(activeStep)}
         </Paper>
       </Box>

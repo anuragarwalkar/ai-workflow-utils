@@ -8,15 +8,15 @@ const MotionDiv = motion.div;
 const FuturisticLoader = () => {
   const pulseVariants = {
     initial: { scale: 1, opacity: 0.7 },
-    animate: { 
-      scale: [1, 1.2, 1], 
+    animate: {
+      scale: [1, 1.2, 1],
       opacity: [0.7, 1, 0.7],
-      transition: { 
-        duration: 2, 
+      transition: {
+        duration: 2,
         repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
+        ease: 'easeInOut',
+      },
+    },
   };
 
   const orbitalVariants = {
@@ -25,9 +25,9 @@ const FuturisticLoader = () => {
       transition: {
         duration: 3,
         repeat: Infinity,
-        ease: "linear"
-      }
-    }
+        ease: 'linear',
+      },
+    },
   };
 
   return (
@@ -40,7 +40,7 @@ const FuturisticLoader = () => {
         minHeight: '100vh',
         bgcolor: 'background.default',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
       }}
     >
       {/* Animated Background */}
@@ -60,31 +60,35 @@ const FuturisticLoader = () => {
       />
 
       {/* Central Loading Animation */}
-      <Box sx={{ 
-        position: 'relative', 
-        zIndex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        {/* Main Circle with Orbital Rings */}
-        <Box sx={{ 
+      <Box
+        sx={{
           position: 'relative',
-          width: 120,
-          height: 120,
-          mb: 4,
+          zIndex: 1,
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center'
-        }}>
+          justifyContent: 'center',
+        }}
+      >
+        {/* Main Circle with Orbital Rings */}
+        <Box
+          sx={{
+            position: 'relative',
+            width: 120,
+            height: 120,
+            mb: 4,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           {/* Main Circle */}
           <MotionBox
             variants={pulseVariants}
-            initial="initial"
-            animate="animate"
-            sx={{ 
-              position: 'relative', 
+            initial='initial'
+            animate='animate'
+            sx={{
+              position: 'relative',
               zIndex: 3,
               width: 120,
               height: 120,
@@ -96,12 +100,12 @@ const FuturisticLoader = () => {
               boxShadow: '0 0 50px rgba(102, 126, 234, 0.3)',
             }}
           >
-            <Typography 
-              variant="h4" 
-              sx={{ 
-                color: 'white', 
+            <Typography
+              variant='h4'
+              sx={{
+                color: 'white',
                 fontWeight: 'bold',
-                textShadow: '0 0 10px rgba(255, 255, 255, 0.5)'
+                textShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
               }}
             >
               J
@@ -111,7 +115,7 @@ const FuturisticLoader = () => {
           {/* First Orbital Ring */}
           <MotionDiv
             variants={orbitalVariants}
-            animate="animate"
+            animate='animate'
             style={{
               position: 'absolute',
               top: '50%',
@@ -123,7 +127,7 @@ const FuturisticLoader = () => {
               border: '2px solid rgba(102, 126, 234, 0.3)',
               borderRadius: '50%',
               borderTopColor: 'rgba(102, 126, 234, 0.8)',
-              zIndex: 1
+              zIndex: 1,
             }}
           />
 
@@ -135,11 +139,11 @@ const FuturisticLoader = () => {
                 transition: {
                   duration: 4,
                   repeat: Infinity,
-                  ease: "linear"
-                }
-              }
+                  ease: 'linear',
+                },
+              },
             }}
-            animate="animate"
+            animate='animate'
             style={{
               position: 'absolute',
               top: '50%',
@@ -151,22 +155,24 @@ const FuturisticLoader = () => {
               border: '1px solid rgba(118, 75, 162, 0.2)',
               borderRadius: '50%',
               borderBottomColor: 'rgba(118, 75, 162, 0.6)',
-              zIndex: 0
+              zIndex: 0,
             }}
           />
         </Box>
 
         {/* Loading Text */}
-        <Box sx={{ 
-          textAlign: 'center',
-          width: '100%',
-          maxWidth: 400,
-          mx: 'auto'
-        }}>
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              mb: 2, 
+        <Box
+          sx={{
+            textAlign: 'center',
+            width: '100%',
+            maxWidth: 400,
+            mx: 'auto',
+          }}
+        >
+          <Typography
+            variant='h5'
+            sx={{
+              mb: 2,
               fontWeight: 600,
               background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
               backgroundClip: 'text',
@@ -176,28 +182,29 @@ const FuturisticLoader = () => {
           >
             Loading Jira Issue
           </Typography>
-          
-          <Typography 
-            variant="body1" 
-            sx={{ 
+
+          <Typography
+            variant='body1'
+            sx={{
               color: 'text.secondary',
               mb: 3,
-              opacity: 0.8
+              opacity: 0.8,
             }}
           >
             Preparing futuristic view...
           </Typography>
 
           <Box sx={{ width: '100%', maxWidth: 300, mx: 'auto' }}>
-            <LinearProgress 
+            <LinearProgress
               sx={{
                 height: 4,
                 borderRadius: 2,
                 backgroundColor: 'rgba(102, 126, 234, 0.1)',
                 '& .MuiLinearProgress-bar': {
-                  background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                  background:
+                    'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                   borderRadius: 2,
-                }
+                },
               }}
             />
           </Box>
@@ -217,7 +224,7 @@ const FuturisticLoader = () => {
             duration: 2 + i * 0.5,
             repeat: Infinity,
             delay: i * 0.3,
-            ease: "easeInOut"
+            ease: 'easeInOut',
           }}
           style={{
             position: 'absolute',

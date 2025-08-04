@@ -38,10 +38,10 @@ const JiraIdPrompt = () => {
     { id: 'PROJ-789', type: 'Story', title: 'Implement new feature' },
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
     const trimmedId = jiraId.trim();
-    
+
     if (!trimmedId) {
       setError('Please enter a Jira ID');
       return;
@@ -62,18 +62,18 @@ const JiraIdPrompt = () => {
     navigate(-1);
   };
 
-  const handleQuickSelect = (id) => {
+  const handleQuickSelect = id => {
     setJiraId(id);
     setError('');
   };
 
   return (
-    <Box 
-      sx={{ 
+    <Box
+      sx={{
         minHeight: '100vh',
         bgcolor: 'background.paper',
         position: 'relative',
-        overflow: 'auto'
+        overflow: 'auto',
       }}
     >
       {/* Futuristic Background Effects */}
@@ -91,17 +91,17 @@ const JiraIdPrompt = () => {
             radial-gradient(circle at 40% 40%, rgba(34, 197, 94, 0.08) 0%, transparent 50%)
           `,
           pointerEvents: 'none',
-          zIndex: 0
+          zIndex: 0,
         }}
       />
 
-      <Container 
-        maxWidth="md" 
-        sx={{ 
-          position: 'relative', 
+      <Container
+        maxWidth='md'
+        sx={{
+          position: 'relative',
           zIndex: 1,
           py: 4,
-          px: 3
+          px: 3,
         }}
       >
         <div>
@@ -111,17 +111,17 @@ const JiraIdPrompt = () => {
             sx={{
               p: 3,
               mb: 4,
-              background: isDark 
+              background: isDark
                 ? 'rgba(45, 55, 72, 0.95)'
                 : 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(20px)',
-              border: isDark 
+              border: isDark
                 ? '1px solid rgba(255, 255, 255, 0.1)'
                 : '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 3,
-              boxShadow: isDark 
+              boxShadow: isDark
                 ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-                : '0 8px 32px rgba(0, 0, 0, 0.1)'
+                : '0 8px 32px rgba(0, 0, 0, 0.1)',
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -129,13 +129,17 @@ const JiraIdPrompt = () => {
                 <ArrowBack />
               </IconButton>
               <AutoAwesome sx={{ color: 'primary.main', fontSize: 28 }} />
-              <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
+              <Typography
+                variant='h4'
+                sx={{ fontWeight: 700, color: 'text.primary' }}
+              >
                 Futuristic Jira Viewer
               </Typography>
             </Box>
-            
-            <Typography variant="body1" color="text.secondary" sx={{ ml: 7 }}>
-              Enter a Jira ID to view it with AI-powered insights and futuristic interface
+
+            <Typography variant='body1' color='text.secondary' sx={{ ml: 7 }}>
+              Enter a Jira ID to view it with AI-powered insights and futuristic
+              interface
             </Typography>
           </Paper>
 
@@ -145,50 +149,55 @@ const JiraIdPrompt = () => {
             sx={{
               p: 4,
               mb: 3,
-              background: isDark 
+              background: isDark
                 ? 'rgba(45, 55, 72, 0.95)'
                 : 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(20px)',
-              border: isDark 
+              border: isDark
                 ? '1px solid rgba(255, 255, 255, 0.1)'
                 : '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 3,
-              boxShadow: isDark 
+              boxShadow: isDark
                 ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-                : '0 8px 32px rgba(0, 0, 0, 0.1)'
+                : '0 8px 32px rgba(0, 0, 0, 0.1)',
             }}
           >
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>
+            <Typography
+              variant='h6'
+              sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}
+            >
               Enter Jira Issue ID
             </Typography>
 
-            <Box component="form" onSubmit={handleSubmit} sx={{ mb: 3 }}>
-              <Box sx={{ 
-                display: 'flex', 
-                gap: 2, 
-                alignItems: 'stretch', // Changed from 'center' to 'stretch'
-                width: '100%'
-              }}>
+            <Box component='form' onSubmit={handleSubmit} sx={{ mb: 3 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: 2,
+                  alignItems: 'stretch', // Changed from 'center' to 'stretch'
+                  width: '100%',
+                }}
+              >
                 <TextField
                   fullWidth
-                  size="large"
-                  placeholder="e.g., PROJ-123, TEAM-456, BUG-789"
+                  size='large'
+                  placeholder='e.g., PROJ-123, TEAM-456, BUG-789'
                   value={jiraId}
-                  onChange={(e) => {
+                  onChange={e => {
                     setJiraId(e.target.value);
                     setError('');
                   }}
                   InputProps={{
                     startAdornment: (
-                      <InputAdornment position="start">
-                        <Search color="primary" />
+                      <InputAdornment position='start'>
+                        <Search color='primary' />
                       </InputAdornment>
                     ),
                   }}
                   sx={{
                     flex: 1, // Take up remaining space
                     '& .MuiOutlinedInput-root': {
-                      background: isDark 
+                      background: isDark
                         ? 'rgba(45, 55, 72, 0.9)'
                         : 'rgba(255, 255, 255, 0.9)',
                       borderRadius: 2,
@@ -196,13 +205,13 @@ const JiraIdPrompt = () => {
                       height: '56px', // Explicit height
                       color: isDark ? '#f7fafc' : 'inherit',
                       '& fieldset': {
-                        borderColor: isDark 
+                        borderColor: isDark
                           ? 'rgba(255, 255, 255, 0.3)'
                           : 'rgba(102, 126, 234, 0.3)',
                         borderWidth: 2,
                       },
                       '&:hover fieldset': {
-                        borderColor: isDark 
+                        borderColor: isDark
                           ? 'rgba(255, 255, 255, 0.6)'
                           : 'rgba(102, 126, 234, 0.6)',
                       },
@@ -213,26 +222,30 @@ const JiraIdPrompt = () => {
                     '& .MuiOutlinedInput-input': {
                       color: isDark ? '#f7fafc' : 'inherit',
                       '&::placeholder': {
-                        color: isDark ? 'rgba(247, 250, 252, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+                        color: isDark
+                          ? 'rgba(247, 250, 252, 0.7)'
+                          : 'rgba(0, 0, 0, 0.6)',
                         opacity: 1,
                       },
                     },
                   }}
                 />
                 <Button
-                  type="submit"
-                  variant="contained"
+                  type='submit'
+                  variant='contained'
                   disabled={!jiraId.trim()}
                   sx={{
                     minWidth: '100px',
                     height: '56px',
-                    background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                    background:
+                      'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                     boxShadow: '0 4px 16px rgba(102, 126, 234, 0.4)',
                     borderRadius: 2,
                     fontSize: '1rem',
                     fontWeight: 600,
                     '&:hover': {
-                      background: 'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
+                      background:
+                        'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
                       boxShadow: '0 6px 20px rgba(118, 75, 162, 0.5)',
                     },
                     '&:disabled': {
@@ -248,13 +261,18 @@ const JiraIdPrompt = () => {
             </Box>
 
             {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
+              <Alert severity='error' sx={{ mb: 2 }}>
                 {error}
               </Alert>
             )}
 
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-              Press Enter or click "View" to open the Jira issue in the futuristic viewer
+            <Typography
+              variant='body2'
+              color='text.secondary'
+              sx={{ textAlign: 'center' }}
+            >
+              Press Enter or click "View" to open the Jira issue in the
+              futuristic viewer
             </Typography>
           </Paper>
 
@@ -263,24 +281,24 @@ const JiraIdPrompt = () => {
             elevation={0}
             sx={{
               p: 3,
-              background: isDark 
+              background: isDark
                 ? 'rgba(45, 55, 72, 0.95)'
                 : 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(20px)',
-              border: isDark 
+              border: isDark
                 ? '1px solid rgba(255, 255, 255, 0.1)'
                 : '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 3,
-              boxShadow: isDark 
+              boxShadow: isDark
                 ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-                : '0 8px 32px rgba(0, 0, 0, 0.1)'
+                : '0 8px 32px rgba(0, 0, 0, 0.1)',
             }}
           >
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+            <Typography variant='h6' sx={{ mb: 2, fontWeight: 600 }}>
               Quick Access
             </Typography>
-            
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
               Click on any recent issue to view it instantly:
             </Typography>
 
@@ -289,15 +307,20 @@ const JiraIdPrompt = () => {
                 <Chip
                   key={index}
                   icon={
-                    item.type === 'Bug' ? <BugReport /> :
-                    item.type === 'Task' ? <Task /> : <Assignment />
+                    item.type === 'Bug' ? (
+                      <BugReport />
+                    ) : item.type === 'Task' ? (
+                      <Task />
+                    ) : (
+                      <Assignment />
+                    )
                   }
                   label={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      <Typography variant='body2' sx={{ fontWeight: 600 }}>
                         {item.id}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant='caption' color='text.secondary'>
                         {item.title}
                       </Typography>
                     </Box>
@@ -320,7 +343,7 @@ const JiraIdPrompt = () => {
                       width: '100%',
                     },
                   }}
-                  variant="outlined"
+                  variant='outlined'
                 />
               ))}
             </Box>
@@ -330,17 +353,17 @@ const JiraIdPrompt = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
               <Chip
                 icon={<TrendingUp />}
-                label="AI-Powered Analysis"
-                color="primary"
-                variant="outlined"
-                size="small"
+                label='AI-Powered Analysis'
+                color='primary'
+                variant='outlined'
+                size='small'
               />
               <Chip
                 icon={<AutoAwesome />}
-                label="Futuristic Interface"
-                color="secondary"
-                variant="outlined"
-                size="small"
+                label='Futuristic Interface'
+                color='secondary'
+                variant='outlined'
+                size='small'
               />
             </Box>
           </Paper>

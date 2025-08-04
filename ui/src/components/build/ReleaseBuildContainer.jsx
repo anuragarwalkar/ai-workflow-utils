@@ -14,21 +14,17 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentView } from '../../store/slices/appSlice';
 import { useStartBuildMutation } from '../../store/api/buildApi';
-import { 
-  startBuild, 
-  clearBuildLogs, 
+import {
+  startBuild,
+  clearBuildLogs,
   resetBuildState,
-  saveRepoConfig
+  saveRepoConfig,
 } from '../../store/slices/buildSlice';
 import socketService from '../../services/socketService';
 import BuildConfigForm from './BuildConfigForm';
 import BuildProgress from './BuildProgress';
 
-const steps = [
-  'Configure Build',
-  'Review & Start',
-  'Build Progress'
-];
+const steps = ['Configure Build', 'Review & Start', 'Build Progress'];
 
 const ReleaseBuildContainer = () => {
   const dispatch = useDispatch();
@@ -42,19 +38,18 @@ const ReleaseBuildContainer = () => {
     selectedPackages: [],
     createPullRequest: false,
   });
-  
-  const [startBuildMutation, { isLoading: isStartingBuild }] = useStartBuildMutation();
-  
-  const { 
-    isBuilding, 
-    error,
-    savedRepoConfig
-  } = useSelector((state) => state.build);
+
+  const [startBuildMutation, { isLoading: isStartingBuild }] =
+    useStartBuildMutation();
+
+  const { isBuilding, error, savedRepoConfig } = useSelector(
+    state => state.build
+  );
 
   // Connect to WebSocket when component mounts and load saved config
   useEffect(() => {
     socketService.connect();
-    
+
     // Load saved configuration from Redux state
     if (savedRepoConfig) {
       setBuildConfig(prevConfig => ({
@@ -62,12 +57,15 @@ const ReleaseBuildContainer = () => {
         repoKey: savedRepoConfig.repoKey || '',
         repoSlug: savedRepoConfig.repoSlug || '',
         gitRepos: savedRepoConfig.gitRepos || '',
-        availablePackages: savedRepoConfig.gitRepos 
-          ? savedRepoConfig.gitRepos.split(',').map(repo => repo.trim()).filter(repo => repo)
-          : []
+        availablePackages: savedRepoConfig.gitRepos
+          ? savedRepoConfig.gitRepos
+              .split(',')
+              .map(repo => repo.trim())
+              .filter(repo => repo)
+          : [],
       }));
     }
-    
+
     return () => {
       // Don't disconnect on unmount as other components might use it
     };
@@ -84,13 +82,13 @@ const ReleaseBuildContainer = () => {
     if (activeStep === 0) {
       dispatch(setCurrentView('home'));
     } else {
-      setActiveStep((prevStep) => prevStep - 1);
+      setActiveStep(prevStep => prevStep - 1);
     }
   };
 
   const handleNext = () => {
     if (activeStep < steps.length - 1) {
-      setActiveStep((prevStep) => prevStep + 1);
+      setActiveStep(prevStep => prevStep + 1);
     }
   };
 
@@ -98,7 +96,7 @@ const ReleaseBuildContainer = () => {
     try {
       // Clear previous logs
       dispatch(clearBuildLogs());
-      
+
       // Start the build process with configuration
       const result = await startBuildMutation({
         ticketNumber: buildConfig.ticketNumber,
@@ -108,16 +106,17 @@ const ReleaseBuildContainer = () => {
         repoSlug: buildConfig.repoSlug,
         gitRepos: buildConfig.gitRepos,
       }).unwrap();
-      
+
       // Update Redux state
-      dispatch(startBuild({ 
-        buildId: result.buildId, 
-        buildConfig: buildConfig 
-      }));
-      
+      dispatch(
+        startBuild({
+          buildId: result.buildId,
+          buildConfig: buildConfig,
+        })
+      );
+
       // Move to progress step
       setActiveStep(2);
-      
     } catch (error) {
       console.error('Failed to start build:', error);
     }
@@ -133,7 +132,7 @@ const ReleaseBuildContainer = () => {
     setActiveStep(0);
   };
 
-  const getStepContent = (step) => {
+  const getStepContent = step => {
     switch (step) {
       case 0:
         return (
@@ -141,83 +140,81 @@ const ReleaseBuildContainer = () => {
             config={buildConfig}
             onChange={setBuildConfig}
             onNext={handleNext}
-            onSaveConfig={(repoConfig) => dispatch(saveRepoConfig(repoConfig))}
+            onSaveConfig={repoConfig => dispatch(saveRepoConfig(repoConfig))}
           />
         );
       case 1:
         return (
           <Box>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant='h6' gutterBottom>
               Review Build Configuration
             </Typography>
             <Paper sx={{ p: 3, mb: 3 }}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="text.secondary">
+                  <Typography variant='subtitle2' color='text.secondary'>
                     Repository Key:
                   </Typography>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
+                  <Typography variant='body1' sx={{ mb: 2 }}>
                     {buildConfig.repoKey || 'Not specified'}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="text.secondary">
+                  <Typography variant='subtitle2' color='text.secondary'>
                     Repository Slug:
                   </Typography>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
+                  <Typography variant='body1' sx={{ mb: 2 }}>
                     {buildConfig.repoSlug || 'Not specified'}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="text.secondary">
+                  <Typography variant='subtitle2' color='text.secondary'>
                     Git Repositories:
                   </Typography>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
+                  <Typography variant='body1' sx={{ mb: 2 }}>
                     {buildConfig.gitRepos || 'Not specified'}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="text.secondary">
+                  <Typography variant='subtitle2' color='text.secondary'>
                     Ticket Number:
                   </Typography>
-                  <Typography variant="body1" sx={{ mb: 2 }}>
+                  <Typography variant='body1' sx={{ mb: 2 }}>
                     {buildConfig.ticketNumber || 'Not specified'}
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="text.secondary">
+                  <Typography variant='subtitle2' color='text.secondary'>
                     Selected Packages ({buildConfig.selectedPackages.length}):
                   </Typography>
                   {buildConfig.selectedPackages.length > 0 ? (
                     <Box sx={{ mt: 1 }}>
-                      {buildConfig.selectedPackages.map((pkg) => (
-                        <Typography key={pkg} variant="body2" sx={{ ml: 2 }}>
+                      {buildConfig.selectedPackages.map(pkg => (
+                        <Typography key={pkg} variant='body2' sx={{ ml: 2 }}>
                           • {pkg}
                         </Typography>
                       ))}
                     </Box>
                   ) : (
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant='body2' color='text.secondary'>
                       No packages selected
                     </Typography>
                   )}
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="text.secondary">
+                  <Typography variant='subtitle2' color='text.secondary'>
                     Create Pull Request:
                   </Typography>
-                  <Typography variant="body1">
+                  <Typography variant='body1'>
                     {buildConfig.createPullRequest ? 'Yes' : 'No'}
                   </Typography>
                 </Grid>
               </Grid>
             </Paper>
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button onClick={handleBack}>
-                Back
-              </Button>
+              <Button onClick={handleBack}>Back</Button>
               <Button
-                variant="contained"
+                variant='contained'
                 onClick={handleStartBuild}
                 disabled={isStartingBuild || !buildConfig.ticketNumber}
               >
@@ -227,37 +224,33 @@ const ReleaseBuildContainer = () => {
           </Box>
         );
       case 2:
-        return (
-          <BuildProgress
-            onReset={handleReset}
-            onBack={handleBack}
-          />
-        );
+        return <BuildProgress onReset={handleReset} onBack={handleBack} />;
       default:
         return 'Unknown step';
     }
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth='lg' sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography variant='h4' component='h1' gutterBottom>
           Mobile App Release Build
         </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Configure and execute the mobile app build process with package updates
+        <Typography variant='body1' color='text.secondary'>
+          Configure and execute the mobile app build process with package
+          updates
         </Typography>
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert severity='error' sx={{ mb: 3 }}>
           {error}
         </Alert>
       )}
 
       <Paper sx={{ p: 3 }}>
         <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-          {steps.map((label) => (
+          {steps.map(label => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
             </Step>

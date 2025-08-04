@@ -1,5 +1,5 @@
-import templateDbService from "../../../services/templateDbService.js";
-import logger from "../../../logger.js";
+import templateDbService from '../../../services/templateDbService.js';
+import logger from '../../../logger.js';
 
 /**
  * Template service wrapper for PR operations
@@ -10,7 +10,9 @@ class TemplateService {
       await templateDbService.init();
       const template = await templateDbService.getActiveTemplate(templateType);
       if (!template) {
-        logger.warn(`No active template found for ${templateType}, using fallback`);
+        logger.warn(
+          `No active template found for ${templateType}, using fallback`
+        );
         return null;
       }
       return template;

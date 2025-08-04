@@ -1,17 +1,16 @@
-import { Low } from "lowdb";
-import { JSONFile } from "lowdb/node";
-import os from "os";
-import path from "path";
-import fs from "fs";
-import logger from "../logger.js";
+import { Low } from 'lowdb';
+import { JSONFile } from 'lowdb/node';
+import os from 'os';
+import path from 'path';
+import fs from 'fs';
+import logger from '../logger.js';
 
 class EnvironmentDbService {
   constructor() {
-
     // Store in user's home directory like .env
     const homeDir = os.homedir();
-    const configDir = path.join(homeDir, ".ai-workflow-utils");
-    const dbPath = path.join(configDir, "environment.json");
+    const configDir = path.join(homeDir, '.ai-workflow-utils');
+    const dbPath = path.join(configDir, 'environment.json');
 
     // Ensure directory existsFailed to load default templatesFailed to load default templates
     if (!fs.existsSync(configDir)) {
@@ -26,12 +25,9 @@ class EnvironmentDbService {
 
   async loadDefaultConfig() {
     try {
-      const defaultConfigPath = path.join(
-        process.cwd(),
-        "./data/config.json"
-      );
+      const defaultConfigPath = path.join(process.cwd(), './data/config.json');
       const configSchema = JSON.parse(
-        fs.readFileSync(defaultConfigPath, "utf8")
+        fs.readFileSync(defaultConfigPath, 'utf8')
       );
 
       // Extract default values from schema
@@ -61,19 +57,19 @@ class EnvironmentDbService {
           ...defaultProviders,
         },
         metadata: {
-          version: "1.0.0",
+          version: '1.0.0',
           lastUpdated: new Date().toISOString(),
           createdAt: new Date().toISOString(),
         },
       };
     } catch (error) {
-      logger.error("Failed to load default config from file:", error);
+      logger.error('Failed to load default config from file:', error);
       // Fallback to minimal default
       return {
         schema: { providers: {}, sections: {} },
         settings: {},
         metadata: {
-          version: "1.0.0",
+          version: '1.0.0',
           lastUpdated: new Date().toISOString(),
           createdAt: new Date().toISOString(),
         },
@@ -91,13 +87,13 @@ class EnvironmentDbService {
         this.db.data = defaultData;
         await this.db.write();
         logger.info(
-          "Environment database initialized with default configuration"
+          'Environment database initialized with default configuration'
         );
       }
 
       return true;
     } catch (error) {
-      logger.error("Failed to initialize environment database:", error);
+      logger.error('Failed to initialize environment database:', error);
       throw error;
     }
   }
@@ -107,7 +103,7 @@ class EnvironmentDbService {
       await this.db.read();
       return this.db.data.schema || { providers: {}, sections: {} };
     } catch (error) {
-      logger.error("Failed to get schema:", error);
+      logger.error('Failed to get schema:', error);
       throw error;
     }
   }
@@ -117,7 +113,7 @@ class EnvironmentDbService {
       await this.db.read();
       return this.db.data.settings || {};
     } catch (error) {
-      logger.error("Failed to get settings:", error);
+      logger.error('Failed to get settings:', error);
       throw error;
     }
   }
@@ -147,10 +143,10 @@ class EnvironmentDbService {
 
       await this.db.write();
 
-      logger.info("Updated environment settings");
+      logger.info('Updated environment settings');
       return this.db.data.settings;
     } catch (error) {
-      logger.error("Failed to update settings:", error);
+      logger.error('Failed to update settings:', error);
       throw error;
     }
   }
@@ -175,7 +171,7 @@ class EnvironmentDbService {
 
       return providers;
     } catch (error) {
-      logger.error("Failed to get providers:", error);
+      logger.error('Failed to get providers:', error);
       throw error;
     }
   }
@@ -207,20 +203,20 @@ class EnvironmentDbService {
           .map(([fieldKey, _]) => fieldKey);
 
         const configuredFields = requiredFields.filter(
-          (fieldKey) => settings[fieldKey] && settings[fieldKey].trim() !== ""
+          fieldKey => settings[fieldKey] && settings[fieldKey].trim() !== ''
         );
 
         status[sectionName] = {
           name: sectionConfig.title,
           configured:
             requiredFields.length === 0 || configuredFields.length > 0,
-          status: "unknown",
+          status: 'unknown',
         };
       }
 
       return status;
     } catch (error) {
-      logger.error("Failed to get provider status:", error);
+      logger.error('Failed to get provider status:', error);
       throw error;
     }
   }
@@ -241,7 +237,7 @@ class EnvironmentDbService {
         for (const [fieldKey, fieldConfig] of Object.entries(
           sectionConfig.fields
         )) {
-          const value = settings[fieldKey] || "";
+          const value = settings[fieldKey] || '';
           structured[sectionName][fieldKey] = {
             value: fieldConfig.sensitive
               ? this.maskSensitiveValue(value)
@@ -258,21 +254,21 @@ class EnvironmentDbService {
 
       return structured;
     } catch (error) {
-      logger.error("Failed to get structured settings:", error);
+      logger.error('Failed to get structured settings:', error);
       throw error;
     }
   }
 
   maskSensitiveValue(value) {
-    if (!value || value.trim() === "") {
-      return "";
+    if (!value || value.trim() === '') {
+      return '';
     }
     if (value.length <= 8) {
-      return "*".repeat(8);
+      return '*'.repeat(8);
     }
     return (
       value.substring(0, 4) +
-      "*".repeat(value.length - 8) +
+      '*'.repeat(value.length - 8) +
       value.substring(value.length - 4)
     );
   }
@@ -287,7 +283,7 @@ class EnvironmentDbService {
         const fieldConfig = this.findFieldConfig(key, schema);
         if (fieldConfig) {
           // Type validation
-          if (fieldConfig.type === "url" && value) {
+          if (fieldConfig.type === 'url' && value) {
             try {
               new URL(value);
             } catch {
@@ -295,12 +291,12 @@ class EnvironmentDbService {
             }
           }
 
-          if (fieldConfig.type === "number" && value && isNaN(Number(value))) {
+          if (fieldConfig.type === 'number' && value && isNaN(Number(value))) {
             errors.push(`${key}: Must be a valid number`);
           }
 
           // Required validation
-          if (fieldConfig.required && (!value || value.trim() === "")) {
+          if (fieldConfig.required && (!value || value.trim() === '')) {
             errors.push(`${key}: This field is required`);
           }
         }
@@ -311,7 +307,7 @@ class EnvironmentDbService {
         errors,
       };
     } catch (error) {
-      logger.error("Failed to validate settings:", error);
+      logger.error('Failed to validate settings:', error);
       throw error;
     }
   }
@@ -331,10 +327,10 @@ class EnvironmentDbService {
       this.db.data = defaultData;
       await this.db.write();
 
-      logger.info("Reset environment settings to defaults");
+      logger.info('Reset environment settings to defaults');
       return this.db.data.settings;
     } catch (error) {
-      logger.error("Failed to reset to defaults:", error);
+      logger.error('Failed to reset to defaults:', error);
       throw error;
     }
   }
@@ -344,7 +340,7 @@ class EnvironmentDbService {
       const defaultData = await this.loadDefaultConfig();
       return defaultData.settings;
     } catch (error) {
-      logger.error("Failed to get defaults:", error);
+      logger.error('Failed to get defaults:', error);
       throw error;
     }
   }
@@ -358,7 +354,7 @@ class EnvironmentDbService {
         exportedAt: new Date().toISOString(),
       };
     } catch (error) {
-      logger.error("Failed to export settings:", error);
+      logger.error('Failed to export settings:', error);
       throw error;
     }
   }
@@ -367,14 +363,14 @@ class EnvironmentDbService {
     try {
       await this.db.read();
 
-      if (!importData.settings || typeof importData.settings !== "object") {
-        throw new Error("Invalid import data format");
+      if (!importData.settings || typeof importData.settings !== 'object') {
+        throw new Error('Invalid import data format');
       }
 
       // Validate imported settings
       const validation = await this.validateSettings(importData.settings);
       if (!validation.valid) {
-        throw new Error(`Invalid settings: ${validation.errors.join(", ")}`);
+        throw new Error(`Invalid settings: ${validation.errors.join(', ')}`);
       }
 
       this.db.data.settings = {
@@ -389,10 +385,10 @@ class EnvironmentDbService {
 
       await this.db.write();
 
-      logger.info("Imported environment settings");
+      logger.info('Imported environment settings');
       return this.db.data.settings;
     } catch (error) {
-      logger.error("Failed to import settings:", error);
+      logger.error('Failed to import settings:', error);
       throw error;
     }
   }
@@ -402,7 +398,7 @@ class EnvironmentDbService {
       await this.db.read();
       return this.db.data.metadata || {};
     } catch (error) {
-      logger.error("Failed to get metadata:", error);
+      logger.error('Failed to get metadata:', error);
       throw error;
     }
   }

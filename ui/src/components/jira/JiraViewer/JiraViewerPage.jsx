@@ -50,18 +50,18 @@ const JiraViewerPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isDark } = useAppTheme();
-  
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
   const [isStarred, setIsStarred] = useState(false);
   const [showAiPanel, setShowAiPanel] = useState(false);
 
   // Fetch Jira issue data
-  const { 
-    data: jiraData, 
-    isLoading, 
-    error, 
-    refetch 
+  const {
+    data: jiraData,
+    isLoading,
+    error,
+    refetch,
   } = useFetchJiraQuery(id, {
     skip: !id,
     pollingInterval: 30000, // Refresh every 30 seconds
@@ -69,10 +69,12 @@ const JiraViewerPage = () => {
 
   useEffect(() => {
     if (!id) {
-      dispatch(showNotification({
-        message: 'Invalid Jira ID provided',
-        severity: 'error'
-      }));
+      dispatch(
+        showNotification({
+          message: 'Invalid Jira ID provided',
+          severity: 'error',
+        })
+      );
       navigate('/');
     }
   }, [id, navigate, dispatch]);
@@ -83,34 +85,42 @@ const JiraViewerPage = () => {
 
   const handleRefresh = () => {
     refetch();
-    dispatch(showNotification({
-      message: 'Jira issue refreshed',
-      severity: 'success'
-    }));
+    dispatch(
+      showNotification({
+        message: 'Jira issue refreshed',
+        severity: 'success',
+      })
+    );
   };
 
   const handleShare = async () => {
     const url = window.location.href;
     try {
       await navigator.clipboard.writeText(url);
-      dispatch(showNotification({
-        message: 'URL copied to clipboard',
-        severity: 'success'
-      }));
+      dispatch(
+        showNotification({
+          message: 'URL copied to clipboard',
+          severity: 'success',
+        })
+      );
     } catch {
-      dispatch(showNotification({
-        message: 'Failed to copy URL',
-        severity: 'error'
-      }));
+      dispatch(
+        showNotification({
+          message: 'Failed to copy URL',
+          severity: 'error',
+        })
+      );
     }
   };
 
   const toggleStar = () => {
     setIsStarred(!isStarred);
-    dispatch(showNotification({
-      message: isStarred ? 'Removed from favorites' : 'Added to favorites',
-      severity: 'success'
-    }));
+    dispatch(
+      showNotification({
+        message: isStarred ? 'Removed from favorites' : 'Added to favorites',
+        severity: 'success',
+      })
+    );
   };
 
   const toggleFullscreen = () => {
@@ -119,20 +129,20 @@ const JiraViewerPage = () => {
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
+      transition: {
         duration: 0.3,
-        ease: "easeOut",
-        staggerChildren: 0.05
-      }
-    }
+        ease: 'easeOut',
+        staggerChildren: 0.05,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+    visible: { opacity: 1, y: 0 },
   };
 
   if (isLoading) {
@@ -141,21 +151,21 @@ const JiraViewerPage = () => {
 
   if (error) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Alert 
-          severity="error" 
+      <Container maxWidth='md' sx={{ mt: 4 }}>
+        <Alert
+          severity='error'
           action={
-            <IconButton onClick={handleBack} size="small">
+            <IconButton onClick={handleBack} size='small'>
               <ArrowBack />
             </IconButton>
           }
         >
-          <Typography variant="h6">Failed to load Jira issue</Typography>
-          <Typography variant="body2">
-            {error.status === 404 
+          <Typography variant='h6'>Failed to load Jira issue</Typography>
+          <Typography variant='body2'>
+            {error.status === 404
               ? `Issue "${id}" not found. It may have been moved or deleted.`
-              : error.data?.message || 'Please check your connection and try again.'
-            }
+              : error.data?.message ||
+                'Please check your connection and try again.'}
           </Typography>
         </Alert>
       </Container>
@@ -164,21 +174,19 @@ const JiraViewerPage = () => {
 
   if (!jiraData) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Alert severity="info">
-          No data available for issue: {id}
-        </Alert>
+      <Container maxWidth='md' sx={{ mt: 4 }}>
+        <Alert severity='info'>No data available for issue: {id}</Alert>
       </Container>
     );
   }
 
   return (
-    <Box 
-      sx={{ 
+    <Box
+      sx={{
         minHeight: '100vh',
         bgcolor: 'background.paper',
         position: 'relative',
-        overflow: isFullscreen ? 'hidden' : 'auto'
+        overflow: isFullscreen ? 'hidden' : 'auto',
       }}
     >
       {/* Futuristic Background Effects */}
@@ -196,23 +204,23 @@ const JiraViewerPage = () => {
             radial-gradient(circle at 40% 40%, rgba(34, 197, 94, 0.08) 0%, transparent 50%)
           `,
           pointerEvents: 'none',
-          zIndex: 0
+          zIndex: 0,
         }}
       />
 
-      <Container 
-        maxWidth={isFullscreen ? false : "xl"} 
-        sx={{ 
-          position: 'relative', 
+      <Container
+        maxWidth={isFullscreen ? false : 'xl'}
+        sx={{
+          position: 'relative',
           zIndex: 1,
           py: isFullscreen ? 0 : 3,
-          px: isFullscreen ? 0 : 3
+          px: isFullscreen ? 0 : 3,
         }}
       >
         <MotionDiv
           variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+          initial='hidden'
+          animate='visible'
         >
           {/* Top Navigation Bar */}
           <motion.div variants={itemVariants}>
@@ -221,60 +229,78 @@ const JiraViewerPage = () => {
               sx={{
                 p: 2,
                 mb: 3,
-                background: isDark 
+                background: isDark
                   ? 'rgba(45, 55, 72, 0.95)'
                   : 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(20px)',
-                border: isDark 
+                border: isDark
                   ? '1px solid rgba(255, 255, 255, 0.1)'
                   : '1px solid rgba(255, 255, 255, 0.2)',
                 borderRadius: 3,
-                boxShadow: isDark 
+                boxShadow: isDark
                   ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-                  : '0 8px 32px rgba(0, 0, 0, 0.1)'
+                  : '0 8px 32px rgba(0, 0, 0, 0.1)',
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Tooltip title="Go Back">
-                    <IconButton onClick={handleBack} sx={{ color: 'primary.main' }}>
+                  <Tooltip title='Go Back'>
+                    <IconButton
+                      onClick={handleBack}
+                      sx={{ color: 'primary.main' }}
+                    >
                       <ArrowBack />
                     </IconButton>
                   </Tooltip>
-                  
-                  <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary' }}>
+
+                  <Typography
+                    variant='h5'
+                    sx={{ fontWeight: 600, color: 'text.primary' }}
+                  >
                     {jiraData.key}
                   </Typography>
-                  
+
                   <Chip
                     label={jiraData.fields?.issuetype?.name || 'Unknown'}
-                    color="primary"
-                    variant="outlined"
-                    size="small"
+                    color='primary'
+                    variant='outlined'
+                    size='small'
                   />
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Tooltip title="Refresh">
-                    <IconButton onClick={handleRefresh} color="primary">
+                  <Tooltip title='Refresh'>
+                    <IconButton onClick={handleRefresh} color='primary'>
                       <Refresh />
                     </IconButton>
                   </Tooltip>
-                  
-                  <Tooltip title={isStarred ? "Remove from favorites" : "Add to favorites"}>
-                    <IconButton onClick={toggleStar} color="primary">
+
+                  <Tooltip
+                    title={
+                      isStarred ? 'Remove from favorites' : 'Add to favorites'
+                    }
+                  >
+                    <IconButton onClick={toggleStar} color='primary'>
                       {isStarred ? <Star /> : <StarBorder />}
                     </IconButton>
                   </Tooltip>
-                  
-                  <Tooltip title="Share">
-                    <IconButton onClick={handleShare} color="primary">
+
+                  <Tooltip title='Share'>
+                    <IconButton onClick={handleShare} color='primary'>
                       <Share />
                     </IconButton>
                   </Tooltip>
-                  
-                  <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
-                    <IconButton onClick={toggleFullscreen} color="primary">
+
+                  <Tooltip
+                    title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+                  >
+                    <IconButton onClick={toggleFullscreen} color='primary'>
                       {isFullscreen ? <FullscreenExit /> : <Fullscreen />}
                     </IconButton>
                   </Tooltip>
@@ -293,8 +319,8 @@ const JiraViewerPage = () => {
 
               <motion.div variants={itemVariants}>
                 <Box sx={{ mt: 3 }}>
-                  <JiraDescription 
-                    jiraData={jiraData} 
+                  <JiraDescription
+                    jiraData={jiraData}
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
                   />
@@ -325,9 +351,9 @@ const JiraViewerPage = () => {
       </Container>
 
       {/* AI Assistant FAB */}
-      <Tooltip title="AI Assistant" placement="left">
+      <Tooltip title='AI Assistant' placement='left'>
         <Fab
-          color="primary"
+          color='primary'
           sx={{
             position: 'fixed',
             bottom: 24,
@@ -340,7 +366,7 @@ const JiraViewerPage = () => {
               boxShadow: '0 12px 40px rgba(118, 75, 162, 0.5)',
             },
             transition: 'all 0.2s ease',
-            zIndex: 1000
+            zIndex: 1000,
           }}
           onClick={() => setShowAiPanel(!showAiPanel)}
         >
@@ -351,7 +377,7 @@ const JiraViewerPage = () => {
       {/* AI Assistant Panel */}
       <AnimatePresence>
         {showAiPanel && (
-          <AiAssistantPanel 
+          <AiAssistantPanel
             jiraData={jiraData}
             onClose={() => setShowAiPanel(false)}
           />

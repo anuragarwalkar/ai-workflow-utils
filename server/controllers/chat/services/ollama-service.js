@@ -14,19 +14,23 @@ class OllamaService {
    */
   static async generateResponse(messageData) {
     const config = ChatProviderConfig.getOllamaConfig();
-    
+
     logger.info(`Making Ollama API request to: ${config.baseUrl}/api/generate`);
     logger.info(`Using model: ${config.model}`);
 
     const requestPayload = {
       model: config.model,
-      ...messageData
+      ...messageData,
     };
 
     try {
-      const response = await axios.post(`${config.baseUrl}/api/generate`, requestPayload, {
-        timeout: 120000 // 2 minute timeout for local models
-      });
+      const response = await axios.post(
+        `${config.baseUrl}/api/generate`,
+        requestPayload,
+        {
+          timeout: 120000, // 2 minute timeout for local models
+        }
+      );
 
       logger.info(`Ollama API response received`);
       return response.data?.response;
@@ -46,14 +50,18 @@ class OllamaService {
     const requestPayload = {
       model: config.model,
       ...messageData,
-      stream: true
+      stream: true,
     };
 
     try {
-      const response = await axios.post(`${config.baseUrl}/api/generate`, requestPayload, {
-        responseType: 'stream',
-        timeout: 120000
-      });
+      const response = await axios.post(
+        `${config.baseUrl}/api/generate`,
+        requestPayload,
+        {
+          responseType: 'stream',
+          timeout: 120000,
+        }
+      );
 
       return response;
     } catch (error) {
@@ -69,7 +77,7 @@ class OllamaService {
     try {
       const config = ChatProviderConfig.getOllamaConfig();
       const response = await axios.get(`${config.baseUrl}/api/tags`, {
-        timeout: 5000
+        timeout: 5000,
       });
       return response.status === 200;
     } catch (error) {
@@ -87,8 +95,12 @@ class OllamaService {
   static _handleApiError(error) {
     if (error.response) {
       logger.error(`Ollama API error - Status: ${error.response.status}`);
-      logger.error(`Error data: ${JSON.stringify(error.response.data, null, 2)}`);
-      throw new Error(`Ollama API Error (${error.response.status}): ${error.response.data?.error || error.message}`);
+      logger.error(
+        `Error data: ${JSON.stringify(error.response.data, null, 2)}`
+      );
+      throw new Error(
+        `Ollama API Error (${error.response.status}): ${error.response.data?.error || error.message}`
+      );
     } else if (error.request) {
       logger.error(`Ollama network error: ${error.message}`);
       throw new Error(`Network error: Unable to reach Ollama server`);

@@ -9,9 +9,10 @@ export class ChatProviderConfig {
    */
   static getOpenAIConfig() {
     return {
-      baseUrl: process.env.OPENAI_COMPATIBLE_BASE_URL || 'https://api.openai.com/v1',
+      baseUrl:
+        process.env.OPENAI_COMPATIBLE_BASE_URL || 'https://api.openai.com/v1',
       apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
-      model: process.env.OPENAI_COMPATIBLE_MODEL || 'gpt-3.5-turbo'
+      model: process.env.OPENAI_COMPATIBLE_MODEL || 'gpt-3.5-turbo',
     };
   }
 
@@ -22,7 +23,7 @@ export class ChatProviderConfig {
   static getOllamaConfig() {
     return {
       baseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
-      model: process.env.OLLAMA_MODEL || 'llama2'
+      model: process.env.OLLAMA_MODEL || 'llama2',
     };
   }
 
@@ -50,15 +51,15 @@ export class ChatProviderConfig {
    */
   static getAvailableProviders() {
     const providers = [];
-    
+
     if (this.isOpenAIConfigValid()) {
       providers.push('OpenAI Compatible');
     }
-    
+
     if (this.isOllamaConfigValid()) {
       providers.push('Ollama');
     }
-    
+
     return providers;
   }
 }
@@ -69,25 +70,26 @@ export class ChatProviderConfig {
 export const ChatConstants = {
   PROVIDERS: {
     OPENAI: 'OpenAI Compatible',
-    OLLAMA: 'Ollama'
+    OLLAMA: 'Ollama',
   },
-  
+
   ERROR_TYPES: {
     VALIDATION: 'VALIDATION_ERROR',
     PROVIDER: 'PROVIDER_ERROR',
     NETWORK: 'NETWORK_ERROR',
     RATE_LIMIT: 'RATE_LIMIT_ERROR',
-    AUTH: 'AUTH_ERROR'
+    AUTH: 'AUTH_ERROR',
   },
-  
+
   TIMEOUTS: {
-    OPENAI: 60000,     // 60 seconds
-    OLLAMA: 120000     // 2 minutes for local models
+    OPENAI: 60000, // 60 seconds
+    OLLAMA: 120000, // 2 minutes for local models
   },
-  
+
   DEFAULTS: {
     MAX_TOKENS: 500,
     TEMPERATURE: 0.7,
-    SYSTEM_MESSAGE: 'You are a helpful AI assistant integrated into a workflow utility application. You can help users with general questions, provide guidance on using the application features, and assist with various tasks. Be concise and helpful in your responses.'
-  }
+    SYSTEM_MESSAGE:
+      'You are a helpful AI assistant integrated into a workflow utility application. You can help users with general questions, provide guidance on using the application features, and assist with various tasks. Be concise and helpful in your responses.',
+  },
 };

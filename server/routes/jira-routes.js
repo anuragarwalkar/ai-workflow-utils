@@ -13,16 +13,19 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)
+    );
+  },
 });
 
-const upload = multer({ 
+const upload = multer({
   storage,
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit
-    files: 1
+    files: 1,
   },
   fileFilter: (req, file, cb) => {
     // Allow only image files
@@ -31,7 +34,7 @@ const upload = multer({
     } else {
       cb(new Error('Only image files are allowed'), false);
     }
-  }
+  },
 });
 
 // Apply rate limiting to all routes
@@ -45,26 +48,38 @@ router.post('/preview', asyncHandler(jiraController.previewBugReport));
 router.post('/generate', asyncHandler(jiraController.createJiraIssue));
 
 // Route for uploading files with error handling
-router.post('/upload', (req, res, next) => {
-  upload.single('file')(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({ error: 'File too large. Maximum size is 10MB.' });
+router.post(
+  '/upload',
+  (req, res, next) => {
+    upload.single('file')(req, res, err => {
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res
+            .status(400)
+            .json({ error: 'File too large. Maximum size is 10MB.' });
+        }
+        return res.status(400).json({ error: `Upload error: ${err.message}` });
+      } else if (err) {
+        return res.status(400).json({ error: err.message });
       }
-      return res.status(400).json({ error: `Upload error: ${err.message}` });
-    } else if (err) {
-      return res.status(400).json({ error: err.message });
-    }
-    next();
-  });
-}, asyncHandler(jiraController.uploadImage));
+      next();
+    });
+  },
+  asyncHandler(jiraController.uploadImage)
+);
 
 // Route for fetching a Jira issue by ID
 router.get('/issue/:id', asyncHandler(jiraController.getJiraIssue));
 
 // AI-powered enhancement routes
-router.post('/ai/enhance-description', asyncHandler(jiraController.enhanceDescription));
-router.post('/ai/generate-comment-reply', asyncHandler(jiraController.generateCommentReply));
+router.post(
+  '/ai/enhance-description',
+  asyncHandler(jiraController.enhanceDescription)
+);
+router.post(
+  '/ai/generate-comment-reply',
+  asyncHandler(jiraController.generateCommentReply)
+);
 router.post('/ai/format-comment', asyncHandler(jiraController.formatComment));
 
 export default router;

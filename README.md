@@ -11,7 +11,7 @@
 
 **The Ultimate AI-Powered Development Workflow Automation Platform**
 
-*Streamline your development process with intelligent Jira ticket creation, AI-powered code reviews & pull request creation with custom template support*
+_Streamline your development process with intelligent Jira ticket creation, AI-powered code reviews & pull request creation with custom template support_
 
 <img width="1920" height="1188" alt="AI-Workflow-Utils-08-01-2025_02_33_PM" src="https://github.com/user-attachments/assets/a96cff4b-caac-4e8c-af54-194a83f80f9b" />
 
@@ -22,6 +22,7 @@
 ## 🎉 **NEW IN v1.x.x - Game-Changing Features!**
 
 ### 🎯 **Feature #1: AI-Powered Jira Ticket Creation**
+
 Create professional Jira tickets (Tasks, Bugs, Stories) using AI with multiple provider support:
 
 - **🤖 OpenAI Compatible APIs**: GPT-4, Claude, and other cloud providers
@@ -32,6 +33,7 @@ Create professional Jira tickets (Tasks, Bugs, Stories) using AI with multiple p
 - **🔗 Direct Jira Integration**: Creates tickets instantly with your access token
 
 ### 🚀 **Feature #2: AI-Powered Pull Request Creation**
+
 Revolutionary AI-powered pull request creation for Atlassian Bitbucket:
 
 - **🤖 Intelligent PR Generation**: AI analyzes commit messages to create professional PR titles and descriptions
@@ -42,15 +44,17 @@ Revolutionary AI-powered pull request creation for Atlassian Bitbucket:
 - **💾 Smart Persistence**: Remembers project and repository settings for faster workflow
 
 ### 🔍 **Feature #3: AI-Powered Code Review**
+
 Revolutionary AI-powered pull request reviews for Atlassian Bitbucket:
 
 - **🧠 Intelligent Code Analysis**: AI reviews your code changes
 - **💡 Smart Suggestions**: Get actionable improvement recommendations
 - **🔄 Multi-Model Support**: OpenAI Compatible APIs + Ollama for flexibility
-- **⚡ Coming Soon**: AI adds review comments directly to your PRs 
+- **⚡ Coming Soon**: AI adds review comments directly to your PRs
 - **⚡ Coming Soon**: Direct comment integration
 
 ### 📊 **Feature #4: Real-time Logs & Monitoring**
+
 Comprehensive logging and monitoring system for troubleshooting and system insights:
 
 - **📋 Real-time Log Streaming**: Live view of application logs with automatic updates
@@ -70,6 +74,7 @@ Here’s a cleaned-up and renumbered version of your “Quick Start Guide” sec
 ## 🚀 Quick Start Guide
 
 ### **Step 1: Recommended - Ollama Setup (For Local AI)**
+
 ```bash
 # Install Ollama (if you want local AI processing)
 # macOS
@@ -86,42 +91,53 @@ ollama pull llava
 # Start Ollama service
 ollama serve
 ```
+
 Then configure Ollama as your AI provider in the web interface.
 
 ### **Step 2: Installation**
+
 ```bash
 npm install -g ai-workflow-utils
 ```
 
 ### **Step 3: Launch the Application**
+
 ```bash
 # Start the application directly
 ai-workflow-utils
 ```
+
 The application will start immediately and be available at `http://localhost:3000`
 
 ### **Step 4: (Optional) Install as Startup Service**
+
 For production use or to run automatically on system boot:
+
 ```bash
 ai-workflow-utils startup install
 ```
+
 The service will now start automatically on boot. Access at `http://localhost:3000`
 
 **Startup Service Management:**
+
 ```bash
 ai-workflow-utils startup status    # Check service status
 ai-workflow-utils startup start     # Start the service
 ai-workflow-utils startup stop      # Stop the service
 ai-workflow-utils startup uninstall # Remove startup service
 ```
-**Supported Platforms:**  
-- **macOS**: Uses LaunchAgents (user-level service)  
-- **Windows**: Uses Windows Service Manager  
-- **Linux**: Uses systemd  
+
+**Supported Platforms:**
+
+- **macOS**: Uses LaunchAgents (user-level service)
+- **Windows**: Uses Windows Service Manager
+- **Linux**: Uses systemd
 
 For detailed startup service documentation, see [STARTUP.md](STARTUP.md)
 
 ### **Step 5: Configure Using the Settings Page**
+
 All configuration is managed through the web-based settings page:
 
 - Visit [`http://localhost:3000/settings/environment`](http://localhost:3000/settings/environment)
@@ -135,21 +151,24 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 **No manual .env setup required!**
 
 ### **Step 6: (Optional) PWA Installation (Progressive Web App)**
+
 **AI Workflow Utils is a fully-featured PWA!** Install it as a native app for the best experience:
 
 **🖥️ Desktop Installation:**
+
 1. Open `http://localhost:3000` in Chrome, Edge
 2. Look for the "Install" button in the address bar
 3. Click "Install" to add AI Workflow Utils to your desktop
 4. Launch directly from your desktop/dock - no browser needed!
 
 **✨ PWA Benefits:**
+
 - **🚀 Faster Loading**: Cached resources for instant startup
 - **📱 Native Feel**: Works like a desktop
 - **🔄 Auto Updates**: Always get the latest features
 - **💾 Offline Ready**: Basic functionality works without internet
 - **🎯 Focused Experience**: No browser distractions
-  
+
 ---
 
 <details>
@@ -159,20 +178,23 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 ### **🎫 AI Jira Ticket Creation**
 
 **What makes it special:**
+
 - **Dual AI System**: Primary cloud AI with local Ollama fallback
 - **Image Intelligence**: Upload screenshots and get detailed bug reports
 - **Smart Templates**: Automatically formats content based on issue type
 - **Real-time Generation**: Watch AI create your tickets live
 
 **Example Usage:**
-1. Navigate to "Create Jira" 
-2. Describe your issue: *"Login button doesn't work on mobile"*
+
+1. Navigate to "Create Jira"
+2. Describe your issue: _"Login button doesn't work on mobile"_
 3. Upload a screenshot (optional)
 4. Select issue type (Bug/Task/Story)
 5. Watch AI generate professional content
 6. Review and create ticket directly in Jira
 
 **AI Providers Supported:**
+
 - **OpenAI GPT-4** (with vision)
 - **Anthropic Claude** (with vision)
 - **Any OpenAI-compatible API**
@@ -181,6 +203,7 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 ### **🚀 AI-Powered Pull Request Creation**
 
 **Revolutionary PR Generation:**
+
 - **Smart Commit Analysis**: AI analyzes your commit messages to understand the changes
 - **Automatic Type Detection**: Determines if changes are features, fixes, or chores
 - **Professional Formatting**: Generates conventional commit-style titles (feat/fix/chore)
@@ -188,6 +211,7 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 - **Local AI Processing**: Uses Ollama for complete privacy and offline capability
 
 **How it works:**
+
 1. Navigate to "Create PR"
 2. Enter project key, repository slug, ticket number, and branch name
 3. Click "Preview" to start AI generation
@@ -196,6 +220,7 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 6. Click "Create Pull Request" to submit to Bitbucket
 
 **AI Features:**
+
 - **Commit Message Analysis**: Extracts meaningful information from commit history
 - **Smart Categorization**: Automatically prefixes with feat/fix/chore based on content
 - **Ticket Integration**: Includes ticket numbers in standardized format
@@ -205,22 +230,25 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 ### **🔍 AI Code Review**
 
 **Revolutionary Code Review:**
+
 - **Context-Aware Analysis**: AI understands your codebase
 - **Security Scanning**: Identifies potential vulnerabilities
 - **Performance Optimization**: Suggests efficiency improvements
 - **Best Practices**: Enforces coding standards
 
 **How it works:**
+
 1. Open a pull request in Bitbucket
 2. Navigate to "GitStash Review"
 3. Enter PR details
 4. AI analyzes code changes
 5. Get detailed review with suggestions
-6. *Coming Soon*: Direct comment integration
+6. _Coming Soon_: Direct comment integration
 
 ### **📊 Real-time Logs & Monitoring**
 
 **Comprehensive System Monitoring:**
+
 - **Live Log Streaming**: Real-time log updates without page refresh
 - **Multi-level Filtering**: Filter by Error, Warn, Info, Debug levels
 - **Smart Search**: Full-text search across all log entries
@@ -228,6 +256,7 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 - **Performance Insights**: Monitor API calls, response times, and system health
 
 **How it works:**
+
 1. Navigate to "Logs" in the web interface
 2. Select log level filters (All, Error, Warn, Info, Debug)
 3. Use search to find specific entries or error messages
@@ -235,12 +264,13 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 5. Access historical logs for troubleshooting past issues
 
 **Monitoring Features:**
+
 - **Error Tracking**: Immediate visibility into system errors
 - **API Monitoring**: Track AI provider calls and response times
 - **User Activity**: Monitor feature usage and workflow patterns
 - **System Health**: Resource usage and performance metrics
 - **Debug Support**: Detailed logging for development and troubleshooting
-   
+
 </details>
 
 <!-- Manual environment setup is deprecated. All configuration should be done via the web-based settings page. -->
@@ -251,6 +281,7 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 <summary><strong>🛠️ CLI Commands (For Advanced Users)</strong></summary>
 
 ### **Setup and Configuration**
+
 ```bash
 # Interactive setup wizard
 ai-workflow-setup
@@ -263,6 +294,7 @@ ai-workflow-utils --test
 ```
 
 ### **Development Commands**
+
 ```bash
 # Start in development mode
 ai-workflow-utils --dev
@@ -281,6 +313,7 @@ ai-workflow-utils --clear-logs
 ```
 
 ### **Ollama Management**
+
 ```bash
 # Check Ollama status
 ai-workflow-utils --ollama-status
@@ -300,6 +333,7 @@ ollama list
 <summary><strong>🔧 Advanced Configuration (For Developers)</strong></summary>
 
 ### **AI Provider Fallback System**
+
 ```javascript
 // Automatic fallback order:
 1. OpenAI Compatible API (Primary)
@@ -308,6 +342,7 @@ ollama list
 ```
 
 ### **Custom Model Configuration**
+
 ```env
 # For different OpenAI-compatible providers:
 OPENAI_COMPATIBLE_MODEL=gpt-4-vision-preview    # OpenAI
@@ -321,6 +356,7 @@ OLLAMA_MODEL=codellama:7b   # Code-focused model
 ```
 
 ### **Performance Tuning**
+
 ```env
 # Streaming configuration
 STREAM_CHUNK_SIZE=1024
@@ -350,6 +386,7 @@ ENABLE_REQUEST_LOGGING=true  # Log all HTTP requests
 <summary><strong>🚀 Production Deployment (For DevOps)</strong></summary>
 
 ### **Docker Deployment**
+
 ```bash
 # Build the application
 npm run build
@@ -362,6 +399,7 @@ docker run -p 3000:3000 --env-file .env ai-workflow-utils
 ```
 
 ### **PM2 Process Management**
+
 ```bash
 # Install PM2
 npm install -g pm2
@@ -377,11 +415,12 @@ pm2 logs ai-workflow-utils
 ```
 
 ### **Nginx Reverse Proxy**
+
 ```nginx
 server {
     listen 80;
     server_name your-domain.com;
-    
+
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -404,12 +443,14 @@ server {
 <summary><strong>🔒 Security & Privacy</strong></summary>
 
 ### **Data Privacy**
+
 - **Local AI Processing**: Use Ollama for complete data privacy
 - **No Data Storage**: AI conversations are not stored
 - **Secure Tokens**: Environment-based credential management
 - **HTTPS Support**: SSL/TLS encryption for production
 
 ### **Security Features**
+
 - **Rate Limiting**: Prevents API abuse
 - **Input Validation**: Sanitizes all user inputs
 - **Error Handling**: No sensitive data in error messages
@@ -423,12 +464,14 @@ server {
 <summary><strong>📊 Monitoring & Analytics (For DevOps)</strong></summary>
 
 ### **Built-in Monitoring**
+
 - **Health Checks**: `/health` endpoint for monitoring
 - **Performance Metrics**: Response times and success rates
 - **Error Tracking**: Comprehensive error logging
 - **Usage Statistics**: AI provider usage analytics
 
 ### **Logging Configuration**
+
 ```env
 # Logging levels: error, warn, info, debug
 LOG_LEVEL=info
@@ -451,6 +494,7 @@ LOG_REQUESTS=true
 We welcome contributions! Here's how to get started:
 
 ### **Development Setup**
+
 ```bash
 # Clone the repository
 git clone https://github.com/anuragarwalkar/ai-workflow-utils.git
@@ -468,6 +512,7 @@ npm run dev
 ```
 
 ### **Project Structure**
+
 ```
 ai-workflow-utils/
 ├── bin/                 # CLI scripts
@@ -478,6 +523,7 @@ ai-workflow-utils/
 ```
 
 ### **Contribution Guidelines**
+
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
@@ -494,6 +540,7 @@ ai-workflow-utils/
 ### **Core Endpoints**
 
 **Jira Ticket Creation:**
+
 ```bash
 POST /api/jira/preview
 Content-Type: application/json
@@ -506,6 +553,7 @@ Content-Type: application/json
 ```
 
 **Create Pull Request Preview (Streaming):**
+
 ```bash
 POST /api/pr/stream-preview
 Content-Type: application/json
@@ -527,6 +575,7 @@ Content-Type: application/json
 ```
 
 **Create Pull Request:**
+
 ```bash
 POST /api/pr/create
 Content-Type: application/json
@@ -542,6 +591,7 @@ Content-Type: application/json
 ```
 
 **GitStash PR Review:**
+
 ```bash
 POST /api/pr/review
 Content-Type: application/json
@@ -554,6 +604,7 @@ Content-Type: application/json
 ```
 
 **File Upload:**
+
 ```bash
 POST /api/jira/upload
 Content-Type: multipart/form-data
@@ -572,6 +623,7 @@ issueKey: "PROJ-123"
 ### **Common Issues**
 
 **Ollama Connection Failed:**
+
 ```bash
 # Check if Ollama is running
 ollama list
@@ -584,6 +636,7 @@ ollama pull llava
 ```
 
 **Jira Authentication Error:**
+
 ```bash
 # Test Jira connection
 curl -H "Authorization: Bearer YOUR_TOKEN" \
@@ -591,6 +644,7 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 ```
 
 **Port Already in Use:**
+
 ```bash
 # Use different port
 ai-workflow-utils --port 8080
@@ -600,6 +654,7 @@ lsof -ti:3000 | xargs kill -9
 ```
 
 ### **Debug Mode**
+
 ```bash
 # Enable detailed logging
 ai-workflow-utils --debug
@@ -615,12 +670,14 @@ tail -f logs/app.log
 ## 📞 **Support**
 
 ### **Getting Help**
+
 - **📖 Documentation**: [GitHub Wiki](https://github.com/anuragarwalkar/ai-workflow-utils/wiki)
 - **🐛 Bug Reports**: [GitHub Issues](https://github.com/anuragarwalkar/ai-workflow-utils/issues)
 - **💬 Discussions**: [GitHub Discussions](https://github.com/anuragarwalkar/ai-workflow-utils/discussions)
 - **📧 Email**: anurag.arwalkar@gmail.com
 
 ### **Community**
+
 - **⭐ Star us on GitHub**: Show your support!
 - **🔄 Share**: Help others discover this tool
 - **🤝 Contribute**: Join our growing community
@@ -630,6 +687,7 @@ tail -f logs/app.log
 ## 📈 **Roadmap**
 
 ### **Coming Soon**
+
 - **🔗 Direct PR Comments**: AI comments directly in Bitbucket
 - **🔄 Workflow Automation**: Custom automation workflows
 - **📊 Analytics Dashboard**: Usage insights and metrics
@@ -637,6 +695,7 @@ tail -f logs/app.log
 - **🌐 Multi-language Support**: Internationalization
 
 ### **Future Features**
+
 - **🤖 Advanced AI Agents**: Specialized AI for different tasks
 - **🔗 More Integrations**: GitHub, GitLab, Azure DevOps
 - **📱 Mobile App**: Native mobile applications
@@ -666,21 +725,25 @@ Special thanks to the amazing open-source community and the following technologi
 ## 🌟 **Why Choose AI Workflow Utils?**
 
 ### **🚀 Productivity Boost**
+
 - **10x Faster**: Create professional Jira tickets in seconds
 - **AI-Powered**: Let AI handle the heavy lifting
 - **Streamlined**: One tool for all your workflow needs
 
 ### **🔒 Privacy First**
+
 - **Local Processing**: Use Ollama for complete data privacy
 - **No Vendor Lock-in**: Multiple AI provider support
 - **Your Data**: Stays on your infrastructure
 
 ### **🛠️ Developer Friendly**
+
 - **Easy Setup**: Get started in minutes
 - **CLI Tools**: Powerful command-line interface
 - **Extensible**: Open architecture for customization
 
 ### **💼 Enterprise Ready**
+
 - **Scalable**: Handles teams of any size
 - **Secure**: Enterprise-grade security features
 - **Reliable**: Battle-tested in production environments
@@ -705,6 +768,6 @@ npm install -g ai-workflow-utils
 
 **Made with ❤️ by [Anurag Arwalkar](https://github.com/anuragarwalkar)**
 
-*Empowering developers worldwide with AI-powered workflow automation*
+_Empowering developers worldwide with AI-powered workflow automation_
 
 </div>

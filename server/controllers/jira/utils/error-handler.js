@@ -2,8 +2,8 @@
  * Error handling utilities for Jira operations
  */
 
-import logger from "../../../logger.js";
-import { ERROR_MESSAGES } from "./constants.js";
+import logger from '../../../logger.js';
+import { ERROR_MESSAGES } from './constants.js';
 
 export class ErrorHandler {
   /**
@@ -15,7 +15,7 @@ export class ErrorHandler {
   static handleApiError(error, context, res) {
     logger.error(`${context}: ${error.message}`, {
       stack: error.stack,
-      context
+      context,
     });
 
     // Check if response has already been sent
@@ -24,7 +24,7 @@ export class ErrorHandler {
     }
 
     let statusCode = 500;
-    let message = "Internal server error";
+    let message = 'Internal server error';
     let details = error.message;
 
     // Handle Axios errors
@@ -34,7 +34,7 @@ export class ErrorHandler {
       details = error.response.data;
     } else if (error.code === 'ECONNREFUSED') {
       statusCode = 503;
-      message = "Service unavailable - unable to connect to Jira";
+      message = 'Service unavailable - unable to connect to Jira';
     } else if (error.message.includes('Missing required')) {
       statusCode = 400;
       message = error.message;
@@ -43,7 +43,7 @@ export class ErrorHandler {
     res.status(statusCode).json({
       success: false,
       error: message,
-      details: process.env.NODE_ENV === 'development' ? details : undefined
+      details: process.env.NODE_ENV === 'development' ? details : undefined,
     });
   }
 
@@ -56,15 +56,17 @@ export class ErrorHandler {
   static handleStreamingError(error, context, res) {
     logger.error(`${context}: ${error.message}`, {
       stack: error.stack,
-      context
+      context,
     });
 
     if (!res.headersSent) {
-      res.write(`data: ${JSON.stringify({
-        type: 'error',
-        error: context,
-        details: error.message
-      })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          type: 'error',
+          error: context,
+          details: error.message,
+        })}\n\n`
+      );
     }
   }
 
@@ -81,7 +83,9 @@ export class ErrorHandler {
     });
 
     if (missing.length > 0) {
-      throw new Error(`${ERROR_MESSAGES.MISSING_REQUIRED_FIELDS}: ${missing.join(', ')}`);
+      throw new Error(
+        `${ERROR_MESSAGES.MISSING_REQUIRED_FIELDS}: ${missing.join(', ')}`
+      );
     }
   }
 

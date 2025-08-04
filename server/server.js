@@ -8,7 +8,11 @@ import dotenv from 'dotenv';
 import configBridge from './services/configBridge.js';
 
 // Import middleware
-import { requestLogger, errorHandler, notFoundHandler } from './middleware/index.js';
+import {
+  requestLogger,
+  errorHandler,
+  notFoundHandler,
+} from './middleware/index.js';
 
 // Import routes
 import jiraRoutes from './routes/jira-routes.js';
@@ -25,7 +29,7 @@ import langchainService from './services/langchainService.js';
 dotenv.config();
 
 // Load dynamic configuration from database to process.env
-if(process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production') {
   await configBridge.loadConfigToEnv();
 }
 
@@ -45,8 +49,8 @@ const io = new SocketIOServer(server, {
   cors: {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true
-  }
+    credentials: true,
+  },
 });
 
 const PORT = process.env.PORT || 3000;
@@ -58,23 +62,29 @@ if (process.env.NODE_ENV === 'production') {
 
 // Security and CORS middleware
 // For Deploying on Cloud origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
-app.use(cors({
-  origin: '*',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+app.use(
+  cors({
+    origin: '*',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  })
+);
 
 // Body parsing middleware
-app.use(express.json({ 
-  limit: process.env.JSON_LIMIT || '10mb',
-  strict: true
-}));
+app.use(
+  express.json({
+    limit: process.env.JSON_LIMIT || '10mb',
+    strict: true,
+  })
+);
 
-app.use(express.urlencoded({ 
-  extended: true, 
-  limit: process.env.URL_ENCODED_LIMIT || '10mb' 
-}));
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: process.env.URL_ENCODED_LIMIT || '10mb',
+  })
+);
 
 // Request logging middleware
 app.use(requestLogger);
@@ -85,7 +95,7 @@ app.get('/health', (req, res) => {
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
   });
 });
 
@@ -102,11 +112,13 @@ app.use('/api/logs', logsRoutes);
 // Serve static files from React build
 const staticPath = path.join(projectRoot, 'ui/dist');
 
-app.use(express.static(staticPath, {
-  maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0',
-  etag: true,
-  lastModified: true,
-}));
+app.use(
+  express.static(staticPath, {
+    maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0',
+    etag: true,
+    lastModified: true,
+  })
+);
 
 // Serve React app for all non-API routes (SPA routing)
 app.use((req, res, next) => {
@@ -115,9 +127,14 @@ app.use((req, res, next) => {
     return next();
   }
 
-  res.sendFile('index.html', { root: staticPath }, (err) => {
+  res.sendFile('index.html', { root: staticPath }, err => {
     if (err) {
-      logger.error('❌ Error sending index.html:', err.message, err.path, err.status);
+      logger.error(
+        '❌ Error sending index.html:',
+        err.message,
+        err.path,
+        err.status
+      );
       res.status(500).json({ error: 'Internal server error' });
     } else {
       logger.info(`✅ index.html served for: ${req.path}`);
@@ -130,16 +147,18 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // Socket.IO connection handling
-io.on('connection', (socket) => {
+io.on('connection', socket => {
   logger.info(`Client connected to WebSocket: ${socket.id}`);
-  
+
   // Handle client disconnection
-  socket.on('disconnect', (reason) => {
-    logger.info(`Client disconnected from WebSocket: ${socket.id}, reason: ${reason}`);
+  socket.on('disconnect', reason => {
+    logger.info(
+      `Client disconnected from WebSocket: ${socket.id}, reason: ${reason}`
+    );
   });
-  
+
   // Handle connection errors
-  socket.on('error', (error) => {
+  socket.on('error', error => {
     logger.error(`Socket.IO error for client ${socket.id}:`, error);
   });
 });
@@ -147,33 +166,33 @@ io.on('connection', (socket) => {
 // Graceful shutdown handling
 let isShuttingDown = false;
 
-const gracefulShutdown = (signal) => {
+const gracefulShutdown = signal => {
   if (isShuttingDown) {
     logger.warn(`${signal} received again, forcing exit`);
     process.exit(1);
   }
-  
+
   isShuttingDown = true;
   logger.info(`${signal} received, shutting down gracefully`);
-  
+
   // Set a timeout to force exit if graceful shutdown takes too long
   const forceExitTimeout = setTimeout(() => {
     logger.error('Graceful shutdown timeout, forcing exit');
     process.exit(1);
   }, 10000); // 10 seconds timeout
-  
+
   // Close Socket.IO server first
   try {
-    io.close((err) => {
+    io.close(err => {
       if (err) {
         logger.error('Error closing Socket.IO server:', err);
       } else {
         logger.info('Socket.IO server closed');
       }
-      
+
       // Close HTTP server
       if (server.listening) {
-        server.close((err) => {
+        server.close(err => {
           if (err) {
             logger.error('Error closing HTTP server:', err);
           } else {
@@ -201,7 +220,7 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Handle uncaught exceptions and unhandled rejections
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', err => {
   logger.error('Uncaught Exception:', err);
   gracefulShutdown('UNCAUGHT_EXCEPTION');
 });

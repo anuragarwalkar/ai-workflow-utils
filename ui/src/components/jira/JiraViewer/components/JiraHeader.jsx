@@ -25,21 +25,21 @@ const MotionPaper = motion(Paper);
 
 const JiraHeader = ({ jiraData }) => {
   const { isDark } = useAppTheme();
-  const getIssueTypeIcon = (issueType) => {
+  const getIssueTypeIcon = issueType => {
     const type = issueType?.toLowerCase();
     switch (type) {
       case 'bug':
-        return <BugReport color="error" />;
+        return <BugReport color='error' />;
       case 'task':
-        return <Task color="primary" />;
+        return <Task color='primary' />;
       case 'story':
-        return <Assignment color="success" />;
+        return <Assignment color='success' />;
       default:
-        return <Task color="primary" />;
+        return <Task color='primary' />;
     }
   };
 
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = priority => {
     const p = priority?.toLowerCase();
     switch (p) {
       case 'highest':
@@ -57,7 +57,7 @@ const JiraHeader = ({ jiraData }) => {
     }
   };
 
-  const getStatusProgress = (status) => {
+  const getStatusProgress = status => {
     const s = status?.toLowerCase();
     switch (s) {
       case 'to do':
@@ -75,7 +75,7 @@ const JiraHeader = ({ jiraData }) => {
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = dateString => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -99,11 +99,11 @@ const JiraHeader = ({ jiraData }) => {
       transition={{ duration: 0.5 }}
       sx={{
         p: 4,
-        background: isDark 
+        background: isDark
           ? 'rgba(45, 55, 72, 0.95)'
           : 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(20px)',
-        border: isDark 
+        border: isDark
           ? '1px solid rgba(255, 255, 255, 0.1)'
           : '1px solid rgba(255, 255, 255, 0.2)',
         borderRadius: 3,
@@ -133,8 +133,8 @@ const JiraHeader = ({ jiraData }) => {
             {getIssueTypeIcon(issueType)}
             <Chip
               label={issueType || 'Unknown'}
-              variant="outlined"
-              size="small"
+              variant='outlined'
+              size='small'
               sx={{
                 borderColor: 'primary.main',
                 color: 'primary.main',
@@ -142,9 +142,9 @@ const JiraHeader = ({ jiraData }) => {
               }}
             />
           </Box>
-          
+
           <Typography
-            variant="h4"
+            variant='h4'
             sx={{
               fontWeight: 700,
               flex: 1,
@@ -161,28 +161,36 @@ const JiraHeader = ({ jiraData }) => {
 
         {/* Status Progress Bar */}
         <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 1,
+            }}
+          >
+            <Typography variant='body2' color='text.secondary'>
               Progress
             </Typography>
             <Chip
               label={status || 'Unknown'}
-              size="small"
+              size='small'
               color={getStatusProgress(status) === 100 ? 'success' : 'primary'}
-              variant="filled"
+              variant='filled'
             />
           </Box>
           <LinearProgress
-            variant="determinate"
+            variant='determinate'
             value={getStatusProgress(status)}
             sx={{
               height: 8,
               borderRadius: 4,
               backgroundColor: 'rgba(255, 255, 255, 0.1)',
               '& .MuiLinearProgress-bar': {
-                background: getStatusProgress(status) === 100 
-                  ? 'linear-gradient(45deg, #4caf50 30%, #81c784 90%)'
-                  : 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                background:
+                  getStatusProgress(status) === 100
+                    ? 'linear-gradient(45deg, #4caf50 30%, #81c784 90%)'
+                    : 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 borderRadius: 4,
               },
             }}
@@ -194,26 +202,48 @@ const JiraHeader = ({ jiraData }) => {
         {/* Issue Details Grid */}
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
           {/* Priority */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 120 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              minWidth: 120,
+            }}
+          >
             <Flag color={getPriorityColor(priority)} />
             <Box>
-              <Typography variant="caption" color="text.secondary" display="block">
+              <Typography
+                variant='caption'
+                color='text.secondary'
+                display='block'
+              >
                 Priority
               </Typography>
               <Chip
                 label={priority || 'Medium'}
-                size="small"
+                size='small'
                 color={getPriorityColor(priority)}
-                variant="outlined"
+                variant='outlined'
               />
             </Box>
           </Box>
 
           {/* Assignee */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 160 }}>
-            <Person color="action" />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              minWidth: 160,
+            }}
+          >
+            <Person color='action' />
             <Box>
-              <Typography variant="caption" color="text.secondary" display="block">
+              <Typography
+                variant='caption'
+                color='text.secondary'
+                display='block'
+              >
                 Assignee
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -223,7 +253,7 @@ const JiraHeader = ({ jiraData }) => {
                 >
                   {assignee?.displayName?.[0] || 'U'}
                 </Avatar>
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                <Typography variant='body2' sx={{ fontWeight: 500 }}>
                   {assignee?.displayName || 'Unassigned'}
                 </Typography>
               </Box>
@@ -231,10 +261,21 @@ const JiraHeader = ({ jiraData }) => {
           </Box>
 
           {/* Reporter */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 160 }}>
-            <Person color="action" />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              minWidth: 160,
+            }}
+          >
+            <Person color='action' />
             <Box>
-              <Typography variant="caption" color="text.secondary" display="block">
+              <Typography
+                variant='caption'
+                color='text.secondary'
+                display='block'
+              >
                 Reporter
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -244,7 +285,7 @@ const JiraHeader = ({ jiraData }) => {
                 >
                   {reporter?.displayName?.[0] || 'U'}
                 </Avatar>
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                <Typography variant='body2' sx={{ fontWeight: 500 }}>
                   {reporter?.displayName || 'Unknown'}
                 </Typography>
               </Box>
@@ -252,26 +293,48 @@ const JiraHeader = ({ jiraData }) => {
           </Box>
 
           {/* Created Date */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 120 }}>
-            <CalendarToday color="action" />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              minWidth: 120,
+            }}
+          >
+            <CalendarToday color='action' />
             <Box>
-              <Typography variant="caption" color="text.secondary" display="block">
+              <Typography
+                variant='caption'
+                color='text.secondary'
+                display='block'
+              >
                 Created
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              <Typography variant='body2' sx={{ fontWeight: 500 }}>
                 {formatDate(fields.created)}
               </Typography>
             </Box>
           </Box>
 
           {/* Updated Date */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 120 }}>
-            <Update color="action" />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              minWidth: 120,
+            }}
+          >
+            <Update color='action' />
             <Box>
-              <Typography variant="caption" color="text.secondary" display="block">
+              <Typography
+                variant='caption'
+                color='text.secondary'
+                display='block'
+              >
                 Updated
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              <Typography variant='body2' sx={{ fontWeight: 500 }}>
                 {formatDate(fields.updated)}
               </Typography>
             </Box>
@@ -281,16 +344,21 @@ const JiraHeader = ({ jiraData }) => {
         {/* Labels */}
         {fields.labels && fields.labels.length > 0 && (
           <Box sx={{ mt: 3 }}>
-            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
+            <Typography
+              variant='caption'
+              color='text.secondary'
+              display='block'
+              sx={{ mb: 1 }}
+            >
               Labels
             </Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap">
+            <Stack direction='row' spacing={1} flexWrap='wrap'>
               {fields.labels.map((label, index) => (
                 <Chip
                   key={index}
                   label={label}
-                  size="small"
-                  variant="outlined"
+                  size='small'
+                  variant='outlined'
                   sx={{
                     borderColor: 'rgba(102, 126, 234, 0.5)',
                     color: 'text.primary',

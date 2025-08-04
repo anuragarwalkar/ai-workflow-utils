@@ -15,7 +15,11 @@ class HtmlFormatter {
         throw new Error('Invalid table data for formatting');
       }
 
-      const columnsToRemove = ['Value Stream', 'Value Stream Version', 'Remarks (Optional)'];
+      const columnsToRemove = [
+        'Value Stream',
+        'Value Stream Version',
+        'Remarks (Optional)',
+      ];
       const groupByFields = ['Value Stream', 'Value Stream Version'];
 
       // Split headers and rows
@@ -38,19 +42,23 @@ class HtmlFormatter {
       let html = '';
       for (const key in grouped) {
         const group = grouped[key];
-        html += this._generateGroupHtml(group, groupByFields, filteredHeaders, keepIndexes);
+        html += this._generateGroupHtml(
+          group,
+          groupByFields,
+          filteredHeaders,
+          keepIndexes
+        );
       }
 
       logger.info('Table formatted successfully', {
         groupCount: Object.keys(grouped).length,
-        totalRows: rows.length
+        totalRows: rows.length,
       });
 
       return html;
-
     } catch (error) {
       logger.error('Failed to format table data', {
-        error: error.message
+        error: error.message,
       });
       throw new Error(`Table formatting failed: ${error.message}`);
     }
@@ -81,7 +89,7 @@ class HtmlFormatter {
       if (!grouped[key]) {
         grouped[key] = {
           groupValues: currentGroup,
-          rows: []
+          rows: [],
         };
       }
 
@@ -100,13 +108,20 @@ class HtmlFormatter {
    * @param {Array} keepIndexes - Column indexes to keep
    * @returns {string} HTML for the group
    */
-  static _generateGroupHtml(group, groupByFields, filteredHeaders, keepIndexes) {
-    const groupTitle = groupByFields.map(f => `${f}: ${group.groupValues[f]}`).join(' | ');
-    
+  static _generateGroupHtml(
+    group,
+    groupByFields,
+    filteredHeaders,
+    keepIndexes
+  ) {
+    const groupTitle = groupByFields
+      .map(f => `${f}: ${group.groupValues[f]}`)
+      .join(' | ');
+
     let html = `<div style="background-color:#eef3f7;padding:10px;font-weight:bold;text-align:left;border-left:4px solid #801C81;margin-top:30px;font-family:Arial,sans-serif;font-size:14px;">${groupTitle}</div>`;
-    
+
     html += `<table style="width:100%;border-collapse:collapse;margin-top:10px;font-family:Arial,sans-serif;font-size:14px;">`;
-    
+
     // Generate table header
     html += `<thead><tr>`;
     filteredHeaders.forEach(h => {
@@ -115,7 +130,7 @@ class HtmlFormatter {
     html += `</tr></thead><tbody>`;
 
     // Generate table rows
-    group.rows.forEach((row) => {
+    group.rows.forEach(row => {
       html += `<tr>`;
       keepIndexes.forEach(({ h, i }) => {
         const val = row[i] || '';
@@ -137,7 +152,8 @@ class HtmlFormatter {
    */
   static _generateTableCell(header, value) {
     const lower = header.toLowerCase();
-    const tdStyle = 'border:1px solid #ccc;padding:10px;text-align:left;vertical-align:middle;';
+    const tdStyle =
+      'border:1px solid #ccc;padding:10px;text-align:left;vertical-align:middle;';
 
     if (lower.includes('jira') && value) {
       return `<td style="${tdStyle}"><a href="https://jira/app/${value}" style="color:#0645AD;text-decoration:none;">${value}</a></td>`;
@@ -191,15 +207,15 @@ class HtmlFormatter {
   static _getTimeBasedGreeting() {
     const now = new Date();
     const hour = now.getHours();
-    
+
     if (hour >= 5 && hour < 12) {
-      return "Good morning, team,";
+      return 'Good morning, team,';
     } else if (hour >= 12 && hour < 17) {
-      return "Good afternoon, team,";
+      return 'Good afternoon, team,';
     } else if (hour >= 17 && hour < 22) {
-      return "Good evening, team,";
+      return 'Good evening, team,';
     } else {
-      return "Hello team,";
+      return 'Hello team,';
     }
   }
 
@@ -210,10 +226,10 @@ class HtmlFormatter {
    * @returns {string} Formatted date string
    */
   static _formatDate(date = new Date()) {
-    return date.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
     });
   }
 }

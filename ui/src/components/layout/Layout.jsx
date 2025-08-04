@@ -7,12 +7,12 @@ const Layout = ({ children }) => {
   const { isDark } = useAppTheme();
 
   return (
-    <Box 
-      sx={{ 
+    <Box
+      sx={{
         minHeight: '100vh',
         width: '100vw',
         position: 'relative',
-        background: isDark 
+        background: isDark
           ? 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)'
           : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         backgroundAttachment: 'fixed',
@@ -37,38 +37,38 @@ const Layout = ({ children }) => {
           left: 0,
           width: '100vw',
           height: '100vh',
-          background: isDark 
+          background: isDark
             ? 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)'
             : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           zIndex: -2,
           pointerEvents: 'none',
-        }
+        },
       }}
     >
       <Header />
-      <Container 
-        maxWidth="xl" 
-        sx={{ 
+      <Container
+        maxWidth='xl'
+        sx={{
           px: 1,
           py: 2,
-          position: 'relative', 
-          zIndex: 1
+          position: 'relative',
+          zIndex: 1,
         }}
       >
-        <Paper 
-          elevation={0} 
-          sx={{ 
+        <Paper
+          elevation={0}
+          sx={{
             p: 3,
             width: '100%',
-            background: isDark 
+            background: isDark
               ? 'rgba(45, 55, 72, 0.95)'
               : 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
             borderRadius: '24px',
-            border: isDark 
+            border: isDark
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: isDark 
+            boxShadow: isDark
               ? '0 20px 60px rgba(0, 0, 0, 0.3)'
               : '0 20px 60px rgba(0, 0, 0, 0.1)',
           }}

@@ -1,17 +1,16 @@
-import { Low } from "lowdb";
-import { JSONFile } from "lowdb/node";
-import os from "os";
-import path from "path";
-import fs from "fs";
-import logger from "../logger.js";
+import { Low } from 'lowdb';
+import { JSONFile } from 'lowdb/node';
+import os from 'os';
+import path from 'path';
+import fs from 'fs';
+import logger from '../logger.js';
 
 class TemplateDbService {
   constructor() {
-
     // Store in user's home directory like .env
     const homeDir = os.homedir();
-    const configDir = path.join(homeDir, ".ai-workflow-utils");
-    const dbPath = path.join(configDir, "templates.json");
+    const configDir = path.join(homeDir, '.ai-workflow-utils');
+    const dbPath = path.join(configDir, 'templates.json');
 
     // Ensure directory exists
     if (!fs.existsSync(configDir)) {
@@ -28,15 +27,15 @@ class TemplateDbService {
     try {
       const defaultTemplatesPath = path.join(
         process.cwd(),
-        "./data/defaultTemplates.json"
+        './data/defaultTemplates.json'
       );
       const defaultTemplatesData = JSON.parse(
-        fs.readFileSync(defaultTemplatesPath, "utf8")
+        fs.readFileSync(defaultTemplatesPath, 'utf8')
       );
 
       // Add timestamps to templates
       const templatesWithTimestamps = defaultTemplatesData.templates.map(
-        (template) => ({
+        template => ({
           ...template,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -51,12 +50,12 @@ class TemplateDbService {
         },
       };
     } catch (error) {
-      logger.error("Failed to load default templates from file:", error);
+      logger.error('Failed to load default templates from file:', error);
       // Fallback to minimal default
       return {
         templates: [],
         settings: {
-          version: "1.0.0",
+          version: '1.0.0',
           lastUpdated: new Date().toISOString(),
           activeTemplates: {},
         },
@@ -74,13 +73,13 @@ class TemplateDbService {
         this.db.data = defaultData;
         await this.db.write();
         logger.info(
-          "Template database initialized with default templates from file"
+          'Template database initialized with default templates from file'
         );
       }
 
       return true;
     } catch (error) {
-      logger.error("Failed to initialize template database:", error);
+      logger.error('Failed to initialize template database:', error);
       throw error;
     }
   }
@@ -90,7 +89,7 @@ class TemplateDbService {
       await this.db.read();
       return this.db.data.templates || [];
     } catch (error) {
-      logger.error("Failed to get templates:", error);
+      logger.error('Failed to get templates:', error);
       throw error;
     }
   }
@@ -99,10 +98,10 @@ class TemplateDbService {
     try {
       await this.db.read();
       return this.db.data.templates.filter(
-        (t) => t.issueType === issueType || t.issueType === "All"
+        t => t.issueType === issueType || t.issueType === 'All'
       );
     } catch (error) {
-      logger.error("Failed to get templates by type:", error);
+      logger.error('Failed to get templates by type:', error);
       throw error;
     }
   }
@@ -112,15 +111,15 @@ class TemplateDbService {
       await this.db.read();
       const activeTemplateId = this.db.data.settings.activeTemplates[issueType];
       if (activeTemplateId) {
-        return this.db.data.templates.find((t) => t.id === activeTemplateId);
+        return this.db.data.templates.find(t => t.id === activeTemplateId);
       }
 
       // Fallback to first template of that type
       return this.db.data.templates.find(
-        (t) => t.issueType === issueType && t.isActive
+        t => t.issueType === issueType && t.isActive
       );
     } catch (error) {
-      logger.error("Failed to get active template:", error);
+      logger.error('Failed to get active template:', error);
       throw error;
     }
   }
@@ -147,7 +146,7 @@ class TemplateDbService {
       logger.info(`Created new template: ${newTemplate.name}`);
       return newTemplate;
     } catch (error) {
-      logger.error("Failed to create template:", error);
+      logger.error('Failed to create template:', error);
       throw error;
     }
   }
@@ -156,7 +155,7 @@ class TemplateDbService {
     try {
       await this.db.read();
 
-      const index = this.db.data.templates.findIndex((t) => t.id === id);
+      const index = this.db.data.templates.findIndex(t => t.id === id);
       if (index === -1) {
         throw new Error(`Template with id ${id} not found`);
       }
@@ -175,7 +174,7 @@ class TemplateDbService {
       logger.info(`Updated template: ${id}`);
       return this.db.data.templates[index];
     } catch (error) {
-      logger.error("Failed to update template:", error);
+      logger.error('Failed to update template:', error);
       throw error;
     }
   }
@@ -184,7 +183,7 @@ class TemplateDbService {
     try {
       await this.db.read();
 
-      const index = this.db.data.templates.findIndex((t) => t.id === id);
+      const index = this.db.data.templates.findIndex(t => t.id === id);
       if (index === -1) {
         throw new Error(`Template with id ${id} not found`);
       }
@@ -195,7 +194,7 @@ class TemplateDbService {
       const issueType = template.issueType;
       if (this.db.data.settings.activeTemplates[issueType] === id) {
         const alternativeTemplate = this.db.data.templates.find(
-          (t) => t.issueType === issueType && t.id !== id
+          t => t.issueType === issueType && t.id !== id
         );
         if (alternativeTemplate) {
           this.db.data.settings.activeTemplates[issueType] =
@@ -212,7 +211,7 @@ class TemplateDbService {
       logger.info(`Deleted template: ${id}`);
       return deleted;
     } catch (error) {
-      logger.error("Failed to delete template:", error);
+      logger.error('Failed to delete template:', error);
       throw error;
     }
   }
@@ -221,12 +220,12 @@ class TemplateDbService {
     try {
       await this.db.read();
 
-      const template = this.db.data.templates.find((t) => t.id === templateId);
+      const template = this.db.data.templates.find(t => t.id === templateId);
       if (!template) {
         throw new Error(`Template with id ${templateId} not found`);
       }
 
-      if (template.issueType !== issueType && template.issueType !== "All") {
+      if (template.issueType !== issueType && template.issueType !== 'All') {
         throw new Error(
           `Template ${templateId} is not compatible with issue type ${issueType}`
         );
@@ -240,7 +239,7 @@ class TemplateDbService {
       logger.info(`Set active template for ${issueType}: ${templateId}`);
       return template;
     } catch (error) {
-      logger.error("Failed to set active template:", error);
+      logger.error('Failed to set active template:', error);
       throw error;
     }
   }
@@ -250,7 +249,7 @@ class TemplateDbService {
       await this.db.read();
       return this.db.data.settings;
     } catch (error) {
-      logger.error("Failed to get settings:", error);
+      logger.error('Failed to get settings:', error);
       throw error;
     }
   }
@@ -267,10 +266,10 @@ class TemplateDbService {
 
       await this.db.write();
 
-      logger.info("Updated settings");
+      logger.info('Updated settings');
       return this.db.data.settings;
     } catch (error) {
-      logger.error("Failed to update settings:", error);
+      logger.error('Failed to update settings:', error);
       throw error;
     }
   }
@@ -280,7 +279,7 @@ class TemplateDbService {
       // Keep user templates but reset settings and ensure defaults exist
       await this.db.read();
 
-      const userTemplates = this.db.data.templates.filter((t) => !t.isDefault);
+      const userTemplates = this.db.data.templates.filter(t => !t.isDefault);
       const defaultData = await this.loadDefaultTemplates();
 
       this.db.data = {
@@ -290,10 +289,10 @@ class TemplateDbService {
 
       await this.db.write();
 
-      logger.info("Reset templates to defaults from file");
+      logger.info('Reset templates to defaults from file');
       return this.db.data;
     } catch (error) {
-      logger.error("Failed to reset to defaults:", error);
+      logger.error('Failed to reset to defaults:', error);
       throw error;
     }
   }
@@ -316,12 +315,12 @@ class TemplateDbService {
     try {
       await this.db.read();
       return {
-        templates: this.db.data.templates.filter((t) => !t.isDefault),
+        templates: this.db.data.templates.filter(t => !t.isDefault),
         exportedAt: new Date().toISOString(),
         version: this.db.data.settings.version,
       };
     } catch (error) {
-      logger.error("Failed to export templates:", error);
+      logger.error('Failed to export templates:', error);
       throw error;
     }
   }
@@ -331,10 +330,10 @@ class TemplateDbService {
       await this.db.read();
 
       if (!importData.templates || !Array.isArray(importData.templates)) {
-        throw new Error("Invalid import data format");
+        throw new Error('Invalid import data format');
       }
 
-      const importedTemplates = importData.templates.map((template) => ({
+      const importedTemplates = importData.templates.map(template => ({
         ...template,
         id: `imported-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         isDefault: false,
@@ -349,7 +348,7 @@ class TemplateDbService {
       logger.info(`Imported ${importedTemplates.length} templates`);
       return importedTemplates;
     } catch (error) {
-      logger.error("Failed to import templates:", error);
+      logger.error('Failed to import templates:', error);
       throw error;
     }
   }

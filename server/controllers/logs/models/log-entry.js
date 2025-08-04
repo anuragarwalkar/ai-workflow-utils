@@ -11,7 +11,7 @@ class LogEntry {
     this.meta = data.meta || {};
     this.source = data.source || '';
   }
-  
+
   /**
    * Validate log entry data
    * @param {Object} data - Log entry data
@@ -20,17 +20,19 @@ class LogEntry {
   static validate(data) {
     const required = ['message'];
     const missing = required.filter(field => !data[field]);
-    
+
     if (missing.length > 0) {
       throw new Error(`Missing required fields: ${missing.join(', ')}`);
     }
-    
+
     const validLevels = ['error', 'warn', 'info', 'debug'];
     if (data.level && !validLevels.includes(data.level)) {
-      throw new Error(`Invalid log level: ${data.level}. Must be one of: ${validLevels.join(', ')}`);
+      throw new Error(
+        `Invalid log level: ${data.level}. Must be one of: ${validLevels.join(', ')}`
+      );
     }
   }
-  
+
   /**
    * Create a log entry from raw data
    * @param {Object} data - Raw log data
@@ -40,7 +42,7 @@ class LogEntry {
     this.validate(data);
     return new LogEntry(data);
   }
-  
+
   /**
    * Convert to JSON format
    * @returns {Object} JSON representation
@@ -52,10 +54,10 @@ class LogEntry {
       message: this.message,
       module: this.module,
       meta: this.meta,
-      source: this.source
+      source: this.source,
     };
   }
-  
+
   /**
    * Convert to display format
    * @returns {Object} Display-friendly format
@@ -65,10 +67,10 @@ class LogEntry {
       ...this.toJSON(),
       formattedTimestamp: this.formatTimestamp(),
       levelColor: this.getLevelColor(),
-      severity: this.getSeverity()
+      severity: this.getSeverity(),
     };
   }
-  
+
   /**
    * Format timestamp for display
    * @returns {string} Formatted timestamp
@@ -80,10 +82,10 @@ class LogEntry {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
+      second: '2-digit',
     });
   }
-  
+
   /**
    * Get color for the log level
    * @returns {string} Color name
@@ -93,11 +95,11 @@ class LogEntry {
       error: 'error',
       warn: 'warning',
       info: 'info',
-      debug: 'default'
+      debug: 'default',
     };
     return colors[this.level] || 'default';
   }
-  
+
   /**
    * Get numeric severity for the log level
    * @returns {number} Severity level
@@ -107,11 +109,11 @@ class LogEntry {
       error: 4,
       warn: 3,
       info: 2,
-      debug: 1
+      debug: 1,
     };
     return severities[this.level] || 0;
   }
-  
+
   /**
    * Check if log matches search criteria
    * @param {string} searchTerm - Search term
@@ -119,7 +121,7 @@ class LogEntry {
    */
   matches(searchTerm) {
     if (!searchTerm) return true;
-    
+
     const term = searchTerm.toLowerCase();
     return (
       this.message.toLowerCase().includes(term) ||
@@ -128,7 +130,7 @@ class LogEntry {
       (this.meta && JSON.stringify(this.meta).toLowerCase().includes(term))
     );
   }
-  
+
   /**
    * Check if log matches level filter
    * @param {string} levelFilter - Level filter ('all' or specific level)
@@ -151,7 +153,7 @@ class LogQuery {
     this.sortBy = params.sortBy || 'timestamp';
     this.sortOrder = params.sortOrder === 'asc' ? 'asc' : 'desc';
   }
-  
+
   /**
    * Validate query parameters
    * @throws {Error} If validation fails
@@ -161,13 +163,13 @@ class LogQuery {
     if (!validLevels.includes(this.level)) {
       throw new Error(`Invalid level filter: ${this.level}`);
     }
-    
+
     const validSortFields = ['timestamp', 'level', 'module'];
     if (!validSortFields.includes(this.sortBy)) {
       throw new Error(`Invalid sort field: ${this.sortBy}`);
     }
   }
-  
+
   /**
    * Get offset for pagination
    * @returns {number} Offset value
@@ -175,7 +177,7 @@ class LogQuery {
   getOffset() {
     return (this.page - 1) * this.limit;
   }
-  
+
   /**
    * Convert to object
    * @returns {Object} Query parameters as object
@@ -187,7 +189,7 @@ class LogQuery {
       page: this.page,
       limit: this.limit,
       sortBy: this.sortBy,
-      sortOrder: this.sortOrder
+      sortOrder: this.sortOrder,
     };
   }
 }

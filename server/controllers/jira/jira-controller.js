@@ -47,8 +47,14 @@ class JiraController {
    */
   static async handleAttachments(issueKey, attachments) {
     try {
-      logger.info('Handling Jira attachments', { issueKey, attachmentCount: attachments?.length });
-      return await JiraAttachmentService.handleAttachments(issueKey, attachments);
+      logger.info('Handling Jira attachments', {
+        issueKey,
+        attachmentCount: attachments?.length,
+      });
+      return await JiraAttachmentService.handleAttachments(
+        issueKey,
+        attachments
+      );
     } catch (error) {
       ErrorHandler.handleApiError(error, 'handleAttachments');
       throw error;
@@ -64,11 +70,11 @@ class JiraController {
   static async previewBugReport(req, res) {
     try {
       const { prompt, images = [], issueType } = req.body;
-      
-      logger.info('Previewing bug report', { 
+
+      logger.info('Previewing bug report', {
         hasPrompt: !!prompt,
         imageCount: images.length,
-        issueType
+        issueType,
       });
 
       // Call the streaming preview service
@@ -96,10 +102,9 @@ class JiraController {
       const result = await JiraApiService.createIssue(req.body);
 
       res.status(200).json({
-        message: "Jira issue created successfully",
+        message: 'Jira issue created successfully',
         jiraIssue: result,
       });
-      
     } catch (error) {
       ErrorHandler.handleApiError(error, 'createJiraIssue');
       throw error;
@@ -118,7 +123,9 @@ class JiraController {
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
       }
-      const result = await JiraAttachmentService.handleAttachments('temp', [req.file]);
+      const result = await JiraAttachmentService.handleAttachments('temp', [
+        req.file,
+      ]);
       res.json(result);
     } catch (error) {
       ErrorHandler.handleApiError(error, 'uploadImage');
@@ -153,24 +160,30 @@ class JiraController {
   static async enhanceDescription(req, res) {
     try {
       const { description, issueType = 'Task' } = req.body;
-      
+
       if (!description) {
         return res.status(400).json({
           success: false,
-          error: 'Description is required'
+          error: 'Description is required',
         });
       }
 
-      logger.info('Enhancing Jira description with AI', { issueType, descriptionLength: description.length });
+      logger.info('Enhancing Jira description with AI', {
+        issueType,
+        descriptionLength: description.length,
+      });
 
-      const enhancedDescription = await JiraContentService.enhanceDescription(description, issueType);
+      const enhancedDescription = await JiraContentService.enhanceDescription(
+        description,
+        issueType
+      );
 
       res.json({
         success: true,
         data: {
           original: description,
-          enhanced: enhancedDescription
-        }
+          enhanced: enhancedDescription,
+        },
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'enhanceDescription', res);
@@ -186,25 +199,32 @@ class JiraController {
   static async generateCommentReply(req, res) {
     try {
       const { comment, context, tone = 'professional' } = req.body;
-      
+
       if (!comment) {
         return res.status(400).json({
           success: false,
-          error: 'Comment is required'
+          error: 'Comment is required',
         });
       }
 
-      logger.info('Generating AI comment reply', { commentLength: comment.length, tone });
+      logger.info('Generating AI comment reply', {
+        commentLength: comment.length,
+        tone,
+      });
 
-      const reply = await JiraContentService.generateCommentReply(comment, context, tone);
+      const reply = await JiraContentService.generateCommentReply(
+        comment,
+        context,
+        tone
+      );
 
       res.json({
         success: true,
         data: {
           originalComment: comment,
           suggestedReply: reply,
-          tone
-        }
+          tone,
+        },
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'generateCommentReply', res);
@@ -220,25 +240,31 @@ class JiraController {
   static async formatComment(req, res) {
     try {
       const { comment, format = 'jira' } = req.body;
-      
+
       if (!comment) {
         return res.status(400).json({
           success: false,
-          error: 'Comment is required'
+          error: 'Comment is required',
         });
       }
 
-      logger.info('Formatting comment with AI', { commentLength: comment.length, format });
+      logger.info('Formatting comment with AI', {
+        commentLength: comment.length,
+        format,
+      });
 
-      const formattedComment = await JiraContentService.formatComment(comment, format);
+      const formattedComment = await JiraContentService.formatComment(
+        comment,
+        format
+      );
 
       res.json({
         success: true,
         data: {
           original: comment,
           formatted: formattedComment,
-          format
-        }
+          format,
+        },
       });
     } catch (error) {
       ErrorHandler.handleApiError(error, 'formatComment', res);

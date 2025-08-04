@@ -2,7 +2,7 @@ import { BaseLangChainService } from './BaseLangChainService.js';
 import jiraLangChainService from './JiraLangChainService.js';
 import prLangChainService from './PRLangChainService.js';
 import chatLangChainService from './ChatLangChainService.js';
-import logger from "../../logger.js";
+import logger from '../../logger.js';
 
 /**
  * Factory service for managing different LangChain service implementations
@@ -13,9 +13,9 @@ class LangChainServiceFactory {
       base: new BaseLangChainService(),
       jira: jiraLangChainService,
       pr: prLangChainService,
-      chat: chatLangChainService
+      chat: chatLangChainService,
     };
-    
+
     this.initialized = false;
   }
 
@@ -77,11 +77,11 @@ class LangChainServiceFactory {
     if (!this.initialized) {
       this.initializeProviders();
     }
-    
+
     if (this.services[type]) {
       return this.services[type];
     }
-    
+
     logger.warn(`Unknown service type: ${type}, returning base service`);
     return this.services.base;
   }
@@ -103,7 +103,9 @@ class LangChainServiceFactory {
     if (!this.initialized) {
       this.initializeProviders();
     }
-    return this.services.base.providers && this.services.base.providers.length > 0;
+    return (
+      this.services.base.providers && this.services.base.providers.length > 0
+    );
   }
 }
 

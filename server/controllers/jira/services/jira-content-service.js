@@ -2,11 +2,11 @@
  * Jira content service for AI-powered content generation
  */
 
-import { jiraLangChainService } from "../../../services/langchain/index.js";
-import { ValidationUtils } from "../utils/validation-utils.js";
-import { ErrorHandler } from "../utils/error-handler.js";
-import { SSE_HEADERS, ISSUE_TYPE_MAPPING } from "../utils/constants.js";
-import logger from "../../../logger.js";
+import { jiraLangChainService } from '../../../services/langchain/index.js';
+import { ValidationUtils } from '../utils/validation-utils.js';
+import { ErrorHandler } from '../utils/error-handler.js';
+import { SSE_HEADERS, ISSUE_TYPE_MAPPING } from '../utils/constants.js';
+import logger from '../../../logger.js';
 
 export class JiraContentService {
   /**
@@ -24,15 +24,16 @@ export class JiraContentService {
       }
 
       const { prompt, issueType = 'Task' } = data;
-      
+
       // Get template type for AI service
-      const templateType = ISSUE_TYPE_MAPPING[issueType] || ISSUE_TYPE_MAPPING.Task;
+      const templateType =
+        ISSUE_TYPE_MAPPING[issueType] || ISSUE_TYPE_MAPPING.Task;
 
       logger.info('Generating AI preview for Jira issue', {
         issueType,
         templateType,
         hasImages: images && images.length > 0,
-        promptLength: prompt.length
+        promptLength: prompt.length,
       });
 
       // Set up Server-Sent Events headers
@@ -40,25 +41,27 @@ export class JiraContentService {
 
       // Use the specialized Jira LangChain service for streaming
       await jiraLangChainService.streamContent(
-        { prompt }, 
-        images || [], 
-        templateType, 
+        { prompt },
+        images || [],
+        templateType,
         res
       );
 
-      logger.info('AI preview generation completed', { issueType, templateType });
-
+      logger.info('AI preview generation completed', {
+        issueType,
+        templateType,
+      });
     } catch (error) {
       logger.error('Error generating AI preview', {
         error: error.message,
         issueType: data?.issueType,
-        stack: error.stack
+        stack: error.stack,
       });
 
       // Handle streaming error
       ErrorHandler.handleStreamingError(
-        error, 
-        `Failed to generate ${data?.issueType || 'issue'} preview`, 
+        error,
+        `Failed to generate ${data?.issueType || 'issue'} preview`,
         res
       );
     }
@@ -78,12 +81,13 @@ export class JiraContentService {
       }
 
       const { prompt, issueType = 'Task' } = data;
-      const templateType = ISSUE_TYPE_MAPPING[issueType] || ISSUE_TYPE_MAPPING.Task;
+      const templateType =
+        ISSUE_TYPE_MAPPING[issueType] || ISSUE_TYPE_MAPPING.Task;
 
       logger.info('Generating AI content for Jira issue', {
         issueType,
         templateType,
-        hasImages: images.length > 0
+        hasImages: images.length > 0,
       });
 
       // Generate content using LangChain service
@@ -93,16 +97,16 @@ export class JiraContentService {
         templateType
       );
 
-      logger.info('AI content generation completed', { 
-        issueType, 
-        contentLength: content?.length || 0 
+      logger.info('AI content generation completed', {
+        issueType,
+        contentLength: content?.length || 0,
       });
 
       return content;
     } catch (error) {
       logger.error('Error generating AI content', {
         error: error.message,
-        issueType: data?.issueType
+        issueType: data?.issueType,
       });
       throw ErrorHandler.createServiceError(
         `Failed to generate content: ${error.message}`
@@ -123,23 +127,23 @@ export class JiraContentService {
       }
 
       const enhancementPrompt = `Please enhance and improve the following ${issueType.toLowerCase()} description while maintaining its core meaning and requirements:\n\n${description}`;
-      
+
       const enhancedContent = await this.generateContent({
         prompt: enhancementPrompt,
-        issueType
+        issueType,
       });
 
       logger.info('Description enhanced successfully', {
         originalLength: description.length,
         enhancedLength: enhancedContent?.length || 0,
-        issueType
+        issueType,
       });
 
       return enhancedContent || description; // Fallback to original if enhancement fails
     } catch (error) {
       logger.error('Error enhancing description', {
         error: error.message,
-        issueType
+        issueType,
       });
       // Return original description on error
       return description;
@@ -159,25 +163,26 @@ export class JiraContentService {
       }
 
       const summaryPrompt = `Generate a concise, clear summary (max 100 characters) for this ${issueType.toLowerCase()}:\n\n${description}`;
-      
+
       const summary = await this.generateContent({
         prompt: summaryPrompt,
-        issueType
+        issueType,
       });
 
       // Ensure summary is not too long
-      const cleanSummary = summary?.trim().substring(0, 100) || `${issueType} - Auto-generated`;
+      const cleanSummary =
+        summary?.trim().substring(0, 100) || `${issueType} - Auto-generated`;
 
       logger.info('Summary generated successfully', {
         summaryLength: cleanSummary.length,
-        issueType
+        issueType,
       });
 
       return cleanSummary;
     } catch (error) {
       logger.error('Error generating summary', {
         error: error.message,
-        issueType
+        issueType,
       });
       // Return fallback summary
       return `${issueType} - Auto-generated`;
@@ -196,20 +201,20 @@ export class JiraContentService {
       }
 
       const criteriaPrompt = `Generate clear, testable acceptance criteria for this user story:\n\n${description}`;
-      
+
       const criteria = await this.generateContent({
         prompt: criteriaPrompt,
-        issueType: 'Story'
+        issueType: 'Story',
       });
 
       logger.info('Acceptance criteria generated successfully', {
-        criteriaLength: criteria?.length || 0
+        criteriaLength: criteria?.length || 0,
       });
 
       return criteria || 'Acceptance criteria to be defined';
     } catch (error) {
       logger.error('Error generating acceptance criteria', {
-        error: error.message
+        error: error.message,
       });
       return 'Acceptance criteria to be defined';
     }
@@ -224,18 +229,30 @@ export class JiraContentService {
       Bug: {
         description: 'A problem or defect in the software',
         templateType: ISSUE_TYPE_MAPPING.Bug,
-        aiCapabilities: ['Bug report generation', 'Steps to reproduce', 'Expected vs actual behavior']
+        aiCapabilities: [
+          'Bug report generation',
+          'Steps to reproduce',
+          'Expected vs actual behavior',
+        ],
       },
       Task: {
         description: 'A unit of work to be completed',
         templateType: ISSUE_TYPE_MAPPING.Task,
-        aiCapabilities: ['Task breakdown', 'Implementation details', 'Checklist generation']
+        aiCapabilities: [
+          'Task breakdown',
+          'Implementation details',
+          'Checklist generation',
+        ],
       },
       Story: {
         description: 'A user story representing a feature or requirement',
         templateType: ISSUE_TYPE_MAPPING.Story,
-        aiCapabilities: ['User story formatting', 'Acceptance criteria', 'Use case scenarios']
-      }
+        aiCapabilities: [
+          'User story formatting',
+          'Acceptance criteria',
+          'Use case scenarios',
+        ],
+      },
     };
   }
 
@@ -246,7 +263,11 @@ export class JiraContentService {
    * @param {string} tone - Tone for the reply (professional, friendly, technical)
    * @returns {Promise<string>} Generated reply
    */
-  static async generateCommentReply(comment, context = '', tone = 'professional') {
+  static async generateCommentReply(
+    comment,
+    context = '',
+    tone = 'professional'
+  ) {
     try {
       if (!comment || typeof comment !== 'string') {
         throw ErrorHandler.createValidationError('Comment is required');
@@ -255,29 +276,34 @@ export class JiraContentService {
       const toneInstructions = {
         professional: 'professional and business-appropriate',
         friendly: 'friendly and approachable while remaining professional',
-        technical: 'technical and detailed with specific implementation guidance'
+        technical:
+          'technical and detailed with specific implementation guidance',
       };
 
-      const toneInstruction = toneInstructions[tone] || toneInstructions.professional;
+      const toneInstruction =
+        toneInstructions[tone] || toneInstructions.professional;
 
       const replyPrompt = `Generate a ${toneInstruction} reply to this Jira comment. ${context ? `Context: ${context}` : ''}\n\nOriginal comment:\n${comment}\n\nReply:`;
-      
+
       const reply = await this.generateContent({
         prompt: replyPrompt,
-        issueType: 'Task'
+        issueType: 'Task',
       });
 
       logger.info('Comment reply generated successfully', {
         originalLength: comment.length,
         replyLength: reply?.length || 0,
-        tone
+        tone,
       });
 
-      return reply || 'Thank you for your comment. I will review and follow up accordingly.';
+      return (
+        reply ||
+        'Thank you for your comment. I will review and follow up accordingly.'
+      );
     } catch (error) {
       logger.error('Error generating comment reply', {
         error: error.message,
-        tone
+        tone,
       });
       return 'Thank you for your comment. I will review and follow up accordingly.';
     }
@@ -297,30 +323,33 @@ export class JiraContentService {
 
       const formatInstructions = {
         jira: 'Format this comment using Jira markup syntax for better readability. Use *bold*, _italic_, {{monospace}}, bullet points, numbered lists, and proper line breaks where appropriate.',
-        markdown: 'Format this comment using proper Markdown syntax with **bold**, *italic*, `code`, bullet points, numbered lists, and appropriate headings.',
-        plain: 'Format this comment as plain text with proper paragraph breaks and clear structure.'
+        markdown:
+          'Format this comment using proper Markdown syntax with **bold**, *italic*, `code`, bullet points, numbered lists, and appropriate headings.',
+        plain:
+          'Format this comment as plain text with proper paragraph breaks and clear structure.',
       };
 
-      const formatInstruction = formatInstructions[format] || formatInstructions.jira;
+      const formatInstruction =
+        formatInstructions[format] || formatInstructions.jira;
 
       const formatPrompt = `${formatInstruction}\n\nOriginal comment:\n${comment}\n\nFormatted comment:`;
-      
+
       const formatted = await this.generateContent({
         prompt: formatPrompt,
-        issueType: 'Task'
+        issueType: 'Task',
       });
 
       logger.info('Comment formatted successfully', {
         originalLength: comment.length,
         formattedLength: formatted?.length || 0,
-        format
+        format,
       });
 
       return formatted || comment; // Fallback to original if formatting fails
     } catch (error) {
       logger.error('Error formatting comment', {
         error: error.message,
-        format
+        format,
       });
       return comment; // Return original comment on error
     }
@@ -338,10 +367,10 @@ export class JiraContentService {
       }
 
       const analysisPrompt = `Analyze the sentiment and tone of this Jira comment and provide suggestions for improvement if needed. Return your analysis in JSON format with fields: sentiment (positive/neutral/negative), tone (professional/casual/aggressive), suggestions (array), and improved_version (string).\n\nComment:\n${comment}`;
-      
+
       const analysis = await this.generateContent({
         prompt: analysisPrompt,
-        issueType: 'Task'
+        issueType: 'Task',
       });
 
       // Try to parse JSON response
@@ -349,7 +378,7 @@ export class JiraContentService {
         const parsed = JSON.parse(analysis);
         logger.info('Comment sentiment analyzed successfully', {
           sentiment: parsed.sentiment,
-          tone: parsed.tone
+          tone: parsed.tone,
         });
         return parsed;
       } catch (parseError) {
@@ -358,18 +387,18 @@ export class JiraContentService {
           sentiment: 'neutral',
           tone: 'professional',
           suggestions: ['Consider using more specific language'],
-          improved_version: comment
+          improved_version: comment,
         };
       }
     } catch (error) {
       logger.error('Error analyzing comment sentiment', {
-        error: error.message
+        error: error.message,
       });
       return {
         sentiment: 'neutral',
         tone: 'unknown',
         suggestions: [],
-        improved_version: comment
+        improved_version: comment,
       };
     }
   }

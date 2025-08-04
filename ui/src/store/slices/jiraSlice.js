@@ -62,7 +62,7 @@ const jiraSlice = createSlice({
     setCustomFields: (state, action) => {
       state.createJira.customFields = action.payload;
     },
-    addCustomField: (state) => {
+    addCustomField: state => {
       state.createJira.customFields.push({ key: '', value: '' });
     },
     removeCustomField: (state, action) => {
@@ -89,10 +89,10 @@ const jiraSlice = createSlice({
     setStreaming: (state, action) => {
       state.createJira.isStreaming = action.payload;
     },
-    resetCreateJira: (state) => {
+    resetCreateJira: state => {
       state.createJira = initialState.createJira;
     },
-    
+
     // View Jira actions
     setJiraId: (state, action) => {
       state.viewJira.jiraId = action.payload;
@@ -109,7 +109,7 @@ const jiraSlice = createSlice({
     setUploading: (state, action) => {
       state.viewJira.isUploading = action.payload;
     },
-    resetViewJira: (state) => {
+    resetViewJira: state => {
       state.viewJira = initialState.viewJira;
     },
   },

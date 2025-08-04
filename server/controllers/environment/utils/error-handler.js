@@ -13,23 +13,27 @@ export class ErrorHandler {
    */
   static handleApiError(error, context, res) {
     logger.error(`Error ${context}:`, error);
-    
+
     const errorResponse = {
       success: false,
       error: `Failed to ${context}`,
-      details: error.message
+      details: error.message,
     };
 
     // Determine appropriate status code
     let statusCode = 500;
-    
-    if (error.message.includes('Invalid configuration') || 
-        error.message.includes('validation')) {
+
+    if (
+      error.message.includes('Invalid configuration') ||
+      error.message.includes('validation')
+    ) {
       statusCode = 400;
     } else if (error.message.includes('not found')) {
       statusCode = 404;
-    } else if (error.message.includes('unauthorized') || 
-               error.message.includes('authentication')) {
+    } else if (
+      error.message.includes('unauthorized') ||
+      error.message.includes('authentication')
+    ) {
       statusCode = 401;
     }
 
@@ -43,11 +47,11 @@ export class ErrorHandler {
    */
   static handleValidationError(validationErrors, res) {
     logger.error('Validation errors:', validationErrors);
-    
+
     res.status(400).json({
       success: false,
       error: 'Validation failed',
-      details: validationErrors
+      details: validationErrors,
     });
   }
 

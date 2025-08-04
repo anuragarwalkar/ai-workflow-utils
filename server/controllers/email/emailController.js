@@ -23,7 +23,7 @@ class EmailController {
 
       logger.info('Processing email generation request', {
         version: emailRequest.version,
-        wikiUrl: emailRequest.wikiUrl
+        wikiUrl: emailRequest.wikiUrl,
       });
 
       // Step 1: Fetch wiki content
@@ -39,21 +39,21 @@ class EmailController {
       );
 
       // Step 3: Enhance table data with Jira information
-      const enhancedTableData = await JiraIntegrationService.enhanceWithJiraSummaries(tableData);
+      const enhancedTableData =
+        await JiraIntegrationService.enhanceWithJiraSummaries(tableData);
 
       // Step 4: Generate email content
       const emailBody = EmailContentService.generateEmailBody(
         enhancedTableData,
         {
           wikiUrl: emailRequest.wikiUrl,
-          version: emailRequest.version
+          version: emailRequest.version,
         }
       );
 
       logger.info('Email generation completed successfully');
 
       res.status(200).send(emailBody);
-
     } catch (error) {
       ErrorHandler.handleApiError(error, 'email generation', res);
     }
@@ -70,20 +70,19 @@ class EmailController {
 
       logger.info('Processing AI email composition request', {
         prompt: prompt?.substring(0, 100) + '...',
-        imageCount: attachedImages.length
+        imageCount: attachedImages.length,
       });
 
       // Generate email using AI service
       const emailDraft = await EmailContentService.generateEmailWithAI({
         prompt,
-        attachedImages
+        attachedImages,
       });
 
       res.json({
         success: true,
-        data: emailDraft
+        data: emailDraft,
       });
-
     } catch (error) {
       ErrorHandler.handleApiError(error, 'AI email composition', res);
     }
@@ -100,7 +99,7 @@ class EmailController {
 
       logger.info('Sending AI composed email', {
         to,
-        subject: subject?.substring(0, 50) + '...'
+        subject: subject?.substring(0, 50) + '...',
       });
 
       // Send email using email service
@@ -108,14 +107,13 @@ class EmailController {
         to,
         subject,
         body,
-        attachments
+        attachments,
       });
 
       res.json({
         success: true,
-        data: result
+        data: result,
       });
-
     } catch (error) {
       ErrorHandler.handleApiError(error, 'AI email sending', res);
     }
@@ -137,9 +135,8 @@ class EmailController {
 
       res.json({
         success: true,
-        data: contacts
+        data: contacts,
       });
-
     } catch (error) {
       ErrorHandler.handleApiError(error, 'contact search', res);
     }

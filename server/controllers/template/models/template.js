@@ -27,8 +27,10 @@ class Template {
    */
   static validate(data) {
     const required = ['name', 'content'];
-    const missing = required.filter(field => !data[field] || data[field].trim() === '');
-    
+    const missing = required.filter(
+      field => !data[field] || data[field].trim() === ''
+    );
+
     if (missing.length > 0) {
       throw new Error(`Missing required fields: ${missing.join(', ')}`);
     }
@@ -51,7 +53,7 @@ class Template {
    */
   extractVariables(content) {
     if (!content) return [];
-    
+
     const variablePattern = /\{\{([^}]+)\}\}/g;
     const variables = [];
     let match;
@@ -72,7 +74,7 @@ class Template {
    */
   update(updates) {
     const allowedFields = ['name', 'issueType', 'content', 'isActive'];
-    
+
     Object.keys(updates).forEach(key => {
       if (allowedFields.includes(key) && updates[key] !== undefined) {
         this[key] = updates[key];
@@ -101,7 +103,7 @@ class Template {
       isActive: this.isActive,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      variables: this.variables
+      variables: this.variables,
     };
   }
 

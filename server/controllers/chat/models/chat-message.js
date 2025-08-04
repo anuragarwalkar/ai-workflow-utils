@@ -17,7 +17,11 @@ export class ChatMessage {
    * @throws {Error} If validation fails
    */
   static validate(data) {
-    if (!data.message || typeof data.message !== 'string' || data.message.trim() === '') {
+    if (
+      !data.message ||
+      typeof data.message !== 'string' ||
+      data.message.trim() === ''
+    ) {
       throw new Error('Message is required and must be a non-empty string');
     }
 
@@ -29,10 +33,14 @@ export class ChatMessage {
     if (data.conversationHistory) {
       for (const msg of data.conversationHistory) {
         if (!msg.role || !msg.content) {
-          throw new Error('Conversation history entries must have role and content properties');
+          throw new Error(
+            'Conversation history entries must have role and content properties'
+          );
         }
         if (!['user', 'assistant', 'system'].includes(msg.role)) {
-          throw new Error('Invalid role in conversation history. Must be user, assistant, or system');
+          throw new Error(
+            'Invalid role in conversation history. Must be user, assistant, or system'
+          );
         }
       }
     }
@@ -46,19 +54,20 @@ export class ChatMessage {
     const messages = [
       {
         role: 'system',
-        content: 'You are a helpful AI assistant integrated into a workflow utility application. You can help users with general questions, provide guidance on using the application features, and assist with various tasks. Be concise and helpful in your responses.'
+        content:
+          'You are a helpful AI assistant integrated into a workflow utility application. You can help users with general questions, provide guidance on using the application features, and assist with various tasks. Be concise and helpful in your responses.',
       },
       ...this.conversationHistory,
       {
         role: 'user',
-        content: this.message
-      }
+        content: this.message,
+      },
     ];
 
     return {
       messages,
       max_tokens: 500,
-      temperature: 0.7
+      temperature: 0.7,
     };
   }
 
@@ -67,8 +76,9 @@ export class ChatMessage {
    * @returns {Object} Ollama compatible prompt format
    */
   toOllamaFormat() {
-    let fullPrompt = "You are a helpful AI assistant integrated into a workflow utility application. You can help users with general questions, provide guidance on using the application features, and assist with various tasks. Be concise and helpful in your responses.\n\n";
-    
+    let fullPrompt =
+      'You are a helpful AI assistant integrated into a workflow utility application. You can help users with general questions, provide guidance on using the application features, and assist with various tasks. Be concise and helpful in your responses.\n\n';
+
     // Add conversation history
     this.conversationHistory.forEach(msg => {
       if (msg.role === 'user') {
@@ -77,13 +87,13 @@ export class ChatMessage {
         fullPrompt += `Assistant: ${msg.content}\n`;
       }
     });
-    
+
     // Add current message
     fullPrompt += `User: ${this.message}\nAssistant: `;
 
     return {
       prompt: fullPrompt,
-      stream: false
+      stream: false,
     };
   }
 }
@@ -105,7 +115,7 @@ export class ChatResponse {
     if (!this.success) {
       return {
         success: false,
-        error: this.error || 'Failed to generate chat response'
+        error: this.error || 'Failed to generate chat response',
       };
     }
 
@@ -113,7 +123,7 @@ export class ChatResponse {
       success: true,
       response: this.content,
       provider: this.provider,
-      timestamp: this.timestamp
+      timestamp: this.timestamp,
     };
   }
 }

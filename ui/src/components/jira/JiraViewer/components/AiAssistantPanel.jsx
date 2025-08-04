@@ -32,7 +32,7 @@ import {
   Transform,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   useEnhanceDescriptionMutation,
   useGenerateCommentReplyMutation,
 } from '../../../../store/api/jiraApi';
@@ -42,7 +42,7 @@ const MotionPaper = motion(Paper);
 const AiAssistantPanel = ({ jiraData, onClose }) => {
   const [enhanceDescription] = useEnhanceDescriptionMutation();
   const [generateCommentReply] = useGenerateCommentReplyMutation();
-  
+
   const [activeFeature, setActiveFeature] = useState(null);
   const [userInput, setUserInput] = useState('');
   const [aiResponse, setAiResponse] = useState('');
@@ -54,51 +54,51 @@ const AiAssistantPanel = ({ jiraData, onClose }) => {
       id: 'enhance-description',
       title: 'Enhance Description',
       description: 'Use AI to improve and restructure the issue description',
-      icon: <Transform color="primary" />,
+      icon: <Transform color='primary' />,
       category: 'Content',
     },
     {
       id: 'suggest-solutions',
       title: 'Suggest Solutions',
       description: 'Get AI-powered solution suggestions based on the issue',
-      icon: <Lightbulb color="warning" />,
+      icon: <Lightbulb color='warning' />,
       category: 'Analysis',
     },
     {
       id: 'analyze-priority',
       title: 'Analyze Priority',
       description: 'AI assessment of issue priority and impact',
-      icon: <TrendingUp color="error" />,
+      icon: <TrendingUp color='error' />,
       category: 'Analysis',
     },
     {
       id: 'smart-comments',
       title: 'Smart Comments',
       description: 'Generate professional responses and replies',
-      icon: <Psychology color="info" />,
+      icon: <Psychology color='info' />,
       category: 'Communication',
     },
     {
       id: 'code-analysis',
       title: 'Code Analysis',
       description: 'Analyze code snippets and provide insights',
-      icon: <Code color="success" />,
+      icon: <Code color='success' />,
       category: 'Development',
     },
     {
       id: 'performance-tips',
       title: 'Performance Tips',
       description: 'Get performance optimization recommendations',
-      icon: <Speed color="secondary" />,
+      icon: <Speed color='secondary' />,
       category: 'Development',
     },
   ];
 
-  const handleFeatureSelect = async (feature) => {
+  const handleFeatureSelect = async feature => {
     setActiveFeature(feature);
     setIsProcessing(true);
     setAiResponse('');
-    
+
     try {
       const context = {
         summary: jiraData?.fields?.summary,
@@ -109,7 +109,7 @@ const AiAssistantPanel = ({ jiraData, onClose }) => {
       };
 
       let response;
-      
+
       switch (feature.id) {
         case 'enhance-description':
           response = await enhanceDescription({
@@ -118,7 +118,7 @@ const AiAssistantPanel = ({ jiraData, onClose }) => {
           }).unwrap();
           setAiResponse(response.data.enhanced);
           break;
-          
+
         case 'suggest-solutions':
           // Mock AI analysis for solution suggestions
           setAiResponse(`Based on the ${context.issueType?.toLowerCase()} "${context.summary}", here are some solution approaches:
@@ -146,7 +146,7 @@ const AiAssistantPanel = ({ jiraData, onClose }) => {
 3. Schedule code review after implementation
 4. Plan for thorough testing before deployment`);
           break;
-          
+
         case 'analyze-priority':
           setAiResponse(`## Priority Analysis for "${context.summary}"
 
@@ -177,7 +177,7 @@ Based on the issue details, this appears to be a **${context.priority || 'Medium
 - Consider batching with similar issues for efficiency
 - Document any workarounds for immediate relief`);
           break;
-          
+
         case 'smart-comments':
           response = await generateCommentReply({
             comment: 'Please provide an update on this issue',
@@ -195,9 +195,11 @@ Based on the issue details, this appears to be a **${context.priority || 'Medium
 **Stakeholder Communication:**
 "This issue is actively being worked on. Based on initial assessment, the impact is limited to [specific area]. We're prioritizing a fix and will communicate any interim workarounds if needed."`);
           break;
-          
+
         default:
-          setAiResponse('This AI feature is currently being developed. More capabilities coming soon!');
+          setAiResponse(
+            'This AI feature is currently being developed. More capabilities coming soon!'
+          );
       }
     } catch {
       setAiResponse('Failed to generate AI response. Please try again.');
@@ -208,12 +210,12 @@ Based on the issue details, this appears to be a **${context.priority || 'Medium
 
   const handleChatSubmit = async () => {
     if (!userInput.trim()) return;
-    
+
     const userMessage = userInput;
     setUserInput('');
     setChatHistory(prev => [...prev, { type: 'user', message: userMessage }]);
     setIsProcessing(true);
-    
+
     // Simulate AI chat response
     setTimeout(() => {
       const aiMessage = `I understand you're asking about "${userMessage}". Based on the current issue context, here's my analysis:
@@ -224,7 +226,7 @@ This ${jiraData?.fields?.issuetype?.name?.toLowerCase()} appears to require atte
 - Coordination with the ${jiraData?.fields?.assignee?.displayName || 'assigned team member'}
 
 Would you like me to provide more specific guidance on any of these aspects?`;
-      
+
       setChatHistory(prev => [...prev, { type: 'ai', message: aiMessage }]);
       setIsProcessing(false);
     }, 2000);
@@ -232,7 +234,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
 
   return (
     <Drawer
-      anchor="right"
+      anchor='right'
       open={true}
       onClose={onClose}
       PaperProps={{
@@ -249,7 +251,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
         initial={{ x: 450 }}
         animate={{ x: 0 }}
         exit={{ x: 450 }}
-        transition={{ type: "spring", damping: 25, stiffness: 120 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 120 }}
         style={{ height: '100%' }}
       >
         {/* Header */}
@@ -265,7 +267,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <SmartToy />
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <Typography variant='h6' sx={{ fontWeight: 600 }}>
               AI Assistant
             </Typography>
           </Box>
@@ -286,67 +288,72 @@ Would you like me to provide more specific guidance on any of these aspects?`;
               border: '1px solid rgba(102, 126, 234, 0.3)',
             }}
           >
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            <Typography variant='subtitle2' sx={{ mb: 1 }}>
               Current Issue Context
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant='caption' color='text.secondary'>
               {jiraData?.key} - {jiraData?.fields?.summary}
             </Typography>
           </MotionPaper>
 
           {/* AI Features */}
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+          <Typography variant='h6' sx={{ mb: 2, fontWeight: 600 }}>
             AI-Powered Features
           </Typography>
-          
+
           <Box sx={{ mb: 3 }}>
-            {['Content', 'Analysis', 'Communication', 'Development'].map(category => (
-              <Accordion
-                key={category}
-                sx={{
-                  mb: 1,
-                  background: 'rgba(255, 255, 255, 0.8)',
-                  border: '1px solid rgba(0, 0, 0, 0.05)',
-                  '&:before': { display: 'none' },
-                  borderRadius: 2,
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-                }}
-              >
-                <AccordionSummary expandIcon={<ExpandMore />}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                    {category}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ p: 0 }}>
-                  <List>
-                    {aiFeatures
-                      .filter(feature => feature.category === category)
-                      .map(feature => (
-                        <ListItem
-                          key={feature.id}
-                          button
-                          onClick={() => handleFeatureSelect(feature)}
-                          sx={{
-                            borderRadius: 1,
-                            mb: 0.5,
-                            '&:hover': {
-                              background: 'rgba(102, 126, 234, 0.1)',
-                            },
-                          }}
-                        >
-                          <ListItemIcon>{feature.icon}</ListItemIcon>
-                          <ListItemText
-                            primary={feature.title}
-                            secondary={feature.description}
-                            primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
-                            secondaryTypographyProps={{ variant: 'caption' }}
-                          />
-                        </ListItem>
-                      ))}
-                  </List>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+            {['Content', 'Analysis', 'Communication', 'Development'].map(
+              category => (
+                <Accordion
+                  key={category}
+                  sx={{
+                    mb: 1,
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    border: '1px solid rgba(0, 0, 0, 0.05)',
+                    '&:before': { display: 'none' },
+                    borderRadius: 2,
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                  }}
+                >
+                  <AccordionSummary expandIcon={<ExpandMore />}>
+                    <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                      {category}
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails sx={{ p: 0 }}>
+                    <List>
+                      {aiFeatures
+                        .filter(feature => feature.category === category)
+                        .map(feature => (
+                          <ListItem
+                            key={feature.id}
+                            button
+                            onClick={() => handleFeatureSelect(feature)}
+                            sx={{
+                              borderRadius: 1,
+                              mb: 0.5,
+                              '&:hover': {
+                                background: 'rgba(102, 126, 234, 0.1)',
+                              },
+                            }}
+                          >
+                            <ListItemIcon>{feature.icon}</ListItemIcon>
+                            <ListItemText
+                              primary={feature.title}
+                              secondary={feature.description}
+                              primaryTypographyProps={{
+                                variant: 'body2',
+                                fontWeight: 500,
+                              }}
+                              secondaryTypographyProps={{ variant: 'caption' }}
+                            />
+                          </ListItem>
+                        ))}
+                    </List>
+                  </AccordionDetails>
+                </Accordion>
+              )
+            )}
           </Box>
 
           {/* AI Response Area */}
@@ -359,10 +366,12 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                 transition={{ duration: 0.3 }}
               >
                 <Divider sx={{ my: 2 }} />
-                
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <AutoAwesome color="primary" />
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}
+                >
+                  <AutoAwesome color='primary' />
+                  <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
                     {activeFeature?.title || 'AI Analysis'}
                   </Typography>
                 </Box>
@@ -381,13 +390,22 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                   }}
                 >
                   {isProcessing ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2 }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        py: 2,
+                      }}
+                    >
                       <CircularProgress size={20} />
-                      <Typography variant="body2">AI is analyzing...</Typography>
+                      <Typography variant='body2'>
+                        AI is analyzing...
+                      </Typography>
                     </Box>
                   ) : (
                     <Typography
-                      variant="body2"
+                      variant='body2'
                       sx={{
                         whiteSpace: 'pre-wrap',
                         lineHeight: 1.6,
@@ -404,7 +422,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
           <Divider sx={{ my: 3 }} />
 
           {/* AI Chat */}
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+          <Typography variant='h6' sx={{ mb: 2, fontWeight: 600 }}>
             Ask AI Anything
           </Typography>
 
@@ -416,16 +434,17 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                   mb: 1,
                   p: 1.5,
                   borderRadius: 2,
-                  background: chat.type === 'user' 
-                    ? 'rgba(102, 126, 234, 0.2)' 
-                    : 'rgba(255, 255, 255, 0.8)',
+                  background:
+                    chat.type === 'user'
+                      ? 'rgba(102, 126, 234, 0.2)'
+                      : 'rgba(255, 255, 255, 0.8)',
                   border: '1px solid rgba(0, 0, 0, 0.05)',
                   ml: chat.type === 'user' ? 2 : 0,
                   mr: chat.type === 'ai' ? 2 : 0,
                   boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
                 }}
               >
-                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                <Typography variant='body2' sx={{ whiteSpace: 'pre-wrap' }}>
                   {chat.message}
                 </Typography>
               </Box>
@@ -433,7 +452,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
             {isProcessing && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1 }}>
                 <CircularProgress size={16} />
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant='body2' color='text.secondary'>
                   AI is typing...
                 </Typography>
               </Box>
@@ -443,11 +462,11 @@ Would you like me to provide more specific guidance on any of these aspects?`;
           <Box sx={{ display: 'flex', gap: 1 }}>
             <TextField
               fullWidth
-              size="small"
-              placeholder="Ask me anything about this issue..."
+              size='small'
+              placeholder='Ask me anything about this issue...'
               value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
+              onChange={e => setUserInput(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && handleChatSubmit()}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   background: 'rgba(255, 255, 255, 0.9)',
@@ -470,7 +489,8 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                 background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 color: 'white',
                 '&:hover': {
-                  background: 'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
+                  background:
+                    'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
                 },
               }}
             >
@@ -480,26 +500,32 @@ Would you like me to provide more specific guidance on any of these aspects?`;
 
           {/* Quick Actions */}
           <Box sx={{ mt: 3 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            <Typography variant='subtitle2' sx={{ mb: 1 }}>
               Quick Actions
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               <Chip
-                label="Analyze Impact"
-                size="small"
-                onClick={() => setUserInput('What is the potential impact of this issue?')}
+                label='Analyze Impact'
+                size='small'
+                onClick={() =>
+                  setUserInput('What is the potential impact of this issue?')
+                }
                 sx={{ cursor: 'pointer' }}
               />
               <Chip
-                label="Suggest Testing"
-                size="small"
-                onClick={() => setUserInput('What testing approach would you recommend?')}
+                label='Suggest Testing'
+                size='small'
+                onClick={() =>
+                  setUserInput('What testing approach would you recommend?')
+                }
                 sx={{ cursor: 'pointer' }}
               />
               <Chip
-                label="Timeline Estimate"
-                size="small"
-                onClick={() => setUserInput('How long might this take to resolve?')}
+                label='Timeline Estimate'
+                size='small'
+                onClick={() =>
+                  setUserInput('How long might this take to resolve?')
+                }
                 sx={{ cursor: 'pointer' }}
               />
             </Box>

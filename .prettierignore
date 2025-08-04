@@ -1,0 +1,19 @@
+# Ignore artifacts:
+build/
+dist/
+coverage/
+node_modules/
+
+# Ignore all HTML files:
+*.html
+
+# Ignore log files
+*.log
+
+# Ignore lock files
+package-lock.json
+yarn.lock
+
+# Ignore generated files
+**/.vite/
+**/dev-dist/

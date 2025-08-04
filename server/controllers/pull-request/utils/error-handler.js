@@ -1,4 +1,4 @@
-import logger from "../../../logger.js";
+import logger from '../../../logger.js';
 
 /**
  * Error handling utility for PR operations
@@ -6,7 +6,7 @@ import logger from "../../../logger.js";
 class ErrorHandler {
   static handleApiError(error, context, res) {
     logger.error(`Error in ${context}:`, error);
-    
+
     if (error.response) {
       return res.status(error.response.status).json({
         success: false,
@@ -14,7 +14,7 @@ class ErrorHandler {
         details: error.response.data,
       });
     }
-    
+
     return res.status(500).json({
       success: false,
       error: `Internal server error while ${context}`,

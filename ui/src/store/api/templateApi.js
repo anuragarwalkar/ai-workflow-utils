@@ -6,56 +6,58 @@ export const templateApi = createApi({
   reducerPath: 'templateApi',
   baseQuery: fetchBaseQuery({
     baseUrl: `${API_BASE_URL}/api/templates`,
-    prepareHeaders: (headers) => {
-      headers.set('Content-Type', 'application/json')
-      return headers
+    prepareHeaders: headers => {
+      headers.set('Content-Type', 'application/json');
+      return headers;
     },
     credentials: 'same-origin',
   }),
   tagTypes: ['Template', 'Settings'],
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     // Get all templates
     getAllTemplates: builder.query({
       query: () => '',
       providesTags: ['Template'],
-      transformResponse: (response) => response.data
+      transformResponse: response => response.data,
     }),
 
     // Get templates by type
     getTemplatesByType: builder.query({
-      query: (issueType) => `/type/${issueType}`,
+      query: issueType => `/type/${issueType}`,
       providesTags: (result, error, issueType) => [
-        { type: 'Template', id: `TYPE_${issueType}` }
+        { type: 'Template', id: `TYPE_${issueType}` },
       ],
-      transformResponse: (response) => response.data
+      transformResponse: response => response.data,
     }),
 
     // Get active template for issue type
     getActiveTemplate: builder.query({
-      query: (issueType) => `/active/${issueType}`,
+      query: issueType => `/active/${issueType}`,
       providesTags: (result, error, issueType) => [
-        { type: 'Template', id: `ACTIVE_${issueType}` }
+        { type: 'Template', id: `ACTIVE_${issueType}` },
       ],
-      transformResponse: (response) => response.data
+      transformResponse: response => response.data,
     }),
 
     // Create template
     createTemplate: builder.mutation({
-      query: (template) => ({
+      query: template => ({
         url: '',
         method: 'POST',
         body: template,
       }),
       invalidatesTags: ['Template'],
-      transformResponse: (response) => response.data,
+      transformResponse: response => response.data,
       onQueryStarted: async (template, { queryFulfilled }) => {
         try {
           await queryFulfilled;
-          ToastService.success(`Template "${template.name}" created successfully`);
+          ToastService.success(
+            `Template "${template.name}" created successfully`
+          );
         } catch (error) {
           ToastService.handleApiError(error, 'Failed to create template');
         }
-      }
+      },
     }),
 
     // Update template
@@ -67,41 +69,44 @@ export const templateApi = createApi({
       }),
       invalidatesTags: (result, error, { id }) => [
         { type: 'Template', id },
-        'Template'
+        'Template',
       ],
-      transformResponse: (response) => response.data,
+      transformResponse: response => response.data,
       onQueryStarted: async ({ name, ...updates }, { queryFulfilled }) => {
         try {
           await queryFulfilled;
           const templateName = name || updates.name || 'Template';
-          ToastService.success(`Template "${templateName}" updated successfully`);
+          ToastService.success(
+            `Template "${templateName}" updated successfully`
+          );
         } catch (error) {
           ToastService.handleApiError(error, 'Failed to update template');
         }
-      }
+      },
     }),
 
     // Delete template
     deleteTemplate: builder.mutation({
-      query: (id) => ({
+      query: id => ({
         url: `/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Template'],
-      transformResponse: (response) => response.data,
+      transformResponse: response => response.data,
       onQueryStarted: async (id, { queryFulfilled, getState }) => {
         try {
           await queryFulfilled;
           // Get template name from current state for better message
-          const templates = getState().templateApi?.queries?.getAllTemplates?.data || [];
+          const templates =
+            getState().templateApi?.queries?.getAllTemplates?.data || [];
           const template = templates.find(t => t.id === id);
           const templateName = template?.name || 'Template';
-          
+
           ToastService.success(`${templateName} deleted successfully`);
         } catch (error) {
           ToastService.handleApiError(error, 'Failed to delete template');
         }
-      }
+      },
     }),
 
     // Set active template
@@ -112,27 +117,27 @@ export const templateApi = createApi({
       }),
       invalidatesTags: (result, error, { issueType }) => [
         { type: 'Template', id: `ACTIVE_${issueType}` },
-        'Settings'
+        'Settings',
       ],
-      transformResponse: (response) => response.data
+      transformResponse: response => response.data,
     }),
 
     // Get settings
     getSettings: builder.query({
       query: () => '/settings',
       providesTags: ['Settings'],
-      transformResponse: (response) => response.data
+      transformResponse: response => response.data,
     }),
 
     // Update settings
     updateSettings: builder.mutation({
-      query: (settings) => ({
+      query: settings => ({
         url: '/settings',
         method: 'PUT',
         body: settings,
       }),
       invalidatesTags: ['Settings'],
-      transformResponse: (response) => response.data
+      transformResponse: response => response.data,
     }),
 
     // Reset to defaults
@@ -142,7 +147,7 @@ export const templateApi = createApi({
         method: 'POST',
       }),
       invalidatesTags: ['Template', 'Settings'],
-      transformResponse: (response) => response.data,
+      transformResponse: response => response.data,
       onQueryStarted: async (_, { queryFulfilled }) => {
         try {
           await queryFulfilled;
@@ -150,7 +155,7 @@ export const templateApi = createApi({
         } catch (error) {
           ToastService.handleApiError(error, 'Failed to reset templates');
         }
-      }
+      },
     }),
 
     // Export templates
@@ -159,7 +164,7 @@ export const templateApi = createApi({
         url: '/export',
         method: 'GET',
       }),
-      transformResponse: (response) => response,
+      transformResponse: response => response,
       onQueryStarted: async (_, { queryFulfilled }) => {
         try {
           await queryFulfilled;
@@ -167,18 +172,18 @@ export const templateApi = createApi({
         } catch (error) {
           ToastService.handleApiError(error, 'Failed to export templates');
         }
-      }
+      },
     }),
 
     // Import templates
     importTemplates: builder.mutation({
-      query: (importData) => ({
+      query: importData => ({
         url: '/import',
         method: 'POST',
         body: importData,
       }),
       invalidatesTags: ['Template'],
-      transformResponse: (response) => response.data,
+      transformResponse: response => response.data,
       onQueryStarted: async (_, { queryFulfilled }) => {
         try {
           await queryFulfilled;
@@ -186,7 +191,7 @@ export const templateApi = createApi({
         } catch (error) {
           ToastService.handleApiError(error, 'Failed to import templates');
         }
-      }
+      },
     }),
 
     // Duplicate template
@@ -197,7 +202,7 @@ export const templateApi = createApi({
         body: { name },
       }),
       invalidatesTags: ['Template'],
-      transformResponse: (response) => response.data,
+      transformResponse: response => response.data,
       onQueryStarted: async ({ name }, { queryFulfilled }) => {
         try {
           await queryFulfilled;
@@ -205,10 +210,10 @@ export const templateApi = createApi({
         } catch (error) {
           ToastService.handleApiError(error, 'Failed to duplicate template');
         }
-      }
+      },
     }),
   }),
-})
+});
 
 export const {
   useGetAllTemplatesQuery,
@@ -224,4 +229,4 @@ export const {
   useExportTemplatesMutation,
   useImportTemplatesMutation,
   useDuplicateTemplateMutation,
-} = templateApi
+} = templateApi;
