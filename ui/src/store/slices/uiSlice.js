@@ -15,14 +15,6 @@ const uiSlice = createSlice({
   name: 'ui',
   initialState,
   reducers: {
-    // Modal actions
-    openViewJiraModal: (state) => {
-      state.modals.viewJira = true;
-    },
-    closeViewJiraModal: (state) => {
-      state.modals.viewJira = false;
-    },
-    
     // Notification actions
     showNotification: (state, action) => {
       state.notifications.message = action.payload.message;
@@ -39,8 +31,6 @@ const uiSlice = createSlice({
 });
 
 export const {
-  openViewJiraModal,
-  closeViewJiraModal,
   showNotification,
   hideNotification,
   clearNotification,

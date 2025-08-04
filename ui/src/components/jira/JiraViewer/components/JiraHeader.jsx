@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAppTheme } from '../../../../theme/useAppTheme';
 import {
   Paper,
   Typography,
@@ -23,6 +24,7 @@ import { motion } from 'framer-motion';
 const MotionPaper = motion(Paper);
 
 const JiraHeader = ({ jiraData }) => {
+  const { isDark } = useAppTheme();
   const getIssueTypeIcon = (issueType) => {
     const type = issueType?.toLowerCase();
     switch (type) {
@@ -97,9 +99,13 @@ const JiraHeader = ({ jiraData }) => {
       transition={{ duration: 0.5 }}
       sx={{
         p: 4,
-        background: 'rgba(255, 255, 255, 0.05)',
+        background: isDark 
+          ? 'rgba(45, 55, 72, 0.95)'
+          : 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        border: isDark 
+          ? '1px solid rgba(255, 255, 255, 0.1)'
+          : '1px solid rgba(255, 255, 255, 0.2)',
         borderRadius: 3,
         position: 'relative',
         overflow: 'hidden',

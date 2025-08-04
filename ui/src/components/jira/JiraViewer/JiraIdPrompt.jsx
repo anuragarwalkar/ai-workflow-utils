@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAppTheme } from '../../../theme/useAppTheme';
 import {
   Box,
   Container,
@@ -26,6 +27,7 @@ import {
 
 const JiraIdPrompt = () => {
   const navigate = useNavigate();
+  const { isDark } = useAppTheme();
   const [jiraId, setJiraId] = useState('');
   const [error, setError] = useState('');
 
@@ -109,11 +111,17 @@ const JiraIdPrompt = () => {
             sx={{
               p: 3,
               mb: 4,
-              background: 'rgba(255, 255, 255, 0.9)',
+              background: isDark 
+                ? 'rgba(45, 55, 72, 0.95)'
+                : 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              border: isDark 
+                ? '1px solid rgba(255, 255, 255, 0.1)'
+                : '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 3,
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+              boxShadow: isDark 
+                ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+                : '0 8px 32px rgba(0, 0, 0, 0.1)'
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -137,11 +145,17 @@ const JiraIdPrompt = () => {
             sx={{
               p: 4,
               mb: 3,
-              background: 'rgba(255, 255, 255, 0.9)',
+              background: isDark 
+                ? 'rgba(45, 55, 72, 0.95)'
+                : 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              border: isDark 
+                ? '1px solid rgba(255, 255, 255, 0.1)'
+                : '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 3,
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+              boxShadow: isDark 
+                ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+                : '0 8px 32px rgba(0, 0, 0, 0.1)'
             }}
           >
             <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}>
@@ -174,19 +188,33 @@ const JiraIdPrompt = () => {
                   sx={{
                     flex: 1, // Take up remaining space
                     '& .MuiOutlinedInput-root': {
-                      background: 'rgba(255, 255, 255, 0.9)',
+                      background: isDark 
+                        ? 'rgba(45, 55, 72, 0.9)'
+                        : 'rgba(255, 255, 255, 0.9)',
                       borderRadius: 2,
                       fontSize: '1.1rem',
                       height: '56px', // Explicit height
+                      color: isDark ? '#f7fafc' : 'inherit',
                       '& fieldset': {
-                        borderColor: 'rgba(102, 126, 234, 0.3)',
+                        borderColor: isDark 
+                          ? 'rgba(255, 255, 255, 0.3)'
+                          : 'rgba(102, 126, 234, 0.3)',
                         borderWidth: 2,
                       },
                       '&:hover fieldset': {
-                        borderColor: 'rgba(102, 126, 234, 0.6)',
+                        borderColor: isDark 
+                          ? 'rgba(255, 255, 255, 0.6)'
+                          : 'rgba(102, 126, 234, 0.6)',
                       },
                       '&.Mui-focused fieldset': {
                         borderColor: 'primary.main',
+                      },
+                    },
+                    '& .MuiOutlinedInput-input': {
+                      color: isDark ? '#f7fafc' : 'inherit',
+                      '&::placeholder': {
+                        color: isDark ? 'rgba(247, 250, 252, 0.7)' : 'rgba(0, 0, 0, 0.6)',
+                        opacity: 1,
                       },
                     },
                   }}
@@ -235,11 +263,17 @@ const JiraIdPrompt = () => {
             elevation={0}
             sx={{
               p: 3,
-              background: 'rgba(255, 255, 255, 0.9)',
+              background: isDark 
+                ? 'rgba(45, 55, 72, 0.95)'
+                : 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              border: isDark 
+                ? '1px solid rgba(255, 255, 255, 0.1)'
+                : '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: 3,
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+              boxShadow: isDark 
+                ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+                : '0 8px 32px rgba(0, 0, 0, 0.1)'
             }}
           >
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>

@@ -22,7 +22,6 @@ import {
   Delete as DeleteIcon,
   FileCopy as FileCopyIcon,
   GetApp as ExportIcon,
-  Publish as ImportIcon,
   Refresh as ResetIcon,
 } from "@mui/icons-material";
 import { useSelector, useDispatch } from "react-redux";
@@ -45,9 +44,11 @@ import {
   useResetToDefaultsMutation,
 } from "../../../store/api/templateApi";
 import TemplateForm from "./TemplateForm";
+import { useAppTheme } from "../../../theme/useAppTheme";
 
 const TemplateSettings = () => {
   const dispatch = useDispatch();
+  const { isDark } = useAppTheme();
   const templates = useSelector(selectFilteredTemplates);
   const searchTerm = useSelector(selectSearchTerm);
   const filterType = useSelector(selectFilterType);
@@ -93,6 +94,17 @@ const TemplateSettings = () => {
         size="small"
         color={chip.color}
         variant="outlined"
+        sx={{
+          borderColor: isDark 
+            ? `rgba(102, 126, 234, 0.4)`
+            : undefined,
+          color: isDark 
+            ? `rgba(102, 126, 234, 0.9)`
+            : undefined,
+          backgroundColor: isDark 
+            ? `rgba(102, 126, 234, 0.1)`
+            : undefined,
+        }}
       />
     ));
   };
@@ -165,6 +177,14 @@ const TemplateSettings = () => {
             startIcon={<ExportIcon />}
             onClick={handleExport}
             size="small"
+            sx={{
+              borderColor: isDark ? 'rgba(102, 126, 234, 0.5)' : 'primary.main',
+              color: isDark ? 'rgba(102, 126, 234, 0.9)' : 'primary.main',
+              '&:hover': {
+                borderColor: isDark ? 'rgba(102, 126, 234, 0.8)' : 'primary.dark',
+                backgroundColor: isDark ? 'rgba(102, 126, 234, 0.1)' : 'rgba(102, 126, 234, 0.04)',
+              }
+            }}
           >
             Export
           </Button>
@@ -173,6 +193,14 @@ const TemplateSettings = () => {
             startIcon={<ResetIcon />}
             onClick={handleReset}
             size="small"
+            sx={{
+              borderColor: isDark ? 'rgba(102, 126, 234, 0.5)' : 'primary.main',
+              color: isDark ? 'rgba(102, 126, 234, 0.9)' : 'primary.main',
+              '&:hover': {
+                borderColor: isDark ? 'rgba(102, 126, 234, 0.8)' : 'primary.dark',
+                backgroundColor: isDark ? 'rgba(102, 126, 234, 0.1)' : 'rgba(102, 126, 234, 0.04)',
+              }
+            }}
           >
             Reset
           </Button>
@@ -183,6 +211,16 @@ const TemplateSettings = () => {
                 startIcon={<AddIcon />}
                 onClick={() => dispatch(openCreateForm())}
                 disabled
+                sx={{
+                  background: isDark 
+                    ? 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)'
+                    : 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                  '&:hover': {
+                    background: isDark 
+                      ? 'linear-gradient(45deg, #5a6fd8 30%, #6a4190 90%)'
+                      : 'linear-gradient(45deg, #5a6fd8 30%, #6a4190 90%)',
+                  }
+                }}
               >
                 New Template
               </Button>
@@ -261,7 +299,28 @@ const TemplateSettings = () => {
         {templates.map((template) => (
           <Grid item xs={12} md={6} lg={4} key={template.id}>
             <Card
-              sx={{ height: "100%", display: "flex", flexDirection: "column" }}
+              sx={{ 
+                height: "100%", 
+                display: "flex", 
+                flexDirection: "column",
+                backgroundColor: isDark 
+                  ? 'rgba(45, 55, 72, 0.8)'
+                  : 'rgba(255, 255, 255, 0.9)',
+                border: isDark 
+                  ? '1px solid rgba(255, 255, 255, 0.1)'
+                  : '1px solid rgba(0, 0, 0, 0.1)',
+                backdropFilter: 'blur(10px)',
+                '&:hover': {
+                  backgroundColor: isDark 
+                    ? 'rgba(45, 55, 72, 0.9)'
+                    : 'rgba(255, 255, 255, 0.95)',
+                  transform: 'translateY(-2px)',
+                  boxShadow: isDark 
+                    ? '0 8px 32px rgba(102, 126, 234, 0.2)'
+                    : '0 8px 32px rgba(0, 0, 0, 0.1)',
+                },
+                transition: 'all 0.2s ease-in-out',
+              }}
             >
               <CardContent sx={{ flexGrow: 1 }}>
                 <Box
@@ -304,7 +363,20 @@ const TemplateSettings = () => {
                           label={`{${variable}}`}
                           size="small"
                           variant="outlined"
-                          sx={{ mr: 0.5, mb: 0.5, fontSize: "0.7rem" }}
+                          sx={{ 
+                            mr: 0.5, 
+                            mb: 0.5, 
+                            fontSize: "0.7rem",
+                            borderColor: isDark 
+                              ? 'rgba(255, 255, 255, 0.3)'
+                              : 'rgba(0, 0, 0, 0.3)',
+                            color: isDark 
+                              ? 'rgba(255, 255, 255, 0.8)'
+                              : 'rgba(0, 0, 0, 0.7)',
+                            backgroundColor: isDark 
+                              ? 'rgba(255, 255, 255, 0.05)'
+                              : 'rgba(0, 0, 0, 0.02)',
+                          }}
                         />
                       ))}
                     </Box>

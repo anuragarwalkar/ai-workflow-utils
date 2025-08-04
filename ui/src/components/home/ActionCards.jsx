@@ -29,9 +29,11 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useUnreleasedFeatures } from "../../hooks/useFeatureFlag";
+import { useAppTheme } from "../../theme/useAppTheme";
 
 const ActionCards = () => {
   const navigate = useNavigate();
+  const { isDark } = useAppTheme();
 
   // Get feature flags using custom hooks
   const [showUnreleasedFeatures] = useUnreleasedFeatures();
@@ -271,7 +273,10 @@ const ActionCards = () => {
         <Typography
           variant="h5"
           component="h2"
-          sx={{ color: "#2d3748", fontWeight: 700 }}
+          sx={{ 
+            color: isDark ? "#ffffff" : "#2d3748", 
+            fontWeight: 700 
+          }}
         >
           Available Actions
         </Typography>
@@ -307,9 +312,13 @@ const ActionCards = () => {
                     maxHeight: 280,
                     cursor: "pointer",
                     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                    background: "rgba(255, 255, 255, 0.9)",
+                    background: isDark 
+                      ? "rgba(45, 55, 72, 0.95)"
+                      : "rgba(255, 255, 255, 0.95)",
                     backdropFilter: "blur(20px)",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    border: isDark 
+                      ? "1px solid rgba(255, 255, 255, 0.1)"
+                      : "1px solid rgba(255, 255, 255, 0.2)",
                     borderRadius: "20px",
                     boxShadow: `0 8px 32px ${card.shadowColor}`,
                     position: "relative",
@@ -318,6 +327,9 @@ const ActionCards = () => {
                     "&:hover": {
                       transform: "translateY(-8px) scale(1.02)",
                       boxShadow: `0 20px 60px ${card.shadowColor}`,
+                      background: isDark 
+                        ? "rgba(45, 55, 72, 0.98)"
+                        : "rgba(255, 255, 255, 0.98)",
                       "& .action-button": {
                         transform: "scale(1.1)",
                         background: card.gradient,
@@ -364,7 +376,7 @@ const ActionCards = () => {
                           variant="h6"
                           sx={{
                             fontWeight: 700,
-                            color: "#2d3748",
+                            color: isDark ? "#ffffff" : "#2d3748",
                             mb: 1,
                           }}
                         >
@@ -374,7 +386,7 @@ const ActionCards = () => {
                         <Typography
                           variant="body2"
                           sx={{
-                            color: "#4a5568",
+                            color: isDark ? "rgba(255, 255, 255, 0.8)" : "#4a5568",
                             lineHeight: 1.6,
                             mb: 2,
                           }}

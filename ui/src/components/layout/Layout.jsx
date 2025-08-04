@@ -1,15 +1,20 @@
 import React from 'react';
 import { Container, Paper, Box } from '@mui/material';
+import { useAppTheme } from '../../theme/useAppTheme';
 import Header from './Header';
 
 const Layout = ({ children }) => {
+  const { isDark } = useAppTheme();
+
   return (
     <Box 
       sx={{ 
         minHeight: '100vh',
         width: '100vw',
         position: 'relative',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: isDark 
+          ? 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)'
+          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         backgroundAttachment: 'fixed',
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
@@ -20,7 +25,9 @@ const Layout = ({ children }) => {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)',
+          background: isDark
+            ? 'radial-gradient(circle at 20% 80%, rgba(45, 55, 72, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%)'
+            : 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)',
           pointerEvents: 'none',
         },
         '&::after': {
@@ -30,7 +37,9 @@ const Layout = ({ children }) => {
           left: 0,
           width: '100vw',
           height: '100vh',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: isDark 
+            ? 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)'
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           zIndex: -2,
           pointerEvents: 'none',
         }
@@ -51,11 +60,17 @@ const Layout = ({ children }) => {
           sx={{ 
             p: 3,
             width: '100%',
-            background: 'rgba(255, 255, 255, 0.95)',
+            background: isDark 
+              ? 'rgba(45, 55, 72, 0.95)'
+              : 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
             borderRadius: '24px',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.1)',
+            border: isDark 
+              ? '1px solid rgba(255, 255, 255, 0.1)'
+              : '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: isDark 
+              ? '0 20px 60px rgba(0, 0, 0, 0.3)'
+              : '0 20px 60px rgba(0, 0, 0, 0.1)',
           }}
         >
           {children}

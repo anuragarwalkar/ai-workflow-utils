@@ -1,9 +1,7 @@
 import { Provider } from 'react-redux';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
 import store from './store';
-import theme from './theme/theme';
+import { AppThemeProvider } from './theme/ThemeProvider';
 import Layout from './components/layout/Layout';
 import HomeButtons from './components/home/HomeButtons';
 import CreateJiraContainer from './components/jira/CreateJira/CreateJiraContainer';
@@ -13,13 +11,12 @@ import ReleaseBuildContainer from './components/build/ReleaseBuildContainer';
 import GitStashContainer from './components/gitstash/GitStashContainer';
 import PRContainer from './components/pr/PRContainer';
 import SettingsContainer from './components/settings/SettingsContainer';
-import ViewJiraModal from './components/jira/ViewJira/ViewJiraModal';
 import BuildModal from './components/build/BuildModal';
 import NotificationSnackbar from './components/common/NotificationSnackbar';
 import ChatOverlay from './components/chat/ChatOverlay';
 import AiDevAssistant from './components/ai/AiDevAssistant';
 import { Suspense, lazy } from 'react';
-import { CircularProgress, Box } from '@mui/material';
+import { CircularProgress, Box, CssBaseline} from '@mui/material';
 
 // Lazy load the Jira Viewer page
 const JiraViewerPage = lazy(() => import('./components/jira/JiraViewer/JiraViewerPage'));
@@ -47,7 +44,6 @@ const AppContent = () => (
           <Route path="/settings" element={<SettingsContainer />} />
         </Routes>
       </Suspense>
-      <ViewJiraModal />
       <BuildModal />
     </Layout>
     <ChatOverlay />
@@ -60,10 +56,10 @@ function App() {
   return (
     <Provider store={store}>
       <BrowserRouter>
-        <ThemeProvider theme={theme}>
+        <AppThemeProvider>
           <CssBaseline />
           <AppContent />
-        </ThemeProvider>
+        </AppThemeProvider>
       </BrowserRouter>
     </Provider>
   );

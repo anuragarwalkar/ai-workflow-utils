@@ -9,10 +9,18 @@ import {
   TextField,
   MenuItem,
   Divider,
-  Button
+  Button,
+  Chip
 } from '@mui/material'
+import { useAppTheme } from '../../../theme/useAppTheme'
 
 const GeneralSettings = () => {
+  const { themeMode, setThemeMode, effectiveThemeMode } = useAppTheme()
+
+  const handleThemeChange = (event) => {
+    setThemeMode(event.target.value)
+  }
+
   return (
     <Box>
       <Typography variant="h6" component="h2" gutterBottom>
@@ -24,18 +32,33 @@ const GeneralSettings = () => {
           <Typography variant="subtitle1" gutterBottom>
             Appearance
           </Typography>
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
               select
               label="Theme"
-              defaultValue="light"
+              value={themeMode}
+              onChange={handleThemeChange}
               size="small"
               sx={{ minWidth: 200 }}
             >
               <MenuItem value="light">Light</MenuItem>
               <MenuItem value="dark">Dark</MenuItem>
-              <MenuItem value="auto">Auto</MenuItem>
+              <MenuItem value="auto">Auto (System)</MenuItem>
             </TextField>
+            
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="body2" color="text.secondary">
+                Current theme:
+              </Typography>
+              <Chip 
+                label={effectiveThemeMode === 'dark' ? 'Dark' : 'Light'} 
+                size="small" 
+                color={effectiveThemeMode === 'dark' ? 'secondary' : 'primary'}
+              />
+              {themeMode === 'auto' && (
+                <Chip label="Auto" size="small" variant="outlined" />
+              )}
+            </Box>
           </Box>
           
           <Divider sx={{ my: 2 }} />

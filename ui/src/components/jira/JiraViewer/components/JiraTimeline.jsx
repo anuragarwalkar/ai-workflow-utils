@@ -25,10 +25,13 @@ import {
   BugReport,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import { useAppTheme } from '../../../hooks/useAppTheme';
 
 const MotionPaper = motion(Paper);
 
 const JiraTimeline = ({ jiraData }) => {
+  const { isDark } = useAppTheme();
+  
   const getActivityIcon = (type) => {
     switch (type) {
       case 'created':
@@ -114,9 +117,13 @@ const JiraTimeline = ({ jiraData }) => {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
       sx={{
-        background: 'rgba(255, 255, 255, 0.05)',
+        background: isDark 
+          ? 'rgba(45, 55, 72, 0.95)'
+          : 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        border: isDark 
+          ? '1px solid rgba(255, 255, 255, 0.1)'
+          : '1px solid rgba(0, 0, 0, 0.1)',
         borderRadius: 3,
         overflow: 'hidden',
         mb: 3,
@@ -125,7 +132,9 @@ const JiraTimeline = ({ jiraData }) => {
       {/* Header */}
       <Box
         sx={{
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          borderBottom: isDark 
+            ? '1px solid rgba(255, 255, 255, 0.1)'
+            : '1px solid rgba(0, 0, 0, 0.1)',
           px: 3,
           py: 2,
           display: 'flex',

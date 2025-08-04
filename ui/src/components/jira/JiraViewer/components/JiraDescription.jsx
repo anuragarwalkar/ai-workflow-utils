@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useAppTheme } from '../../../../theme/useAppTheme';
 import {
   Paper,
   Typography,
@@ -7,7 +8,6 @@ import {
   Tab,
   IconButton,
   Tooltip,
-  Divider,
   Button,
   Dialog,
   DialogTitle,
@@ -39,6 +39,7 @@ const MotionBox = motion(Box);
 
 const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
   const dispatch = useDispatch();
+  const { isDark } = useAppTheme();
   const [enhanceDescription] = useEnhanceDescriptionMutation();
   
   const [isEditing, setIsEditing] = useState(false);
@@ -235,9 +236,13 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
         sx={{
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: isDark 
+            ? 'rgba(45, 55, 72, 0.95)'
+            : 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          border: isDark 
+            ? '1px solid rgba(255, 255, 255, 0.1)'
+            : '1px solid rgba(255, 255, 255, 0.2)',
           borderRadius: 3,
           overflow: 'hidden',
         }}
@@ -245,7 +250,9 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         {/* Header with Tabs and Actions */}
         <Box
           sx={{
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            borderBottom: isDark 
+              ? '1px solid rgba(255, 255, 255, 0.1)'
+              : '1px solid rgba(0, 0, 0, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -261,6 +268,10 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
                 minHeight: 48,
                 textTransform: 'none',
                 fontWeight: 600,
+                color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                '&.Mui-selected': {
+                  color: isDark ? '#ffffff' : '#1976d2',
+                },
               },
               '& .MuiTabs-indicator': {
                 background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
@@ -329,9 +340,13 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         fullWidth
         PaperProps={{
           sx: {
-            background: 'rgba(0, 0, 0, 0.9)',
+            background: isDark 
+              ? 'rgba(45, 55, 72, 0.95)'
+              : 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            border: isDark 
+              ? '1px solid rgba(255, 255, 255, 0.1)'
+              : '1px solid rgba(0, 0, 0, 0.1)',
           },
         }}
       >
@@ -356,8 +371,12 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
             sx={{
               p: 2,
               mb: 3,
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backgroundColor: isDark 
+                ? 'rgba(255, 255, 255, 0.05)'
+                : 'rgba(0, 0, 0, 0.05)',
+              border: isDark 
+                ? '1px solid rgba(255, 255, 255, 0.1)'
+                : '1px solid rgba(0, 0, 0, 0.1)',
             }}
           >
             <Typography variant="body2" color="text.secondary">
@@ -371,8 +390,12 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
           <Paper
             sx={{
               p: 2,
-              backgroundColor: 'rgba(102, 126, 234, 0.05)',
-              border: '1px solid rgba(102, 126, 234, 0.3)',
+              backgroundColor: isDark 
+                ? 'rgba(102, 126, 234, 0.1)'
+                : 'rgba(102, 126, 234, 0.05)',
+              border: isDark 
+                ? '1px solid rgba(102, 126, 234, 0.5)'
+                : '1px solid rgba(102, 126, 234, 0.3)',
             }}
           >
             <ReactMarkdown
