@@ -133,38 +133,45 @@ const JiraViewerPage = () => {
           zIndex: 9999,
         }}
       >
-        <Alert
-          severity='error'
-          action={
-            <Button
-              variant='contained'
-              onClick={handleBack}
-              startIcon={<ArrowBack />}
-              sx={{
-                background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
-              }}
-            >
-              Go Back
-            </Button>
-          }
-          sx={{
-            maxWidth: 600,
-            backgroundColor: isDark
-              ? 'rgba(211, 47, 47, 0.1)'
-              : 'rgba(211, 47, 47, 0.05)',
-            color: isDark ? 'white' : '#2d3748',
-          }}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
         >
-          <Typography variant='h6' gutterBottom>
-            Failed to load Jira issue
-          </Typography>
-          <Typography variant='body2'>
-            {error.status === 404
-              ? `Issue "${id}" not found. It may have been moved or deleted.`
-              : error.data?.message ||
-                'Please check your connection and try again.'}
-          </Typography>
-        </Alert>
+          <Alert
+            severity='error'
+            action={
+              <Button
+                variant='contained'
+                onClick={handleBack}
+                startIcon={<ArrowBack />}
+                sx={{
+                  background:
+                    'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                }}
+              >
+                Go Back
+              </Button>
+            }
+            sx={{
+              maxWidth: 600,
+              backgroundColor: isDark
+                ? 'rgba(211, 47, 47, 0.1)'
+                : 'rgba(211, 47, 47, 0.05)',
+              color: isDark ? 'white' : '#2d3748',
+            }}
+          >
+            <Typography variant='h6' gutterBottom>
+              Failed to load Jira issue
+            </Typography>
+            <Typography variant='body2'>
+              {error.status === 404
+                ? `Issue "${id}" not found. It may have been moved or deleted.`
+                : error.data?.message ||
+                  'Please check your connection and try again.'}
+            </Typography>
+          </Alert>
+        </motion.div>
       </Box>
     );
   }
@@ -235,7 +242,7 @@ const JiraViewerPage = () => {
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            padding: '24px 24px 100px 32px', // Added bottom padding to prevent FAB overlap
+            padding: '24px 24px 24px 32px',
           }}
         >
           {/* Issue Header */}
@@ -339,12 +346,12 @@ const JiraViewerPage = () => {
             {/* Tab Content */}
             <Box sx={{ flex: 1, mt: 2 }}>
               <AnimatePresence mode='wait'>
-                <Box
+                <motion.div
                   key={activeTab}
-                  sx={{
-                    opacity: 1,
-                    transition: 'opacity 0.2s ease',
-                  }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
                 >
                   {activeTab === 'attachments' && (
                     <JiraAttachments jiraData={jiraData} />
@@ -352,7 +359,7 @@ const JiraViewerPage = () => {
                   {activeTab === 'timeline' && (
                     <JiraTimelineSimple jiraData={jiraData} />
                   )}
-                </Box>
+                </motion.div>
               </AnimatePresence>
             </Box>
           </Box>
@@ -364,8 +371,12 @@ const JiraViewerPage = () => {
         {/* AI Assistant Panel (when open) */}
         <AnimatePresence>
           {showAiPanel && (
-            <Box
-              sx={{
+            <motion.div
+              initial={{ x: 400, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 400, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 120, damping: 25 }}
+              style={{
                 width: '400px',
                 height: '100%',
                 borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
@@ -375,7 +386,7 @@ const JiraViewerPage = () => {
                 jiraData={jiraData}
                 onClose={() => setShowAiPanel(false)}
               />
-            </Box>
+            </motion.div>
           )}
         </AnimatePresence>
       </Box>
@@ -384,14 +395,9 @@ const JiraViewerPage = () => {
       <Box
         sx={{
           position: 'fixed',
-          bottom: showAiPanel ? 32 : 24,
-          right: showAiPanel ? 432 : 24, // Move left when AI panel is open
+          bottom: 24,
+          right: 24,
           zIndex: 1000,
-          transition: 'all 0.3s ease',
-          '@media (max-width: 1200px)': {
-            right: showAiPanel ? 24 : 16, // Adjust for smaller screens
-            bottom: showAiPanel ? 24 : 16,
-          },
         }}
       >
         <Zoom in={true} style={{ transitionDelay: '200ms' }}>

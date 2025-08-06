@@ -1,5 +1,4 @@
-import React from 'react';
-import { Paper, Typography, Box, Avatar, Chip, Grid } from '@mui/material';
+import { Paper, Typography, Box, Chip } from '@mui/material';
 import {
   Timeline,
   TimelineItem,
@@ -14,38 +13,35 @@ import {
   Edit,
   Assignment,
   Comment,
-  Attachment,
   Done,
-  BugReport,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useAppTheme } from '../../../../theme/useAppTheme';
 
 const MotionPaper = motion(Paper);
 
-const JiraTimeline = ({ jiraData }) => {
+const JiraTimelineSimple = ({ jiraData }) => {
   const { isDark } = useAppTheme();
 
   const getActivityIcon = type => {
     switch (type) {
       case 'created':
-        return <Create color='success' />;
+        return <Create sx={{ fontSize: 12 }} />;
       case 'updated':
-        return <Edit color='info' />;
+        return <Edit sx={{ fontSize: 12 }} />;
       case 'commented':
-        return <Comment color='primary' />;
-      case 'attached':
-        return <Attachment color='warning' />;
+        return <Comment sx={{ fontSize: 12 }} />;
       case 'resolved':
-        return <Done color='success' />;
+        return <Done sx={{ fontSize: 12 }} />;
       case 'assigned':
-        return <Assignment color='info' />;
+        return <Assignment sx={{ fontSize: 12 }} />;
       default:
-        return <BugReport color='action' />;
+        return <Create sx={{ fontSize: 12 }} />;
     }
   };
 
   const formatDate = dateString => {
+    if (!dateString) return 'Unknown';
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
@@ -63,7 +59,7 @@ const JiraTimeline = ({ jiraData }) => {
     }
   };
 
-  // Mock timeline data (in real app, this would come from Jira API)
+  // Simplified timeline events
   const timelineEvents = [
     {
       id: 1,
@@ -71,7 +67,6 @@ const JiraTimeline = ({ jiraData }) => {
       title: 'Issue Created',
       description: `Created by ${jiraData?.fields?.reporter?.displayName || 'Unknown'}`,
       timestamp: jiraData?.fields?.created,
-      user: jiraData?.fields?.reporter,
     },
     {
       id: 2,
@@ -79,40 +74,27 @@ const JiraTimeline = ({ jiraData }) => {
       title: 'Assigned',
       description: `Assigned to ${jiraData?.fields?.assignee?.displayName || 'Unassigned'}`,
       timestamp: jiraData?.fields?.created,
-      user: jiraData?.fields?.assignee,
     },
     {
       id: 3,
-      type: 'commented',
-      title: 'Comment Added',
-      description: 'Initial investigation findings shared',
-      timestamp: '2024-01-15T10:30:00.000Z',
-      user: {
-        displayName: 'John Doe',
-        avatarUrls: { '24x24': '' },
-      },
-    },
-    {
-      id: 4,
       type: 'updated',
-      title: 'Updated',
-      description: 'Priority changed to High',
+      title: 'Last Updated',
+      description: 'Issue was updated',
       timestamp: jiraData?.fields?.updated,
-      user: jiraData?.fields?.assignee,
     },
   ].filter(event => event.timestamp);
 
   const fields = jiraData?.fields || {};
 
   return (
-    <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
-      {/* Left Side - Main Timeline */}
+    <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+      {/* Main Timeline */}
       <Box sx={{ flex: 2 }}>
         <MotionPaper
           elevation={0}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.5 }}
           sx={{
             background: isDark
               ? 'rgba(45, 55, 72, 0.95)'
@@ -121,7 +103,7 @@ const JiraTimeline = ({ jiraData }) => {
             border: isDark
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(0, 0, 0, 0.1)',
-            borderRadius: 3,
+            borderRadius: 2,
             overflow: 'hidden',
           }}
         >
@@ -131,30 +113,30 @@ const JiraTimeline = ({ jiraData }) => {
               borderBottom: isDark
                 ? '1px solid rgba(255, 255, 255, 0.1)'
                 : '1px solid rgba(0, 0, 0, 0.1)',
-              px: 2,
-              py: 1.5,
+              px: 1.5,
+              py: 1,
               display: 'flex',
               alignItems: 'center',
               gap: 1,
             }}
           >
-            <TimelineIcon color='primary' />
+            <TimelineIcon color='primary' sx={{ fontSize: 18 }} />
             <Typography
-              variant='h6'
-              sx={{ fontWeight: 600, fontSize: '1.1rem' }}
+              variant='subtitle1'
+              sx={{ fontWeight: 600, fontSize: '0.9rem' }}
             >
               Activity Timeline
             </Typography>
           </Box>
 
-          {/* Timeline - Compact */}
+          {/* Timeline */}
           <Box sx={{ p: 1.5 }}>
             <Timeline
               sx={{
                 m: 0,
                 p: 0,
                 '& .MuiTimelineItem-root': {
-                  minHeight: 50,
+                  minHeight: 45,
                   '&:before': {
                     display: 'none',
                   },
@@ -169,10 +151,10 @@ const JiraTimeline = ({ jiraData }) => {
                         background:
                           'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                         border: 'none',
-                        boxShadow: '0 0 10px rgba(102, 126, 234, 0.3)',
+                        boxShadow: '0 0 8px rgba(102, 126, 234, 0.3)',
                         p: 0.5,
-                        width: 28,
-                        height: 28,
+                        width: 24,
+                        height: 24,
                       }}
                     >
                       {getActivityIcon(event.type)}
@@ -194,29 +176,21 @@ const JiraTimeline = ({ jiraData }) => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: 1,
-                        mb: 0.5,
+                        mb: 0.25,
                       }}
                     >
                       <Typography
-                        variant='subtitle2'
+                        variant='body2'
                         sx={{ fontWeight: 600, fontSize: '0.85rem' }}
                       >
                         {event.title}
                       </Typography>
-                      {event.user && (
-                        <Avatar
-                          src={event.user.avatarUrls?.['24x24']}
-                          sx={{ width: 16, height: 16 }}
-                        >
-                          {event.user.displayName?.[0]}
-                        </Avatar>
-                      )}
                     </Box>
 
                     <Typography
-                      variant='body2'
+                      variant='caption'
                       color='text.secondary'
-                      sx={{ mb: 0.5, fontSize: '0.75rem' }}
+                      sx={{ mb: 0.25, fontSize: '0.75rem' }}
                     >
                       {event.description}
                     </Typography>
@@ -236,14 +210,13 @@ const JiraTimeline = ({ jiraData }) => {
         </MotionPaper>
       </Box>
 
-      {/* Right Side - Quick Info & Metadata */}
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {/* Quick Info Card */}
+      {/* Quick Info Sidebar */}
+      <Box sx={{ flex: 1 }}>
         <MotionPaper
           elevation={0}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
           sx={{
             background: isDark
               ? 'rgba(45, 55, 72, 0.95)'
@@ -252,14 +225,14 @@ const JiraTimeline = ({ jiraData }) => {
             border: isDark
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(0, 0, 0, 0.1)',
-            borderRadius: 3,
-            p: 2,
+            borderRadius: 2,
+            p: 1.5,
           }}
         >
           <Typography
-            variant='subtitle2'
+            variant='caption'
             color='text.secondary'
-            sx={{ mb: 1.5, fontSize: '0.8rem' }}
+            sx={{ mb: 1.5, fontWeight: 600 }}
           >
             Quick Info
           </Typography>
@@ -272,11 +245,7 @@ const JiraTimeline = ({ jiraData }) => {
                 alignItems: 'center',
               }}
             >
-              <Typography
-                variant='body2'
-                color='text.secondary'
-                sx={{ fontSize: '0.75rem' }}
-              >
+              <Typography variant='caption' color='text.secondary'>
                 Status
               </Typography>
               <Chip
@@ -295,11 +264,7 @@ const JiraTimeline = ({ jiraData }) => {
                 alignItems: 'center',
               }}
             >
-              <Typography
-                variant='body2'
-                color='text.secondary'
-                sx={{ fontSize: '0.75rem' }}
-              >
+              <Typography variant='caption' color='text.secondary'>
                 Priority
               </Typography>
               <Chip
@@ -324,131 +289,18 @@ const JiraTimeline = ({ jiraData }) => {
                 alignItems: 'center',
               }}
             >
-              <Typography
-                variant='body2'
-                color='text.secondary'
-                sx={{ fontSize: '0.75rem' }}
-              >
+              <Typography variant='caption' color='text.secondary'>
                 Resolution
               </Typography>
-              <Typography variant='body2' sx={{ fontSize: '0.75rem' }}>
+              <Typography variant='caption' sx={{ fontSize: '0.7rem' }}>
                 {fields.resolution?.name || 'Unresolved'}
               </Typography>
             </Box>
-
-            {fields.environment && (
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Typography
-                  variant='body2'
-                  color='text.secondary'
-                  sx={{ fontSize: '0.75rem' }}
-                >
-                  Environment
-                </Typography>
-                <Typography variant='body2' sx={{ fontSize: '0.7rem' }}>
-                  {fields.environment.substring(0, 15)}...
-                </Typography>
-              </Box>
-            )}
           </Box>
-        </MotionPaper>
-
-        {/* Additional Metadata Cards */}
-        <MotionPaper
-          elevation={0}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          sx={{
-            background: isDark
-              ? 'rgba(45, 55, 72, 0.95)'
-              : 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(20px)',
-            border: isDark
-              ? '1px solid rgba(255, 255, 255, 0.1)'
-              : '1px solid rgba(0, 0, 0, 0.1)',
-            borderRadius: 3,
-            p: 2,
-          }}
-        >
-          {/* Watchers */}
-          {fields.watches?.watchCount > 0 && (
-            <Box sx={{ mb: 2 }}>
-              <Typography
-                variant='subtitle2'
-                color='text.secondary'
-                sx={{ mb: 1, fontSize: '0.8rem' }}
-              >
-                Watchers
-              </Typography>
-              <Chip
-                label={`${fields.watches.watchCount} watching`}
-                size='small'
-                variant='outlined'
-                color='info'
-                sx={{ height: 20, fontSize: '0.65rem' }}
-              />
-            </Box>
-          )}
-
-          {/* Components */}
-          {fields.components && fields.components.length > 0 && (
-            <Box sx={{ mb: 2 }}>
-              <Typography
-                variant='subtitle2'
-                color='text.secondary'
-                sx={{ mb: 1, fontSize: '0.8rem' }}
-              >
-                Components
-              </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {fields.components.map((component, index) => (
-                  <Chip
-                    key={index}
-                    label={component.name}
-                    size='small'
-                    variant='outlined'
-                    sx={{ fontSize: '0.65rem', height: 20 }}
-                  />
-                ))}
-              </Box>
-            </Box>
-          )}
-
-          {/* Fix Versions */}
-          {fields.fixVersions && fields.fixVersions.length > 0 && (
-            <Box>
-              <Typography
-                variant='subtitle2'
-                color='text.secondary'
-                sx={{ mb: 1, fontSize: '0.8rem' }}
-              >
-                Fix Versions
-              </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {fields.fixVersions.map((version, index) => (
-                  <Chip
-                    key={index}
-                    label={version.name}
-                    size='small'
-                    color='success'
-                    variant='outlined'
-                    sx={{ fontSize: '0.65rem', height: 20 }}
-                  />
-                ))}
-              </Box>
-            </Box>
-          )}
         </MotionPaper>
       </Box>
     </Box>
   );
 };
 
-export default JiraTimeline;
+export default JiraTimelineSimple;

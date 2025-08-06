@@ -114,35 +114,95 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
           style={vscDarkPlus}
           language={match[1]}
           PreTag='div'
+          customStyle={{
+            margin: '1rem 0',
+            borderRadius: '8px',
+            background: 'rgba(0, 0, 0, 0.5)',
+          }}
           {...props}
         >
           {String(children).replace(/\n$/, '')}
         </SyntaxHighlighter>
       ) : (
-        <code className={className} {...props}>
+        <code
+          style={{
+            background: isDark
+              ? 'rgba(255, 255, 255, 0.1)'
+              : 'rgba(0, 0, 0, 0.1)',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            fontFamily: 'Monaco, Consolas, monospace',
+            color: '#4ecdc4',
+          }}
+          {...props}
+        >
           {children}
         </code>
       );
     },
     h1: ({ children }) => (
-      <Typography variant='h4' sx={{ mt: 3, mb: 2, fontWeight: 600 }}>
+      <Typography
+        variant='h4'
+        sx={{
+          mt: 3,
+          mb: 2,
+          fontWeight: 700,
+          color: isDark ? 'white' : 'black',
+        }}
+      >
         {children}
       </Typography>
     ),
     h2: ({ children }) => (
-      <Typography variant='h5' sx={{ mt: 2, mb: 1.5, fontWeight: 600 }}>
+      <Typography
+        variant='h5'
+        sx={{
+          mt: 2,
+          mb: 1.5,
+          fontWeight: 600,
+          color: isDark ? 'white' : 'black',
+        }}
+      >
         {children}
       </Typography>
     ),
     h3: ({ children }) => (
-      <Typography variant='h6' sx={{ mt: 2, mb: 1, fontWeight: 600 }}>
+      <Typography
+        variant='h6'
+        sx={{
+          mt: 2,
+          mb: 1,
+          fontWeight: 600,
+          color: isDark ? 'white' : 'black',
+        }}
+      >
         {children}
       </Typography>
     ),
     p: ({ children }) => (
-      <Typography variant='body1' sx={{ mb: 2, lineHeight: 1.7 }}>
+      <Typography
+        variant='body1'
+        sx={{
+          mb: 2,
+          lineHeight: 1.7,
+          color: isDark ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        }}
+      >
         {children}
       </Typography>
+    ),
+    strong: ({ children }) => (
+      <Box
+        component='strong'
+        sx={{ color: isDark ? 'white' : 'black', fontWeight: 700 }}
+      >
+        {children}
+      </Box>
+    ),
+    em: ({ children }) => (
+      <Box component='em' sx={{ color: '#4ecdc4', fontStyle: 'italic' }}>
+        {children}
+      </Box>
     ),
     blockquote: ({ children }) => (
       <Box
@@ -151,25 +211,47 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
           pl: 2,
           py: 1,
           my: 2,
-          backgroundColor: 'rgba(102, 126, 234, 0.05)',
-          borderRadius: '0 4px 4px 0',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          borderRadius: '0 8px 8px 0',
+          color: 'rgba(255, 255, 255, 0.9)',
         }}
       >
         {children}
       </Box>
     ),
     ul: ({ children }) => (
-      <Box component='ul' sx={{ pl: 3, mb: 2 }}>
+      <Box
+        component='ul'
+        sx={{
+          pl: 3,
+          mb: 2,
+          color: isDark ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        }}
+      >
         {children}
       </Box>
     ),
     ol: ({ children }) => (
-      <Box component='ol' sx={{ pl: 3, mb: 2 }}>
+      <Box
+        component='ol'
+        sx={{
+          pl: 3,
+          mb: 2,
+          color: isDark ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        }}
+      >
         {children}
       </Box>
     ),
     li: ({ children }) => (
-      <Typography component='li' variant='body1' sx={{ mb: 0.5 }}>
+      <Typography
+        component='li'
+        variant='body1'
+        sx={{
+          mb: 0.5,
+          color: isDark ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        }}
+      >
         {children}
       </Typography>
     ),
@@ -181,6 +263,26 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
+        sx={{
+          p: 3, // Add padding around content
+          minHeight: '400px',
+          maxHeight: '70vh',
+          overflow: 'auto',
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '4px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'rgba(255, 255, 255, 0.3)',
+            borderRadius: '4px',
+            '&:hover': {
+              background: 'rgba(255, 255, 255, 0.5)',
+            },
+          },
+        }}
       >
         {isEditing ? (
           <Box sx={{ position: 'relative', height: 400 }}>
@@ -243,14 +345,17 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         transition={{ duration: 0.5, delay: 0.1 }}
         sx={{
           background: isDark
-            ? 'rgba(45, 55, 72, 0.95)'
+            ? 'rgba(25, 25, 55, 0.95)'
             : 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(20px)',
           border: isDark
             ? '1px solid rgba(255, 255, 255, 0.1)'
-            : '1px solid rgba(255, 255, 255, 0.2)',
+            : '1px solid rgba(0, 0, 0, 0.1)',
           borderRadius: 3,
           overflow: 'hidden',
+          boxShadow: isDark
+            ? '0 20px 60px rgba(0, 0, 0, 0.3)'
+            : '0 20px 60px rgba(0, 0, 0, 0.1)',
         }}
       >
         {/* Header with Tabs and Actions */}
@@ -264,6 +369,9 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
             justifyContent: 'space-between',
             px: 3,
             py: 1,
+            background: isDark
+              ? 'rgba(15, 15, 35, 0.8)'
+              : 'rgba(240, 240, 240, 0.8)',
           }}
         >
           <Tabs
@@ -278,7 +386,7 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
                   ? 'rgba(255, 255, 255, 0.7)'
                   : 'rgba(0, 0, 0, 0.7)',
                 '&.Mui-selected': {
-                  color: isDark ? '#ffffff' : '#1976d2',
+                  color: isDark ? 'white' : 'black',
                 },
               },
               '& .MuiTabs-indicator': {
@@ -289,7 +397,7 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
             }}
           >
             <Tab
-              icon={<Description />}
+              icon={<Description sx={{ color: '#4ecdc4' }} />}
               label='Description'
               value='description'
               iconPosition='start'
@@ -302,13 +410,26 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
                 onClick={handleEnhance}
                 disabled={isEnhancing}
                 sx={{
-                  color: 'primary.main',
+                  color: 'white',
+                  background:
+                    'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                   '&:hover': {
-                    background: 'rgba(102, 126, 234, 0.1)',
+                    background:
+                      'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
+                    transform: 'scale(1.1)',
                   },
+                  '&:disabled': {
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    color: 'rgba(255, 255, 255, 0.5)',
+                  },
+                  transition: 'all 0.3s ease',
                 }}
               >
-                {isEnhancing ? <CircularProgress size={20} /> : <AutoAwesome />}
+                {isEnhancing ? (
+                  <CircularProgress size={20} sx={{ color: 'white' }} />
+                ) : (
+                  <AutoAwesome />
+                )}
               </IconButton>
             </Tooltip>
 
@@ -316,10 +437,13 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
               <IconButton
                 onClick={isEditing ? () => setIsEditing(false) : handleEdit}
                 sx={{
-                  color: 'primary.main',
+                  color: 'white',
+                  background: 'rgba(255, 255, 255, 0.1)',
                   '&:hover': {
-                    background: 'rgba(102, 126, 234, 0.1)',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    transform: 'scale(1.1)',
                   },
+                  transition: 'all 0.3s ease',
                 }}
               >
                 {isEditing ? <Visibility /> : <Edit />}
@@ -342,13 +466,10 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         fullWidth
         PaperProps={{
           sx: {
-            background: isDark
-              ? 'rgba(45, 55, 72, 0.95)'
-              : 'rgba(255, 255, 255, 0.95)',
+            background: 'rgba(25, 25, 55, 0.95)',
             backdropFilter: 'blur(20px)',
-            border: isDark
-              ? '1px solid rgba(255, 255, 255, 0.1)'
-              : '1px solid rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: 3,
           },
         }}
       >
@@ -366,53 +487,120 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         </DialogTitle>
 
         <DialogContent sx={{ mt: 2 }}>
-          <Typography variant='subtitle2' color='text.secondary' sx={{ mb: 2 }}>
+          <Typography
+            variant='subtitle2'
+            sx={{ mb: 2, color: 'rgba(255, 255, 255, 0.7)' }}
+          >
             Original:
           </Typography>
           <Paper
             sx={{
               p: 2,
               mb: 3,
-              backgroundColor: isDark
-                ? 'rgba(255, 255, 255, 0.05)'
-                : 'rgba(0, 0, 0, 0.05)',
-              border: isDark
-                ? '1px solid rgba(255, 255, 255, 0.1)'
-                : '1px solid rgba(0, 0, 0, 0.1)',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: 2,
             }}
           >
-            <Typography variant='body2' color='text.secondary'>
+            <Typography
+              variant='body2'
+              sx={{ color: 'rgba(255, 255, 255, 0.8)' }}
+            >
               {description.substring(0, 200)}...
             </Typography>
           </Paper>
 
-          <Typography variant='subtitle2' color='text.secondary' sx={{ mb: 2 }}>
+          <Typography
+            variant='subtitle2'
+            sx={{ mb: 2, color: 'rgba(255, 255, 255, 0.7)' }}
+          >
             Enhanced:
           </Typography>
           <Paper
             sx={{
               p: 2,
-              backgroundColor: isDark
-                ? 'rgba(102, 126, 234, 0.1)'
-                : 'rgba(102, 126, 234, 0.05)',
-              border: isDark
-                ? '1px solid rgba(102, 126, 234, 0.5)'
-                : '1px solid rgba(102, 126, 234, 0.3)',
+              backgroundColor: 'rgba(102, 126, 234, 0.1)',
+              border: '1px solid rgba(102, 126, 234, 0.5)',
+              borderRadius: 2,
             }}
           >
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              components={markdownComponents}
+              components={{
+                ...markdownComponents,
+                p: ({ children }) => (
+                  <Typography
+                    variant='body1'
+                    sx={{
+                      color: 'rgba(255, 255, 255, 0.9)',
+                      lineHeight: 1.7,
+                      mb: 1.5,
+                    }}
+                  >
+                    {children}
+                  </Typography>
+                ),
+                h1: ({ children }) => (
+                  <Typography
+                    variant='h4'
+                    sx={{ color: 'white', fontWeight: 700, my: 2 }}
+                  >
+                    {children}
+                  </Typography>
+                ),
+                h2: ({ children }) => (
+                  <Typography
+                    variant='h5'
+                    sx={{ color: 'white', fontWeight: 600, my: 2 }}
+                  >
+                    {children}
+                  </Typography>
+                ),
+                h3: ({ children }) => (
+                  <Typography
+                    variant='h6'
+                    sx={{ color: 'white', fontWeight: 600, my: 1.5 }}
+                  >
+                    {children}
+                  </Typography>
+                ),
+                strong: ({ children }) => (
+                  <Box
+                    component='strong'
+                    sx={{ color: 'white', fontWeight: 700 }}
+                  >
+                    {children}
+                  </Box>
+                ),
+                em: ({ children }) => (
+                  <Box
+                    component='em'
+                    sx={{ color: '#4ecdc4', fontStyle: 'italic' }}
+                  >
+                    {children}
+                  </Box>
+                ),
+              }}
             >
               {enhancedText}
             </ReactMarkdown>
           </Paper>
         </DialogContent>
 
-        <DialogActions sx={{ p: 3 }}>
+        <DialogActions
+          sx={{ p: 3, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
+        >
           <Button
             onClick={() => setShowEnhanceDialog(false)}
             variant='outlined'
+            sx={{
+              color: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.3)',
+              '&:hover': {
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                background: 'rgba(255, 255, 255, 0.1)',
+              },
+            }}
           >
             Cancel
           </Button>
@@ -421,6 +609,9 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
             variant='contained'
             sx={{
               background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
+              },
             }}
           >
             Use Enhanced Version
