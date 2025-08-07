@@ -1,9 +1,14 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const path = require("path");
-const os = require("os");
-const readline = require("readline");
+import fs from "fs";
+import path from "path";
+import os from "os";
+import readline from "readline";
+import { fileURLToPath } from 'url';
+
+// Get the directory where the package is installed
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class EnvironmentSetup {
   constructor() {
@@ -415,10 +420,10 @@ class EnvironmentSetup {
 }
 
 // Export for use in other modules
-module.exports = EnvironmentSetup;
+export default EnvironmentSetup;
 
 // Run setup if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   const setup = new EnvironmentSetup();
   setup
     .setupEnvironment()

@@ -1,14 +1,20 @@
 #!/usr/bin/env node
 
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
-const { execSync, spawn } = require('child_process');
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import { execSync, spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+
+// Get the directory where the package is installed
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class StartupManager {
   constructor() {
     this.packageDir = path.dirname(__dirname);
-    this.packageJson = require(path.join(this.packageDir, 'package.json'));
+    const packageJsonPath = path.join(this.packageDir, 'package.json');
+    this.packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     this.serviceName = 'ai-workflow-utils';
     this.platform = os.platform();
   }
@@ -281,9 +287,13 @@ class StartupManager {
   }
 
   createWindowsServiceWrapper(servicePath) {
-    const wrapperContent = `const { Service } = require('node-windows');
-const path = require('path');
-const { spawn } = require('child_process');
+    const wrapperContent = `import { Service } from 'node-windows';
+import path from 'path';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Create a new service object
 const svc = new Service({
@@ -315,7 +325,6 @@ if (process.argv.includes('--install')) {
   svc.uninstall();
 } else {
   // Run directly
-  const { spawn } = require('child_process');
   const cliPath = path.join(__dirname, 'cli.js');
   const server = spawn('node', [cliPath], {
     stdio: 'inherit',

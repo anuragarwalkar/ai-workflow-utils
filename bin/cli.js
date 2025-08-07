@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
-const path = require('path');
-const fs = require('fs');
-const { spawn } = require('child_process');
+import path from 'path';
+import fs from 'fs';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
 
 // Get the directory where the package is installed
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const packageDir = path.dirname(__dirname);
 const serverPath = path.join(packageDir, 'dist', 'server.js');
 
@@ -14,7 +17,6 @@ async function main() {
   
   // Handle startup command
   if (args[0] === 'startup') {
-    const { spawn } = require('child_process');
     const startupScript = path.join(packageDir, 'bin', 'startup.js');
     const startupArgs = args.slice(1);
     
@@ -32,7 +34,6 @@ async function main() {
 
   // Handle validate command
   if (args[0] === 'validate') {
-    const { spawn } = require('child_process');
     const validateScript = path.join(packageDir, 'bin', 'validate.js');
     
     const validateProcess = spawn('node', [validateScript], {
@@ -80,7 +81,8 @@ async function main() {
   }
 
   if (args.includes('--version') || args.includes('-v')) {
-    const packageJson = require(path.join(packageDir, 'package.json'));
+    const packageJsonPath = path.join(packageDir, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     console.log(`AI Workflow Utils v${packageJson.version}`);
     return;
   }
