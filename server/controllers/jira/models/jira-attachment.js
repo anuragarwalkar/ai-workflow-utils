@@ -4,6 +4,7 @@
 
 import { ValidationUtils } from '../utils/validation-utils.js';
 import path from 'path';
+import fs from 'fs';
 
 export class JiraAttachment {
   constructor(data) {
@@ -131,8 +132,6 @@ export class JiraAttachment {
    * Clean up temporary files
    */
   cleanup() {
-    const fs = require('fs');
-
     // Clean up original file if it exists
     if (this.originalPath && fs.existsSync(this.originalPath)) {
       try {
