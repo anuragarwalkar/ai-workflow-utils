@@ -93,7 +93,7 @@ class PRController {
       }
 
       // Prepare the prompt data - DiffProcessorService will handle all diff formats through UnidiffProcessor
-      const promptData = DiffProcessorService.buildReviewPromptData(
+      const promptData = await DiffProcessorService.buildReviewPromptData(
         diffData,
         prDetails
       );
@@ -127,16 +127,13 @@ class PRController {
           aiProvider = result.provider;
 
           // Send final results
-          StreamingService.sendSSEData(res, {
-            type: 'review_complete',
-            data: {
-              review,
-              projectKey,
-              repoSlug,
-              pullRequestId,
-              aiProvider,
-              reviewedAt: new Date().toISOString(),
-            },
+          StreamingService.sendReviewComplete(res, {
+            review,
+            projectKey,
+            repoSlug,
+            pullRequestId,
+            aiProvider,
+            reviewedAt: new Date().toISOString(),
           });
 
           StreamingService.closeSSE(res);
@@ -520,7 +517,7 @@ class PRController {
       }
 
       logger.info(
-        `Formatted prompt length: ${formattedPrompt.length} characters`
+        formattedPrompt
       );
       // Use the existing streaming infrastructure from PRLangChainService
       return await prLangChainService.tryProvidersForStreaming(

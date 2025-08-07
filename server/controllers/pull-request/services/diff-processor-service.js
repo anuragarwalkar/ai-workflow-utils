@@ -7,7 +7,7 @@ class DiffProcessorService {
   /**
    * Build review prompt data for LangChain
    */
-  static buildReviewPromptData(diffData, prDetails) {
+  static async buildReviewPromptData(diffData, prDetails) {
     const prTitle = prDetails?.title || 'N/A';
     const prDescription = prDetails?.description || 'N/A';
     const prAuthor =
@@ -20,7 +20,7 @@ class DiffProcessorService {
     let processorUsed = 'UnidiffProcessor';
 
     // Use UnidiffProcessor exclusively for all diff processing
-    const unidiffResult = UnidiffProcessor.processWithUnidiff(diffData);
+    const unidiffResult = await UnidiffProcessor.processWithUnidiff(diffData);
 
     if (unidiffResult.hasChanges) {
       codeChanges = unidiffResult.codeChanges;

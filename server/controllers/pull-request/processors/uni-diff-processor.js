@@ -1,5 +1,24 @@
-import { parsePatch } from 'unidiff';
 import logger from '../../../logger.js';
+import FileFilter from '../utils/file-filter.js';
+
+// Use dynamic import to avoid webpack bundling issues
+let parsePatch = null;
+
+async function initializeParsePatch() {
+  if (!parsePatch) {
+    try {
+      const unidiff = await import('unidiff');
+      parsePatch = unidiff.default.parsePatch || unidiff.parsePatch;
+      if (!parsePatch) {
+        throw new Error('parsePatch function not found in unidiff module');
+      }
+    } catch (error) {
+      logger.error('Failed to load unidiff module:', error.message);
+      throw error;
+    }
+  }
+  return parsePatch;
+}
 
 /**
  * Unidiff-based diff processing utilities
@@ -8,15 +27,34 @@ class UnidiffProcessor {
   /**
    * Convert Bitbucket diff data to unified diff format and parse with unidiff
    */
-  static processWithUnidiff(diffData) {
+  static async processWithUnidiff(diffData) {
     try {
       logger.info('UnidiffProcessor: Starting diff processing');
+      
+      const parsePatchFn = await initializeParsePatch();
 
       // If diffData is already a string in unified diff format, parse it directly
       if (typeof diffData === 'string') {
         logger.info('UnidiffProcessor: Processing string diff format');
-        const patches = parsePatch(diffData);
-        return this.formatUnidiffPatches(patches);
+        const patches = parsePatchFn(diffData);
+        
+        // Filter out ignored files from parsed patches
+        const filteredPatches = patches.filter(patch => {
+          const fileName = patch.newFileName || patch.oldFileName || '';
+          if (FileFilter.shouldIgnoreFile(fileName)) {
+            return false;
+          }
+          return true;
+        });
+
+        const filteredCount = patches.length - filteredPatches.length;
+        if (filteredCount > 0) {
+          logger.info(
+            `UnidiffProcessor: Filtered out ${filteredCount} ignored files from string diff, processing ${filteredPatches.length} remaining files`
+          );
+        }
+
+        return this.formatUnidiffPatches(filteredPatches);
       }
 
       // Convert Bitbucket format to unified diff string
@@ -28,7 +66,7 @@ class UnidiffProcessor {
         logger.info(
           'UnidiffProcessor: Successfully converted to unified diff, parsing...'
         );
-        const patches = parsePatch(unifiedDiff);
+        const patches = parsePatchFn(unifiedDiff);
         const result = this.formatUnidiffPatches(patches);
         logger.info(
           `UnidiffProcessor: Successfully processed diff with ${result.hasChanges ? 'changes' : 'no changes'}`
@@ -42,7 +80,7 @@ class UnidiffProcessor {
       return { codeChanges: '', hasChanges: false };
     } catch (error) {
       logger.warn('Failed to process diff with unidiff:', error.message);
-      logger.debug('Diff data structure:', JSON.stringify(diffData, null, 2));
+      // logger.debug('Diff data structure:', JSON.stringify(diffData, null, 2));
       return { codeChanges: '', hasChanges: false };
     }
   }
@@ -52,15 +90,8 @@ class UnidiffProcessor {
    */
   static processSegmentLines(segment) {
     if (!segment.lines || !Array.isArray(segment.lines)) {
-      logger.debug(
-        `UnidiffProcessor: No lines found for segment type: ${segment.type}`
-      );
       return '';
     }
-
-    logger.debug(
-      `UnidiffProcessor: Processing ${segment.lines.length} lines for segment type: ${segment.type}`
-    );
 
     return segment.lines
       .map(line => {
@@ -87,21 +118,11 @@ class UnidiffProcessor {
    */
   static processHunkSegments(hunk) {
     if (!hunk.segments || !Array.isArray(hunk.segments)) {
-      logger.debug('UnidiffProcessor: No segments found for hunk');
       return '';
     }
 
-    logger.debug(
-      `UnidiffProcessor: Processing ${hunk.segments.length} segments for hunk`
-    );
-
     const segmentContents = hunk.segments.map(segment => {
       const segmentContent = this.processSegmentLines(segment);
-      if (!segmentContent) {
-        logger.debug(
-          `UnidiffProcessor: No content for segment type: ${segment.type}`
-        );
-      }
       return segmentContent;
     });
 
@@ -113,13 +134,8 @@ class UnidiffProcessor {
    */
   static processFileHunks(file) {
     if (!file.hunks || !Array.isArray(file.hunks)) {
-      logger.debug('UnidiffProcessor: No hunks found for file');
       return '';
     }
-
-    logger.debug(
-      `UnidiffProcessor: Processing ${file.hunks.length} hunks for file`
-    );
 
     const hunkContents = file.hunks
       .map((hunk, index) => {
@@ -162,14 +178,39 @@ class UnidiffProcessor {
         `UnidiffProcessor: Processing ${diffData.diffs.length} file diffs`
       );
 
-      const unifiedDiffParts = diffData.diffs
+      // Filter out ignored files before processing
+      const filteredDiffs = diffData.diffs.filter(file => {
+        const sourceFile = file.source?.toString || '/dev/null';
+        const destFile = file.destination?.toString || '/dev/null';
+        
+        // Check if either source or destination file should be ignored
+        const shouldIgnoreSource = sourceFile !== '/dev/null' && FileFilter.shouldIgnoreFile(sourceFile);
+        const shouldIgnoreDestination = destFile !== '/dev/null' && FileFilter.shouldIgnoreFile(destFile);
+        
+        if (shouldIgnoreSource || shouldIgnoreDestination) {
+          return false;
+        }
+        
+        return true;
+      });
+
+      const filteredCount = diffData.diffs.length - filteredDiffs.length;
+      if (filteredCount > 0) {
+        logger.info(
+          `UnidiffProcessor: Filtered out ${filteredCount} ignored files, processing ${filteredDiffs.length} remaining files`
+        );
+      }
+
+      // If all files were filtered out, return early
+      if (filteredDiffs.length === 0) {
+        logger.info('UnidiffProcessor: All files were filtered out as ignored files');
+        return null;
+      }
+
+      const unifiedDiffParts = filteredDiffs
         .map(file => {
           const sourceFile = file.source?.toString || '/dev/null';
           const destFile = file.destination?.toString || '/dev/null';
-
-          logger.debug(
-            `UnidiffProcessor: Processing file ${sourceFile} -> ${destFile}`
-          );
 
           let fileContent = `--- ${sourceFile}\n`;
           fileContent += `+++ ${destFile}\n`;
@@ -189,7 +230,7 @@ class UnidiffProcessor {
 
       const result = unifiedDiffParts.join('');
       logger.info(
-        `UnidiffProcessor: Generated unified diff with ${result.length} characters`
+        `UnidiffProcessor: Generated unified diff with ${result.length} characters from ${unifiedDiffParts.length} files`
       );
 
       return result || null;
@@ -306,9 +347,9 @@ class UnidiffProcessor {
   /**
    * Get detailed diff analysis using unidiff
    */
-  static analyzeDiff(diffData) {
+  static async analyzeDiff(diffData) {
     try {
-      const result = this.processWithUnidiff(diffData);
+      const result = await this.processWithUnidiff(diffData);
       if (!result.hasChanges) {
         return {
           ...result,
@@ -316,14 +357,21 @@ class UnidiffProcessor {
         };
       }
 
-      // Parse again to get statistics
+      const parsePatchFn = await initializeParsePatch();
+
+      // Parse again to get statistics (with filtering applied)
       let patches = [];
       if (typeof diffData === 'string') {
-        patches = parsePatch(diffData);
+        const allPatches = parsePatchFn(diffData);
+        // Apply filtering to string-based patches
+        patches = allPatches.filter(patch => {
+          const fileName = patch.newFileName || patch.oldFileName || '';
+          return !FileFilter.shouldIgnoreFile(fileName);
+        });
       } else {
         const unifiedDiff = this.convertBitbucketToUnifiedDiff(diffData);
         if (unifiedDiff) {
-          patches = parsePatch(unifiedDiff);
+          patches = parsePatchFn(unifiedDiff);
         }
       }
 

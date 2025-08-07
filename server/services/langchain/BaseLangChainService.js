@@ -31,8 +31,7 @@ export class BaseLangChainService {
         model: new ChatOpenAI({
           openAIApiKey: process.env.OPENAI_API_KEY,
           modelName: process.env.OPENAI_MODEL || 'gpt-4-vision-preview',
-          temperature: 0.7,
-          maxTokens: 2000,
+          temperature: 0.4,
           timeout: 60000,
         }),
         supportsVision: this.modelSupportsVision(
@@ -53,8 +52,7 @@ export class BaseLangChainService {
           apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
           model:
             process.env.OPENAI_COMPATIBLE_MODEL || 'claude-3-sonnet-20240229',
-          temperature: 0.7,
-          maxTokens: 2000,
+          temperature: 0.4,
           timeout: 60000,
           configuration: {
             baseURL: process.env.OPENAI_COMPATIBLE_BASE_URL,
@@ -74,8 +72,7 @@ export class BaseLangChainService {
         model: new ChatGoogleGenerativeAI({
           apiKey: process.env.GOOGLE_API_KEY,
           modelName: process.env.GOOGLE_MODEL || 'gemini-pro-vision',
-          temperature: 0.7,
-          maxOutputTokens: 2000,
+          temperature: 0.4,
         }),
         supportsVision: true,
         priority: 3,
@@ -89,7 +86,7 @@ export class BaseLangChainService {
         model: new ChatOllama({
           baseUrl: process.env.OLLAMA_BASE_URL,
           model: process.env.OLLAMA_MODEL || 'llava',
-          temperature: 0.7,
+          temperature: 0.4,
         }),
         supportsVision: true,
         priority: 4,

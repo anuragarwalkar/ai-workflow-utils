@@ -1,6 +1,7 @@
 import { BaseLangChainService } from './BaseLangChainService.js';
 import { HumanMessage } from '@langchain/core/messages';
 import logger from '../../logger.js';
+import StreamingService from '../../controllers/pull-request/services/streaming-service.js';
 
 /**
  * Pull Request-specific LangChain service for handling PR generation
@@ -35,11 +36,6 @@ export class PRLangChainService extends BaseLangChainService {
       ...promptTemplateFormatter,
     });
 
-    console.log(
-      `Formatted template-based PR prompt for ${templateIdentifier}:`,
-      formattedPrompt
-    );
-
     // Try each provider in order of priority
     return this.tryProvidersForContent(formattedPrompt, streaming);
   }
@@ -65,13 +61,6 @@ export class PRLangChainService extends BaseLangChainService {
           logger.info(
             `Successfully generated PR template-based content using ${provider.name}`
           );
-
-          // Log the raw response for debugging
-          console.log(`Raw response from ${provider.name}:`, {
-            content: response.content,
-            contentType: typeof response.content,
-            contentLength: response.content ? response.content.length : 0,
-          });
 
           // Check if response is empty
           if (!response.content || response.content.trim() === '') {
@@ -114,14 +103,18 @@ export class PRLangChainService extends BaseLangChainService {
       `PR LangChain streamPRContent called with template: ${templateIdentifier}`
     );
 
+
+
     // Get the base template and format it
     const promptTemplate = await this.createPromptTemplate(
       templateIdentifier,
       false
     );
+    
     const formattedPrompt = await promptTemplate.format({
       ...promptTemplateFormatter,
     });
+    
     // Try each provider in order of priority
     return this.tryProvidersForStreaming(formattedPrompt, res);
   }
@@ -159,75 +152,73 @@ export class PRLangChainService extends BaseLangChainService {
   async streamWithProvider(provider, formattedPrompt, res) {
     logger.info(`Trying provider for PR streaming: ${provider.name}`);
 
-    const message = new HumanMessage({ content: formattedPrompt });
+    // Use the same approach as ChatLangChainService - create a chain first
+    const { ChatPromptTemplate } = await import('@langchain/core/prompts');
+    const { StringOutputParser } = await import('@langchain/core/output_parsers');
 
-    let stream;
     try {
-      stream = await provider.model.stream([message]);
-    } catch (error) {
-      logger.error(
-        `Failed to initialize stream with ${provider.name}: ${error.message}`
-      );
-      throw error;
-    }
+      // Create a simple chain like the working services
+      const prompt = ChatPromptTemplate.fromMessages([
+        ['human', '{input}'],
+      ]);
+      
+      const outputParser = new StringOutputParser();
+      const chain = prompt.pipe(provider.model).pipe(outputParser);
 
-    // Send status update
-    res.write(
-      `data: ${JSON.stringify({
-        type: 'status',
-        message: `Generating with ${provider.name}...`,
-        provider: provider.name,
-      })}\n\n`
-    );
+      // Send status update using StreamingService
+      StreamingService.sendStatus(res, `Generating with ${provider.name}...`);
 
-    let fullContent = '';
-    let parsedTitle = '';
-    let parsedDescription = '';
-    let chunkCount = 0;
+      let fullContent = '';
+      let parsedTitle = '';
+      let parsedDescription = '';
+      let chunkCount = 0;
 
-    // Process the stream
-    try {
+      // Use chain.stream like the working services
+      const stream = await chain.stream({
+        input: formattedPrompt,
+      });
+
       for await (const chunk of stream) {
         chunkCount++;
-        if (chunk.content) {
-          fullContent += chunk.content;
+
+        // Convert chunk to string and validate
+        const content = String(chunk || '');
+        if (content && content.trim() !== '') {
+          fullContent += content;
           // Handle parsing and chunk sending
           const parseResult = this.handleStreamChunk(
             fullContent,
             parsedTitle,
             parsedDescription,
             res,
-            chunk.content
+            content
           );
-          console.log('parseResult:', fullContent);
           parsedTitle = parseResult.parsedTitle;
           parsedDescription = parseResult.parsedDescription;
         }
       }
-    } catch (streamError) {
-      logger.error(
-        `Streaming error with ${provider.name}: ${streamError.message}`
+
+      logger.info(
+        `Successfully streamed PR content using ${provider.name}. Received ${chunkCount} chunks, total content length: ${fullContent.length}`
       );
-      throw new Error(`Streaming failed: ${streamError.message}`);
+
+      // Validate that content was actually generated
+      if (!fullContent || fullContent.trim() === '') {
+        throw new Error(
+          `Provider ${provider.name} returned empty content after streaming (${chunkCount} chunks received)`
+        );
+      }
+
+      return {
+        content: fullContent,
+        provider: provider.name,
+        parsedTitle: parsedTitle,
+        parsedDescription: parsedDescription,
+      };
+    } catch (error) {
+      logger.error(`Chain streaming failed with ${provider.name}: ${error.message}`);
+      throw error;
     }
-
-    logger.info(
-      `Successfully streamed PR content using ${provider.name}. Received ${chunkCount} chunks, total content length: ${fullContent.length}`
-    );
-
-    // Validate that content was actually generated
-    if (!fullContent || fullContent.trim() === '') {
-      throw new Error(
-        `Provider ${provider.name} returned empty content after streaming (${chunkCount} chunks received)`
-      );
-    }
-
-    return {
-      content: fullContent,
-      provider: provider.name,
-      parsedTitle: parsedTitle,
-      parsedDescription: parsedDescription,
-    };
   }
 
   /**
@@ -247,12 +238,7 @@ export class PRLangChainService extends BaseLangChainService {
     if (parsed.title && parsed.title !== currentTitle) {
       const titleChunk = parsed.title.slice(currentTitle.length);
       if (titleChunk) {
-        res.write(
-          `data: ${JSON.stringify({
-            type: 'title_chunk',
-            data: titleChunk,
-          })}\n\n`
-        );
+        StreamingService.sendTitleChunk(res, titleChunk);
       }
     }
 
@@ -262,22 +248,12 @@ export class PRLangChainService extends BaseLangChainService {
         currentDescription.length
       );
       if (descriptionChunk) {
-        res.write(
-          `data: ${JSON.stringify({
-            type: 'description_chunk',
-            data: descriptionChunk,
-          })}\n\n`
-        );
+        StreamingService.sendDescriptionChunk(res, descriptionChunk);
       }
     }
 
-    // Send streaming chunk to frontend
-    res.write(
-      `data: ${JSON.stringify({
-        type: 'content_chunk',
-        data: chunkContent,
-      })}\n\n`
-    );
+    // Send standardized content chunk
+    StreamingService.sendChunk(res, chunkContent);
 
     return {
       parsedTitle: parsed.title,
@@ -448,34 +424,19 @@ export class PRLangChainService extends BaseLangChainService {
     branchName
   ) {
     // Send complete title
-    res.write(
-      `data: ${JSON.stringify({
-        type: 'title_complete',
-        data: title,
-      })}\n\n`
-    );
+    StreamingService.sendTitleComplete(res, title);
 
     // Send complete description
-    res.write(
-      `data: ${JSON.stringify({
-        type: 'description_complete',
-        data: description,
-      })}\n\n`
-    );
+    StreamingService.sendDescriptionComplete(res, description);
 
     // Send completion event
-    res.write(
-      `data: ${JSON.stringify({
-        type: 'complete',
-        data: {
-          prTitle: title,
-          prDescription: description,
-          aiGenerated,
-          ticketNumber,
-          branchName,
-        },
-      })}\n\n`
-    );
+    StreamingService.sendComplete(res, {
+      prTitle: title,
+      prDescription: description,
+      aiGenerated,
+      ticketNumber,
+      branchName,
+    });
   }
 
   /**

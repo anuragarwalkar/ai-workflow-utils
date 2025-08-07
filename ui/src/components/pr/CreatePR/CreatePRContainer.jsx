@@ -93,14 +93,9 @@ const CreatePRContainer = () => {
 
                   switch (data.type) {
                     case 'status':
-                      console.log('Status:', data.message);
                       break;
-                    case 'content_chunk':
-                      // Real-time content streaming - show progress
-                      console.log(
-                        'Content chunk received:',
-                        data.data?.substring(0, 50)
-                      );
+                    case 'chunk':
+                      // Real-time content streaming - show progress (standardized across app)
                       break;
                     case 'title_chunk':
                       streamedPreview.prTitle += data.data;

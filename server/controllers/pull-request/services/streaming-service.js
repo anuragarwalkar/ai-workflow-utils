@@ -40,12 +40,82 @@ class StreamingService {
   }
 
   /**
+   * Send content chunk (standardized across services)
+   */
+  static sendChunk(res, content) {
+    this.sendSSEData(res, {
+      type: 'chunk',
+      content: content,
+    });
+  }
+
+  /**
+   * Send token (for chat services)
+   */
+  static sendToken(res, content) {
+    this.sendSSEData(res, {
+      type: 'token',
+      content: content,
+    });
+  }
+
+  /**
+   * Send title chunk (for PR services)
+   */
+  static sendTitleChunk(res, title) {
+    this.sendSSEData(res, {
+      type: 'title_chunk',
+      data: title,
+    });
+  }
+
+  /**
+   * Send description chunk (for PR services)
+   */
+  static sendDescriptionChunk(res, description) {
+    this.sendSSEData(res, {
+      type: 'description_chunk',
+      data: description,
+    });
+  }
+
+  /**
+   * Send complete title
+   */
+  static sendTitleComplete(res, title) {
+    this.sendSSEData(res, {
+      type: 'title_complete',
+      data: title,
+    });
+  }
+
+  /**
+   * Send complete description
+   */
+  static sendDescriptionComplete(res, description) {
+    this.sendSSEData(res, {
+      type: 'description_complete',
+      data: description,
+    });
+  }
+
+  /**
    * Send complete data
    */
   static sendComplete(res, data) {
     this.sendSSEData(res, {
       type: 'complete',
       data: data,
+    });
+  }
+
+  /**
+   * Send review complete (for PR review)
+   */
+  static sendReviewComplete(res, reviewData) {
+    this.sendSSEData(res, {
+      type: 'review_complete',
+      data: reviewData,
     });
   }
 

@@ -61,9 +61,9 @@ export const useStreamingPRReview = () => {
                     console.log('PR Review Status:', data.message);
                     break;
 
-                  case 'content':
-                    // Handle streaming content
-                    setStreamingContent(prev => prev + data.data);
+                  case 'chunk':
+                    // Handle streaming content (standardized across app)
+                    setStreamingContent(prev => prev + data.content);
                     break;
 
                   case 'review_complete':
