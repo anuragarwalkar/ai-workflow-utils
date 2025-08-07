@@ -1,10 +1,16 @@
 import path from 'path';
 import { createLogger, format, transports } from 'winston';
 import fs from 'fs';
+import { promisify } from 'util';
 
 // Use project root for consistent path resolution
 const projectRoot = process.cwd();
 const logsDir = path.join(projectRoot, 'logs');
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Configure log retention (days)
+const LOG_RETENTION_DAYS = isProduction ? 5 : 1;
+
 try {
   if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
@@ -12,6 +18,42 @@ try {
 } catch (error) {
   console.warn('Warning: Could not create logs directory:', error.message);
 }
+
+// Function to clean up old log files
+const cleanupOldLogs = async () => {
+  try {
+    const files = await promisify(fs.readdir)(logsDir);
+    const logFiles = files.filter(file => file.endsWith('.log'));
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - LOG_RETENTION_DAYS);
+
+    for (const file of logFiles) {
+      const filePath = path.join(logsDir, file);
+      try {
+        const stats = await promisify(fs.stat)(filePath);
+        if (stats.mtime < cutoffDate) {
+          await promisify(fs.unlink)(filePath);
+          console.log(
+            `🗑️  Deleted old log file: ${file} (${stats.mtime.toDateString()})`
+          );
+        }
+      } catch (error) {
+        console.warn(
+          `Warning: Could not process log file ${file}:`,
+          error.message
+        );
+      }
+    }
+  } catch (error) {
+    console.warn('Warning: Could not cleanup old logs:', error.message);
+  }
+};
+
+// Run cleanup on startup and schedule periodic cleanup
+cleanupOldLogs();
+
+// Schedule cleanup to run daily (24 hours)
+setInterval(cleanupOldLogs, 24 * 60 * 60 * 1000);
 
 // Helper function to format additional arguments
 const formatArgs = (args, pretty = false) => {
@@ -141,7 +183,7 @@ const logLevel = getLogLevel();
 const nodeEnv = process.env.NODE_ENV || 'development';
 const explicitLogLevel = process.env.LOG_LEVEL || 'undefined';
 console.log(
-  `🔧 Logger initialized with level: ${logLevel.toUpperCase()} (NODE_ENV: ${nodeEnv}, LOG_LEVEL: ${explicitLogLevel})`
+    `🔧 Logger initialized with level: ${logLevel.toUpperCase()} (NODE_ENV: ${nodeEnv}, LOG_LEVEL: ${explicitLogLevel})`
 );
 
 export default logger;
