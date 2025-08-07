@@ -13,21 +13,6 @@ class LogsController {
    */
   static async getLogs(req, res) {
     try {
-      // Test different types of error logging using direct string concatenation
-      const testError = new Error('Test error message');
-      testError.code = 'TEST_ERROR';
-      testError.statusCode = 500;
-
-      // Instead of relying on winston splat, build the message manually
-      const errorMessage = `❌ Error sending index.html: ${testError.message} path=${testError.path || 'unknown-path'} status=${testError.statusCode || 500}`;
-      const errorObject = {
-        error: 'wish',
-        code: testError.code,
-        fullError: testError,
-      };
-
-      logger.error(errorMessage, errorObject);
-
       const { level = 'all', search = '', page = 1, limit = 25 } = req.query;
 
       // Fetch raw logs
