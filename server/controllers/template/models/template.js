@@ -41,8 +41,8 @@ class Template {
     }
 
     // Validate content length
-    if (data.content.length > 100000) {
-      throw new Error('Template content must be 100000 characters or less');
+    if (data.content.length > 1000000) {
+      throw new Error('Template content must be 1000000 characters or less');
     }
   }
 
