@@ -15,7 +15,7 @@ export {
   analyzeCommentSentiment,
   getAvailableIssueTypes,
 } from './services/jira-content-service.js';
-export { JiraAttachmentService } from './services/jira-attachment-service.js';
+
 
 // Models
 export { JiraIssue } from './models/jira-issue.js';

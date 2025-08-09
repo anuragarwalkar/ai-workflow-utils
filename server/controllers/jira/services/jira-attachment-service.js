@@ -260,17 +260,3 @@ export const handleAttachments = async (issueKey, attachments) => {
     throw error;
   }
 };
-
-// Export all functions as default for backward compatibility
-export const JiraAttachmentService = {
-  uploadFile,
-  processFileIfNeeded,
-  createFormData,
-  validateUpload,
-  getSupportedFileTypes,
-  uploadMultipleFiles,
-  getUploadStats,
-  handleAttachments,
-};
-
-export default JiraAttachmentService;

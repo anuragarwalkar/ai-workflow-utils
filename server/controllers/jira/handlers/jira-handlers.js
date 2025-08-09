@@ -1,7 +1,7 @@
 import logger from '../../../logger.js';
 import { withErrorHandling, withExpressErrorHandling } from '../../../utils/error-handling.js';
-import { withLogging, withRequestLogging } from '../../../utils/logging.js';
-import { ValidationPatterns, ValidationSchemas, withValidation } from '../../../utils/validation.js';
+import { withLogging } from '../../../utils/logging.js';
+import { ValidationSchemas, withValidation } from '../../../utils/validation.js';
 import { JiraSummaryService } from '../services/jira-summary-service.js';
 import { JiraApiService } from '../services/jira-api-service.js';
 import { 
@@ -10,7 +10,7 @@ import {
   generateCommentReply as generateJiraCommentReply,
   streamPreviewContent as streamJiraPreviewContent,
 } from '../services/jira-content-service.js';
-import { JiraAttachmentService } from '../services/jira-attachment-service.js';
+import { handleAttachments as handleAttachmentsService } from '../services/jira-attachment-service.js';
 
 // ============================================================================
 // PURE BUSINESS LOGIC FUNCTIONS
@@ -41,7 +41,7 @@ const getIssueDetailsCore = async (issueKey) => {
  * @returns {Promise<Object>} Attachment results
  */
 const handleAttachmentsCore = async (issueKey, attachments) => {
-  return await JiraAttachmentService.handleAttachments(issueKey, attachments);
+  return await handleAttachmentsService(issueKey, attachments);
 };
 
 /**
