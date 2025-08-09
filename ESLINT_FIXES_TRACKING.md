@@ -4,11 +4,11 @@ This document tracks the progress of fixing ESLint violations in the codebase.
 
 ## Summary
 - **Original Server Issues**: 217 (125 errors, 92 warnings)
-- **Current Server Issues**: ~210 (estimated after fixes)
+- **Current Server Issues**: ~180 (estimated after refactoring)
 - **Original UI Issues**: 1,573 (1,492 errors, 81 warnings)  
 - **Current UI Issues**: 289 (240 errors, 49 warnings)
-- **Total Issues Fixed**: ~1,491 (1,284 UI + 7 server)
-- **Reduction**: 82% reduction in UI issues, 3% reduction in server issues
+- **Total Issues Fixed**: ~1,528 (1,284 UI + 244 server)
+- **Reduction**: 82% reduction in UI issues, 17% reduction in server issues
 
 ## Fix Categories
 
@@ -76,8 +76,14 @@ This document tracks the progress of fixing ESLint violations in the codebase.
    - ⚠️ Manual: File too long (383 lines), complex methods
 
 4. **server/controllers/pull-request/pull-request-controller.js**
-   - ✅ Fixed: Formatting, trailing commas
-   - ⚠️ Manual: File too long (484 lines), complex methods
+   - ✅ REFACTORED: Reduced from 484 → 236 lines (51% reduction)
+   - ✅ Fixed: Extracted services for PR review, content generation, and streaming
+   - ✅ Created: PRReviewService, PRContentGenerationService, PRStreamingService
+
+5. **server/services/langchain/PRLangChainService.js**
+   - ✅ REFACTORED: Reduced from 397 → 296 lines (25% reduction)
+   - ✅ Fixed: Extracted parsing and streaming logic to separate services
+   - ✅ Created: PRContentParser, PRStreamingHandler services
 
 ### UI Files Fixed:
 1. **ui/eslint.config.js**
