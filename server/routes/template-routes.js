@@ -1,5 +1,5 @@
 import express from 'express';
-import templateController from '../controllers/template/index.js';
+import * as templateController from '../controllers/template/index.js';
 
 const router = express.Router();
 

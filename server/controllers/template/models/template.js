@@ -1,157 +1,114 @@
 import crypto from 'crypto';
 
-/**
- * Template model with validation and payload generation
- */
-class Template {
-  constructor(data) {
-    this.id = data.id || crypto.randomUUID();
-    this.name = data.name;
-    this.issueType = data.issueType;
-    this.content = data.content;
-    this.isDefault = !!data.isDefault;
-    this.isActive = !!data.isActive;
-    this.createdAt = data.createdAt || new Date().toISOString();
-    this.updatedAt = data.updatedAt || new Date().toISOString();
-    this.variables = data.variables || this.extractVariables(data.content);
-    this.templateFor = data.templateFor;
-    this.templateType = data.templateType;
-    this.templateCanBeModified = !!data.canBeModified;
-    this.templateCanBeDeleted = !!data.canBeDeleted;
+// Factory function for Template model
+export function createTemplate(data) {
+  return {
+    id: data.id || crypto.randomUUID(),
+    name: data.name,
+    issueType: data.issueType,
+    content: data.content,
+    isDefault: !!data.isDefault,
+    isActive: !!data.isActive,
+    createdAt: data.createdAt || new Date().toISOString(),
+    updatedAt: data.updatedAt || new Date().toISOString(),
+    variables: data.variables || extractVariables(data.content),
+    templateFor: data.templateFor,
+    templateType: data.templateType,
+    templateCanBeModified: !!data.canBeModified,
+    templateCanBeDeleted: !!data.canBeDeleted,
+  };
+}
+
+// Validate template data
+export function validateTemplate(data) {
+  const required = ['name', 'content'];
+  const missing = required.filter(field => !data[field] || data[field].trim() === '');
+  if (missing.length > 0) {
+    throw new Error(`Missing required fields: ${missing.join(', ')}`);
   }
-
-  /**
-   * Validate template data
-   * @param {Object} data - Template data to validate
-   * @throws {Error} If validation fails
-   */
-  static validate(data) {
-    const required = ['name', 'content'];
-    const missing = required.filter(
-      field => !data[field] || data[field].trim() === '',
-    );
-
-    if (missing.length > 0) {
-      throw new Error(`Missing required fields: ${missing.join(', ')}`);
-    }
-
-    // Validate name length
-    if (data.name.length > 100) {
-      throw new Error('Template name must be 100 characters or less');
-    }
-
-    // Validate content length
-    if (data.content.length > 1000000) {
-      throw new Error('Template content must be 1000000 characters or less');
-    }
+  if (data.name.length > 100) {
+    throw new Error('Template name must be 100 characters or less');
   }
-
-  /**
-   * Extract variables from template content
-   * @param {string} content - Template content
-   * @returns {Array} Array of unique variable names
-   */
-  extractVariables(content) {
-    if (!content) return [];
-
-    const variablePattern = /\{\{([^}]+)\}\}/g;
-    const variables = [];
-    let match;
-
-    while ((match = variablePattern.exec(content)) !== null) {
-      const variable = match[1].trim();
-      if (!variables.includes(variable)) {
-        variables.push(variable);
-      }
-    }
-
-    return variables;
-  }
-
-  /**
-   * Update template data
-   * @param {Object} updates - Fields to update
-   */
-  update(updates) {
-    const allowedFields = ['name', 'issueType', 'content', 'isActive'];
-
-    Object.keys(updates).forEach(key => {
-      if (allowedFields.includes(key) && updates[key] !== undefined) {
-        this[key] = updates[key];
-      }
-    });
-
-    // Re-extract variables if content was updated
-    if (updates.content) {
-      this.variables = this.extractVariables(updates.content);
-    }
-
-    this.updatedAt = new Date().toISOString();
-  }
-
-  /**
-   * Convert to database format
-   * @returns {Object} Database-compatible object
-   */
-  toDbFormat() {
-    return {
-      id: this.id,
-      name: this.name,
-      issueType: this.issueType,
-      content: this.content,
-      isDefault: this.isDefault,
-      isActive: this.isActive,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-      variables: this.variables,
-    };
-  }
-
-  /**
-   * Convert to API response format
-   * @returns {Object} API-compatible object
-   */
-  toApiFormat() {
-    return {
-      id: this.id,
-      name: this.name,
-      content: this.content,
-      isDefault: this.isDefault,
-      isActive: this.isActive,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-      variables: this.variables,
-      templateFor: this.templateFor,
-      canBeDeleted: this.canBeDeleted(),
-      canBeModified: this.canBeModified(),
-      type: this.templateType,
-    };
-  }
-
-  /**
-   * Create template from database data
-   * @param {Object} dbData - Data from database
-   * @returns {Template} Template instance
-   */
-  static fromDb(dbData) {
-    return new Template(dbData);
-  }
-
-  /**
-   * Check if template can be deleted
-   * @returns {boolean} True if template can be deleted
-   */
-  canBeDeleted() {
-    return !!this.templateCanBeDeleted;
-  }
-
-  /**
-   * Check if template can be modified
-   * @returns {boolean} True if template can be modified
-   */
-  canBeModified() {
-    return !!this.templateCanBeModified;
+  if (data.content.length > 1000000) {
+    throw new Error('Template content must be 1000000 characters or less');
   }
 }
 
-export default Template;
+// Extract variables from template content
+export function extractVariables(content) {
+  if (!content) return [];
+  const variablePattern = /\{\{([^}]+)\}\}/g;
+  const variables = [];
+  let match;
+  while ((match = variablePattern.exec(content)) !== null) {
+    const variable = match[1].trim();
+    if (!variables.includes(variable)) {
+      variables.push(variable);
+    }
+  }
+  return variables;
+}
+
+// Update template data (pure function)
+export function updateTemplate(template, updates) {
+  const allowedFields = ['name', 'issueType', 'content', 'isActive'];
+  const updated = { ...template };
+  Object.keys(updates).forEach(key => {
+    if (allowedFields.includes(key) && updates[key] !== undefined) {
+      updated[key] = updates[key];
+    }
+  });
+  if (updates.content) {
+    updated.variables = extractVariables(updates.content);
+  }
+  updated.updatedAt = new Date().toISOString();
+  return updated;
+}
+
+// Convert to database format
+export function toDbFormat(template) {
+  return {
+    id: template.id,
+    name: template.name,
+    issueType: template.issueType,
+    content: template.content,
+    isDefault: template.isDefault,
+    isActive: template.isActive,
+    createdAt: template.createdAt,
+    updatedAt: template.updatedAt,
+    variables: template.variables,
+  };
+}
+
+// Convert to API response format
+export function toApiFormat(template) {
+  return {
+    id: template.id,
+    name: template.name,
+    content: template.content,
+    isDefault: template.isDefault,
+    isActive: template.isActive,
+    createdAt: template.createdAt,
+    updatedAt: template.updatedAt,
+    variables: template.variables,
+    templateFor: template.templateFor,
+    canBeDeleted: canBeDeleted(template),
+    canBeModified: canBeModified(template),
+    type: template.templateType,
+  };
+}
+
+// Create template from database data
+export function fromDb(dbData) {
+  return createTemplate(dbData);
+}
+
+// Check if template can be deleted
+export function canBeDeleted(template) {
+  return !!template.templateCanBeDeleted;
+}
+
+// Check if template can be modified
+export function canBeModified(template) {
+  return !!template.templateCanBeModified;
+}
