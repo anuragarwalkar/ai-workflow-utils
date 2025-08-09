@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  FormControlLabel,
-  Switch,
   Alert,
+  Box,
+  Button,
   CircularProgress,
   Divider,
+  FormControlLabel,
   Grid,
+  Paper,
+  Switch,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { Download } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -164,13 +164,13 @@ ${emailPreview}`;
             mb: 3,
           }}
         >
-          <Typography variant='h4' component='h1' gutterBottom>
+          <Typography gutterBottom component='h1' variant='h4'>
             Send Email
           </Typography>
           <Button
+            sx={{ minWidth: 120 }}
             variant='outlined'
             onClick={handleBackToHome}
-            sx={{ minWidth: 120 }}
           >
             Back to Home
           </Button>
@@ -181,81 +181,81 @@ ${emailPreview}`;
             <Grid item xs={12}>
               <TextField
                 fullWidth
+                helperText='Enter the version number for the release notes'
                 label='Version'
+                placeholder='e.g., 1.0.0'
                 value={version}
                 onChange={e => setVersion(e.target.value)}
-                placeholder='e.g., 1.0.0'
-                helperText='Enter the version number for the release notes'
               />
             </Grid>
 
             <Grid item xs={12}>
               <TextField
                 fullWidth
+                helperText='Your Atlassian Wiki URL for release notes'
                 label='Wiki URL'
+                placeholder='https://your-company.atlassian.net/wiki'
                 value={wikiUrl}
                 onChange={e => setWikiUrl(e.target.value)}
-                placeholder='https://your-company.atlassian.net/wiki'
-                helperText='Your Atlassian Wiki URL for release notes'
               />
             </Grid>
 
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                type='password'
+                helperText='Wiki basic authentication (username:password)'
                 label='Wiki Basic Auth'
+                placeholder='username:password'
+                type='password'
                 value={wikiBasicAuth}
                 onChange={e => setWikiBasicAuth(e.target.value)}
-                placeholder='username:password'
-                helperText='Wiki basic authentication (username:password)'
               />
             </Grid>
 
-            {dryRun && emailPreview && (
+            {dryRun && emailPreview ? (
               <>
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
+                    helperText='Email subject line'
                     label='Subject'
+                    placeholder='Email subject'
                     value={subject}
                     onChange={e => setSubject(e.target.value)}
-                    placeholder='Email subject'
-                    helperText='Email subject line'
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item md={6} xs={12}>
                   <TextField
                     fullWidth
+                    helperText='Primary recipient email address'
                     label='To Email'
+                    placeholder='recipient@example.com'
                     value={toEmail}
                     onChange={e => setToEmail(e.target.value)}
-                    placeholder='recipient@example.com'
-                    helperText='Primary recipient email address'
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item md={6} xs={12}>
                   <TextField
                     fullWidth
+                    helperText='Carbon copy email address'
                     label='CC Email (Optional)'
+                    placeholder='cc@example.com'
                     value={ccEmail}
                     onChange={e => setCcEmail(e.target.value)}
-                    placeholder='cc@example.com'
-                    helperText='Carbon copy email address'
                   />
                 </Grid>
               </>
-            )}
+            ) : null}
           </Grid>
 
           <FormControlLabel
             control={
               <Switch
                 checked={dryRun}
-                onChange={e => setDryRun(e.target.checked)}
                 color='primary'
+                onChange={e => setDryRun(e.target.checked)}
               />
             }
             label={
@@ -268,16 +268,16 @@ ${emailPreview}`;
 
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             <Button
-              variant='contained'
-              size='large'
-              onClick={handleSendEmail}
               disabled={
                 isLoading ||
                 !version.trim() ||
                 !wikiUrl.trim() ||
                 !wikiBasicAuth.trim()
               }
+              size='large'
               sx={{ minWidth: 200 }}
+              variant='contained'
+              onClick={handleSendEmail}
             >
               {isLoading ? (
                 <>
@@ -295,36 +295,36 @@ ${emailPreview}`;
               )}
             </Button>
 
-            {dryRun && emailPreview && (
+            {dryRun && emailPreview ? (
               <Button
-                variant='outlined'
                 size='large'
-                onClick={handleDownloadTemplate}
                 startIcon={<Download />}
                 sx={{ minWidth: 200 }}
+                variant='outlined'
+                onClick={handleDownloadTemplate}
               >
                 Download Template
               </Button>
-            )}
+            ) : null}
           </Box>
         </Box>
 
-        {error && (
+        {error ? (
           <Alert severity='error' sx={{ mb: 3 }}>
             Error:{' '}
             {error.data?.message ||
               error.message ||
               'Failed to process email request'}
           </Alert>
-        )}
+        ) : null}
 
-        {success && (
+        {success ? (
           <Alert severity='success' sx={{ mb: 3 }}>
             Email sent successfully for version {version}!
           </Alert>
-        )}
+        ) : null}
 
-        {emailPreview && (
+        {emailPreview ? (
           <Box sx={{ mt: 4 }}>
             <Divider sx={{ mb: 3 }} />
             <Typography variant='h6' gutterBottom>
@@ -351,7 +351,7 @@ ${emailPreview}`;
               />
             </Paper>
           </Box>
-        )}
+        ) : null}
       </Paper>
     </Box>
   );

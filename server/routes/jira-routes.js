@@ -13,10 +13,10 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const uniqueSuffix = `${Date.now()  }-${  Math.round(Math.random() * 1e9)}`;
     cb(
       null,
-      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)
+      `${file.fieldname  }-${  uniqueSuffix  }${path.extname(file.originalname)}`,
     );
   },
 });
@@ -65,7 +65,7 @@ router.post(
       next();
     });
   },
-  asyncHandler(jiraController.uploadImage)
+  asyncHandler(jiraController.uploadImage),
 );
 
 // Route for fetching a Jira issue by ID
@@ -74,11 +74,11 @@ router.get('/issue/:id', asyncHandler(jiraController.getJiraIssue));
 // AI-powered enhancement routes
 router.post(
   '/ai/enhance-description',
-  asyncHandler(jiraController.enhanceDescription)
+  asyncHandler(jiraController.enhanceDescription),
 );
 router.post(
   '/ai/generate-comment-reply',
-  asyncHandler(jiraController.generateCommentReply)
+  asyncHandler(jiraController.generateCommentReply),
 );
 router.post('/ai/format-comment', asyncHandler(jiraController.formatComment));
 

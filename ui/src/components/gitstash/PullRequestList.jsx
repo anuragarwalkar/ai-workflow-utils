@@ -1,22 +1,22 @@
 import React, { useEffect } from 'react';
 import {
+  Alert,
+  Avatar,
   Box,
-  Typography,
+  Button,
   Card,
   CardContent,
-  Button,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  ListItemAvatar,
-  Avatar,
   Chip,
   CircularProgress,
-  Alert,
   Divider,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText,
+  Typography,
 } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   ArrowBack as ArrowBackIcon,
   ArrowForward as ArrowForwardIcon,
@@ -24,7 +24,7 @@ import {
   Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import { useGetPullRequestsQuery } from '../../store/api/prApi';
-import { setSelectedPullRequest, setError } from '../../store/slices/prSlice';
+import { setError, setSelectedPullRequest } from '../../store/slices/prSlice';
 
 const PullRequestList = ({ onNext, onPrevious }) => {
   const dispatch = useDispatch();
@@ -111,7 +111,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
         }}
       >
         <CircularProgress size={60} />
-        <Typography variant='h6' sx={{ ml: 2 }}>
+        <Typography sx={{ ml: 2 }} variant='h6'>
           Fetching pull requests...
         </Typography>
       </Box>
@@ -125,7 +125,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
           Failed to fetch pull requests. Please check your project key and
           repository slug.
         </Alert>
-        <Button variant='outlined' onClick={refetch} sx={{ mr: 2 }}>
+        <Button sx={{ mr: 2 }} variant='outlined' onClick={refetch}>
           Retry
         </Button>
         <Button variant='outlined' onClick={onPrevious}>
@@ -138,9 +138,9 @@ const PullRequestList = ({ onNext, onPrevious }) => {
   return (
     <Box>
       <Typography
-        variant='h5'
         component='h2'
         sx={{ mb: 3, textAlign: 'center' }}
+        variant='h5'
       >
         Pull Requests for {selectedProject.projectKey}/
         {selectedProject.repoSlug}
@@ -150,13 +150,13 @@ const PullRequestList = ({ onNext, onPrevious }) => {
         <Card elevation={1} sx={{ textAlign: 'center', py: 6 }}>
           <CardContent>
             <Box sx={{ mb: 3 }}>
-              <Typography variant='h5' color='text.secondary' sx={{ mb: 2 }}>
+              <Typography color='text.secondary' sx={{ mb: 2 }} variant='h5'>
                 🔍 No Pull Requests Found
               </Typography>
-              <Typography variant='body1' color='text.secondary' sx={{ mb: 1 }}>
+              <Typography color='text.secondary' sx={{ mb: 1 }} variant='body1'>
                 There are currently no pull requests in this repository.
               </Typography>
-              <Typography variant='body2' color='text.secondary'>
+              <Typography color='text.secondary' variant='body2'>
                 This could mean:
               </Typography>
             </Box>
@@ -193,7 +193,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
               </List>
             </Box>
 
-            <Button variant='outlined' onClick={onPrevious} sx={{ mt: 2 }}>
+            <Button sx={{ mt: 2 }} variant='outlined' onClick={onPrevious}>
               Try Different Repository
             </Button>
           </CardContent>
@@ -202,7 +202,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
         <>
           <Card elevation={1} sx={{ mb: 3 }}>
             <CardContent>
-              <Typography variant='body2' color='text.secondary'>
+              <Typography color='text.secondary' variant='body2'>
                 Found {pullRequests?.values?.length || 0} pull request(s).
                 Select one to review its changes.
               </Typography>
@@ -215,7 +215,6 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                 <ListItem disablePadding>
                   <ListItemButton
                     selected={selectedPullRequest?.id === pr.id}
-                    onClick={() => handleSelectPR(pr)}
                     sx={{
                       border: selectedPullRequest?.id === pr.id ? 2 : 1,
                       borderColor:
@@ -228,6 +227,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                         borderColor: 'primary.main',
                       },
                     }}
+                    onClick={() => handleSelectPR(pr)}
                   >
                     <ListItemAvatar>
                       <Avatar>
@@ -244,13 +244,13 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                             mb: 1,
                           }}
                         >
-                          <Typography variant='subtitle1' component='span'>
+                          <Typography component='span' variant='subtitle1'>
                             {pr.title}
                           </Typography>
                           <Chip
+                            color={getStatusColor(pr.state)}
                             label={pr.state}
                             size='small'
-                            color={getStatusColor(pr.state)}
                             variant='outlined'
                           />
                         </Box>
@@ -258,64 +258,62 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                       secondary={
                         <Box component='div'>
                           <Typography
-                            variant='body2'
                             color='text.secondary'
-                            sx={{ mb: 0.5 }}
                             component='div'
+                            sx={{ mb: 0.5 }}
+                            variant='body2'
                           >
                             #{pr.id} • by {pr.author?.displayName || 'Unknown'}
                           </Typography>
                           <Box
+                            component='div'
                             sx={{
                               display: 'flex',
                               alignItems: 'center',
                               gap: 1,
                             }}
-                            component='div'
                           >
-                            <ScheduleIcon fontSize='small' color='action' />
+                            <ScheduleIcon color='action' fontSize='small' />
                             <Typography
-                              variant='caption'
                               color='text.secondary'
                               component='span'
+                              variant='caption'
                             >
                               Created: {formatDate(pr.createdDate)}
                             </Typography>
                           </Box>
-                          {pr.description && (
+                          {pr.description ? (
                             <Typography
-                              variant='body2'
-                              sx={{ mt: 1, maxWidth: '80%' }}
                               component='div'
+                              sx={{ mt: 1, maxWidth: '80%' }}
+                              variant='body2'
                             >
                               {pr.description.length > 100
                                 ? `${pr.description.substring(0, 100)}...`
                                 : pr.description}
                             </Typography>
-                          )}
+                          ) : null}
                         </Box>
                       }
                     />
                   </ListItemButton>
                 </ListItem>
-                <Divider variant='inset' component='li' />
+                <Divider component='li' variant='inset' />
               </React.Fragment>
             ))}
           </List>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
             <Button
-              variant='outlined'
               startIcon={<ArrowBackIcon />}
+              variant='outlined'
               onClick={onPrevious}
             >
               Previous
             </Button>
             <Button
-              variant='contained'
-              endIcon={<ArrowForwardIcon />}
-              onClick={handleNext}
               disabled={!selectedPullRequest}
+              endIcon={<ArrowForwardIcon />}
               sx={{
                 background: selectedPullRequest
                   ? 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
@@ -327,6 +325,8 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                     }
                   : undefined,
               }}
+              variant='contained'
+              onClick={handleNext}
             >
               Review Changes
             </Button>

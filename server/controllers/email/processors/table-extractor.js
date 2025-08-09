@@ -27,7 +27,7 @@ class TableExtractor {
       });
 
       const dom = new JSDOM(htmlString);
-      const document = dom.window.document;
+      const { document } = dom.window;
 
       // Find the heading for the specified build
       const heading = this._findBuildHeading(document, buildNumber);
@@ -153,7 +153,7 @@ class TableExtractor {
     // Check if all rows are arrays and have at least one non-empty cell
     return tableData.every(
       row =>
-        Array.isArray(row) && row.some(cell => cell && cell.trim().length > 0)
+        Array.isArray(row) && row.some(cell => cell && cell.trim().length > 0),
     );
   }
 }

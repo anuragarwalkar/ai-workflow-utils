@@ -35,7 +35,7 @@ export class BaseLangChainService {
           timeout: 60000,
         }),
         supportsVision: this.modelSupportsVision(
-          process.env.OPENAI_MODEL || 'gpt-4-vision-preview'
+          process.env.OPENAI_MODEL || 'gpt-4-vision-preview',
         ),
         priority: 1,
       });
@@ -59,7 +59,7 @@ export class BaseLangChainService {
           },
         }),
         supportsVision: this.modelSupportsVision(
-          process.env.OPENAI_COMPATIBLE_MODEL
+          process.env.OPENAI_COMPATIBLE_MODEL,
         ),
         priority: 2,
       });
@@ -97,7 +97,7 @@ export class BaseLangChainService {
     this.providers.sort((a, b) => a.priority - b.priority);
 
     logger.info(
-      `Initialized ${this.providers.length} AI providers: ${this.providers.map(p => p.name).join(', ')}`
+      `Initialized ${this.providers.length} AI providers: ${this.providers.map(p => p.name).join(', ')}`,
     );
   }
 
@@ -154,7 +154,7 @@ export class BaseLangChainService {
       logger.error(`Error creating prompt template for ${issueType}:`, error);
       // Fallback to a basic template
       return PromptTemplate.fromTemplate(
-        `{prompt} - Generate a detailed ${issueType} description based on the provided information.`
+        `{prompt} - Generate a detailed ${issueType} description based on the provided information.`,
       );
     }
   }
@@ -202,7 +202,7 @@ export class BaseLangChainService {
     promptTemplateFormatter,
     images,
     promptTemplateIdentifier,
-    streaming = false
+    streaming = false,
   ) {
     const hasImages = images && images.length > 0;
 
@@ -212,7 +212,7 @@ export class BaseLangChainService {
 
     const promptTemplate = await this.createPromptTemplate(
       promptTemplateIdentifier,
-      hasImages
+      hasImages,
     );
     const formattedPrompt = await promptTemplate.format({
       ...promptTemplateFormatter,
@@ -232,7 +232,7 @@ export class BaseLangChainService {
           messageContent = formattedPrompt;
           if (hasImages && !provider.supportsVision) {
             messageContent +=
-              " (note: images were provided but this model doesn't support vision)";
+              ' (note: images were provided but this model doesn\'t support vision)';
           }
         }
 
@@ -251,7 +251,7 @@ export class BaseLangChainService {
 
         if (provider === this.providers[this.providers.length - 1]) {
           throw new Error(
-            `All providers failed. Last error from ${provider.name}: ${error.message}`
+            `All providers failed. Last error from ${provider.name}: ${error.message}`,
           );
         }
 

@@ -1,42 +1,42 @@
-import { useState, useRef, useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
+  Alert,
+  Avatar,
+  Backdrop,
   Box,
-  Paper,
-  Typography,
-  TextField,
   Button,
   Card,
   CardContent,
-  Avatar,
   Chip,
-  IconButton,
-  Fade,
-  Slide,
-  Collapse,
-  Stack,
-  Divider,
-  Alert,
-  Fab,
-  Backdrop,
   CircularProgress,
-  useTheme,
-  alpha,
+  Collapse,
+  Divider,
+  Fab,
+  Fade,
   Grow,
+  IconButton,
+  Paper,
+  Slide,
   Snackbar,
+  Stack,
+  TextField,
+  Typography,
+  alpha,
+  useTheme,
 } from '@mui/material';
 import {
-  Send as SendIcon,
-  AutoAwesome as MagicIcon,
-  Image as ImageIcon,
-  Close as CloseIcon,
-  Preview as PreviewIcon,
-  Email as EmailIcon,
-  Person as PersonIcon,
-  Subject as SubjectIcon,
-  Delete as DeleteIcon,
-  Refresh as RefreshIcon,
-  KeyboardVoice as VoiceIcon,
   SmartToy as AiIcon,
+  Close as CloseIcon,
+  Delete as DeleteIcon,
+  Email as EmailIcon,
+  Image as ImageIcon,
+  AutoAwesome as MagicIcon,
+  Person as PersonIcon,
+  Preview as PreviewIcon,
+  Refresh as RefreshIcon,
+  Send as SendIcon,
+  Subject as SubjectIcon,
+  KeyboardVoice as VoiceIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -212,7 +212,7 @@ const AiEmailComposer = () => {
       );
 
       const result = await composeWithAI({
-        prompt: prompt + ' (regenerate with different tone)',
+        prompt: `${prompt} (regenerate with different tone)`,
         attachedImages: imageData,
       }).unwrap();
 
@@ -287,7 +287,6 @@ const AiEmailComposer = () => {
         <Fade in timeout={600}>
           <Box>
             <Typography
-              variant='h4'
               sx={{
                 color: 'white',
                 fontWeight: 700,
@@ -296,16 +295,17 @@ const AiEmailComposer = () => {
                 alignItems: 'center',
                 gap: 2,
               }}
+              variant='h4'
             >
               <AiIcon sx={{ fontSize: 40 }} />
               AI Email Composer
             </Typography>
             <Typography
-              variant='subtitle1'
               sx={{
                 color: alpha(theme.palette.common.white, 0.8),
                 fontWeight: 300,
               }}
+              variant='subtitle1'
             >
               Natural language email generation with AI intelligence
             </Typography>
@@ -313,12 +313,12 @@ const AiEmailComposer = () => {
         </Fade>
 
         <IconButton
-          onClick={() => navigate('/')}
           sx={{
             color: 'white',
             background: alpha(theme.palette.common.white, 0.1),
             '&:hover': { background: alpha(theme.palette.common.white, 0.2) },
           }}
+          onClick={() => navigate('/')}
         >
           <CloseIcon />
         </IconButton>
@@ -327,7 +327,7 @@ const AiEmailComposer = () => {
       {/* Main Content */}
       <Box sx={{ px: 3, pb: 3, display: 'flex', justifyContent: 'center' }}>
         <Box sx={{ width: '100%', maxWidth: 1000 }}>
-          <Slide direction='up' in timeout={800}>
+          <Slide in direction='up' timeout={800}>
             {/* Input Card */}
             <Card
               sx={{
@@ -341,7 +341,6 @@ const AiEmailComposer = () => {
             >
               <CardContent sx={{ p: 4 }}>
                 <Typography
-                  variant='h6'
                   sx={{
                     mb: 3,
                     color: theme.palette.text.primary,
@@ -350,19 +349,17 @@ const AiEmailComposer = () => {
                     alignItems: 'center',
                     gap: 1,
                   }}
+                  variant='h6'
                 >
                   <MagicIcon color='primary' />
                   Tell AI what email you want to send
                 </Typography>
 
                 <TextField
-                  multiline
-                  rows={4}
                   fullWidth
+                  multiline
                   placeholder="e.g., 'Send email to Anurag about project update with timeline' or 'Email team about tomorrow's meeting'"
-                  value={prompt}
-                  onChange={e => setPrompt(e.target.value)}
-                  variant='outlined'
+                  rows={4}
                   sx={{
                     mb: 3,
                     '& .MuiOutlinedInput-root': {
@@ -377,6 +374,9 @@ const AiEmailComposer = () => {
                       },
                     },
                   }}
+                  value={prompt}
+                  variant='outlined'
+                  onChange={e => setPrompt(e.target.value)}
                 />
 
                 {/* Image Attachments */}
@@ -384,8 +384,8 @@ const AiEmailComposer = () => {
                   <Collapse in={attachedImages.length > 0}>
                     <Box sx={{ mb: 3 }}>
                       <Typography
-                        variant='subtitle2'
                         sx={{ mb: 2, color: theme.palette.text.secondary }}
+                        variant='subtitle2'
                       >
                         Attached Images ({attachedImages.length})
                       </Typography>
@@ -395,7 +395,7 @@ const AiEmailComposer = () => {
                         sx={{ flexWrap: 'wrap', gap: 2 }}
                       >
                         {attachedImages.map(image => (
-                          <Grow key={image.id} in timeout={300}>
+                          <Grow in key={image.id} timeout={300}>
                             <Box
                               sx={{
                                 position: 'relative',
@@ -405,8 +405,8 @@ const AiEmailComposer = () => {
                               }}
                             >
                               <img
-                                src={image.url}
                                 alt={image.name}
+                                src={image.url}
                                 style={{
                                   width: 80,
                                   height: 80,
@@ -415,7 +415,6 @@ const AiEmailComposer = () => {
                               />
                               <IconButton
                                 size='small'
-                                onClick={() => removeImage(image.id)}
                                 sx={{
                                   position: 'absolute',
                                   top: 4,
@@ -429,6 +428,7 @@ const AiEmailComposer = () => {
                                     background: theme.palette.error.main,
                                   },
                                 }}
+                                onClick={() => removeImage(image.id)}
                               >
                                 <DeleteIcon sx={{ fontSize: 16 }} />
                               </IconButton>
@@ -441,15 +441,13 @@ const AiEmailComposer = () => {
                 )}
 
                 {/* Action Buttons */}
-                <Stack direction='row' spacing={2} alignItems='center'>
+                <Stack alignItems='center' direction='row' spacing={2}>
                   <Button
-                    variant='contained'
-                    size='large'
-                    onClick={handleProcessPrompt}
                     disabled={!prompt.trim() || isProcessing}
+                    size='large'
                     startIcon={
                       isProcessing ? (
-                        <CircularProgress size={20} color='inherit' />
+                        <CircularProgress color='inherit' size={20} />
                       ) : (
                         <MagicIcon />
                       )
@@ -468,33 +466,34 @@ const AiEmailComposer = () => {
                           'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                       },
                     }}
+                    variant='contained'
+                    onClick={handleProcessPrompt}
                   >
                     {isProcessing ? 'Generating...' : 'Generate Email'}
                   </Button>
 
                   <input
-                    type='file'
-                    ref={fileInputRef}
-                    onChange={handleImageUpload}
-                    accept='image/*'
                     multiple
+                    accept='image/*'
+                    ref={fileInputRef}
                     style={{ display: 'none' }}
+                    type='file'
+                    onChange={handleImageUpload}
                   />
 
                   <IconButton
-                    onClick={() => fileInputRef.current?.click()}
                     sx={{
                       background: alpha(theme.palette.primary.main, 0.1),
                       '&:hover': {
                         background: alpha(theme.palette.primary.main, 0.2),
                       },
                     }}
+                    onClick={() => fileInputRef.current?.click()}
                   >
                     <ImageIcon />
                   </IconButton>
 
                   <IconButton
-                    onClick={handleVoiceInput}
                     sx={{
                       background: isListening
                         ? alpha(theme.palette.error.main, 0.2)
@@ -508,6 +507,7 @@ const AiEmailComposer = () => {
                           : alpha(theme.palette.primary.main, 0.2),
                       },
                     }}
+                    onClick={handleVoiceInput}
                   >
                     <VoiceIcon />
                   </IconButton>
@@ -517,7 +517,7 @@ const AiEmailComposer = () => {
           </Slide>
 
           {/* Email Preview */}
-          {showPreview && emailDraft && (
+          {showPreview && emailDraft ? (
             <Slide direction='up' in={showPreview} timeout={500}>
               <Card
                 sx={{
@@ -538,7 +538,6 @@ const AiEmailComposer = () => {
                     }}
                   >
                     <Typography
-                      variant='h6'
                       sx={{
                         color: theme.palette.text.primary,
                         fontWeight: 600,
@@ -546,21 +545,22 @@ const AiEmailComposer = () => {
                         alignItems: 'center',
                         gap: 1,
                       }}
+                      variant='h6'
                     >
                       <PreviewIcon color='primary' />
                       Email Preview
                     </Typography>
 
-                    <Stack direction='row' spacing={1} alignItems='center'>
+                    <Stack alignItems='center' direction='row' spacing={1}>
                       <Chip
-                        label={`${emailDraft.confidence}% Confidence`}
                         color='success'
+                        label={`${emailDraft.confidence}% Confidence`}
                         size='small'
                         sx={{ fontWeight: 600 }}
                       />
                       <IconButton
-                        onClick={regenerateDraft}
                         disabled={isProcessing}
+                        onClick={regenerateDraft}
                       >
                         <RefreshIcon />
                       </IconButton>
@@ -572,11 +572,11 @@ const AiEmailComposer = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <PersonIcon color='action' />
                       <Typography
-                        variant='body2'
                         sx={{
                           color: theme.palette.text.secondary,
                           minWidth: 60,
                         }}
+                        variant='body2'
                       >
                         To:
                       </Typography>
@@ -587,23 +587,23 @@ const AiEmailComposer = () => {
                           </Avatar>
                         }
                         label={emailDraft.to}
-                        variant='outlined'
                         sx={{ borderRadius: 2 }}
+                        variant='outlined'
                       />
                     </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <SubjectIcon color='action' />
                       <Typography
-                        variant='body2'
                         sx={{
                           color: theme.palette.text.secondary,
                           minWidth: 60,
                         }}
+                        variant='body2'
                       >
                         Subject:
                       </Typography>
-                      <Typography variant='body1' sx={{ fontWeight: 500 }}>
+                      <Typography sx={{ fontWeight: 500 }} variant='body1'>
                         {emailDraft.subject}
                       </Typography>
                     </Box>
@@ -612,8 +612,8 @@ const AiEmailComposer = () => {
 
                     <Box>
                       <Typography
-                        variant='body2'
                         sx={{ color: theme.palette.text.secondary, mb: 2 }}
+                        variant='body2'
                       >
                         Message Body:
                       </Typography>
@@ -626,12 +626,12 @@ const AiEmailComposer = () => {
                         }}
                       >
                         <Typography
-                          variant='body1'
                           sx={{
                             whiteSpace: 'pre-line',
                             lineHeight: 1.6,
                             color: theme.palette.text.primary,
                           }}
+                          variant='body1'
                         >
                           {emailDraft.body}
                         </Typography>
@@ -640,32 +640,32 @@ const AiEmailComposer = () => {
 
                     {/* AI Suggestions */}
                     {emailDraft.suggestions &&
-                      emailDraft.suggestions.length > 0 && (
-                        <Box>
-                          <Typography
-                            variant='body2'
-                            sx={{ color: theme.palette.text.secondary, mb: 2 }}
-                          >
-                            AI Suggestions:
-                          </Typography>
-                          <Stack
-                            direction='row'
-                            spacing={1}
-                            sx={{ flexWrap: 'wrap', gap: 1 }}
-                          >
-                            {emailDraft.suggestions.map((suggestion, index) => (
-                              <Chip
-                                key={index}
-                                label={suggestion}
-                                size='small'
-                                clickable
-                                variant='outlined'
-                                sx={{ borderRadius: 2 }}
-                              />
-                            ))}
-                          </Stack>
-                        </Box>
-                      )}
+                    emailDraft.suggestions.length > 0 ? (
+                      <Box>
+                        <Typography
+                          variant='body2'
+                          sx={{ color: theme.palette.text.secondary, mb: 2 }}
+                        >
+                          AI Suggestions:
+                        </Typography>
+                        <Stack
+                          direction='row'
+                          spacing={1}
+                          sx={{ flexWrap: 'wrap', gap: 1 }}
+                        >
+                          {emailDraft.suggestions.map((suggestion, index) => (
+                            <Chip
+                              key={index}
+                              label={suggestion}
+                              size='small'
+                              clickable
+                              variant='outlined'
+                              sx={{ borderRadius: 2 }}
+                            />
+                          ))}
+                        </Stack>
+                      </Box>
+                    ) : null}
                   </Stack>
 
                   {/* Send Button */}
@@ -673,8 +673,6 @@ const AiEmailComposer = () => {
                     sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}
                   >
                     <Fab
-                      variant='extended'
-                      onClick={handleSendEmail}
                       disabled={isSending}
                       sx={{
                         background:
@@ -690,11 +688,13 @@ const AiEmailComposer = () => {
                             'linear-gradient(135deg, #0f8a7e 0%, #32d16a 100%)',
                         },
                       }}
+                      variant='extended'
+                      onClick={handleSendEmail}
                     >
                       {isSending ? (
                         <CircularProgress
-                          size={24}
                           color='inherit'
+                          size={24}
                           sx={{ mr: 1 }}
                         />
                       ) : (
@@ -706,25 +706,25 @@ const AiEmailComposer = () => {
                 </CardContent>
               </Card>
             </Slide>
-          )}
+          ) : null}
         </Box>
       </Box>
 
       {/* Loading Backdrop */}
       <Backdrop
-        sx={{ color: '#fff', zIndex: theme.zIndex.drawer + 1 }}
         open={isProcessing}
+        sx={{ color: '#fff', zIndex: theme.zIndex.drawer + 1 }}
       >
         <Box sx={{ textAlign: 'center' }}>
           <CircularProgress color='inherit' size={60} />
-          <Typography variant='h6' sx={{ mt: 2 }}>
+          <Typography sx={{ mt: 2 }} variant='h6'>
             AI is crafting your perfect email...
           </Typography>
         </Box>
       </Backdrop>
 
       {/* Error Display */}
-      {error && (
+      {error ? (
         <Box
           sx={{
             position: 'fixed',
@@ -747,19 +747,19 @@ const AiEmailComposer = () => {
             {error}
           </Alert>
         </Box>
-      )}
+      ) : null}
 
       {/* Success/Error Notifications */}
       <Snackbar
-        open={notification.open}
-        autoHideDuration={4000}
-        onClose={() => setNotification({ ...notification, open: false })}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        autoHideDuration={4000}
+        open={notification.open}
+        onClose={() => setNotification({ ...notification, open: false })}
       >
         <Alert
           severity={notification.severity}
-          onClose={() => setNotification({ ...notification, open: false })}
           sx={{ borderRadius: 2 }}
+          onClose={() => setNotification({ ...notification, open: false })}
         >
           {notification.message}
         </Alert>

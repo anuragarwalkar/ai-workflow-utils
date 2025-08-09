@@ -35,12 +35,12 @@ class MessageProcessor {
     const sanitizedMessage = this._sanitizeContent(message);
 
     switch (provider) {
-      case 'OpenAI Compatible':
-        return this._formatForOpenAI(sanitizedMessage, processedHistory);
-      case 'Ollama':
-        return this._formatForOllama(sanitizedMessage, processedHistory);
-      default:
-        throw new Error(`Unsupported provider: ${provider}`);
+    case 'OpenAI Compatible':
+      return this._formatForOpenAI(sanitizedMessage, processedHistory);
+    case 'Ollama':
+      return this._formatForOllama(sanitizedMessage, processedHistory);
+    default:
+      throw new Error(`Unsupported provider: ${provider}`);
     }
   }
 
@@ -52,12 +52,12 @@ class MessageProcessor {
    */
   static extractContent(response, provider) {
     switch (provider) {
-      case 'OpenAI Compatible':
-        return response.data?.choices?.[0]?.message?.content || '';
-      case 'Ollama':
-        return response.data?.response || '';
-      default:
-        return '';
+    case 'OpenAI Compatible':
+      return response.data?.choices?.[0]?.message?.content || '';
+    case 'Ollama':
+      return response.data?.response || '';
+    default:
+      return '';
     }
   }
 
@@ -89,7 +89,7 @@ class MessageProcessor {
     }
 
     const maxChars = maxTokens * 4;
-    return content.slice(0, maxChars) + '...';
+    return `${content.slice(0, maxChars)  }...`;
   }
 
   /**

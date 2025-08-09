@@ -1,35 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   Box,
-  Typography,
+  Button,
   Card,
   CardContent,
-  TextField,
-  Button,
-  Alert,
+  Chip,
+  CircularProgress,
+  Collapse,
   Divider,
   Grid,
-  Chip,
   IconButton,
-  Collapse,
-  CircularProgress,
+  TextField,
+  Typography,
 } from '@mui/material';
 import {
-  Visibility,
-  VisibilityOff,
-  Science,
+  ExpandLess,
+  ExpandMore,
   Refresh,
   Save,
-  ExpandMore,
-  ExpandLess,
+  Science,
+  Visibility,
+  VisibilityOff,
 } from '@mui/icons-material';
 import {
   useGetEnvironmentSettingsQuery,
-  useUpdateEnvironmentSettingsMutation,
-  useGetProvidersQuery,
   useGetProviderConfigQuery,
-  useTestConnectionMutation,
+  useGetProvidersQuery,
   useResetSettingsMutation,
+  useTestConnectionMutation,
+  useUpdateEnvironmentSettingsMutation,
 } from '../../../store/api/environmentSettingsApi';
 
 const EnvironmentSettings = () => {
@@ -223,15 +223,15 @@ const EnvironmentSettings = () => {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
         <Chip
-          label={isConfigured ? 'Configured' : 'Not Configured'}
           color={isConfigured ? 'success' : 'default'}
+          label={isConfigured ? 'Configured' : 'Not Configured'}
           size='small'
         />
         <IconButton
-          size='small'
-          onClick={() => handleTestConnection(provider)}
           disabled={isTesting || !isConfigured}
+          size='small'
           title='Test Connection'
+          onClick={() => handleTestConnection(provider)}
         >
           {isTesting ? <CircularProgress size={16} /> : <Science />}
         </IconButton>
@@ -252,42 +252,42 @@ const EnvironmentSettings = () => {
       >
         <CardContent>
           <Typography
-            variant='h6'
             component='h3'
             sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}
+            variant='h6'
           >
             <Science color='primary' />
             {providerConfig.title}
           </Typography>
-          <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+          <Typography color='text.secondary' sx={{ mb: 3 }} variant='body2'>
             {providerConfig.description}
           </Typography>
 
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+            <Grid item md={6} xs={12}>
               <TextField
-                select
                 fullWidth
+                select
                 label={`Primary ${providerConfig.title.split(' ')[0]} Provider`}
-                value={currentSelection}
-                onChange={e => handleInputChange(key, e.target.value)}
-                size='small'
                 SelectProps={{
                   native: true,
                   sx: { backgroundColor: 'background.paper' },
                 }}
+                size='small'
                 sx={{
                   '& .MuiInputLabel-root': {
                     backgroundColor: 'background.paper',
                     px: 0.5,
                   },
                 }}
+                value={currentSelection}
+                onChange={e => handleInputChange(key, e.target.value)}
               >
                 {providerConfig.options.map(option => (
                   <option
+                    disabled={!option.available}
                     key={option.value}
                     value={option.value}
-                    disabled={!option.available}
                   >
                     {option.label} {option.comingSoon ? '(Coming Soon)' : ''}
                   </option>
@@ -315,7 +315,7 @@ const EnvironmentSettings = () => {
             }}
             onClick={() => toggleSectionExpanded(sectionName)}
           >
-            <Typography variant='h6' component='h3'>
+            <Typography component='h3' variant='h6'>
               {sectionName.charAt(0).toUpperCase() + sectionName.slice(1)}{' '}
               Configuration
             </Typography>
@@ -331,28 +331,19 @@ const EnvironmentSettings = () => {
             <Box sx={{ mt: 2 }}>
               <Grid container spacing={2}>
                 {Object.entries(sectionData).map(([key, config]) => (
-                  <Grid item xs={12} md={6} key={key}>
+                  <Grid item key={key} md={6}
+xs={12}>
                     <TextField
                       fullWidth
-                      label={config.label}
-                      value={settings[key] || ''}
-                      onChange={e => handleInputChange(key, e.target.value)}
-                      type={
-                        config.sensitive && !showSensitive[key]
-                          ? 'password'
-                          : 'text'
-                      }
-                      placeholder={config.default || ''}
                       helperText={config.description}
-                      size='small'
                       InputProps={
                         config.sensitive
                           ? {
                               endAdornment: (
                                 <IconButton
-                                  onClick={() => toggleShowSensitive(key)}
                                   edge='end'
                                   size='small'
+                                  onClick={() => toggleShowSensitive(key)}
                                 >
                                   {showSensitive[key] ? (
                                     <VisibilityOff />
@@ -364,6 +355,16 @@ const EnvironmentSettings = () => {
                             }
                           : undefined
                       }
+                      label={config.label}
+                      placeholder={config.default || ''}
+                      size='small'
+                      type={
+                        config.sensitive && !showSensitive[key]
+                          ? 'password'
+                          : 'text'
+                      }
+                      value={settings[key] || ''}
+                      onChange={e => handleInputChange(key, e.target.value)}
                     />
                   </Grid>
                 ))}
@@ -433,33 +434,33 @@ const EnvironmentSettings = () => {
           mb: 3,
         }}
       >
-        <Typography variant='h5' component='h1'>
+        <Typography component='h1' variant='h5'>
           Environment Settings
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
-            variant='outlined'
-            startIcon={<Refresh />}
-            onClick={refetch}
             size='small'
+            startIcon={<Refresh />}
+            variant='outlined'
+            onClick={refetch}
           >
             Refresh
           </Button>
           <Button
-            variant='outlined'
             color='warning'
-            onClick={handleReset}
             disabled={isResetting}
             size='small'
+            variant='outlined'
+            onClick={handleReset}
           >
             {isResetting ? <CircularProgress size={16} /> : 'Reset to Defaults'}
           </Button>
           <Button
-            variant='contained'
-            startIcon={<Save />}
-            onClick={handleSave}
             disabled={isUpdating}
             size='small'
+            startIcon={<Save />}
+            variant='contained'
+            onClick={handleSave}
           >
             {isUpdating ? <CircularProgress size={16} /> : 'Save Settings'}
           </Button>
@@ -473,17 +474,19 @@ const EnvironmentSettings = () => {
       </Alert>
 
       {/* Dynamic Provider Cards */}
-      {providerConfigData?.data &&
-        Object.entries(providerConfigData.data).map(
-          ([providerType, providerConfig]) =>
-            renderProviderCard(providerType, providerConfig)
-        )}
+      {providerConfigData?.data
+        ? Object.entries(providerConfigData.data).map(
+            ([providerType, providerConfig]) =>
+              renderProviderCard(providerType, providerConfig)
+          )
+        : null}
 
       {/* Dynamic Configuration Sections */}
-      {environmentData?.data &&
-        getVisibleSections().map(sectionName =>
-          renderSection(sectionName, environmentData.data[sectionName])
-        )}
+      {environmentData?.data
+        ? getVisibleSections().map(sectionName =>
+            renderSection(sectionName, environmentData.data[sectionName])
+          )
+        : null}
     </Box>
   );
 };

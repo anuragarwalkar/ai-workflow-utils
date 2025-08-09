@@ -2,7 +2,6 @@
  * Attachment processor for file handling operations
  */
 
-import fs from 'fs';
 import path from 'path';
 import logger from '../../../logger.js';
 
@@ -22,7 +21,7 @@ export class AttachmentProcessor {
 
       return {
         filePath: inputPath,
-        fileName: fileName,
+        fileName,
       };
     } catch (error) {
       logger.error('Failed to convert MOV to MP4', {

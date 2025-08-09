@@ -25,7 +25,7 @@ export class ProviderConnectionService {
       // Validate provider configuration
       const validationResult = this.validateProviderConfig(
         provider,
-        testConfig
+        testConfig,
       );
       if (!validationResult.valid) {
         result.status = 'error';
@@ -55,56 +55,56 @@ export class ProviderConnectionService {
     const result = { valid: true, message: '' };
 
     switch (provider) {
-      case 'openai':
-        if (
-          !config?.OPENAI_COMPATIBLE_API_KEY ||
+    case 'openai':
+      if (
+        !config?.OPENAI_COMPATIBLE_API_KEY ||
           !config?.OPENAI_COMPATIBLE_BASE_URL
-        ) {
-          result.valid = false;
-          result.message =
-            'API key and base URL are required for OpenAI provider';
-        }
-        break;
-
-      case 'jira':
-        if (!config?.JIRA_URL || !config?.JIRA_TOKEN) {
-          result.valid = false;
-          result.message = 'Jira URL and token are required for Jira provider';
-        }
-        break;
-
-      case 'bitbucket':
-        if (!config?.BIT_BUCKET_URL || !config?.BITBUCKET_AUTHORIZATION_TOKEN) {
-          result.valid = false;
-          result.message =
-            'Bitbucket URL and token are required for Bitbucket provider';
-        }
-        break;
-
-      case 'ollama':
-        if (!config?.OLLAMA_BASE_URL) {
-          result.valid = false;
-          result.message = 'Ollama base URL is required for Ollama provider';
-        }
-        break;
-
-      case 'anthropic':
-        if (!config?.ANTHROPIC_API_KEY) {
-          result.valid = false;
-          result.message = 'API key is required for Anthropic provider';
-        }
-        break;
-
-      case 'google':
-        if (!config?.GOOGLE_API_KEY) {
-          result.valid = false;
-          result.message = 'API key is required for Google provider';
-        }
-        break;
-
-      default:
+      ) {
         result.valid = false;
-        result.message = `Unknown provider: ${provider}`;
+        result.message =
+            'API key and base URL are required for OpenAI provider';
+      }
+      break;
+
+    case 'jira':
+      if (!config?.JIRA_URL || !config?.JIRA_TOKEN) {
+        result.valid = false;
+        result.message = 'Jira URL and token are required for Jira provider';
+      }
+      break;
+
+    case 'bitbucket':
+      if (!config?.BIT_BUCKET_URL || !config?.BITBUCKET_AUTHORIZATION_TOKEN) {
+        result.valid = false;
+        result.message =
+            'Bitbucket URL and token are required for Bitbucket provider';
+      }
+      break;
+
+    case 'ollama':
+      if (!config?.OLLAMA_BASE_URL) {
+        result.valid = false;
+        result.message = 'Ollama base URL is required for Ollama provider';
+      }
+      break;
+
+    case 'anthropic':
+      if (!config?.ANTHROPIC_API_KEY) {
+        result.valid = false;
+        result.message = 'API key is required for Anthropic provider';
+      }
+      break;
+
+    case 'google':
+      if (!config?.GOOGLE_API_KEY) {
+        result.valid = false;
+        result.message = 'API key is required for Google provider';
+      }
+      break;
+
+    default:
+      result.valid = false;
+      result.message = `Unknown provider: ${provider}`;
     }
 
     return result;

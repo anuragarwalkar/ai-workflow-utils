@@ -85,7 +85,7 @@ const validateBody = schema => {
     const { error } = schema.validate(req.body);
     if (error) {
       const validationError = new Error(
-        `Validation error: ${error.details[0].message}`
+        `Validation error: ${error.details[0].message}`,
       );
       validationError.status = 400;
       return next(validationError);

@@ -16,7 +16,7 @@ class OpenAIService {
     const config = ChatProviderConfig.getOpenAIConfig();
 
     logger.info(
-      `Making OpenAI compatible API request to: ${config.baseUrl}/chat/completions`
+      `Making OpenAI compatible API request to: ${config.baseUrl}/chat/completions`,
     );
     logger.info(`Using model: ${config.model}`);
 
@@ -35,7 +35,7 @@ class OpenAIService {
             'Content-Type': 'application/json',
           },
           timeout: 60000, // 60 second timeout
-        }
+        },
       );
 
       logger.info(`OpenAI compatible API response status: ${response.status}`);
@@ -70,7 +70,7 @@ class OpenAIService {
           },
           responseType: 'stream',
           timeout: 60000,
-        }
+        },
       );
 
       return response;
@@ -88,34 +88,34 @@ class OpenAIService {
   static _handleApiError(error) {
     if (error.response) {
       logger.error(
-        `OpenAI compatible API error - Status: ${error.response.status}`
+        `OpenAI compatible API error - Status: ${error.response.status}`,
       );
       logger.error(
-        `Error data: ${JSON.stringify(error.response.data, null, 2)}`
+        `Error data: ${JSON.stringify(error.response.data, null, 2)}`,
       );
 
       // Provide more specific error messages based on status code
       if (error.response.status === 400) {
         throw new Error(
-          `Bad Request (400): ${error.response.data?.error?.message || 'Invalid request format or parameters'}`
+          `Bad Request (400): ${error.response.data?.error?.message || 'Invalid request format or parameters'}`,
         );
       } else if (error.response.status === 401) {
         throw new Error(
-          `Unauthorized (401): Invalid API key or authentication failed`
+          'Unauthorized (401): Invalid API key or authentication failed',
         );
       } else if (error.response.status === 429) {
         throw new Error(
-          `Rate Limited (429): Too many requests, please try again later`
+          'Rate Limited (429): Too many requests, please try again later',
         );
       } else {
         throw new Error(
-          `API Error (${error.response.status}): ${error.response.data?.error?.message || error.message}`
+          `API Error (${error.response.status}): ${error.response.data?.error?.message || error.message}`,
         );
       }
     } else if (error.request) {
       logger.error(`Network error: ${error.message}`);
       throw new Error(
-        `Network error: Unable to reach OpenAI compatible server`
+        'Network error: Unable to reach OpenAI compatible server',
       );
     } else {
       logger.error(`Request setup error: ${error.message}`);

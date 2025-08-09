@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  Typography,
-  Paper,
   CircularProgress,
+  Paper,
   TextField,
+  Typography,
 } from '@mui/material';
 
 const PreviewSection = ({ preview, onConfirm, isLoading }) => {
@@ -31,40 +31,43 @@ const PreviewSection = ({ preview, onConfirm, isLoading }) => {
 
   return (
     <Box sx={{ mt: 4 }}>
-      <Typography variant='h6' gutterBottom>
+      <Typography gutterBottom variant='h6'>
         Preview
       </Typography>
 
       <Paper sx={{ p: 2, bgcolor: 'grey.100', mb: 2 }}>
-        <Typography variant='subtitle1' gutterBottom>
+        <Typography gutterBottom variant='subtitle1'>
           Title
         </Typography>
         <TextField
           fullWidth
           multiline
-          value={editableTitle}
-          onChange={e => setEditableTitle(e.target.value)}
-          variant='outlined'
-          size='small'
-          sx={{ mb: 2 }}
-          placeholder={!editableTitle ? 'Generating title...' : ''}
           InputProps={{
             endAdornment: !editableTitle && (
               <CircularProgress size={16} sx={{ mr: 1 }} />
             ),
           }}
+          placeholder={!editableTitle ? 'Generating title...' : ''}
+          size='small'
+          sx={{ mb: 2 }}
+          value={editableTitle}
+          variant='outlined'
+          onChange={e => setEditableTitle(e.target.value)}
         />
 
-        <Typography variant='subtitle1' gutterBottom>
+        <Typography gutterBottom variant='subtitle1'>
           Description
         </Typography>
         <TextField
           fullWidth
           multiline
+          InputProps={{
+            endAdornment: !editableDescription && (
+              <CircularProgress size={16} sx={{ mr: 1 }} />
+            ),
+          }}
+          placeholder={!editableDescription ? 'Generating description...' : ''}
           rows={8}
-          value={editableDescription}
-          onChange={e => setEditableDescription(e.target.value)}
-          variant='outlined'
           size='small'
           sx={{
             mb: 2,
@@ -73,31 +76,28 @@ const PreviewSection = ({ preview, onConfirm, isLoading }) => {
               fontSize: '0.875rem',
             },
           }}
-          placeholder={!editableDescription ? 'Generating description...' : ''}
-          InputProps={{
-            endAdornment: !editableDescription && (
-              <CircularProgress size={16} sx={{ mr: 1 }} />
-            ),
-          }}
+          value={editableDescription}
+          variant='outlined'
+          onChange={e => setEditableDescription(e.target.value)}
         />
 
         <Box sx={{ mt: 2 }}>
-          <Typography variant='subtitle2' color='text.secondary'>
+          <Typography color='text.secondary' variant='subtitle2'>
             Branch: {preview.branchName}
           </Typography>
-          {preview.aiGenerated && (
-            <Typography variant='subtitle2' color='primary'>
+          {preview.aiGenerated ? (
+            <Typography color='primary' variant='subtitle2'>
               AI-Generated Content (Streamed)
             </Typography>
-          )}
+          ) : null}
         </Box>
       </Paper>
 
       <Button
-        variant='contained'
         color='primary'
-        onClick={handleConfirm}
         disabled={isLoading || !editableTitle || !editableDescription}
+        variant='contained'
+        onClick={handleConfirm}
       >
         {isLoading ? <CircularProgress size={24} /> : 'Create Pull Request'}
       </Button>

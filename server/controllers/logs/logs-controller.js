@@ -1,7 +1,6 @@
 import LogsService from './services/logs-service.js';
 import LogsProcessor from './processors/logs-processor.js';
 import { ErrorHandler } from './utils/error-handler.js';
-import logger from '../../logger.js';
 
 /**
  * Logs Controller - Main orchestrator for log operations
@@ -45,7 +44,7 @@ class LogsController {
       res.setHeader('Content-Type', 'text/plain');
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="logs-${new Date().toISOString().split('T')[0]}.txt"`
+        `attachment; filename="logs-${new Date().toISOString().split('T')[0]}.txt"`,
       );
       res.send(logsContent);
     } catch (error) {

@@ -9,9 +9,9 @@ import configBridge from './services/configBridge.js';
 
 // Import middleware
 import {
-  requestLogger,
   errorHandler,
   notFoundHandler,
+  requestLogger,
 } from './middleware/index.js';
 
 // Import routes
@@ -68,7 +68,7 @@ app.use(
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  })
+  }),
 );
 
 // Body parsing middleware
@@ -76,14 +76,14 @@ app.use(
   express.json({
     limit: process.env.JSON_LIMIT || '10mb',
     strict: true,
-  })
+  }),
 );
 
 app.use(
   express.urlencoded({
     extended: true,
     limit: process.env.URL_ENCODED_LIMIT || '10mb',
-  })
+  }),
 );
 
 // Request logging middleware
@@ -117,7 +117,7 @@ app.use(
     maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0',
     etag: true,
     lastModified: true,
-  })
+  }),
 );
 
 // Serve React app for all non-API routes (SPA routing)
@@ -133,7 +133,7 @@ app.use((req, res, next) => {
         '❌ Error sending index.html:',
         err.message,
         err.path,
-        err.status
+        err.status,
       );
       res.status(500).json({ error: 'Internal server error' });
     } else {
@@ -153,7 +153,7 @@ io.on('connection', socket => {
   // Handle client disconnection
   socket.on('disconnect', reason => {
     logger.info(
-      `Client disconnected from WebSocket: ${socket.id}, reason: ${reason}`
+      `Client disconnected from WebSocket: ${socket.id}, reason: ${reason}`,
     );
   });
 

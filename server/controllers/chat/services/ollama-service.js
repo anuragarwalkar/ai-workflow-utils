@@ -29,10 +29,10 @@ class OllamaService {
         requestPayload,
         {
           timeout: 120000, // 2 minute timeout for local models
-        }
+        },
       );
 
-      logger.info(`Ollama API response received`);
+      logger.info('Ollama API response received');
       return response.data?.response;
     } catch (error) {
       this._handleApiError(error);
@@ -60,7 +60,7 @@ class OllamaService {
         {
           responseType: 'stream',
           timeout: 120000,
-        }
+        },
       );
 
       return response;
@@ -96,14 +96,14 @@ class OllamaService {
     if (error.response) {
       logger.error(`Ollama API error - Status: ${error.response.status}`);
       logger.error(
-        `Error data: ${JSON.stringify(error.response.data, null, 2)}`
+        `Error data: ${JSON.stringify(error.response.data, null, 2)}`,
       );
       throw new Error(
-        `Ollama API Error (${error.response.status}): ${error.response.data?.error || error.message}`
+        `Ollama API Error (${error.response.status}): ${error.response.data?.error || error.message}`,
       );
     } else if (error.request) {
       logger.error(`Ollama network error: ${error.message}`);
-      throw new Error(`Network error: Unable to reach Ollama server`);
+      throw new Error('Network error: Unable to reach Ollama server');
     } else {
       logger.error(`Ollama request setup error: ${error.message}`);
       throw new Error(`Ollama request error: ${error.message}`);

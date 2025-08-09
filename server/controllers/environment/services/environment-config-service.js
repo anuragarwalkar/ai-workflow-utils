@@ -34,7 +34,7 @@ export class EnvironmentConfigService {
       await environmentDbService.validateSettings(updates);
     if (!validationResult.valid) {
       throw new Error(
-        `Invalid configuration: ${validationResult.errors.join(', ')}`
+        `Invalid configuration: ${validationResult.errors.join(', ')}`,
       );
     }
 

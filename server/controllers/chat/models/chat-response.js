@@ -100,7 +100,7 @@ export class ChatResponse {
   static createErrorResponse(
     errorMessage,
     sessionId = 'error_session',
-    provider = 'unknown'
+    provider = 'unknown',
   ) {
     return new ChatResponse({
       content: '',

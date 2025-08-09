@@ -16,7 +16,7 @@ class ConfigBridge {
 
       if (!settings || Object.keys(settings).length === 0) {
         logger.info(
-          'No database configuration found, using existing environment variables'
+          'No database configuration found, using existing environment variables',
         );
         this.initialized = true;
         return;
@@ -32,13 +32,13 @@ class ConfigBridge {
       });
 
       logger.info(
-        `Configuration bridge: Loaded ${loadedCount} settings from database to environment variables`
+        `Configuration bridge: Loaded ${loadedCount} settings from database to environment variables`,
       );
       this.initialized = true;
     } catch (error) {
       logger.warn(
         'Failed to load database config, using existing environment variables:',
-        error.message
+        error.message,
       );
       this.initialized = true; // Continue with existing env vars
     }

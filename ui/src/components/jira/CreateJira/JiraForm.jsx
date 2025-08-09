@@ -1,42 +1,42 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   Box,
-  TextField,
   Button,
-  Typography,
-  Stack,
   CircularProgress,
-  styled,
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography,
+  styled,
 } from '@mui/material';
 import {
+  Add as AddIcon,
   CloudUpload,
   Delete as DeleteIcon,
-  Add as AddIcon,
 } from '@mui/icons-material';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  setPrompt,
+  addCustomField,
+  removeCustomField,
+  setCustomFields,
   setImageFile,
   setIssueType,
   setPriority,
   setProjectType,
-  setCustomFields,
-  addCustomField,
-  removeCustomField,
+  setPrompt,
   updateCustomField,
 } from '../../../store/slices/jiraSlice';
 import { usePreviewJiraStreamingMutation } from '../../../store/api/jiraApi';
 import { showNotification } from '../../../store/slices/uiSlice';
 import {
   setPreviewData,
+  setStreaming,
   setStreamingContent,
   setStreamingStatus,
-  setStreaming,
 } from '../../../store/slices/jiraSlice';
 import { saveToLocalStorage } from './utils';
 
@@ -230,30 +230,30 @@ const JiraForm = () => {
   const isLoading = isPreviewLoading || isStreaming;
 
   return (
-    <Box component='form' onSubmit={handleSubmit} sx={{ width: '100%' }}>
+    <Box component='form' sx={{ width: '100%' }} onSubmit={handleSubmit}>
       <Stack spacing={3}>
-        <Typography variant='h2' component='h2'>
+        <Typography component='h2' variant='h2'>
           Create Jira Issue
         </Typography>
 
         <TextField
-          label='Prompt'
+          fullWidth
           multiline
+          required
+          label='Prompt'
           rows={4}
           value={prompt}
-          onChange={handlePromptChange}
-          required
-          fullWidth
           variant='outlined'
+          onChange={handlePromptChange}
         />
 
         <FormControl fullWidth>
           <InputLabel id='issue-type-label'>Issue Type</InputLabel>
           <Select
-            labelId='issue-type-label'
             id='issue-type-select'
-            value={issueType}
             label='Issue Type'
+            labelId='issue-type-label'
+            value={issueType}
             onChange={handleIssueTypeChange}
           >
             <MenuItem value='Task'>Task</MenuItem>
@@ -265,10 +265,10 @@ const JiraForm = () => {
         <FormControl fullWidth>
           <InputLabel id='priority-label'>Priority</InputLabel>
           <Select
-            labelId='priority-label'
             id='priority-select'
-            value={priority}
             label='Priority'
+            labelId='priority-label'
+            value={priority}
             onChange={handlePriorityChange}
           >
             <MenuItem value='Critical'>Critical</MenuItem>
@@ -279,20 +279,20 @@ const JiraForm = () => {
         </FormControl>
 
         <TextField
-          label='Project Key'
-          value={projectType}
-          onChange={handleProjectTypeChange}
-          required
           fullWidth
-          variant='outlined'
+          required
+          label='Project Key'
           placeholder='e.g., AIWUT, PROJ, etc.'
+          value={projectType}
+          variant='outlined'
+          onChange={handleProjectTypeChange}
         />
 
         <Box>
-          <Typography variant='h6' gutterBottom>
+          <Typography gutterBottom variant='h6'>
             Custom Fields ({issueType})
           </Typography>
-          <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+          <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
             These custom fields are specific to {issueType} issues and will be
             saved separately for each issue type.
             <br />
@@ -312,40 +312,40 @@ const JiraForm = () => {
             >
               <TextField
                 label='Field Key'
-                value={field.key}
+                placeholder='e.g., customfield_1234'
+                size='small'
                 style={{ marginBottom: 0 }}
+                sx={{ flex: 1 }}
+                value={field.key}
                 onChange={e =>
                   handleUpdateCustomField(index, 'key', e.target.value)
                 }
-                size='small'
-                sx={{ flex: 1 }}
-                placeholder='e.g., customfield_1234'
               />
               <TextField
                 label='Field Value'
+                placeholder='e.g., 11222 or {"id": "007"}'
+                size='small'
                 style={{ marginBottom: 0 }}
+                sx={{ flex: 1 }}
                 value={field.value}
                 onChange={e =>
                   handleUpdateCustomField(index, 'value', e.target.value)
                 }
-                size='small'
-                sx={{ flex: 1 }}
-                placeholder='e.g., 11222 or {"id": "007"}'
               />
               <IconButton
-                onClick={() => handleRemoveCustomField(index)}
                 color='error'
                 size='small'
+                onClick={() => handleRemoveCustomField(index)}
               >
                 <DeleteIcon />
               </IconButton>
             </Box>
           ))}
           <Button
-            onClick={handleAddCustomField}
+            size='small'
             startIcon={<AddIcon />}
             variant='outlined'
-            size='small'
+            onClick={handleAddCustomField}
           >
             Add Custom Field
           </Button>
@@ -354,32 +354,32 @@ const JiraForm = () => {
         <Box>
           <Button
             component='label'
-            variant='outlined'
             startIcon={<CloudUpload />}
             sx={{ mb: 1 }}
+            variant='outlined'
           >
             Upload Image
             <VisuallyHiddenInput
-              type='file'
               accept='image/*'
+              type='file'
               onChange={handleImageChange}
             />
           </Button>
-          {imageFile && (
-            <Typography variant='body2' color='text.secondary' component='div'>
+          {imageFile ? (
+            <Typography color='text.secondary' component='div' variant='body2'>
               Selected: {imageFile.name}
             </Typography>
-          )}
+          ) : null}
         </Box>
 
         <Button
+          disabled={isLoading}
+          size='large'
+          sx={{ position: 'relative' }}
           type='submit'
           variant='contained'
-          size='large'
-          disabled={isLoading}
-          sx={{ position: 'relative' }}
         >
-          {isLoading && (
+          {isLoading ? (
             <CircularProgress
               size={24}
               sx={{
@@ -390,7 +390,7 @@ const JiraForm = () => {
                 marginLeft: '-12px',
               }}
             />
-          )}
+          ) : null}
           {isLoading ? 'Generating Preview...' : 'Preview'}
         </Button>
       </Stack>

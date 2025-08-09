@@ -2,8 +2,8 @@ import { io } from 'socket.io-client';
 import store from '../store';
 import {
   addBuildLog,
-  setBuildError,
   setBranchName,
+  setBuildError,
 } from '../store/slices/buildSlice';
 import { API_BASE_URL } from '../config/environment.js';
 

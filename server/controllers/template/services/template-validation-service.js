@@ -97,7 +97,7 @@ class TemplateValidationService {
           Template.validate(templateData);
         } catch (error) {
           throw new Error(
-            `Invalid template at index ${index}: ${error.message}`
+            `Invalid template at index ${index}: ${error.message}`,
           );
         }
       });
@@ -156,7 +156,7 @@ class TemplateValidationService {
       // Validate issue type format
       if (!/^[a-zA-Z0-9_-]+$/.test(issueType)) {
         throw new Error(
-          'Issue type can only contain letters, numbers, underscores, and hyphens'
+          'Issue type can only contain letters, numbers, underscores, and hyphens',
         );
       }
     } catch (error) {
@@ -178,7 +178,7 @@ class TemplateValidationService {
 
       if (!/^[a-zA-Z0-9_-]+$/.test(issueType)) {
         throw new Error(
-          'Issue type can only contain letters, numbers, underscores, and hyphens'
+          'Issue type can only contain letters, numbers, underscores, and hyphens',
         );
       }
     } catch (error) {
@@ -201,7 +201,7 @@ class TemplateValidationService {
       // Check if it's a valid ID format (alphanumeric, dashes, underscores)
       if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
         throw new Error(
-          'Template ID must contain only alphanumeric characters, dashes, and underscores'
+          'Template ID must contain only alphanumeric characters, dashes, and underscores',
         );
       }
 

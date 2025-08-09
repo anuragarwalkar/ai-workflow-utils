@@ -27,14 +27,14 @@ class EnvironmentDbService {
     try {
       const defaultConfigPath = path.join(process.cwd(), './data/config.json');
       const configSchema = JSON.parse(
-        fs.readFileSync(defaultConfigPath, 'utf8')
+        fs.readFileSync(defaultConfigPath, 'utf8'),
       );
 
       // Extract default values from schema
       const defaultSettings = {};
       for (const [_, sectionConfig] of Object.entries(configSchema.sections)) {
         for (const [fieldKey, fieldConfig] of Object.entries(
-          sectionConfig.fields
+          sectionConfig.fields,
         )) {
           if (fieldConfig.default) {
             defaultSettings[fieldKey] = fieldConfig.default;
@@ -45,7 +45,7 @@ class EnvironmentDbService {
       // Set default provider selections
       const defaultProviders = {};
       for (const [providerType, providerConfig] of Object.entries(
-        configSchema.providers
+        configSchema.providers,
       )) {
         defaultProviders[`${providerType}_provider`] = providerConfig.default;
       }
@@ -87,7 +87,7 @@ class EnvironmentDbService {
         this.db.data = defaultData;
         await this.db.write();
         logger.info(
-          'Environment database initialized with default configuration'
+          'Environment database initialized with default configuration',
         );
       }
 
@@ -154,14 +154,14 @@ class EnvironmentDbService {
   async getProviders() {
     try {
       await this.db.read();
-      const schema = this.db.data.schema;
-      const settings = this.db.data.settings;
+      const { schema } = this.db.data;
+      const { settings } = this.db.data;
 
       const providers = {};
 
       // Build provider status from schema and current settings
       for (const [providerType, providerConfig] of Object.entries(
-        schema.providers || {}
+        schema.providers || {},
       )) {
         providers[providerType] = {
           ...providerConfig,
@@ -187,23 +187,23 @@ class EnvironmentDbService {
   async getProviderStatus() {
     try {
       await this.db.read();
-      const schema = this.db.data.schema;
-      const settings = this.db.data.settings;
+      const { schema } = this.db.data;
+      const { settings } = this.db.data;
 
       const status = {};
 
       // Check configuration status for each section
       for (const [sectionName, sectionConfig] of Object.entries(
-        schema.sections || {}
+        schema.sections || {},
       )) {
         const requiredFields = Object.entries(sectionConfig.fields)
           .filter(
-            ([_, fieldConfig]) => fieldConfig.required || fieldConfig.sensitive
+            ([_, fieldConfig]) => fieldConfig.required || fieldConfig.sensitive,
           )
           .map(([fieldKey, _]) => fieldKey);
 
         const configuredFields = requiredFields.filter(
-          fieldKey => settings[fieldKey] && settings[fieldKey].trim() !== ''
+          fieldKey => settings[fieldKey] && settings[fieldKey].trim() !== '',
         );
 
         status[sectionName] = {
@@ -224,18 +224,18 @@ class EnvironmentDbService {
   async getStructuredSettings() {
     try {
       await this.db.read();
-      const schema = this.db.data.schema;
-      const settings = this.db.data.settings;
+      const { schema } = this.db.data;
+      const { settings } = this.db.data;
 
       const structured = {};
 
       for (const [sectionName, sectionConfig] of Object.entries(
-        schema.sections || {}
+        schema.sections || {},
       )) {
         structured[sectionName] = {};
 
         for (const [fieldKey, fieldConfig] of Object.entries(
-          sectionConfig.fields
+          sectionConfig.fields,
         )) {
           const value = settings[fieldKey] || '';
           structured[sectionName][fieldKey] = {
@@ -276,7 +276,7 @@ class EnvironmentDbService {
   async validateSettings(settings) {
     try {
       await this.db.read();
-      const schema = this.db.data.schema;
+      const { schema } = this.db.data;
       const errors = [];
 
       for (const [key, value] of Object.entries(settings)) {

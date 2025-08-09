@@ -140,28 +140,28 @@ export class CustomFieldProcessor {
    */
   static processTypedStringValue(value, type) {
     switch (type.toLowerCase()) {
-      case 'number':
-        const num = parseFloat(value);
-        return isNaN(num) ? value : num;
+    case 'number':
+      const num = parseFloat(value);
+      return isNaN(num) ? value : num;
 
-      case 'boolean':
-        return this.parseBoolean(value);
+    case 'boolean':
+      return this.parseBoolean(value);
 
-      case 'date':
-        return this.parseDate(value);
+    case 'date':
+      return this.parseDate(value);
 
-      case 'multi-select':
-      case 'array':
-        return this.parseCommaSeparatedList(value);
+    case 'multi-select':
+    case 'array':
+      return this.parseCommaSeparatedList(value);
 
-      case 'user':
-        return this.parseUserValue(value);
+    case 'user':
+      return this.parseUserValue(value);
 
-      case 'option':
-        return { value: value };
+    case 'option':
+      return { value };
 
-      default:
-        return value;
+    default:
+      return value;
     }
   }
 
@@ -271,7 +271,7 @@ export class CustomFieldProcessor {
         JSON.stringify(value);
       } catch (error) {
         errors.push(
-          `Custom field '${key}' contains invalid data: ${error.message}`
+          `Custom field '${key}' contains invalid data: ${error.message}`,
         );
       }
     }

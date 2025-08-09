@@ -2,27 +2,27 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppTheme } from '../../../theme/useAppTheme';
 import {
+  Alert,
   Box,
-  Container,
-  Paper,
-  Typography,
-  TextField,
   Button,
+  Chip,
+  Container,
+  Divider,
   IconButton,
   InputAdornment,
-  Alert,
-  Chip,
-  Divider,
+  Paper,
+  TextField,
+  Typography,
 } from '@mui/material';
 import {
   ArrowBack,
-  Search,
-  AutoAwesome,
-  Visibility,
-  TrendingUp,
-  BugReport,
-  Task,
   Assignment,
+  AutoAwesome,
+  BugReport,
+  Search,
+  Task,
+  TrendingUp,
+  Visibility,
 } from '@mui/icons-material';
 
 const JiraIdPrompt = () => {
@@ -125,19 +125,19 @@ const JiraIdPrompt = () => {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-              <IconButton onClick={handleBack} sx={{ color: 'primary.main' }}>
+              <IconButton sx={{ color: 'primary.main' }} onClick={handleBack}>
                 <ArrowBack />
               </IconButton>
               <AutoAwesome sx={{ color: 'primary.main', fontSize: 28 }} />
               <Typography
-                variant='h4'
                 sx={{ fontWeight: 700, color: 'text.primary' }}
+                variant='h4'
               >
                 Futuristic Jira Viewer
               </Typography>
             </Box>
 
-            <Typography variant='body1' color='text.secondary' sx={{ ml: 7 }}>
+            <Typography color='text.secondary' sx={{ ml: 7 }} variant='body1'>
               Enter a Jira ID to view it with AI-powered insights and futuristic
               interface
             </Typography>
@@ -163,13 +163,13 @@ const JiraIdPrompt = () => {
             }}
           >
             <Typography
-              variant='h6'
               sx={{ mb: 3, fontWeight: 600, textAlign: 'center' }}
+              variant='h6'
             >
               Enter Jira Issue ID
             </Typography>
 
-            <Box component='form' onSubmit={handleSubmit} sx={{ mb: 3 }}>
+            <Box component='form' sx={{ mb: 3 }} onSubmit={handleSubmit}>
               <Box
                 sx={{
                   display: 'flex',
@@ -180,13 +180,6 @@ const JiraIdPrompt = () => {
               >
                 <TextField
                   fullWidth
-                  size='large'
-                  placeholder='e.g., PROJ-123, TEAM-456, BUG-789'
-                  value={jiraId}
-                  onChange={e => {
-                    setJiraId(e.target.value);
-                    setError('');
-                  }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position='start'>
@@ -194,6 +187,8 @@ const JiraIdPrompt = () => {
                       </InputAdornment>
                     ),
                   }}
+                  placeholder='e.g., PROJ-123, TEAM-456, BUG-789'
+                  size='large'
                   sx={{
                     flex: 1, // Take up remaining space
                     '& .MuiOutlinedInput-root': {
@@ -229,10 +224,13 @@ const JiraIdPrompt = () => {
                       },
                     },
                   }}
+                  value={jiraId}
+                  onChange={e => {
+                    setJiraId(e.target.value);
+                    setError('');
+                  }}
                 />
                 <Button
-                  type='submit'
-                  variant='contained'
                   disabled={!jiraId.trim()}
                   sx={{
                     minWidth: '100px',
@@ -253,6 +251,8 @@ const JiraIdPrompt = () => {
                       boxShadow: 'none',
                     },
                   }}
+                  type='submit'
+                  variant='contained'
                 >
                   <Visibility sx={{ mr: 1 }} />
                   View
@@ -260,16 +260,16 @@ const JiraIdPrompt = () => {
               </Box>
             </Box>
 
-            {error && (
+            {error ? (
               <Alert severity='error' sx={{ mb: 2 }}>
                 {error}
               </Alert>
-            )}
+            ) : null}
 
             <Typography
-              variant='body2'
               color='text.secondary'
               sx={{ textAlign: 'center' }}
+              variant='body2'
             >
               Press Enter or click "View" to open the Jira issue in the
               futuristic viewer
@@ -294,18 +294,17 @@ const JiraIdPrompt = () => {
                 : '0 8px 32px rgba(0, 0, 0, 0.1)',
             }}
           >
-            <Typography variant='h6' sx={{ mb: 2, fontWeight: 600 }}>
+            <Typography sx={{ mb: 2, fontWeight: 600 }} variant='h6'>
               Quick Access
             </Typography>
 
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+            <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
               Click on any recent issue to view it instantly:
             </Typography>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {recentJiraIds.map((item, index) => (
                 <Chip
-                  key={index}
                   icon={
                     item.type === 'Bug' ? (
                       <BugReport />
@@ -315,17 +314,17 @@ const JiraIdPrompt = () => {
                       <Assignment />
                     )
                   }
+                  key={index}
                   label={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                      <Typography sx={{ fontWeight: 600 }} variant='body2'>
                         {item.id}
                       </Typography>
-                      <Typography variant='caption' color='text.secondary'>
+                      <Typography color='text.secondary' variant='caption'>
                         {item.title}
                       </Typography>
                     </Box>
                   }
-                  onClick={() => handleQuickSelect(item.id)}
                   sx={{
                     justifyContent: 'flex-start',
                     p: 1.5,
@@ -344,6 +343,7 @@ const JiraIdPrompt = () => {
                     },
                   }}
                   variant='outlined'
+                  onClick={() => handleQuickSelect(item.id)}
                 />
               ))}
             </Box>
@@ -352,18 +352,18 @@ const JiraIdPrompt = () => {
 
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
               <Chip
+                color='primary'
                 icon={<TrendingUp />}
                 label='AI-Powered Analysis'
-                color='primary'
-                variant='outlined'
                 size='small'
+                variant='outlined'
               />
               <Chip
+                color='secondary'
                 icon={<AutoAwesome />}
                 label='Futuristic Interface'
-                color='secondary'
-                variant='outlined'
                 size='small'
+                variant='outlined'
               />
             </Box>
           </Paper>

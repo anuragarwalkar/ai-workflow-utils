@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
+  CircularProgress,
   Paper,
   Typography,
-  CircularProgress,
 } from '@mui/material';
 import PRForm from './PRForm';
 import PreviewSection from './PreviewSection';
@@ -206,7 +206,7 @@ const CreatePRContainer = () => {
   return (
     <Box sx={{ width: '100%', mt: 2 }}>
       <Paper sx={{ p: 3 }}>
-        <Typography variant='h6' gutterBottom>
+        <Typography gutterBottom variant='h6'>
           Create Pull Request
         </Typography>
 
@@ -214,8 +214,6 @@ const CreatePRContainer = () => {
 
         <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
           <Button
-            variant='contained'
-            onClick={handlePreview}
             disabled={
               isPreviewLoading ||
               isLoading ||
@@ -223,18 +221,20 @@ const CreatePRContainer = () => {
               !formData.repoSlug ||
               !formData.branchName
             }
+            variant='contained'
+            onClick={handlePreview}
           >
             {isPreviewLoading ? <CircularProgress size={24} /> : 'Preview'}
           </Button>
         </Box>
 
-        {showPreview && preview && (
+        {showPreview && preview ? (
           <PreviewSection
+            isLoading={isLoading}
             preview={preview}
             onConfirm={handleCreate}
-            isLoading={isLoading}
           />
-        )}
+        ) : null}
       </Paper>
     </Box>
   );

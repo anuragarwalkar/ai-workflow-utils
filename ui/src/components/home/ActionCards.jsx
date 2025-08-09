@@ -1,31 +1,31 @@
 import {
+  Avatar,
   Box,
   Card,
   CardContent,
-  Typography,
+  Chip,
   Grid,
   IconButton,
-  Avatar,
   Stack,
-  Chip,
+  Typography,
 } from '@mui/material';
 import {
-  BugReport as BugReportIcon,
-  Visibility as VisibilityIcon,
-  Email as EmailIcon,
-  Build as BuildIcon,
   Add as AddIcon,
-  Send as SendIcon,
-  RocketLaunch as RocketLaunchIcon,
-  Code as CodeIcon,
-  Reviews as ReviewsIcon,
-  Chat as ChatIcon,
   AutoFixHigh as AutoFixHighIcon,
-  AccountTree as WorkflowIcon,
+  BugReport as BugReportIcon,
+  Build as BuildIcon,
+  Chat as ChatIcon,
+  Code as CodeIcon,
+  Create as CreateIcon,
+  Email as EmailIcon,
+  MergeType as MergeIcon,
+  Reviews as ReviewsIcon,
+  RocketLaunch as RocketLaunchIcon,
+  Send as SendIcon,
   Settings as SettingsIcon,
   Tune as TuneIcon,
-  MergeType as MergeIcon,
-  Create as CreateIcon,
+  Visibility as VisibilityIcon,
+  AccountTree as WorkflowIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useUnreleasedFeatures } from '../../hooks/useFeatureFlag';
@@ -272,12 +272,12 @@ const ActionCards = () => {
         }}
       >
         <Typography
-          variant='h5'
           component='h2'
           sx={{
             color: isDark ? '#ffffff' : '#2d3748',
             fontWeight: 700,
           }}
+          variant='h5'
         >
           Available Actions
         </Typography>
@@ -302,7 +302,7 @@ const ActionCards = () => {
             const ActionIconComponent = card.actionIcon;
 
             return (
-              <Grid item xs={12} sm={6} md={4} key={card.id}>
+              <Grid item key={card.id} md={4} sm={6} xs={12}>
                 <Card
                   sx={{
                     width: 300,
@@ -355,8 +355,8 @@ const ActionCards = () => {
                     }}
                   >
                     <Stack
-                      spacing={2}
                       alignItems='center'
+                      spacing={2}
                       sx={{ height: '100%', justifyContent: 'space-between' }}
                     >
                       <Avatar
@@ -374,18 +374,17 @@ const ActionCards = () => {
 
                       <Box sx={{ flexGrow: 1 }}>
                         <Typography
-                          variant='h6'
                           sx={{
                             fontWeight: 700,
                             color: isDark ? '#ffffff' : '#2d3748',
                             mb: 1,
                           }}
+                          variant='h6'
                         >
                           {card.title}
                         </Typography>
 
                         <Typography
-                          variant='body2'
                           sx={{
                             color: isDark
                               ? 'rgba(255, 255, 255, 0.8)'
@@ -393,6 +392,7 @@ const ActionCards = () => {
                             lineHeight: 1.6,
                             mb: 2,
                           }}
+                          variant='body2'
                         >
                           {card.description}
                         </Typography>

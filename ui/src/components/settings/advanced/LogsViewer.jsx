@@ -1,45 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   Box,
-  Typography,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
   Paper,
   Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Button,
-  CircularProgress,
-  Alert,
-  Chip,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
   TablePagination,
+  TableRow,
   TextField,
-  InputAdornment,
-  IconButton,
   Tooltip,
-  Card,
-  CardContent,
-  Stack,
+  Typography,
 } from '@mui/material';
 import {
-  Refresh as RefreshIcon,
-  Download as DownloadIcon,
-  Search as SearchIcon,
   Clear as ClearIcon,
-  Error as ErrorIcon,
-  Warning as WarningIcon,
-  Info as InfoIcon,
   BugReport as DebugIcon,
   Delete as DeleteIcon,
+  Download as DownloadIcon,
+  Error as ErrorIcon,
+  Info as InfoIcon,
+  Refresh as RefreshIcon,
+  Search as SearchIcon,
+  Warning as WarningIcon,
 } from '@mui/icons-material';
 import {
-  useGetLogsQuery,
   useClearLogsMutation,
+  useGetLogsQuery,
 } from '../../../store/api/logsApi';
 
 const LogsViewer = () => {
@@ -214,7 +214,7 @@ const LogsViewer = () => {
         <Typography variant='body2'>
           {error.message || error.data?.error || 'Unknown error occurred'}
         </Typography>
-        <Button onClick={() => refetch()} sx={{ mt: 1 }}>
+        <Button sx={{ mt: 1 }} onClick={() => refetch()}>
           Retry
         </Button>
       </Alert>
@@ -239,7 +239,7 @@ const LogsViewer = () => {
     <Box>
       {/* Header */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant='h6' sx={{ mb: 2 }}>
+        <Typography sx={{ mb: 2 }} variant='h6'>
           Application Logs
         </Typography>
 
@@ -253,15 +253,15 @@ const LogsViewer = () => {
                     {getLogIcon(level)}
                     <Box>
                       <Typography
-                        variant='h6'
                         sx={{ fontSize: '1.1rem', lineHeight: 1 }}
+                        variant='h6'
                       >
                         {count}
                       </Typography>
                       <Typography
-                        variant='caption'
                         color='text.secondary'
                         sx={{ textTransform: 'capitalize' }}
+                        variant='caption'
                       >
                         {level}
                       </Typography>
@@ -276,17 +276,17 @@ const LogsViewer = () => {
         {/* Filters and Controls */}
         <Paper sx={{ p: 2, mb: 2 }}>
           <Stack
+            alignItems={{ xs: 'stretch', sm: 'center' }}
             direction={{ xs: 'column', sm: 'row' }}
             spacing={2}
-            alignItems={{ xs: 'stretch', sm: 'center' }}
             sx={{ mb: 2 }}
           >
             <FormControl size='small' sx={{ minWidth: 140 }}>
               <InputLabel>Log Level</InputLabel>
               <Select
+                label='Log Level'
                 value={selectedLevel}
                 onChange={handleLevelChange}
-                label='Log Level'
               >
                 {logLevels.map(level => (
                   <MenuItem key={level.value} value={level.value}>
@@ -297,11 +297,6 @@ const LogsViewer = () => {
             </FormControl>
 
             <TextField
-              size='small'
-              placeholder='Search logs...'
-              value={searchTerm}
-              onChange={handleSearchChange}
-              sx={{ flex: 1, minWidth: 250 }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position='start'>
@@ -316,51 +311,56 @@ const LogsViewer = () => {
                   </InputAdornment>
                 ),
               }}
+              placeholder='Search logs...'
+              size='small'
+              sx={{ flex: 1, minWidth: 250 }}
+              value={searchTerm}
+              onChange={handleSearchChange}
             />
           </Stack>
 
           <Stack
-            direction='row'
-            spacing={1}
             alignItems='center'
+            direction='row'
             flexWrap='wrap'
+            spacing={1}
           >
             <Tooltip title='Refresh Logs'>
               <IconButton
-                onClick={() => refetch()}
-                size='small'
                 disabled={isLoading}
+                size='small'
+                onClick={() => refetch()}
               >
                 <RefreshIcon />
               </IconButton>
             </Tooltip>
 
             <Tooltip title='Download All Logs'>
-              <IconButton onClick={handleDownloadLogs} size='small'>
+              <IconButton size='small' onClick={handleDownloadLogs}>
                 <DownloadIcon />
               </IconButton>
             </Tooltip>
 
             <Tooltip title='Clear All Logs'>
               <IconButton
-                onClick={handleClearLogs}
-                size='small'
                 color='error'
                 disabled={isClearing}
+                size='small'
+                onClick={handleClearLogs}
               >
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
 
             <Button
-              variant={autoRefresh ? 'contained' : 'outlined'}
               size='small'
+              variant={autoRefresh ? 'contained' : 'outlined'}
               onClick={() => setAutoRefresh(!autoRefresh)}
             >
-              Auto Refresh {autoRefresh && '(5s)'}
+              Auto Refresh {autoRefresh ? '(5s)' : null}
             </Button>
 
-            {(selectedLevel !== 'all' || debouncedSearch) && (
+            {selectedLevel !== 'all' || debouncedSearch ? (
               <Chip
                 label={`Filtered: ${
                   selectedLevel !== 'all' ? selectedLevel.toUpperCase() : ''
@@ -375,13 +375,13 @@ const LogsViewer = () => {
                 size='small'
                 color='primary'
               />
-            )}
+            ) : null}
 
             {totalCount > 0 && (
               <Typography
-                variant='body2'
                 color='text.secondary'
                 sx={{ ml: 'auto' }}
+                variant='body2'
               >
                 {totalCount} total logs
               </Typography>
@@ -392,7 +392,7 @@ const LogsViewer = () => {
 
       {/* Logs Table */}
       <TableContainer component={Paper} sx={{ mb: 2, maxHeight: 600 }}>
-        <Table size='small' stickyHeader>
+        <Table stickyHeader size='small'>
           <TableHead>
             <TableRow>
               <TableCell sx={{ minWidth: 150, fontWeight: 'bold' }}>
@@ -410,7 +410,7 @@ const LogsViewer = () => {
           <TableBody>
             {logs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} align='center' sx={{ py: 4 }}>
+                <TableCell align='center' colSpan={4} sx={{ py: 4 }}>
                   <Typography color='text.secondary'>
                     {isLoading ? 'Loading logs...' : 'No logs found'}
                   </Typography>
@@ -435,18 +435,18 @@ const LogsViewer = () => {
                   >
                     <TableCell>
                       <Typography
-                        variant='body2'
                         sx={{ fontSize: '0.8rem', fontFamily: 'monospace' }}
+                        variant='body2'
                       >
                         {formatTimestamp(log.timestamp)}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Chip
-                        size='small'
-                        label={log.level?.toUpperCase() || 'INFO'}
                         color={getLogColor(log.level)}
                         icon={getLogIcon(log.level)}
+                        label={log.level?.toUpperCase() || 'INFO'}
+                        size='small'
                         sx={{
                           fontSize: '0.7rem',
                           height: 24,
@@ -458,13 +458,12 @@ const LogsViewer = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <Typography variant='body2' sx={{ fontSize: '0.8rem' }}>
+                      <Typography sx={{ fontSize: '0.8rem' }} variant='body2'>
                         {log.module || log.source || 'System'}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography
-                        variant='body2'
                         sx={{
                           fontSize: '0.8rem',
                           wordBreak: 'break-word',
@@ -476,9 +475,10 @@ const LogsViewer = () => {
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                         }}
+                        variant='body2'
                       >
                         {log.message}
-                        {log.meta && Object.keys(log.meta).length > 0 && (
+                        {log.meta && Object.keys(log.meta).length > 0 ? (
                           <Box
                             component='pre'
                             sx={{
@@ -495,7 +495,7 @@ const LogsViewer = () => {
                           >
                             {JSON.stringify(log.meta, null, 2)}
                           </Box>
-                        )}
+                        ) : null}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -512,13 +512,13 @@ const LogsViewer = () => {
           component='div'
           count={totalCount}
           page={page}
-          onPageChange={(event, newPage) => setPage(newPage)}
           rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[25, 50, 100]}
+          onPageChange={(event, newPage) => setPage(newPage)}
           onRowsPerPageChange={event => {
             setRowsPerPage(parseInt(event.target.value, 10));
             setPage(0);
           }}
-          rowsPerPageOptions={[25, 50, 100]}
         />
       )}
     </Box>

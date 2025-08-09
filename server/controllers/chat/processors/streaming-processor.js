@@ -65,7 +65,7 @@ class StreamingProcessor {
 
     res.write(`data: ${JSON.stringify(completeData)}\n\n`);
     logger.info(
-      `Streaming complete: ${fullResponse.length} characters from ${provider}`
+      `Streaming complete: ${fullResponse.length} characters from ${provider}`,
     );
   }
 

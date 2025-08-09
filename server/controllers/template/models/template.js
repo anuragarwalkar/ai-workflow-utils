@@ -28,7 +28,7 @@ class Template {
   static validate(data) {
     const required = ['name', 'content'];
     const missing = required.filter(
-      field => !data[field] || data[field].trim() === ''
+      field => !data[field] || data[field].trim() === '',
     );
 
     if (missing.length > 0) {

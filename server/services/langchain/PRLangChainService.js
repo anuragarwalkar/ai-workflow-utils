@@ -17,20 +17,20 @@ export class PRLangChainService extends BaseLangChainService {
   async generateTemplateBasedContent(
     promptTemplateFormatter,
     templateIdentifier,
-    streaming = false
+    streaming = false,
   ) {
     if (this.providers.length === 0) {
       throw new Error('No AI providers are configured');
     }
 
     logger.info(
-      `PR LangChain generateTemplateBasedContent called with template: ${templateIdentifier}`
+      `PR LangChain generateTemplateBasedContent called with template: ${templateIdentifier}`,
     );
 
     // Get the base template and format it
     const promptTemplate = await this.createPromptTemplate(
       templateIdentifier,
-      false
+      false,
     );
     const formattedPrompt = await promptTemplate.format({
       ...promptTemplateFormatter,
@@ -47,7 +47,7 @@ export class PRLangChainService extends BaseLangChainService {
     for (const provider of this.providers) {
       try {
         logger.info(
-          `Trying provider for PR template-based output: ${provider.name}`
+          `Trying provider for PR template-based output: ${provider.name}`,
         );
 
         const message = new HumanMessage({ content: formattedPrompt });
@@ -59,13 +59,13 @@ export class PRLangChainService extends BaseLangChainService {
         } else {
           const response = await provider.model.invoke([message]);
           logger.info(
-            `Successfully generated PR template-based content using ${provider.name}`
+            `Successfully generated PR template-based content using ${provider.name}`,
           );
 
           // Check if response is empty
           if (!response.content || response.content.trim() === '') {
             logger.warn(
-              `Provider ${provider.name} returned empty content for template-based output`
+              `Provider ${provider.name} returned empty content for template-based output`,
             );
             continue;
           }
@@ -77,12 +77,12 @@ export class PRLangChainService extends BaseLangChainService {
         }
       } catch (error) {
         logger.warn(
-          `Provider ${provider.name} failed for PR template-based output: ${error.message}`
+          `Provider ${provider.name} failed for PR template-based output: ${error.message}`,
         );
 
         if (provider === this.providers[this.providers.length - 1]) {
           throw new Error(
-            `All providers failed for PR template-based output. Last error from ${provider.name}: ${error.message}`
+            `All providers failed for PR template-based output. Last error from ${provider.name}: ${error.message}`,
           );
         }
 
@@ -100,7 +100,7 @@ export class PRLangChainService extends BaseLangChainService {
     }
 
     logger.info(
-      `PR LangChain streamPRContent called with template: ${templateIdentifier}`
+      `PR LangChain streamPRContent called with template: ${templateIdentifier}`,
     );
 
 
@@ -108,7 +108,7 @@ export class PRLangChainService extends BaseLangChainService {
     // Get the base template and format it
     const promptTemplate = await this.createPromptTemplate(
       templateIdentifier,
-      false
+      false,
     );
     
     const formattedPrompt = await promptTemplate.format({
@@ -128,17 +128,17 @@ export class PRLangChainService extends BaseLangChainService {
         const result = await this.streamWithProvider(
           provider,
           formattedPrompt,
-          res
+          res,
         );
         return result;
       } catch (error) {
         logger.warn(
-          `Provider ${provider.name} failed for PR streaming: ${error.message}`
+          `Provider ${provider.name} failed for PR streaming: ${error.message}`,
         );
 
         if (provider === this.providers[this.providers.length - 1]) {
           throw new Error(
-            `All providers failed for PR streaming. Last error from ${provider.name}: ${error.message}`
+            `All providers failed for PR streaming. Last error from ${provider.name}: ${error.message}`,
           );
         }
         continue;
@@ -191,7 +191,7 @@ export class PRLangChainService extends BaseLangChainService {
             parsedTitle,
             parsedDescription,
             res,
-            content
+            content,
           );
           parsedTitle = parseResult.parsedTitle;
           parsedDescription = parseResult.parsedDescription;
@@ -199,21 +199,21 @@ export class PRLangChainService extends BaseLangChainService {
       }
 
       logger.info(
-        `Successfully streamed PR content using ${provider.name}. Received ${chunkCount} chunks, total content length: ${fullContent.length}`
+        `Successfully streamed PR content using ${provider.name}. Received ${chunkCount} chunks, total content length: ${fullContent.length}`,
       );
 
       // Validate that content was actually generated
       if (!fullContent || fullContent.trim() === '') {
         throw new Error(
-          `Provider ${provider.name} returned empty content after streaming (${chunkCount} chunks received)`
+          `Provider ${provider.name} returned empty content after streaming (${chunkCount} chunks received)`,
         );
       }
 
       return {
         content: fullContent,
         provider: provider.name,
-        parsedTitle: parsedTitle,
-        parsedDescription: parsedDescription,
+        parsedTitle,
+        parsedDescription,
       };
     } catch (error) {
       logger.error(`Chain streaming failed with ${provider.name}: ${error.message}`);
@@ -229,7 +229,7 @@ export class PRLangChainService extends BaseLangChainService {
     currentTitle,
     currentDescription,
     res,
-    chunkContent
+    chunkContent,
   ) {
     // Parse content in real-time to extract title and description
     const parsed = this.parseStreamingContent(fullContent);
@@ -245,7 +245,7 @@ export class PRLangChainService extends BaseLangChainService {
     // Send description chunks if found
     if (parsed.description && parsed.description !== currentDescription) {
       const descriptionChunk = parsed.description.slice(
-        currentDescription.length
+        currentDescription.length,
       );
       if (descriptionChunk) {
         StreamingService.sendDescriptionChunk(res, descriptionChunk);
@@ -281,7 +281,7 @@ export class PRLangChainService extends BaseLangChainService {
   parseStructuredContent(content) {
     const lines = content.split('\n');
     let title = '';
-    let description = content.trim(); // Always put entire content in description
+    const description = content.trim(); // Always put entire content in description
     let foundTitle = false;
 
     for (let i = 0; i < lines.length; i++) {
@@ -421,7 +421,7 @@ export class PRLangChainService extends BaseLangChainService {
     description,
     aiGenerated,
     ticketNumber,
-    branchName
+    branchName,
   ) {
     // Send complete title
     StreamingService.sendTitleComplete(res, title);
@@ -444,13 +444,13 @@ export class PRLangChainService extends BaseLangChainService {
    */
   async generatePRDescription(
     commitMessages,
-    templateIdentifier = 'PR_DESCRIPTION'
+    templateIdentifier = 'PR_DESCRIPTION',
   ) {
     try {
       const result = await this.generateTemplateBasedContent(
         { commitMessages },
         templateIdentifier,
-        false
+        false,
       );
 
       return {
@@ -471,7 +471,7 @@ export class PRLangChainService extends BaseLangChainService {
       const result = await this.generateTemplateBasedContent(
         { commitMessages },
         templateIdentifier,
-        false
+        false,
       );
 
       return {
@@ -489,13 +489,13 @@ export class PRLangChainService extends BaseLangChainService {
    */
   async generateCombinedPRContent(
     commitMessages,
-    templateIdentifier = 'PR_COMBINED'
+    templateIdentifier = 'PR_COMBINED',
   ) {
     try {
       const result = await this.generateTemplateBasedContent(
         { commitMessages },
         templateIdentifier,
-        false
+        false,
       );
 
       return {

@@ -28,7 +28,7 @@ class LogEntry {
     const validLevels = ['error', 'warn', 'info', 'debug'];
     if (data.level && !validLevels.includes(data.level)) {
       throw new Error(
-        `Invalid log level: ${data.level}. Must be one of: ${validLevels.join(', ')}`
+        `Invalid log level: ${data.level}. Must be one of: ${validLevels.join(', ')}`,
       );
     }
   }

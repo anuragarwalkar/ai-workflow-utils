@@ -27,10 +27,10 @@ class TemplateDbService {
     try {
       const defaultTemplatesPath = path.join(
         process.cwd(),
-        './data/defaultTemplates.json'
+        './data/defaultTemplates.json',
       );
       const defaultTemplatesData = JSON.parse(
-        fs.readFileSync(defaultTemplatesPath, 'utf8')
+        fs.readFileSync(defaultTemplatesPath, 'utf8'),
       );
 
       // Add timestamps to templates
@@ -39,7 +39,7 @@ class TemplateDbService {
           ...template,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-        })
+        }),
       );
 
       return {
@@ -73,7 +73,7 @@ class TemplateDbService {
         this.db.data = defaultData;
         await this.db.write();
         logger.info(
-          'Template database initialized with default templates from file'
+          'Template database initialized with default templates from file',
         );
       }
 
@@ -98,7 +98,7 @@ class TemplateDbService {
     try {
       await this.db.read();
       return this.db.data.templates.filter(
-        t => t.issueType === issueType || t.issueType === 'All'
+        t => t.issueType === issueType || t.issueType === 'All',
       );
     } catch (error) {
       logger.error('Failed to get templates by type:', error);
@@ -116,7 +116,7 @@ class TemplateDbService {
 
       // Fallback to first template of that type
       return this.db.data.templates.find(
-        t => t.issueType === issueType && t.isActive
+        t => t.issueType === issueType && t.isActive,
       );
     } catch (error) {
       logger.error('Failed to get active template:', error);
@@ -191,10 +191,10 @@ class TemplateDbService {
       const template = this.db.data.templates[index];
 
       // If this was the active template, switch to another template of the same type
-      const issueType = template.issueType;
+      const { issueType } = template;
       if (this.db.data.settings.activeTemplates[issueType] === id) {
         const alternativeTemplate = this.db.data.templates.find(
-          t => t.issueType === issueType && t.id !== id
+          t => t.issueType === issueType && t.id !== id,
         );
         if (alternativeTemplate) {
           this.db.data.settings.activeTemplates[issueType] =
@@ -227,7 +227,7 @@ class TemplateDbService {
 
       if (template.issueType !== issueType && template.issueType !== 'All') {
         throw new Error(
-          `Template ${templateId} is not compatible with issue type ${issueType}`
+          `Template ${templateId} is not compatible with issue type ${issueType}`,
         );
       }
 

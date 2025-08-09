@@ -17,7 +17,7 @@ router.get('/type/:issueType', templateController.getTemplatesByType);
 router.get('/active/:issueType', templateController.getActiveTemplate);
 router.put(
   '/active/:issueType/:templateId',
-  templateController.setActiveTemplate
+  templateController.setActiveTemplate,
 );
 
 // Settings routes

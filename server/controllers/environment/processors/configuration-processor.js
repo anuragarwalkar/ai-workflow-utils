@@ -74,7 +74,7 @@ export class ConfigurationProcessor {
           processObject(obj[key]);
         } else if (
           sensitiveFields.some(field =>
-            key.toLowerCase().includes(field.toLowerCase())
+            key.toLowerCase().includes(field.toLowerCase()),
           )
         ) {
           obj[key] = maskValue(obj[key]);

@@ -32,7 +32,7 @@ class ChatService {
       if (conversationHistory.length > 0) {
         await this.addConversationHistoryToMemory(
           sessionId,
-          conversationHistory
+          conversationHistory,
         );
       }
 
@@ -40,7 +40,7 @@ class ChatService {
       const result = await ChatLangChainService.generateChatResponse(
         sessionId,
         message,
-        options
+        options,
       );
 
       // Create and return ChatResponse object
@@ -78,7 +78,7 @@ class ChatService {
    */
   static async generateStreamingResponse(
     { message, conversationHistory = [], options = {} },
-    res
+    res,
   ) {
     try {
       logger.info('ChatService: Generating streaming response');
@@ -92,7 +92,7 @@ class ChatService {
       if (conversationHistory.length > 0) {
         await this.addConversationHistoryToMemory(
           sessionId,
-          conversationHistory
+          conversationHistory,
         );
       }
 
@@ -103,10 +103,10 @@ class ChatService {
         token => {
           // Send each token through SSE
           res.write(
-            `data: ${JSON.stringify({ type: 'token', content: token })}\n\n`
+            `data: ${JSON.stringify({ type: 'token', content: token })}\n\n`,
           );
         },
-        options
+        options,
       );
 
       // Send completion signal
@@ -115,7 +115,7 @@ class ChatService {
           type: 'complete',
           sessionId,
           timestamp: new Date().toISOString(),
-        })}\n\n`
+        })}\n\n`,
       );
     } catch (error) {
       logger.error('ChatService: Error generating streaming response:', error);
@@ -126,7 +126,7 @@ class ChatService {
           type: 'error',
           error: 'Failed to generate response. Please try again.',
           timestamp: new Date().toISOString(),
-        })}\n\n`
+        })}\n\n`,
       );
     }
   }
@@ -155,7 +155,7 @@ class ChatService {
       }
 
       logger.info(
-        `Added ${conversationHistory.length} messages to memory for session ${sessionId}`
+        `Added ${conversationHistory.length} messages to memory for session ${sessionId}`,
       );
     } catch (error) {
       logger.warn('Failed to add conversation history to memory:', error);
@@ -222,13 +222,13 @@ class ChatService {
   static async testChatFunctionality(
     testMessage = 'Hello, can you help me?',
     providerName = null,
-    options = {}
+    options = {},
   ) {
     try {
       return await ChatLangChainService.testChatFunctionality(
         testMessage,
         providerName,
-        options
+        options,
       );
     } catch (error) {
       logger.error('ChatService: Error testing chat functionality:', error);

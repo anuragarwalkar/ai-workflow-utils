@@ -22,7 +22,7 @@ export class EnvironmentConfig {
       if (!config.jiraToken) missing.push('JIRA_TOKEN');
 
       throw new Error(
-        `Missing required environment variables: ${missing.join(', ')}`
+        `Missing required environment variables: ${missing.join(', ')}`,
       );
     }
 

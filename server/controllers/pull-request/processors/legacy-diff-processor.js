@@ -21,7 +21,7 @@ class LegacyDiffProcessor {
             if (hunk.oldLine !== undefined && hunk.newLine !== undefined) {
               codeChanges += `Lines: ${hunk.oldLine} → ${hunk.newLine}\n`;
             }
-            codeChanges += `\`\`\`diff\n`;
+            codeChanges += '```diff\n';
 
             if (hunk.lines && Array.isArray(hunk.lines)) {
               hunk.lines.forEach(line => {
@@ -48,15 +48,15 @@ class LegacyDiffProcessor {
               hasChanges = true;
               codeChanges += `${hunk.content}\n`;
             }
-            codeChanges += `\`\`\`\n\n`;
+            codeChanges += '```\n\n';
           });
         } else if (file.content || file.diff) {
           hasChanges = true;
-          codeChanges += `\n\`\`\`diff\n`;
+          codeChanges += '\n```diff\n';
           codeChanges += `${file.content || file.diff}\n`;
-          codeChanges += `\`\`\`\n\n`;
+          codeChanges += '```\n\n';
         }
-        codeChanges += `\n---\n\n`;
+        codeChanges += '\n---\n\n';
       });
     }
 

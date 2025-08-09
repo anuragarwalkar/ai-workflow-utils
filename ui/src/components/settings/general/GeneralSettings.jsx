@@ -1,16 +1,16 @@
 import React from 'react';
 import {
   Box,
-  Typography,
+  Button,
   Card,
   CardContent,
+  Chip,
+  Divider,
   FormControlLabel,
+  MenuItem,
   Switch,
   TextField,
-  MenuItem,
-  Divider,
-  Button,
-  Chip,
+  Typography,
 } from '@mui/material';
 import { useAppTheme } from '../../../theme/useAppTheme';
 
@@ -23,23 +23,23 @@ const GeneralSettings = () => {
 
   return (
     <Box>
-      <Typography variant='h6' component='h2' gutterBottom>
+      <Typography gutterBottom component='h2' variant='h6'>
         General Settings
       </Typography>
 
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant='subtitle1' gutterBottom>
+          <Typography gutterBottom variant='subtitle1'>
             Appearance
           </Typography>
           <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
               select
               label='Theme'
-              value={themeMode}
-              onChange={handleThemeChange}
               size='small'
               sx={{ minWidth: 200 }}
+              value={themeMode}
+              onChange={handleThemeChange}
             >
               <MenuItem value='light'>Light</MenuItem>
               <MenuItem value='dark'>Dark</MenuItem>
@@ -47,13 +47,13 @@ const GeneralSettings = () => {
             </TextField>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant='body2' color='text.secondary'>
+              <Typography color='text.secondary' variant='body2'>
                 Current theme:
               </Typography>
               <Chip
+                color={effectiveThemeMode === 'dark' ? 'secondary' : 'primary'}
                 label={effectiveThemeMode === 'dark' ? 'Dark' : 'Light'}
                 size='small'
-                color={effectiveThemeMode === 'dark' ? 'secondary' : 'primary'}
               />
               {themeMode === 'auto' && (
                 <Chip label='Auto' size='small' variant='outlined' />
@@ -63,46 +63,46 @@ const GeneralSettings = () => {
 
           <Divider sx={{ my: 2 }} />
 
-          <Typography variant='subtitle1' gutterBottom>
+          <Typography gutterBottom variant='subtitle1'>
             Notifications
           </Typography>
           <FormControlLabel
+            disabled
             control={<Switch defaultChecked />}
             label='Enable notifications'
-            disabled
           />
           <FormControlLabel
+            disabled
             control={<Switch defaultChecked />}
             label='Show success messages'
-            disabled
           />
           <FormControlLabel
+            disabled
             control={<Switch />}
             label='Show debug information'
-            disabled
           />
 
           <Divider sx={{ my: 2 }} />
 
-          <Typography variant='subtitle1' gutterBottom>
+          <Typography gutterBottom variant='subtitle1'>
             Auto-save
           </Typography>
           <FormControlLabel
+            disabled
             control={<Switch defaultChecked />}
             label='Auto-save form data'
-            disabled
           />
           <TextField
-            label='Auto-save interval (seconds)'
-            type='number'
             defaultValue={30}
+            label='Auto-save interval (seconds)'
             size='small'
             sx={{ ml: 2, width: 200 }}
+            type='number'
           />
         </CardContent>
       </Card>
 
-      <Button variant='contained' color='primary'>
+      <Button color='primary' variant='contained'>
         Save Settings
       </Button>
     </Box>

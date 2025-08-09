@@ -24,7 +24,7 @@ export class JiraAttachment {
   static validate(data) {
     const validation = ValidationUtils.validateFileUpload(
       data.file,
-      data.issueKey
+      data.issueKey,
     );
     if (!validation.isValid) {
       throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
@@ -139,7 +139,7 @@ export class JiraAttachment {
       } catch (error) {
         console.warn(
           `Failed to clean up original file ${this.originalPath}:`,
-          error.message
+          error.message,
         );
       }
     }
@@ -155,7 +155,7 @@ export class JiraAttachment {
       } catch (error) {
         console.warn(
           `Failed to clean up processed file ${this.processedPath}:`,
-          error.message
+          error.message,
         );
       }
     }

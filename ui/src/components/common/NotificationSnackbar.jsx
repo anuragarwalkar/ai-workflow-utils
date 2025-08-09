@@ -1,6 +1,6 @@
 import React from 'react';
-import { Snackbar, Alert } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
+import { Alert, Snackbar } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
 import { hideNotification } from '../../store/slices/uiSlice';
 
 const NotificationSnackbar = () => {
@@ -18,10 +18,9 @@ const NotificationSnackbar = () => {
 
   return (
     <Snackbar
-      open={open}
-      autoHideDuration={6000}
-      onClose={handleClose}
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      autoHideDuration={6000}
+      open={open}
       sx={{
         position: 'fixed',
         top: 16,
@@ -31,9 +30,9 @@ const NotificationSnackbar = () => {
           position: 'static',
         },
       }}
+      onClose={handleClose}
     >
       <Alert
-        onClose={handleClose}
         severity={severity}
         sx={{
           width: '100%',
@@ -41,6 +40,7 @@ const NotificationSnackbar = () => {
           backdropFilter: 'blur(10px)',
           border: '1px solid rgba(255, 255, 255, 0.1)',
         }}
+        onClose={handleClose}
       >
         {message}
       </Alert>

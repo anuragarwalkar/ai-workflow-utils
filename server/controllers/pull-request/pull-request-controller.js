@@ -1,7 +1,7 @@
 import logger from '../../logger.js';
 import {
-  prLangChainService,
   langChainServiceFactory,
+  prLangChainService,
 } from '../../services/langchain/index.js';
 
 // Import modular services and utilities
@@ -26,7 +26,7 @@ class PRController {
       if (!projectKey || !repoSlug) {
         return ErrorHandler.handleValidationError(
           'Project key and repository slug are required',
-          res
+          res,
         );
       }
 
@@ -47,14 +47,14 @@ class PRController {
       if (!projectKey || !repoSlug || !pullRequestId) {
         return ErrorHandler.handleValidationError(
           'Project key, repository slug, and pull request ID are required',
-          res
+          res,
         );
       }
 
       const data = await BitbucketService.getPullRequestDiff(
         projectKey,
         repoSlug,
-        pullRequestId
+        pullRequestId,
       );
       res.json(data);
     } catch (error) {
@@ -83,7 +83,7 @@ class PRController {
       }
 
       logger.info(
-        `Starting AI review for PR ${pullRequestId} using LangChain with custom templates (streaming: ${streaming})`
+        `Starting AI review for PR ${pullRequestId} using LangChain with custom templates (streaming: ${streaming})`,
       );
 
       // Set up streaming if requested
@@ -95,7 +95,7 @@ class PRController {
       // Prepare the prompt data - DiffProcessorService will handle all diff formats through UnidiffProcessor
       const promptData = await DiffProcessorService.buildReviewPromptData(
         diffData,
-        prDetails
+        prDetails,
       );
 
       if (!langChainServiceFactory.hasProviders()) {
@@ -143,7 +143,7 @@ class PRController {
             promptData,
             null, // no images for PR review
             'PR_REVIEW',
-            false // not streaming
+            false, // not streaming
           );
 
           if (!result || !result.content || result.content.trim() === '') {
@@ -166,7 +166,7 @@ class PRController {
         }
 
         logger.info(
-          `Successfully generated review using LangChain with ${aiProvider}`
+          `Successfully generated review using LangChain with ${aiProvider}`,
         );
       } catch (langchainError) {
         logger.error('LangChain review failed:', langchainError.message);
@@ -233,25 +233,25 @@ class PRController {
       });
 
       logger.info(
-        `Creating pull request with title: "${customTitle}" from branch: "${branchName}"`
+        `Creating pull request with title: "${customTitle}" from branch: "${branchName}"`,
       );
 
       // Create PR via Bitbucket service
       const data = await BitbucketService.createPullRequest(
         projectKey,
         repoSlug,
-        pullRequest.toBitbucketPayload()
+        pullRequest.toBitbucketPayload(),
       );
 
       logger.info(
-        `Pull request created successfully from branch: "${branchName}"`
+        `Pull request created successfully from branch: "${branchName}"`,
       );
 
       res.status(201).json(
         pullRequest.toResponsePayload({
           pullRequestId: data.id,
           pullRequestUrl: data.links?.self?.[0]?.href,
-        })
+        }),
       );
     } catch (error) {
       logger.error('Error creating pull request:', error);
@@ -278,7 +278,7 @@ class PRController {
     // Try to parse structured output (title and description)
     const titleMatch = trimmedContent.match(/(?:title|TITLE)[:\s]*([^\n]+)/i);
     const descMatch = trimmedContent.match(
-      /(?:description|DESCRIPTION)[:\s]*([\s\S]+)/i
+      /(?:description|DESCRIPTION)[:\s]*([\s\S]+)/i,
     );
 
     if (titleMatch && descMatch) {
@@ -294,7 +294,7 @@ class PRController {
       const title = lines[0].trim();
       const description =
         lines.slice(1).join('\n').trim() ||
-        `## Summary\nThis PR contains changes based on the commit history.\n\n## Changes Made\n- Implementation updates`;
+        '## Summary\nThis PR contains changes based on the commit history.\n\n## Changes Made\n- Implementation updates';
       return { title, description };
     }
 
@@ -314,20 +314,20 @@ class PRController {
       const result = await prLangChainService.streamPRContent(
         { commitMessages },
         'PR_COMBINED',
-        res
+        res,
       );
 
       const processedContent = PRController.processStreamResult(
         result,
         commits,
-        ticketNumber
+        ticketNumber,
       );
 
       // Apply prefix to the final title before sending
       const finalTitle = PRController.applyCommitTypePrefix(
         processedContent.prTitle,
         commits,
-        ticketNumber
+        ticketNumber,
       );
 
       // Send final complete results using prLangChainService
@@ -337,11 +337,11 @@ class PRController {
         processedContent.prDescription,
         processedContent.aiGenerated,
         ticketNumber,
-        branchName
+        branchName,
       );
 
       logger.info(
-        `Successfully generated AI-powered PR content using PR_COMBINED template (${result.provider})`
+        `Successfully generated AI-powered PR content using PR_COMBINED template (${result.provider})`,
       );
 
       return processedContent;
@@ -351,14 +351,14 @@ class PRController {
       const fallbackContent = PRController.generateFallbackPRContent(
         commits,
         ticketNumber,
-        branchName
+        branchName,
       );
 
       // Apply prefix to the final title before sending
       const finalTitle = PRController.applyCommitTypePrefix(
         fallbackContent.prTitle,
         commits,
-        ticketNumber
+        ticketNumber,
       );
 
       // Send fallback results using prLangChainService
@@ -368,7 +368,7 @@ class PRController {
         fallbackContent.prDescription,
         false,
         ticketNumber,
-        branchName
+        branchName,
       );
 
       return fallbackContent;
@@ -394,7 +394,7 @@ class PRController {
       return PRController.buildPRFromParsed(
         { parsedTitle: parsed.title, parsedDescription: parsed.description },
         commits,
-        ticketNumber
+        ticketNumber,
       );
     }
 
@@ -413,7 +413,7 @@ class PRController {
       prTitle: finalTitle,
       prDescription:
         parsedResult.parsedDescription ||
-        `## Summary\nThis PR contains changes based on commit history.\n\n## Changes Made\n- Implementation updates`,
+        '## Summary\nThis PR contains changes based on commit history.\n\n## Changes Made\n- Implementation updates',
       aiGenerated: true,
     };
   }
@@ -424,7 +424,7 @@ class PRController {
   static generateEmptyContent() {
     return {
       prTitle: 'Update implementation',
-      prDescription: `## Summary\nThis PR contains changes based on commit history.\n\n## Changes Made\n- Implementation updates`,
+      prDescription: '## Summary\nThis PR contains changes based on commit history.\n\n## Changes Made\n- Implementation updates',
       aiGenerated: false,
     };
   }
@@ -495,7 +495,7 @@ class PRController {
       const availableProviders =
         langChainServiceFactory.getAvailableProviders();
       logger.info(
-        `Available providers for PR review: ${JSON.stringify(availableProviders)}`
+        `Available providers for PR review: ${JSON.stringify(availableProviders)}`,
       );
 
       logger.info('Starting PR review streaming with template: PR_REVIEW');
@@ -508,7 +508,7 @@ class PRController {
       // Get the base template and format it
       const promptTemplate = await prLangChainService.createPromptTemplate(
         'PR_REVIEW',
-        false
+        false,
       );
       const formattedPrompt = await promptTemplate.format({ ...promptData });
 
@@ -517,12 +517,12 @@ class PRController {
       }
 
       logger.info(
-        formattedPrompt
+        formattedPrompt,
       );
       // Use the existing streaming infrastructure from PRLangChainService
       return await prLangChainService.tryProvidersForStreaming(
         formattedPrompt,
-        res
+        res,
       );
     } catch (error) {
       logger.error('Error in streamPRReview:', error);
@@ -559,36 +559,36 @@ class PRController {
         commits = await BitbucketService.getCommitMessages(
           projectKey,
           repoSlug,
-          branchName
+          branchName,
         );
 
         if (commits.length > 0) {
           // Generate PR content using prLangChainService directly
           StreamingService.sendStatus(
             res,
-            'Generating PR title and description...'
+            'Generating PR title and description...',
           );
 
           await PRController.generateAIContent(
             commits,
             ticketNumber,
             branchName,
-            res
+            res,
           );
         } else {
           logger.warn(
-            `No commits found for branch ${branchName}, using fallback title/description`
+            `No commits found for branch ${branchName}, using fallback title/description`,
           );
           const fallbackResult = PRController.generateFallbackContent(
             ticketNumber,
             branchName,
             res,
-            []
+            [],
           );
           const finalTitle = PRController.applyCommitTypePrefix(
             fallbackResult.prTitle,
             [],
-            ticketNumber
+            ticketNumber,
           );
           prLangChainService.sendFinalResults(
             res,
@@ -596,12 +596,12 @@ class PRController {
             fallbackResult.prDescription,
             false,
             ticketNumber,
-            branchName
+            branchName,
           );
         }
       } catch (ollamaError) {
         logger.info(
-          `AI generation not available, using basic title/description: ${ollamaError.message}`
+          `AI generation not available, using basic title/description: ${ollamaError.message}`,
         );
         // Use commits if available from previous fetch attempt
         const commitsForFallback = commits || [];
@@ -609,12 +609,12 @@ class PRController {
           ticketNumber,
           branchName,
           res,
-          commitsForFallback
+          commitsForFallback,
         );
         const finalTitle = PRController.applyCommitTypePrefix(
           fallbackResult.prTitle,
           commitsForFallback,
-          ticketNumber
+          ticketNumber,
         );
         prLangChainService.sendFinalResults(
           res,
@@ -622,7 +622,7 @@ class PRController {
           fallbackResult.prDescription,
           false,
           ticketNumber,
-          branchName
+          branchName,
         );
       }
 

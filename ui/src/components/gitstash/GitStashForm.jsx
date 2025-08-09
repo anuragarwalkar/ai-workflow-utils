@@ -1,38 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   Box,
-  TextField,
   Button,
-  Typography,
-  Grid,
   Card,
   CardContent,
-  Alert,
-  Paper,
+  Chip,
   Divider,
+  FormControlLabel,
+  Grid,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Chip,
-  Tabs,
-  Tab,
-  FormControlLabel,
+  Paper,
   Switch,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import {
-  Search as SearchIcon,
+  AutoAwesome as AutoAwesomeIcon,
+  Code as CodeIcon,
   Info as InfoIcon,
   Link as LinkIcon,
-  Code as CodeIcon,
+  Search as SearchIcon,
   Storage as StorageIcon,
-  AutoAwesome as AutoAwesomeIcon,
 } from '@mui/icons-material';
 import {
-  setSelectedProject,
-  setError,
   setDirectPRId,
+  setError,
+  setSelectedProject,
 } from '../../store/slices/prSlice';
 
 const STORAGE_KEY = 'gitstash_project_config';
@@ -223,34 +223,34 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto' }}>
       <Typography
-        variant='h5'
         component='h2'
         sx={{ mb: 3, textAlign: 'center' }}
+        variant='h5'
       >
         Select GitStash Repository
       </Typography>
 
       <Grid container spacing={4}>
         {/* Form Section */}
-        <Grid item xs={12} md={6}>
+        <Grid item md={6} xs={12}>
           <Card elevation={2} sx={{ height: 'fit-content' }}>
             <CardContent>
               <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
                 <Tabs
+                  aria-label='repository selection tabs'
                   value={tabValue}
                   onChange={handleTabChange}
-                  aria-label='repository selection tabs'
                 >
                   <Tab
-                    label='Manual Entry'
                     icon={<StorageIcon />}
                     iconPosition='start'
+                    label='Manual Entry'
                     sx={{ minHeight: 48 }}
                   />
                   <Tab
-                    label='From URL'
                     icon={<AutoAwesomeIcon />}
                     iconPosition='start'
+                    label='From URL'
                     sx={{ minHeight: 48 }}
                   />
                 </Tabs>
@@ -263,26 +263,26 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                     <Grid item xs={12}>
                       <TextField
                         fullWidth
+                        required
+                        disabled={isLoading}
+                        helperText='The project key from your GitStash URL'
                         label='Project Key'
+                        placeholder='e.g., PROJ'
                         value={formData.projectKey}
                         onChange={handleInputChange('projectKey')}
-                        placeholder='e.g., PROJ'
-                        required
-                        helperText='The project key from your GitStash URL'
-                        disabled={isLoading}
                       />
                     </Grid>
 
                     <Grid item xs={12}>
                       <TextField
                         fullWidth
+                        required
+                        disabled={isLoading}
+                        helperText='The repository slug from your GitStash URL'
                         label='Repository Slug'
+                        placeholder='e.g., my-repository'
                         value={formData.repoSlug}
                         onChange={handleInputChange('repoSlug')}
-                        placeholder='e.g., my-repository'
-                        required
-                        helperText='The repository slug from your GitStash URL'
-                        disabled={isLoading}
                       />
                     </Grid>
 
@@ -295,15 +295,13 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                         }}
                       >
                         <Button
-                          type='submit'
-                          variant='contained'
-                          size='large'
-                          startIcon={<SearchIcon />}
                           disabled={
                             isLoading ||
                             !formData.projectKey.trim() ||
                             !formData.repoSlug.trim()
                           }
+                          size='large'
+                          startIcon={<SearchIcon />}
                           sx={{
                             minWidth: 200,
                             background:
@@ -313,6 +311,8 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                                 'linear-gradient(135deg, #0d7377 0%, #2dd4bf 100%)',
                             },
                           }}
+                          type='submit'
+                          variant='contained'
                         >
                           {isLoading ? 'Loading...' : 'Fetch Pull Requests'}
                         </Button>
@@ -325,22 +325,22 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                     <Grid item xs={12}>
                       <TextField
                         fullWidth
+                        multiline
+                        required
+                        disabled={isLoading}
+                        helperText='Paste the full GitStash URL (repository or pull request)'
                         label='GitStash URL'
+                        placeholder='https://gitstash.company.com/projects/PROJ/repos/my-repository/pull-requests/123'
+                        rows={2}
                         value={urlData.url}
                         onChange={handleUrlChange}
-                        placeholder='https://gitstash.company.com/projects/PROJ/repos/my-repository/pull-requests/123'
-                        required
-                        multiline
-                        rows={2}
-                        helperText='Paste the full GitStash URL (repository or pull request)'
-                        disabled={isLoading}
                       />
                     </Grid>
 
-                    {urlData.parsedData?.isValid && (
+                    {urlData.parsedData?.isValid ? (
                       <Grid item xs={12}>
                         <Alert severity='success' sx={{ mb: 2 }}>
-                          <Typography variant='subtitle2' sx={{ mb: 1 }}>
+                          <Typography sx={{ mb: 1 }} variant='subtitle2'>
                             ✅ URL Parsed Successfully
                           </Typography>
                           <Box
@@ -352,25 +352,22 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                             }}
                           >
                             <Chip
+                              color='primary'
                               label={`Project: ${urlData.parsedData.projectKey}`}
                               size='small'
-                              color='primary'
                             />
                             <Chip
+                              color='secondary'
                               label={`Repo: ${urlData.parsedData.repoSlug}`}
                               size='small'
-                              color='secondary'
                             />
-                            {urlData.parsedData.prNumber && (
-                              <Chip
+                            {urlData.parsedData.prNumber ? <Chip
                                 label={`PR: #${urlData.parsedData.prNumber}`}
                                 size='small'
                                 color='success'
-                              />
-                            )}
+                              /> : null}
                           </Box>
-                          {urlData.parsedData.prNumber && (
-                            <FormControlLabel
+                          {urlData.parsedData.prNumber ? <FormControlLabel
                               control={
                                 <Switch
                                   checked={urlData.directToPR}
@@ -380,13 +377,12 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                               }
                               label='Go directly to this PR review'
                               sx={{ mt: 1 }}
-                            />
-                          )}
+                            /> : null}
                         </Alert>
                       </Grid>
-                    )}
+                    ) : null}
 
-                    {urlData.url && !urlData.parsedData?.isValid && (
+                    {urlData.url && !urlData.parsedData?.isValid ? (
                       <Grid item xs={12}>
                         <Alert severity='warning'>
                           Invalid URL format. Please ensure the URL follows the
@@ -403,7 +399,7 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                           </code>
                         </Alert>
                       </Grid>
-                    )}
+                    ) : null}
 
                     <Grid item xs={12}>
                       <Box
@@ -414,8 +410,7 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                         }}
                       >
                         <Button
-                          type='submit'
-                          variant='contained'
+                          disabled={isLoading || !urlData.parsedData?.isValid}
                           size='large'
                           startIcon={
                             urlData.parsedData?.prNumber &&
@@ -425,7 +420,6 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                               <SearchIcon />
                             )
                           }
-                          disabled={isLoading || !urlData.parsedData?.isValid}
                           sx={{
                             minWidth: 200,
                             background:
@@ -435,6 +429,8 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                                 'linear-gradient(135deg, #0d7377 0%, #2dd4bf 100%)',
                             },
                           }}
+                          type='submit'
+                          variant='contained'
                         >
                           {isLoading
                             ? 'Loading...'
@@ -452,12 +448,12 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
         </Grid>
 
         {/* Help Section */}
-        <Grid item xs={12} md={6}>
+        <Grid item md={6} xs={12}>
           <Card elevation={2} sx={{ height: 'fit-content' }}>
             <CardContent>
               <Typography
-                variant='h6'
                 sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}
+                variant='h6'
               >
                 <InfoIcon color='primary' />
                 How to Find Your Repository Details
@@ -487,12 +483,12 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
 
               <Divider sx={{ my: 2 }} />
 
-              <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600 }}>
+              <Typography sx={{ mb: 1, fontWeight: 600 }} variant='subtitle2'>
                 Example:
               </Typography>
               <Paper
-                variant='outlined'
                 sx={{ p: 2, backgroundColor: 'grey.50' }}
+                variant='outlined'
               >
                 <Box
                   sx={{
@@ -505,23 +501,23 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                   }}
                 >
                   <Typography
-                    variant='body2'
                     component='span'
                     sx={{ fontFamily: 'monospace' }}
+                    variant='body2'
                   >
                     URL: https://gitstash.company.com/projects/
                   </Typography>
-                  <Chip label='PROJ' size='small' color='primary' />
+                  <Chip color='primary' label='PROJ' size='small' />
                   <Typography
-                    variant='body2'
                     component='span'
                     sx={{ fontFamily: 'monospace' }}
+                    variant='body2'
                   >
                     /repos/
                   </Typography>
-                  <Chip label='my-repository' size='small' color='secondary' />
+                  <Chip color='secondary' label='my-repository' size='small' />
                 </Box>
-                <Typography variant='caption' color='text.secondary'>
+                <Typography color='text.secondary' variant='caption'>
                   Project Key: PROJ | Repository Slug: my-repository
                 </Typography>
               </Paper>

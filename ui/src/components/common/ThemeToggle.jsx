@@ -1,6 +1,6 @@
 import React from 'react';
 import { IconButton, Tooltip } from '@mui/material';
-import { LightMode, DarkMode, SettingsBrightness } from '@mui/icons-material';
+import { DarkMode, LightMode, SettingsBrightness } from '@mui/icons-material';
 import { useAppTheme } from '../../theme/useAppTheme';
 
 const ThemeToggle = () => {
@@ -44,7 +44,6 @@ const ThemeToggle = () => {
   return (
     <Tooltip title={getTooltip()}>
       <IconButton
-        onClick={cycleTheme}
         sx={{
           color: 'white',
           background: 'rgba(255, 255, 255, 0.1)',
@@ -57,6 +56,7 @@ const ThemeToggle = () => {
             boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
           },
         }}
+        onClick={cycleTheme}
       >
         {getIcon()}
       </IconButton>

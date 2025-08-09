@@ -36,14 +36,14 @@ class TemplateExportImportProcessor {
           totalTemplates: templates.filter(t => !t.isDefault).length,
           issueTypes: [
             ...new Set(
-              templates.filter(t => !t.isDefault).map(t => t.issueType)
+              templates.filter(t => !t.isDefault).map(t => t.issueType),
             ),
           ],
         },
       };
 
       logger.info(
-        `Processed export data with ${exportData.templates.length} templates`
+        `Processed export data with ${exportData.templates.length} templates`,
       );
       return exportData;
     } catch (error) {
@@ -79,7 +79,7 @@ class TemplateExportImportProcessor {
       };
 
       logger.info(
-        `Processed import data with ${processedData.templates.length} templates`
+        `Processed import data with ${processedData.templates.length} templates`,
       );
       return processedData;
     } catch (error) {
@@ -105,7 +105,7 @@ class TemplateExportImportProcessor {
       };
 
       logger.info(
-        `Processed template duplication: ${originalTemplate.name} -> ${newName}`
+        `Processed template duplication: ${originalTemplate.name} -> ${newName}`,
       );
       return processedTemplate;
     } catch (error) {
@@ -149,7 +149,7 @@ class TemplateExportImportProcessor {
       };
 
       logger.debug(
-        `Content analysis completed: ${variables.length} unique variables found`
+        `Content analysis completed: ${variables.length} unique variables found`,
       );
       return analysis;
     } catch (error) {
@@ -194,11 +194,11 @@ class TemplateExportImportProcessor {
   static processApiResponse(templates) {
     try {
       const processedTemplates = templates.map(template =>
-        template.toApiFormat()
+        template.toApiFormat(),
       );
 
       logger.debug(
-        `Processed ${processedTemplates.length} templates for API response`
+        `Processed ${processedTemplates.length} templates for API response`,
       );
       return processedTemplates;
     } catch (error) {
@@ -220,7 +220,7 @@ class TemplateExportImportProcessor {
       // Filter by issue type
       if (filters.issueType) {
         filteredTemplates = filteredTemplates.filter(
-          template => template.issueType === filters.issueType
+          template => template.issueType === filters.issueType,
         );
       }
 
@@ -228,21 +228,21 @@ class TemplateExportImportProcessor {
       if (filters.name) {
         const nameFilter = filters.name.toLowerCase();
         filteredTemplates = filteredTemplates.filter(template =>
-          template.name.toLowerCase().includes(nameFilter)
+          template.name.toLowerCase().includes(nameFilter),
         );
       }
 
       // Filter by active status
       if (filters.isActive !== undefined) {
         filteredTemplates = filteredTemplates.filter(
-          template => template.isActive === filters.isActive
+          template => template.isActive === filters.isActive,
         );
       }
 
       // Filter by default status
       if (filters.isDefault !== undefined) {
         filteredTemplates = filteredTemplates.filter(
-          template => template.isDefault === filters.isDefault
+          template => template.isDefault === filters.isDefault,
         );
       }
 
@@ -260,7 +260,7 @@ class TemplateExportImportProcessor {
       }
 
       logger.debug(
-        `Processed search: ${filteredTemplates.length} results from ${templates.length} templates`
+        `Processed search: ${filteredTemplates.length} results from ${templates.length} templates`,
       );
       return filteredTemplates;
     } catch (error) {

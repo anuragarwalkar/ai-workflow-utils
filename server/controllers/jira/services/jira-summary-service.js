@@ -80,7 +80,7 @@ export class JiraSummaryService {
       const jiraKeyIndex = headers.indexOf('Jira URL');
 
       if (jiraKeyIndex === -1) {
-        throw ErrorHandler.createValidationError("Missing 'Jira URL' column");
+        throw ErrorHandler.createValidationError('Missing \'Jira URL\' column');
       }
 
       logger.info('Processing table data for Jira summaries', {
@@ -185,7 +185,7 @@ export class JiraSummaryService {
       const searchResult = await JiraApiService.searchIssues(
         jql,
         ['summary'],
-        limit
+        limit,
       );
 
       const summariesMap = {};
@@ -233,7 +233,7 @@ export class JiraSummaryService {
       const searchResult = await JiraApiService.searchIssues(
         jql,
         ['summary', 'status', 'assignee'],
-        limit
+        limit,
       );
 
       const issues =
@@ -276,9 +276,9 @@ export class JiraSummaryService {
         averageLength:
           summaryTexts.length > 0
             ? Math.round(
-                summaryTexts.reduce((sum, text) => sum + text.length, 0) /
-                  summaryTexts.length
-              )
+              summaryTexts.reduce((sum, text) => sum + text.length, 0) /
+                  summaryTexts.length,
+            )
             : 0,
         longestSummary: Math.max(...summaryTexts.map(text => text.length), 0),
         shortestSummary:

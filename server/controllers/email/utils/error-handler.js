@@ -29,8 +29,8 @@ class ErrorHandler {
     res.status(errorResponse.status).json({
       success: false,
       error: errorResponse.message,
-      errorId: errorId,
-      timestamp: timestamp,
+      errorId,
+      timestamp,
     });
   }
 
@@ -70,8 +70,8 @@ class ErrorHandler {
     res.status(503).json({
       success: false,
       error: `${service} service is currently unavailable. Please try again later.`,
-      errorId: errorId,
-      service: service,
+      errorId,
+      service,
       timestamp: new Date().toISOString(),
     });
   }

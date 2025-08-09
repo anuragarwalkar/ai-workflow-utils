@@ -22,7 +22,7 @@ async function main() {
     
     const startupProcess = spawn('node', [startupScript, ...startupArgs], {
       stdio: 'inherit',
-      cwd: packageDir
+      cwd: packageDir,
     });
     
     startupProcess.on('exit', (code) => {
@@ -38,7 +38,7 @@ async function main() {
     
     const validateProcess = spawn('node', [validateScript], {
       stdio: 'inherit',
-      cwd: packageDir
+      cwd: packageDir,
     });
     
     validateProcess.on('exit', (code) => {
@@ -116,8 +116,8 @@ async function main() {
     env: {
       ...process.env,
       NODE_ENV: 'production',
-      PORT: '3000'
-    }
+      PORT: '3000',
+    },
   });
 
   server.on('error', (err) => {

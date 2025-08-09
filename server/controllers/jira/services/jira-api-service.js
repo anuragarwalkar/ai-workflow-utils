@@ -46,7 +46,7 @@ export class JiraApiService {
       });
       throw ErrorHandler.createServiceError(
         `Failed to create Jira issue: ${error.response?.data?.errorMessages?.join(', ') || error.message}`,
-        error.response?.status || 500
+        error.response?.status || 500,
       );
     }
   }
@@ -80,7 +80,7 @@ export class JiraApiService {
       });
       throw ErrorHandler.createServiceError(
         `Failed to fetch Jira issue: ${error.message}`,
-        error.response?.status || 500
+        error.response?.status || 500,
       );
     }
   }
@@ -121,7 +121,7 @@ export class JiraApiService {
       });
       throw ErrorHandler.createServiceError(
         `Failed to upload attachment: ${error.message}`,
-        error.response?.status || 500
+        error.response?.status || 500,
       );
     }
   }
@@ -164,7 +164,7 @@ export class JiraApiService {
       });
       throw ErrorHandler.createServiceError(
         `Failed to search Jira issues: ${error.message}`,
-        error.response?.status || 500
+        error.response?.status || 500,
       );
     }
   }
@@ -184,7 +184,7 @@ export class JiraApiService {
       const searchResult = await this.searchIssues(
         jql,
         ['summary'],
-        issueKeys.length
+        issueKeys.length,
       );
 
       const summariesMap = {};

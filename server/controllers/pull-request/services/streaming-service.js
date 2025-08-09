@@ -25,7 +25,7 @@ class StreamingService {
   static sendStatus(res, message) {
     this.sendSSEData(res, {
       type: 'status',
-      message: message,
+      message,
     });
   }
 
@@ -45,7 +45,7 @@ class StreamingService {
   static sendChunk(res, content) {
     this.sendSSEData(res, {
       type: 'chunk',
-      content: content,
+      content,
     });
   }
 
@@ -55,7 +55,7 @@ class StreamingService {
   static sendToken(res, content) {
     this.sendSSEData(res, {
       type: 'token',
-      content: content,
+      content,
     });
   }
 
@@ -105,7 +105,7 @@ class StreamingService {
   static sendComplete(res, data) {
     this.sendSSEData(res, {
       type: 'complete',
-      data: data,
+      data,
     });
   }
 

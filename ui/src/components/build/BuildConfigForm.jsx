@@ -1,16 +1,16 @@
 import React from 'react';
 import {
-  Box,
-  Typography,
-  TextField,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
-  Button,
-  Paper,
-  Grid,
-  Chip,
   Alert,
+  Box,
+  Button,
+  Checkbox,
+  Chip,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Paper,
+  TextField,
+  Typography,
 } from '@mui/material';
 
 const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
@@ -47,7 +47,7 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
     onChange({
       ...config,
       gitRepos: gitReposValue,
-      availablePackages: availablePackages,
+      availablePackages,
       selectedPackages: config.selectedPackages.filter(pkg =>
         availablePackages.includes(pkg)
       ),
@@ -99,7 +99,7 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
 
   return (
     <Box>
-      <Typography variant='h6' gutterBottom>
+      <Typography gutterBottom variant='h6'>
         Configure Build Parameters
       </Typography>
 
@@ -107,41 +107,41 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
         {/* Repository Configuration */}
         <Grid item xs={12}>
           <Paper sx={{ p: 3 }}>
-            <Typography variant='subtitle1' gutterBottom>
+            <Typography gutterBottom variant='subtitle1'>
               Repository Configuration
             </Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid item sm={6} xs={12}>
                 <TextField
                   fullWidth
+                  required
+                  helperText='Enter the repository key for PR creation'
                   label='Repository Key'
                   placeholder='e.g., your-repo-key'
                   value={config.repoKey || ''}
                   onChange={handleRepoKeyChange}
-                  helperText='Enter the repository key for PR creation'
-                  required
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item sm={6} xs={12}>
                 <TextField
                   fullWidth
+                  required
+                  helperText='Enter the repository slug for PR creation'
                   label='Repository Slug'
                   placeholder='e.g., your-repo-slug'
                   value={config.repoSlug || ''}
                   onChange={handleRepoSlugChange}
-                  helperText='Enter the repository slug for PR creation'
-                  required
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
+                  required
+                  helperText='Enter comma-separated list of git repositories'
                   label='Git Repositories'
                   placeholder='e.g., example-1,example-2,example-3'
                   value={config.gitRepos || ''}
                   onChange={handleGitReposChange}
-                  helperText='Enter comma-separated list of git repositories'
-                  required
                 />
               </Grid>
             </Grid>
@@ -151,17 +151,17 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
         {/* Ticket Number */}
         <Grid item xs={12}>
           <Paper sx={{ p: 3 }}>
-            <Typography variant='subtitle1' gutterBottom>
+            <Typography gutterBottom variant='subtitle1'>
               Ticket Information
             </Typography>
             <TextField
               fullWidth
+              required
+              helperText='Enter the Jira ticket number for this release'
               label='Ticket Number'
               placeholder='e.g., 12345'
               value={config.ticketNumber}
               onChange={handleTicketNumberChange}
-              helperText='Enter the Jira ticket number for this release'
-              required
             />
           </Paper>
         </Grid>
@@ -179,21 +179,21 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
             >
               <Typography variant='subtitle1'>Package Selection</Typography>
               {config.availablePackages &&
-                config.availablePackages.length > 0 && (
-                  <Button
-                    size='small'
-                    onClick={handleSelectAllPackages}
-                    variant='outlined'
-                  >
-                    {config.selectedPackages.length ===
-                    config.availablePackages.length
-                      ? 'Deselect All'
-                      : 'Select All'}
-                  </Button>
-                )}
+              config.availablePackages.length > 0 ? (
+                <Button
+                  size='small'
+                  variant='outlined'
+                  onClick={handleSelectAllPackages}
+                >
+                  {config.selectedPackages.length ===
+                  config.availablePackages.length
+                    ? 'Deselect All'
+                    : 'Select All'}
+                </Button>
+              ) : null}
             </Box>
 
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+            <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
               Select which packages to update to their latest versions:
             </Typography>
 
@@ -201,23 +201,23 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
               <FormGroup>
                 {config.availablePackages.map(packageName => (
                   <FormControlLabel
-                    key={packageName}
                     control={
                       <Checkbox
                         checked={config.selectedPackages.includes(packageName)}
                         onChange={() => handlePackageToggle(packageName)}
                       />
                     }
+                    key={packageName}
                     label={
                       <Box
                         sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                       >
                         <Typography variant='body2'>{packageName}</Typography>
                         <Chip
+                          color='primary'
                           label={getPackageDisplayName(packageName)}
                           size='small'
                           variant='outlined'
-                          color='primary'
                         />
                       </Box>
                     }
@@ -242,19 +242,19 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
         {/* Pull Request Options */}
         <Grid item xs={12}>
           <Paper sx={{ p: 3 }}>
-            <Typography variant='subtitle1' gutterBottom>
+            <Typography gutterBottom variant='subtitle1'>
               Git Options
             </Typography>
             <FormControlLabel
-              control={
+              control={(
                 <Checkbox
                   checked={config.createPullRequest}
                   onChange={handlePullRequestToggle}
                 />
-              }
+              )}
               label='Create Pull Request automatically'
             />
-            <Typography variant='body2' color='text.secondary' sx={{ ml: 4 }}>
+            <Typography color='text.secondary' sx={{ ml: 4 }} variant='body2'>
               If enabled, a pull request will be created automatically after the
               build completes
             </Typography>
@@ -267,8 +267,8 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
             sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}
           >
             <Button
-              variant='outlined'
               href='#'
+              variant='outlined'
               onClick={e => {
                 e.preventDefault();
                 window.history.back();
@@ -277,6 +277,7 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
               Cancel
             </Button>
             <Button
+              disabled={!isFormValid()}
               variant='contained'
               onClick={() => {
                 // Save repository configuration before proceeding
@@ -289,7 +290,6 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
                 }
                 onNext();
               }}
-              disabled={!isFormValid()}
             >
               Next: Review Configuration
             </Button>

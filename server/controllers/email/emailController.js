@@ -29,13 +29,13 @@ class EmailController {
       // Step 1: Fetch wiki content
       const wikiContent = await WikiService.fetchWikiContent(
         emailRequest.wikiUrl,
-        emailRequest.wikiBasicAuth
+        emailRequest.wikiBasicAuth,
       );
 
       // Step 2: Extract table data from wiki content
       const tableData = await WikiService.extractTableData(
         wikiContent,
-        emailRequest.version
+        emailRequest.version,
       );
 
       // Step 3: Enhance table data with Jira information
@@ -48,7 +48,7 @@ class EmailController {
         {
           wikiUrl: emailRequest.wikiUrl,
           version: emailRequest.version,
-        }
+        },
       );
 
       logger.info('Email generation completed successfully');
@@ -69,7 +69,7 @@ class EmailController {
       const { prompt, attachedImages = [] } = req.body;
 
       logger.info('Processing AI email composition request', {
-        prompt: prompt?.substring(0, 100) + '...',
+        prompt: `${prompt?.substring(0, 100)  }...`,
         imageCount: attachedImages.length,
       });
 
@@ -99,7 +99,7 @@ class EmailController {
 
       logger.info('Sending AI composed email', {
         to,
-        subject: subject?.substring(0, 50) + '...',
+        subject: `${subject?.substring(0, 50)  }...`,
       });
 
       // Send email using email service

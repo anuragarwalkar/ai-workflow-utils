@@ -28,7 +28,7 @@ class EmailContentService {
       // Use HTML formatter to generate the complete email body
       const emailBody = HtmlFormatter.generateCompleteEmailBody(
         tableData,
-        metadata
+        metadata,
       );
 
       if (!emailBody || emailBody.trim().length === 0) {
@@ -115,7 +115,7 @@ class EmailContentService {
       // Generate email content using LangChain
       const emailContent = await this._generateEmailContent(
         parsedPrompt,
-        attachedImages
+        attachedImages,
       );
 
       // Extract recipient information
@@ -146,7 +146,7 @@ class EmailContentService {
    * @param {Array} options.attachments - Email attachments
    * @returns {Object} Send result
    */
-  static async sendEmail({ to, subject, body, attachments = [] }) {
+  static async sendEmail({ to, subject, body, attachments: _attachments = [] }) {
     try {
       logger.info('Sending email', { to, subject: subject?.substring(0, 50) });
 
@@ -195,7 +195,7 @@ class EmailContentService {
       const filtered = mockContacts.filter(
         contact =>
           contact.name.toLowerCase().includes(query.toLowerCase()) ||
-          contact.email.toLowerCase().includes(query.toLowerCase())
+          contact.email.toLowerCase().includes(query.toLowerCase()),
       );
 
       return filtered;
@@ -232,7 +232,7 @@ class EmailContentService {
         { getPrompt: () => parsePrompt },
         [],
         'EMAIL_PARSING',
-        false
+        false,
       );
       return JSON.parse(result.content);
     } catch (error) {
@@ -278,7 +278,7 @@ class EmailContentService {
         { getPrompt: () => contentPrompt },
         attachedImages.map(img => img.data), // Pass image data
         'EMAIL_CONTENT_GENERATION',
-        false
+        false,
       );
 
       const parsed = JSON.parse(result.content);

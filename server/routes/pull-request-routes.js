@@ -1,9 +1,9 @@
 import express from 'express';
 import {
-  getPullRequests,
-  getPullRequestDiff,
-  reviewPullRequest,
   createPullRequest,
+  getPullRequestDiff,
+  getPullRequests,
+  reviewPullRequest,
   streamCreatePRPreview,
 } from '../controllers/pull-request/index.js';
 import { asyncHandler, createRateLimit } from '../middleware/index.js';
@@ -17,13 +17,13 @@ router.use(prRateLimit);
 // Route to get pull requests for a project/repo
 router.get(
   '/:projectKey/:repoSlug/pull-requests',
-  asyncHandler(getPullRequests)
+  asyncHandler(getPullRequests),
 );
 
 // Route to get diff for a specific pull request
 router.get(
   '/:projectKey/:repoSlug/pull-requests/:pullRequestId/diff',
-  asyncHandler(getPullRequestDiff)
+  asyncHandler(getPullRequestDiff),
 );
 
 // Route to review a pull request using AI

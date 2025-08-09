@@ -2,7 +2,7 @@
  * Input validation utilities for Jira operations
  */
 
-import { ISSUE_TYPES, PRIORITY_LEVELS, FILE_UPLOAD } from './constants.js';
+import { FILE_UPLOAD, ISSUE_TYPES, PRIORITY_LEVELS } from './constants.js';
 import path from 'path';
 
 export class ValidationUtils {
@@ -34,7 +34,7 @@ export class ValidationUtils {
 
     if (!issueType || !Object.values(ISSUE_TYPES).includes(issueType)) {
       errors.push(
-        `Issue type must be one of: ${Object.values(ISSUE_TYPES).join(', ')}`
+        `Issue type must be one of: ${Object.values(ISSUE_TYPES).join(', ')}`,
       );
     }
 
@@ -49,7 +49,7 @@ export class ValidationUtils {
     // Optional but validated fields
     if (priority && !Object.values(PRIORITY_LEVELS).includes(priority)) {
       errors.push(
-        `Priority must be one of: ${Object.values(PRIORITY_LEVELS).join(', ')}`
+        `Priority must be one of: ${Object.values(PRIORITY_LEVELS).join(', ')}`,
       );
     }
 
@@ -74,7 +74,7 @@ export class ValidationUtils {
       // Check file size
       if (file.size > FILE_UPLOAD.MAX_SIZE) {
         errors.push(
-          `File size must be less than ${FILE_UPLOAD.MAX_SIZE / (1024 * 1024)}MB`
+          `File size must be less than ${FILE_UPLOAD.MAX_SIZE / (1024 * 1024)}MB`,
         );
       }
 
@@ -82,7 +82,7 @@ export class ValidationUtils {
       const ext = path.extname(file.originalname).toLowerCase();
       if (!FILE_UPLOAD.ALLOWED_EXTENSIONS.includes(ext)) {
         errors.push(
-          `File extension ${ext} is not allowed. Allowed: ${FILE_UPLOAD.ALLOWED_EXTENSIONS.join(', ')}`
+          `File extension ${ext} is not allowed. Allowed: ${FILE_UPLOAD.ALLOWED_EXTENSIONS.join(', ')}`,
         );
       }
     }
@@ -150,7 +150,7 @@ export class ValidationUtils {
 
     if (issueType && !Object.values(ISSUE_TYPES).includes(issueType)) {
       errors.push(
-        `Issue type must be one of: ${Object.values(ISSUE_TYPES).join(', ')}`
+        `Issue type must be one of: ${Object.values(ISSUE_TYPES).join(', ')}`,
       );
     }
 
@@ -179,12 +179,12 @@ export class ValidationUtils {
     }
 
     const invalidKeys = issueKeys.filter(
-      key => !key || typeof key !== 'string' || !/^[A-Z]+-\d+$/.test(key)
+      key => !key || typeof key !== 'string' || !/^[A-Z]+-\d+$/.test(key),
     );
 
     if (invalidKeys.length > 0) {
       errors.push(
-        `Invalid issue key format: ${invalidKeys.join(', ')}. Expected format: PROJECT-123`
+        `Invalid issue key format: ${invalidKeys.join(', ')}. Expected format: PROJECT-123`,
       );
     }
 

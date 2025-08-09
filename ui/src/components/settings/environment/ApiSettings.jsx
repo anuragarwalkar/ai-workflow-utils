@@ -1,21 +1,21 @@
 import React from 'react';
 import {
+  Alert,
   Box,
-  Typography,
+  Button,
   Card,
   CardContent,
-  TextField,
-  Button,
-  Alert,
   Divider,
   FormControlLabel,
   Switch,
+  TextField,
+  Typography,
 } from '@mui/material';
 
 const ApiSettings = () => {
   return (
     <Box>
-      <Typography variant='h6' component='h2' gutterBottom>
+      <Typography gutterBottom component='h2' variant='h6'>
         API Configuration
       </Typography>
 
@@ -26,18 +26,18 @@ const ApiSettings = () => {
 
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant='subtitle1' gutterBottom>
+          <Typography gutterBottom variant='subtitle1'>
             AI Provider Settings
           </Typography>
 
           <Box sx={{ mb: 2 }}>
             <TextField
               fullWidth
-              label='Default AI Provider'
               select
               defaultValue='openai'
-              size='small'
+              label='Default AI Provider'
               SelectProps={{ native: true }}
+              size='small'
             >
               <option value='openai'>OpenAI</option>
               <option value='anthropic'>Anthropic Claude</option>
@@ -48,16 +48,16 @@ const ApiSettings = () => {
 
           <TextField
             fullWidth
-            label='Request Timeout (seconds)'
-            type='number'
             defaultValue={60}
+            label='Request Timeout (seconds)'
             size='small'
             sx={{ mb: 2 }}
+            type='number'
           />
 
           <Divider sx={{ my: 2 }} />
 
-          <Typography variant='subtitle1' gutterBottom>
+          <Typography gutterBottom variant='subtitle1'>
             Template Processing
           </Typography>
 
@@ -76,30 +76,30 @@ const ApiSettings = () => {
 
           <Divider sx={{ my: 2 }} />
 
-          <Typography variant='subtitle1' gutterBottom>
+          <Typography gutterBottom variant='subtitle1'>
             Advanced Settings
           </Typography>
 
           <TextField
             fullWidth
-            label='Max Template Length'
-            type='number'
             defaultValue={10000}
+            label='Max Template Length'
             size='small'
             sx={{ mb: 2 }}
+            type='number'
           />
 
           <TextField
             fullWidth
-            label='Template Backup Retention (days)'
-            type='number'
             defaultValue={30}
+            label='Template Backup Retention (days)'
             size='small'
+            type='number'
           />
         </CardContent>
       </Card>
 
-      <Button variant='contained' color='primary'>
+      <Button color='primary' variant='contained'>
         Save API Settings
       </Button>
     </Box>

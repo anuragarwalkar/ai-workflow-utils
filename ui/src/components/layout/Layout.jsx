@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Paper, Box } from '@mui/material';
+import { Box, Container, Paper } from '@mui/material';
 import { useAppTheme } from '../../theme/useAppTheme';
 import Header from './Header';
 

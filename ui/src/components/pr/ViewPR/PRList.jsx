@@ -1,14 +1,14 @@
 import React from 'react';
 import {
   Box,
-  Paper,
-  Typography,
+  Button,
+  Chip,
+  CircularProgress,
   List,
   ListItem,
   ListItemText,
-  Button,
-  CircularProgress,
-  Chip,
+  Paper,
+  Typography,
 } from '@mui/material';
 import { useGetPullRequestsQuery } from '../../../store/api/prApi';
 
@@ -48,7 +48,7 @@ const PRList = ({ projectKey, repoSlug, onViewDiff, onRequestReview }) => {
   return (
     <Box sx={{ mt: 2 }}>
       <Paper sx={{ p: 2 }}>
-        <Typography variant='h6' gutterBottom>
+        <Typography gutterBottom variant='h6'>
           Pull Requests
         </Typography>
         <List>
@@ -76,18 +76,18 @@ const PRList = ({ projectKey, repoSlug, onViewDiff, onRequestReview }) => {
                   >
                     <Typography variant='subtitle1'>{pr.title}</Typography>
                     <Chip
-                      size='small'
-                      label={pr.state}
                       color={pr.state === 'OPEN' ? 'primary' : 'default'}
+                      label={pr.state}
+                      size='small'
                     />
                   </Box>
                 }
                 secondary={
                   <>
-                    <Typography variant='body2' color='text.secondary'>
+                    <Typography color='text.secondary' variant='body2'>
                       Created by: {pr.author?.displayName || 'Unknown'}
                     </Typography>
-                    <Typography variant='body2' color='text.secondary'>
+                    <Typography color='text.secondary' variant='body2'>
                       Created: {new Date(pr.createdDate).toLocaleString()}
                     </Typography>
                   </>
@@ -102,15 +102,15 @@ const PRList = ({ projectKey, repoSlug, onViewDiff, onRequestReview }) => {
                 }}
               >
                 <Button
-                  variant='outlined'
                   size='small'
+                  variant='outlined'
                   onClick={() => onViewDiff(pr)}
                 >
                   View Diff
                 </Button>
                 <Button
-                  variant='outlined'
                   size='small'
+                  variant='outlined'
                   onClick={() => onRequestReview(pr)}
                 >
                   Request Review

@@ -43,7 +43,7 @@ export class ErrorHandler {
         error: errorInfo.message,
         context,
         errorType: errorInfo.type,
-      })}\n\n`
+      })}\n\n`,
     );
   }
 
@@ -86,7 +86,7 @@ export class ErrorHandler {
     ) {
       return {
         statusCode: 400,
-        message: message,
+        message,
         type: ChatConstants.ERROR_TYPES.VALIDATION,
       };
     }

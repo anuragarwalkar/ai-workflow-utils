@@ -1,42 +1,42 @@
 import {
   Box,
-  Typography,
   Button,
-  Grid,
   Card,
-  CardContent,
   CardActions,
+  CardContent,
   Chip,
-  IconButton,
-  TextField,
-  InputAdornment,
   FormControlLabel,
-  Switch,
+  Grid,
+  IconButton,
+  InputAdornment,
   Stack,
+  Switch,
+  TextField,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Search as SearchIcon,
-  Edit as EditIcon,
   Delete as DeleteIcon,
-  FileCopy as FileCopyIcon,
+  Edit as EditIcon,
   GetApp as ExportIcon,
+  FileCopy as FileCopyIcon,
   Refresh as ResetIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
+  openCreateForm,
+  openDuplicateForm,
+  openEditForm,
+  selectAvailableIssueTypes,
+  selectFilterType,
   selectFilteredTemplates,
   selectSearchTerm,
-  selectFilterType,
   selectShowDefaultTemplates,
-  selectAvailableIssueTypes,
-  setSearchTerm,
   setFilterType,
+  setSearchTerm,
   setShowDefaultTemplates,
-  openCreateForm,
-  openEditForm,
-  openDuplicateForm,
 } from '../../../store/slices/templateSlice';
 import {
   useDeleteTemplateMutation,
@@ -89,16 +89,16 @@ const TemplateSettings = () => {
 
     return chips.map(chip => (
       <Chip
+        color={chip.color}
         key={chip.key}
         label={chip.label}
         size='small'
-        color={chip.color}
-        variant='outlined'
         sx={{
           borderColor: isDark ? `rgba(102, 126, 234, 0.4)` : undefined,
           color: isDark ? `rgba(102, 126, 234, 0.9)` : undefined,
           backgroundColor: isDark ? `rgba(102, 126, 234, 0.1)` : undefined,
         }}
+        variant='outlined'
       />
     ));
   };
@@ -163,15 +163,13 @@ const TemplateSettings = () => {
           mb: 3,
         }}
       >
-        <Typography variant='h6' component='h2'>
+        <Typography component='h2' variant='h6'>
           Template Management
         </Typography>
         <Stack direction='row' spacing={1}>
           <Button
-            variant='outlined'
-            startIcon={<ExportIcon />}
-            onClick={handleExport}
             size='small'
+            startIcon={<ExportIcon />}
             sx={{
               borderColor: isDark ? 'rgba(102, 126, 234, 0.5)' : 'primary.main',
               color: isDark ? 'rgba(102, 126, 234, 0.9)' : 'primary.main',
@@ -184,14 +182,14 @@ const TemplateSettings = () => {
                   : 'rgba(102, 126, 234, 0.04)',
               },
             }}
+            variant='outlined'
+            onClick={handleExport}
           >
             Export
           </Button>
           <Button
-            variant='outlined'
-            startIcon={<ResetIcon />}
-            onClick={handleReset}
             size='small'
+            startIcon={<ResetIcon />}
             sx={{
               borderColor: isDark ? 'rgba(102, 126, 234, 0.5)' : 'primary.main',
               color: isDark ? 'rgba(102, 126, 234, 0.9)' : 'primary.main',
@@ -204,16 +202,16 @@ const TemplateSettings = () => {
                   : 'rgba(102, 126, 234, 0.04)',
               },
             }}
+            variant='outlined'
+            onClick={handleReset}
           >
             Reset
           </Button>
           <Tooltip title='Template filtering feature is currently not available'>
             <span>
               <Button
-                variant='contained'
-                startIcon={<AddIcon />}
-                onClick={() => dispatch(openCreateForm())}
                 disabled
+                startIcon={<AddIcon />}
                 sx={{
                   background: isDark
                     ? 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)'
@@ -224,6 +222,8 @@ const TemplateSettings = () => {
                       : 'linear-gradient(45deg, #5a6fd8 30%, #6a4190 90%)',
                   },
                 }}
+                variant='contained'
+                onClick={() => dispatch(openCreateForm())}
               >
                 New Template
               </Button>
@@ -235,17 +235,17 @@ const TemplateSettings = () => {
       {/* Filters */}
       <Box sx={{ mb: 3 }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}>
+          <Grid item md={4} xs={12}>
             <Tooltip title='Template filtering feature is currently not available'>
               <TextField
                 disabled
                 fullWidth
                 select
-                size='small'
                 label='Filter by Type'
+                SelectProps={{ native: true }}
+                size='small'
                 value={filterType}
                 onChange={e => dispatch(setFilterType(e.target.value))}
-                SelectProps={{ native: true }}
               >
                 <option value='all'>All Types</option>
                 {availableTypes.map(type => (
@@ -256,16 +256,11 @@ const TemplateSettings = () => {
               </TextField>
             </Tooltip>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item md={3} xs={12}>
             <Tooltip title='Template filtering feature is currently not available'>
               <TextField
                 disabled
                 fullWidth
-                size='small'
-                placeholder='Search templates...'
-                style={{ marginBottom: '0' }}
-                value={searchTerm}
-                onChange={e => dispatch(setSearchTerm(e.target.value))}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position='start'>
@@ -273,10 +268,16 @@ const TemplateSettings = () => {
                     </InputAdornment>
                   ),
                 }}
+                placeholder='Search templates...'
+                size='small'
+                style={{ marginBottom: '0' }}
+                value={searchTerm}
+                onChange={e => dispatch(setSearchTerm(e.target.value))}
               />
             </Tooltip>
           </Grid>
-          <Grid item xs={12} md={5} alignItems='center'>
+          <Grid item alignItems='center' md={5}
+xs={12}>
             <Tooltip title='Template filtering feature is currently not available'>
               <span>
                 <FormControlLabel
@@ -300,7 +301,8 @@ const TemplateSettings = () => {
       {/* Templates Grid */}
       <Grid container spacing={2}>
         {templates.map(template => (
-          <Grid item xs={12} md={6} lg={4} key={template.id}>
+          <Grid item key={template.id} lg={4}
+md={6} xs={12}>
             <Card
               sx={{
                 height: '100%',
@@ -335,9 +337,9 @@ const TemplateSettings = () => {
                   }}
                 >
                   <Typography
-                    variant='h6'
                     component='h3'
                     sx={{ fontWeight: 600 }}
+                    variant='h6'
                   >
                     {template.name}
                   </Typography>
@@ -347,16 +349,16 @@ const TemplateSettings = () => {
                 </Box>
 
                 <Typography
-                  variant='body2'
                   color='text.secondary'
                   sx={{ mb: 2 }}
+                  variant='body2'
                 >
                   {template.content.substring(0, 150)}...
                 </Typography>
 
-                {template.variables && template.variables.length > 0 && (
+                {template.variables && template.variables.length > 0 ? (
                   <Box>
-                    <Typography variant='caption' color='text.secondary'>
+                    <Typography color='text.secondary' variant='caption'>
                       Variables:
                     </Typography>
                     <Box sx={{ mt: 0.5 }}>
@@ -365,7 +367,6 @@ const TemplateSettings = () => {
                           key={variable}
                           label={`{${variable}}`}
                           size='small'
-                          variant='outlined'
                           sx={{
                             mr: 0.5,
                             mb: 0.5,
@@ -380,11 +381,12 @@ const TemplateSettings = () => {
                               ? 'rgba(255, 255, 255, 0.05)'
                               : 'rgba(0, 0, 0, 0.02)',
                           }}
+                          variant='outlined'
                         />
                       ))}
                     </Box>
                   </Box>
-                )}
+                ) : null}
               </CardContent>
 
               <CardActions
@@ -393,25 +395,25 @@ const TemplateSettings = () => {
                 <Box>
                   <IconButton
                     size='small'
-                    onClick={() => dispatch(openEditForm(template))}
                     title='Edit'
+                    onClick={() => dispatch(openEditForm(template))}
                   >
                     <EditIcon />
                   </IconButton>
                   <IconButton
                     size='small'
-                    onClick={() => dispatch(openDuplicateForm(template))}
                     title='Duplicate'
+                    onClick={() => dispatch(openDuplicateForm(template))}
                   >
                     <FileCopyIcon />
                   </IconButton>
                 </Box>
 
                 <IconButton
-                  size='small'
                   color='error'
-                  onClick={() => handleDelete(template.id, template.name)}
+                  size='small'
                   title='Delete'
+                  onClick={() => handleDelete(template.id, template.name)}
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -423,10 +425,10 @@ const TemplateSettings = () => {
 
       {templates.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant='h6' color='text.secondary' gutterBottom>
+          <Typography gutterBottom color='text.secondary' variant='h6'>
             No templates found
           </Typography>
-          <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+          <Typography color='text.secondary' sx={{ mb: 3 }} variant='body2'>
             {searchTerm || filterType !== 'all'
               ? 'Try adjusting your search or filter criteria'
               : 'Create your first template to get started'}
@@ -434,10 +436,10 @@ const TemplateSettings = () => {
           <Tooltip title='Template filtering feature is currently not available'>
             <span>
               <Button
-                variant='contained'
-                startIcon={<AddIcon />}
-                onClick={() => dispatch(openCreateForm())}
                 disabled
+                startIcon={<AddIcon />}
+                variant='contained'
+                onClick={() => dispatch(openCreateForm())}
               >
                 Create Template
               </Button>

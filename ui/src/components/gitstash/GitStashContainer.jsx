@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   Box,
+  Button,
   Container,
-  Typography,
   Paper,
-  Stepper,
   Step,
   StepLabel,
-  Button,
-  Alert,
+  Stepper,
+  Typography,
 } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { clearPRData } from '../../store/slices/prSlice';
@@ -74,7 +74,7 @@ const GitStashContainer = () => {
     switch (step) {
       case 0:
         return (
-          <GitStashForm onNext={handleNext} onDirectNext={handleDirectNext} />
+          <GitStashForm onDirectNext={handleDirectNext} onNext={handleNext} />
         );
       case 1:
         return (
@@ -98,24 +98,24 @@ const GitStashContainer = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <Button
             startIcon={<ArrowBackIcon />}
-            onClick={handleBack}
             sx={{ mr: 2 }}
+            onClick={handleBack}
           >
             Back to Home
           </Button>
-          <Typography variant='h4' component='h1' sx={{ fontWeight: 600 }}>
+          <Typography component='h1' sx={{ fontWeight: 600 }} variant='h4'>
             GitStash PR Review
           </Typography>
         </Box>
 
-        {error && (
+        {error ? (
           <Alert severity='error' sx={{ mb: 3 }}>
             {error}
           </Alert>
-        )}
+        ) : null}
 
         <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-          <Stepper activeStep={activeStep} alternativeLabel>
+          <Stepper alternativeLabel activeStep={activeStep}>
             {steps.map(label => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>

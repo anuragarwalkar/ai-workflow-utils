@@ -65,7 +65,7 @@ export class ErrorHandler {
           type: 'error',
           error: context,
           details: error.message,
-        })}\n\n`
+        })}\n\n`,
       );
     }
   }
@@ -84,7 +84,7 @@ export class ErrorHandler {
 
     if (missing.length > 0) {
       throw new Error(
-        `${ERROR_MESSAGES.MISSING_REQUIRED_FIELDS}: ${missing.join(', ')}`
+        `${ERROR_MESSAGES.MISSING_REQUIRED_FIELDS}: ${missing.join(', ')}`,
       );
     }
   }

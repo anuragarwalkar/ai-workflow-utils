@@ -34,12 +34,12 @@ export class ChatMessage {
       for (const msg of data.conversationHistory) {
         if (!msg.role || !msg.content) {
           throw new Error(
-            'Conversation history entries must have role and content properties'
+            'Conversation history entries must have role and content properties',
           );
         }
         if (!['user', 'assistant', 'system'].includes(msg.role)) {
           throw new Error(
-            'Invalid role in conversation history. Must be user, assistant, or system'
+            'Invalid role in conversation history. Must be user, assistant, or system',
           );
         }
       }

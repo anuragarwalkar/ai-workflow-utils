@@ -87,7 +87,7 @@ class LogsProcessor {
         log =>
           log.message?.toLowerCase().includes(searchTerm) ||
           log.module?.toLowerCase().includes(searchTerm) ||
-          log.source?.toLowerCase().includes(searchTerm)
+          log.source?.toLowerCase().includes(searchTerm),
       );
     }
 
@@ -198,18 +198,18 @@ class LogsProcessor {
       let key;
 
       switch (period) {
-        case 'hour':
-          key = date.toISOString().slice(0, 13) + ':00:00';
-          break;
-        case 'week': {
-          const weekStart = new Date(date);
-          weekStart.setDate(date.getDate() - date.getDay());
-          key = weekStart.toISOString().slice(0, 10);
-          break;
-        }
-        case 'day':
-        default:
-          key = date.toISOString().slice(0, 10);
+      case 'hour':
+        key = `${date.toISOString().slice(0, 13)  }:00:00`;
+        break;
+      case 'week': {
+        const weekStart = new Date(date);
+        weekStart.setDate(date.getDate() - date.getDay());
+        key = weekStart.toISOString().slice(0, 10);
+        break;
+      }
+      case 'day':
+      default:
+        key = date.toISOString().slice(0, 10);
       }
 
       if (!grouped[key]) {

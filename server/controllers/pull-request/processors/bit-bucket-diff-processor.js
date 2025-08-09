@@ -25,9 +25,9 @@ class BitbucketDiffProcessor {
     if (hunk.context) {
       content += ` (${hunk.context})`;
     }
-    content += `:\n`;
+    content += ':\n';
     content += `Lines: ${hunk.sourceLine}-${hunk.sourceLine + hunk.sourceSpan - 1} → ${hunk.destinationLine}-${hunk.destinationLine + hunk.destinationSpan - 1}\n\n`;
-    content += `\`\`\`diff\n`;
+    content += '```diff\n';
 
     if (hunk.segments && Array.isArray(hunk.segments)) {
       content += hunk.segments
@@ -35,7 +35,7 @@ class BitbucketDiffProcessor {
         .join('');
     }
 
-    content += `\`\`\`\n\n`;
+    content += '```\n\n';
     return content;
   }
 
@@ -55,7 +55,7 @@ class BitbucketDiffProcessor {
             hasChanges = true;
           });
         }
-        codeChanges += `\n---\n\n`;
+        codeChanges += '\n---\n\n';
       });
     }
 

@@ -1,29 +1,29 @@
 import React, { useEffect, useRef } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Box,
-  Typography,
-  Paper,
-  CircularProgress,
-  Chip,
-  IconButton,
   Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Paper,
+  Typography,
 } from '@mui/material';
 import {
+  Clear as ClearIcon,
   Close as CloseIcon,
   PlayArrow as PlayArrowIcon,
   Stop as StopIcon,
-  Clear as ClearIcon,
 } from '@mui/icons-material';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  setBuildModalOpen,
   clearBuildLogs,
   resetBuildState,
+  setBuildModalOpen,
   startBuild,
 } from '../../store/slices/buildSlice';
 import { useStartBuildMutation } from '../../store/api/buildApi';
@@ -104,9 +104,9 @@ const BuildModal = () => {
     if (isBuilding) {
       return (
         <Chip
+          color='primary'
           icon={<CircularProgress size={16} />}
           label='Building...'
-          color='primary'
           variant='outlined'
         />
       );
@@ -114,29 +114,29 @@ const BuildModal = () => {
 
     if (buildStatus === 'success') {
       return (
-        <Chip label='Build Completed' color='success' variant='outlined' />
+        <Chip color='success' label='Build Completed' variant='outlined' />
       );
     }
 
     if (buildStatus === 'error') {
-      return <Chip label='Build Failed' color='error' variant='outlined' />;
+      return <Chip color='error' label='Build Failed' variant='outlined' />;
     }
 
-    return <Chip label='Ready' color='default' variant='outlined' />;
+    return <Chip color='default' label='Ready' variant='outlined' />;
   };
 
   return (
     <Dialog
-      open={isModalOpen}
-      onClose={handleClose}
-      maxWidth='lg'
       fullWidth
+      maxWidth='lg'
+      open={isModalOpen}
       PaperProps={{
         sx: {
           height: '80vh',
           maxHeight: '800px',
         },
       }}
+      onClose={handleClose}
     >
       <DialogTitle
         sx={{
@@ -150,43 +150,43 @@ const BuildModal = () => {
           <Typography variant='h6'>Mobile App Build Release</Typography>
           {getStatusChip()}
         </Box>
-        <IconButton onClick={handleClose} size='small'>
+        <IconButton size='small' onClick={handleClose}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
       <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
-        {error && (
+        {error ? (
           <Alert severity='error' sx={{ m: 2, mb: 1 }}>
             {error}
           </Alert>
-        )}
+        ) : null}
 
         <Box sx={{ p: 2, pb: 1 }}>
           <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
             <Button
-              variant='contained'
-              startIcon={isBuilding ? <StopIcon /> : <PlayArrowIcon />}
-              onClick={handleStartBuild}
-              disabled={isStartingBuild || isBuilding}
               color={isBuilding ? 'error' : 'primary'}
+              disabled={isStartingBuild || isBuilding}
+              startIcon={isBuilding ? <StopIcon /> : <PlayArrowIcon />}
+              variant='contained'
+              onClick={handleStartBuild}
             >
               {isBuilding ? 'Building...' : 'Start Build'}
             </Button>
 
             <Button
-              variant='outlined'
-              startIcon={<ClearIcon />}
-              onClick={handleClearLogs}
               disabled={isBuilding}
+              startIcon={<ClearIcon />}
+              variant='outlined'
+              onClick={handleClearLogs}
             >
               Clear Logs
             </Button>
 
             <Button
+              disabled={isBuilding}
               variant='outlined'
               onClick={handleReset}
-              disabled={isBuilding}
             >
               Reset
             </Button>
@@ -256,7 +256,7 @@ const BuildModal = () => {
       </DialogContent>
 
       <DialogActions sx={{ p: 2, pt: 1 }}>
-        <Typography variant='caption' color='text.secondary' sx={{ flex: 1 }}>
+        <Typography color='text.secondary' sx={{ flex: 1 }} variant='caption'>
           WebSocket Status:{' '}
           {socketService.isSocketConnected()
             ? '🟢 Connected'

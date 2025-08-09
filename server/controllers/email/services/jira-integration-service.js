@@ -14,7 +14,7 @@ class JiraIntegrationService {
     try {
       if (!Array.isArray(tableData) || tableData.length < 2) {
         throw new Error(
-          'Invalid table data: must be array with at least headers and one row'
+          'Invalid table data: must be array with at least headers and one row',
         );
       }
 
@@ -26,7 +26,7 @@ class JiraIntegrationService {
       const jiraKeyIndex = headers.indexOf('Jira URL');
 
       if (jiraKeyIndex === -1) {
-        logger.warn("No 'Jira URL' column found, skipping Jira enhancement");
+        logger.warn('No \'Jira URL\' column found, skipping Jira enhancement');
         return tableData;
       }
 
@@ -51,7 +51,7 @@ class JiraIntegrationService {
         tableData,
         jiraKeyIndex,
         headers.length - 1,
-        summariesMap
+        summariesMap,
       );
 
       logger.info('Table data enhanced successfully', {
@@ -117,7 +117,7 @@ class JiraIntegrationService {
     tableData,
     jiraKeyIndex,
     summaryIndex,
-    summariesMap
+    summariesMap,
   ) {
     for (let i = 1; i < tableData.length; i++) {
       const row = tableData[i];

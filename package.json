@@ -68,8 +68,14 @@
     "prepublishOnly": "npm run build",
     "format": "prettier --write \"ui/src/**/*.{js,jsx,ts,tsx,json,css,md}\" \"server/**/*.{js,ts,json}\" \"*.{js,ts,json,md}\"",
     "format:check": "prettier --check \"ui/src/**/*.{js,jsx,ts,tsx,json,css,md}\" \"server/**/*.{js,ts,json}\" \"*.{js,ts,json,md}\"",
-    "lint": "cd ui && eslint .",
-    "lint:fix": "cd ui && eslint . --fix"
+    "lint": "npm run lint:server && npm run lint:ui",
+    "lint:fix": "npm run lint:server:fix && npm run lint:ui:fix",
+    "lint:server": "eslint server/ bin/ scripts/ --ext .js",
+    "lint:server:fix": "eslint server/ bin/ scripts/ --ext .js --fix",
+    "lint:ui": "cd ui && eslint .",
+    "lint:ui:fix": "cd ui && eslint . --fix",
+    "lint:check": "npm run lint",
+    "refactor:check": "npm run lint -- --max-warnings 0"
   },
   "author": {
     "name": "Anurag Arwalkar",
@@ -128,6 +134,7 @@
     "eslint": "^9.30.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.3",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",

@@ -20,7 +20,7 @@ class EnvironmentController {
     } catch (error) {
       logger.error(
         'Failed to initialize environment settings controller:',
-        error
+        error,
       );
     }
   }
@@ -129,7 +129,7 @@ class EnvironmentController {
 
       const testResult = await ProviderConnectionService.testConnection(
         provider,
-        testConfig
+        testConfig,
       );
 
       res.json({

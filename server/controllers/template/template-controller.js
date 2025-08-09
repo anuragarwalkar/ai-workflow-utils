@@ -20,7 +20,7 @@ class TemplateController {
     } catch (error) {
       TemplateErrorHandler.logError(
         error,
-        'Template controller initialization'
+        'Template controller initialization',
       );
       throw error;
     }
@@ -65,7 +65,7 @@ class TemplateController {
       TemplateErrorHandler.handleApiError(
         error,
         'Getting templates by type',
-        res
+        res,
       );
     }
   }
@@ -96,7 +96,7 @@ class TemplateController {
       TemplateErrorHandler.handleApiError(
         error,
         'Getting active template',
-        res
+        res,
       );
     }
   }
@@ -166,12 +166,12 @@ class TemplateController {
 
       TemplateValidationService.validateTemplateUpdate(
         updates,
-        existingTemplate
+        existingTemplate,
       );
 
       const template = await TemplateDatabaseService.updateTemplate(
         id,
-        updates
+        updates,
       );
 
       res.json({
@@ -212,12 +212,12 @@ class TemplateController {
       const { issueType, templateId } = req.params;
       TemplateValidationService.validateActiveTemplateSet(
         issueType,
-        templateId
+        templateId,
       );
 
       const template = await TemplateDatabaseService.setActiveTemplate(
         issueType,
-        templateId
+        templateId,
       );
 
       res.json({
@@ -229,7 +229,7 @@ class TemplateController {
       TemplateErrorHandler.handleApiError(
         error,
         'Setting active template',
-        res
+        res,
       );
     }
   }
@@ -282,7 +282,7 @@ class TemplateController {
 
       res.json({
         success: true,
-        data: data,
+        data,
         message: TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATES_RESET,
       });
     } catch (error) {
@@ -300,13 +300,13 @@ class TemplateController {
 
       const exportData = TemplateExportImportProcessor.processExport(
         templates,
-        settings
+        settings,
       );
 
       res.setHeader('Content-Type', 'application/json');
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="templates-export-${new Date().toISOString().split('T')[0]}.json"`
+        `attachment; filename="templates-export-${new Date().toISOString().split('T')[0]}.json"`,
       );
 
       res.json(exportData);
@@ -332,7 +332,7 @@ class TemplateController {
       res.json({
         success: true,
         data: TemplateExportImportProcessor.processApiResponse(
-          importedTemplates
+          importedTemplates,
         ),
         message: `${TEMPLATE_CONSTANTS.SUCCESS_MESSAGES.TEMPLATES_IMPORTED}: ${importedTemplates.length} templates`,
       });
@@ -353,7 +353,7 @@ class TemplateController {
 
       const duplicateTemplate = await TemplateDatabaseService.duplicateTemplate(
         id,
-        name
+        name,
       );
 
       res.status(TEMPLATE_CONSTANTS.HTTP_STATUS.CREATED).json({
@@ -376,7 +376,7 @@ class TemplateController {
 
       const filteredTemplates = TemplateExportImportProcessor.processSearch(
         templates,
-        filters
+        filters,
       );
       const processedTemplates =
         TemplateExportImportProcessor.processApiResponse(filteredTemplates);
@@ -386,7 +386,7 @@ class TemplateController {
         data: processedTemplates,
         pagination: {
           total: processedTemplates.length,
-          filters: filters,
+          filters,
         },
       });
     } catch (error) {

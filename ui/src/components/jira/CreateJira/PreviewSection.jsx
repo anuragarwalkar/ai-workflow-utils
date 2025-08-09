@@ -1,15 +1,15 @@
 import React from 'react';
 import {
   Box,
-  TextField,
   Button,
-  Typography,
-  Stack,
   CircularProgress,
   Paper,
+  Stack,
+  TextField,
+  Typography,
 } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
-import { setSummary, setDescription } from '../../../store/slices/jiraSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { setDescription, setSummary } from '../../../store/slices/jiraSlice';
 import {
   useCreateJiraMutation,
   useUploadAttachmentMutation,
@@ -116,15 +116,15 @@ const PreviewSection = () => {
     return (
       <Paper elevation={1} sx={{ p: 3, mt: 3, backgroundColor: 'grey.50' }}>
         <Stack spacing={3}>
-          <Typography variant='h2' component='h2'>
+          <Typography component='h2' variant='h2'>
             Generating Preview...
           </Typography>
 
-          {streamingStatus && (
-            <Typography variant='body2' color='primary'>
+          {streamingStatus ? (
+            <Typography color='primary' variant='body2'>
               Status: {streamingStatus}
             </Typography>
-          )}
+          ) : null}
 
           <Paper
             elevation={0}
@@ -140,11 +140,11 @@ const PreviewSection = () => {
             }}
           >
             {streamingContent || 'Waiting for response...'}
-            {isStreaming && (
+            {isStreaming ? (
               <Box component='span' sx={{ animation: 'blink 1s infinite' }}>
                 ▋
               </Box>
-            )}
+            ) : null}
           </Paper>
         </Stack>
       </Paper>
@@ -158,46 +158,46 @@ const PreviewSection = () => {
   return (
     <Paper elevation={1} sx={{ p: 3, mt: 3, backgroundColor: 'grey.50' }}>
       <Stack spacing={3}>
-        <Typography variant='h2' component='h2'>
+        <Typography component='h2' variant='h2'>
           Bug Report Preview
         </Typography>
 
         <TextField
-          label='Summary'
-          value={summary}
-          onChange={handleSummaryChange}
           fullWidth
-          variant='outlined'
+          label='Summary'
           sx={{
             '& .MuiInputBase-root': {
               backgroundColor: 'background.paper',
             },
           }}
+          value={summary}
+          variant='outlined'
+          onChange={handleSummaryChange}
         />
 
         <TextField
-          label='Description'
-          multiline
-          rows={10}
-          value={description}
-          onChange={handleDescriptionChange}
           fullWidth
-          variant='outlined'
+          multiline
+          label='Description'
+          rows={10}
           sx={{
             '& .MuiInputBase-root': {
               backgroundColor: 'background.paper',
             },
           }}
+          value={description}
+          variant='outlined'
+          onChange={handleDescriptionChange}
         />
 
         <Button
-          variant='contained'
-          size='large'
-          onClick={handleCreateJira}
           disabled={isLoading || !projectType || projectType.trim() === ''}
+          size='large'
           sx={{ position: 'relative' }}
+          variant='contained'
+          onClick={handleCreateJira}
         >
-          {isLoading && (
+          {isLoading ? (
             <CircularProgress
               size={24}
               sx={{
@@ -208,15 +208,15 @@ const PreviewSection = () => {
                 marginLeft: '-12px',
               }}
             />
-          )}
+          ) : null}
           {isLoading ? 'Creating Jira Issue...' : 'Create Jira Issue'}
         </Button>
 
         {(!projectType || projectType.trim() === '') && (
           <Typography
-            variant='body2'
             color='warning.main'
             sx={{ textAlign: 'center' }}
+            variant='body2'
           >
             ⚠️ Please enter a Project Type in the form above to enable Jira
             issue creation

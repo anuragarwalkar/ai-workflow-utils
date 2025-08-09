@@ -67,7 +67,7 @@ class ChatController {
           conversationHistory,
           options: { template, sessionId },
         },
-        res
+        res,
       );
     } catch (error) {
       logger.error('Error in streaming chat controller:', error);
@@ -77,7 +77,7 @@ class ChatController {
         StreamingProcessor.sendError(
           res,
           'Failed to process chat message. Please try again.',
-          'sendChatMessageStreaming'
+          'sendChatMessageStreaming',
         );
       } else {
         ErrorHandler.handleApiError(error, 'sendChatMessageStreaming', res);
@@ -264,7 +264,7 @@ class ChatController {
 
       const result = await ChatService.testChatFunctionality(
         testMessage,
-        provider
+        provider,
       );
 
       res.json({

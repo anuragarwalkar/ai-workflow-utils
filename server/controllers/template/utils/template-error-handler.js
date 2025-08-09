@@ -38,7 +38,7 @@ class TemplateErrorHandler {
     if (this.isValidationError(message)) {
       return {
         status: TEMPLATE_CONSTANTS.HTTP_STATUS.BAD_REQUEST,
-        message: message,
+        message,
       };
     }
 
@@ -46,7 +46,7 @@ class TemplateErrorHandler {
     if (this.isNotFoundError(message)) {
       return {
         status: TEMPLATE_CONSTANTS.HTTP_STATUS.NOT_FOUND,
-        message: message,
+        message,
       };
     }
 
@@ -54,7 +54,7 @@ class TemplateErrorHandler {
     if (this.isPermissionError(message)) {
       return {
         status: TEMPLATE_CONSTANTS.HTTP_STATUS.FORBIDDEN,
-        message: message,
+        message,
       };
     }
 
@@ -116,7 +116,7 @@ class TemplateErrorHandler {
     ];
 
     return permissionKeywords.some(keyword =>
-      message.toLowerCase().includes(keyword.toLowerCase())
+      message.toLowerCase().includes(keyword.toLowerCase()),
     );
   }
 
@@ -144,7 +144,7 @@ class TemplateErrorHandler {
     return this.createError(
       `Validation failed for field '${field}': ${reason}`,
       'VALIDATION_ERROR',
-      { field, reason }
+      { field, reason },
     );
   }
 
@@ -158,7 +158,7 @@ class TemplateErrorHandler {
     return this.createError(
       `${resource} with identifier '${identifier}' not found`,
       'NOT_FOUND_ERROR',
-      { resource, identifier }
+      { resource, identifier },
     );
   }
 
@@ -172,7 +172,7 @@ class TemplateErrorHandler {
     return this.createError(
       `Operation '${operation}' not allowed on ${resource}`,
       'PERMISSION_ERROR',
-      { operation, resource }
+      { operation, resource },
     );
   }
 
@@ -315,13 +315,13 @@ class TemplateErrorHandler {
 
     if (rule.maxLength && value.length > rule.maxLength) {
       errors.push(
-        `Field '${key}' must be ${rule.maxLength} characters or less`
+        `Field '${key}' must be ${rule.maxLength} characters or less`,
       );
     }
 
     if (rule.minLength && value.length < rule.minLength) {
       errors.push(
-        `Field '${key}' must be at least ${rule.minLength} characters`
+        `Field '${key}' must be at least ${rule.minLength} characters`,
       );
     }
   }

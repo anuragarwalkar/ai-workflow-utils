@@ -74,7 +74,7 @@ class TemplateDatabaseService {
       Template.validate(templateData);
       const template = new Template(templateData);
       const created = await templateDbService.createTemplate(
-        template.toDbFormat()
+        template.toDbFormat(),
       );
       return Template.fromDb(created);
     } catch (error) {
@@ -110,7 +110,7 @@ class TemplateDatabaseService {
 
       const updated = await templateDbService.updateTemplate(
         id,
-        template.toDbFormat()
+        template.toDbFormat(),
       );
       return Template.fromDb(updated);
     } catch (error) {
@@ -157,7 +157,7 @@ class TemplateDatabaseService {
     try {
       const updated = await templateDbService.setActiveTemplate(
         issueType,
-        templateId
+        templateId,
       );
       return Template.fromDb(updated);
     } catch (error) {

@@ -45,7 +45,7 @@ export class JiraAttachmentService {
       // Upload to Jira
       const uploadResponse = await JiraApiService.uploadAttachment(
         issueKey,
-        formData
+        formData,
       );
 
       logger.info('File uploaded successfully to Jira', {
@@ -91,7 +91,7 @@ export class JiraAttachmentService {
         const { filePath, fileName } =
           await AttachmentProcessor.convertMovToMp4(
             attachment.getUploadPath(),
-            attachment.getUploadFileName()
+            attachment.getUploadFileName(),
           );
 
         attachment.setProcessedFile(filePath, fileName);
@@ -107,7 +107,7 @@ export class JiraAttachmentService {
         error: error.message,
       });
       throw ErrorHandler.createServiceError(
-        `File processing failed: ${error.message}`
+        `File processing failed: ${error.message}`,
       );
     }
   }
@@ -137,7 +137,7 @@ export class JiraAttachmentService {
         error: error.message,
       });
       throw ErrorHandler.createServiceError(
-        `Failed to prepare file for upload: ${error.message}`
+        `Failed to prepare file for upload: ${error.message}`,
       );
     }
   }

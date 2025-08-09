@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, LinearProgress } from '@mui/material';
+import { Box, LinearProgress, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 
 const MotionBox = motion(Box);
@@ -84,9 +84,8 @@ const FuturisticLoader = () => {
         >
           {/* Main Circle */}
           <MotionBox
-            variants={pulseVariants}
-            initial='initial'
             animate='animate'
+            initial='initial'
             sx={{
               position: 'relative',
               zIndex: 3,
@@ -99,14 +98,15 @@ const FuturisticLoader = () => {
               justifyContent: 'center',
               boxShadow: '0 0 50px rgba(102, 126, 234, 0.3)',
             }}
+            variants={pulseVariants}
           >
             <Typography
-              variant='h4'
               sx={{
                 color: 'white',
                 fontWeight: 'bold',
                 textShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
               }}
+              variant='h4'
             >
               J
             </Typography>
@@ -114,7 +114,6 @@ const FuturisticLoader = () => {
 
           {/* First Orbital Ring */}
           <MotionDiv
-            variants={orbitalVariants}
             animate='animate'
             style={{
               position: 'absolute',
@@ -129,20 +128,11 @@ const FuturisticLoader = () => {
               borderTopColor: 'rgba(102, 126, 234, 0.8)',
               zIndex: 1,
             }}
+            variants={orbitalVariants}
           />
 
           {/* Second Orbital Ring */}
           <MotionDiv
-            variants={{
-              animate: {
-                rotate: -360,
-                transition: {
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: 'linear',
-                },
-              },
-            }}
             animate='animate'
             style={{
               position: 'absolute',
@@ -157,6 +147,16 @@ const FuturisticLoader = () => {
               borderBottomColor: 'rgba(118, 75, 162, 0.6)',
               zIndex: 0,
             }}
+            variants={{
+              animate: {
+                rotate: -360,
+                transition: {
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: 'linear',
+                },
+              },
+            }}
           />
         </Box>
 
@@ -170,7 +170,6 @@ const FuturisticLoader = () => {
           }}
         >
           <Typography
-            variant='h5'
             sx={{
               mb: 2,
               fontWeight: 600,
@@ -179,17 +178,18 @@ const FuturisticLoader = () => {
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}
+            variant='h5'
           >
             Loading Jira Issue
           </Typography>
 
           <Typography
-            variant='body1'
             sx={{
               color: 'text.secondary',
               mb: 3,
               opacity: 0.8,
             }}
+            variant='body1'
           >
             Preparing futuristic view...
           </Typography>
@@ -214,18 +214,12 @@ const FuturisticLoader = () => {
       {/* Floating Particles */}
       {[...Array(6)].map((_, i) => (
         <MotionDiv
-          key={i}
           animate={{
             y: [0, -20, 0],
             opacity: [0.3, 1, 0.3],
             scale: [1, 1.2, 1],
           }}
-          transition={{
-            duration: 2 + i * 0.5,
-            repeat: Infinity,
-            delay: i * 0.3,
-            ease: 'easeInOut',
-          }}
+          key={i}
           style={{
             position: 'absolute',
             width: 8 + i * 2,
@@ -234,6 +228,12 @@ const FuturisticLoader = () => {
             borderRadius: '50%',
             left: `${20 + i * 10}%`,
             top: `${30 + i * 5}%`,
+          }}
+          transition={{
+            duration: 2 + i * 0.5,
+            repeat: Infinity,
+            delay: i * 0.3,
+            ease: 'easeInOut',
           }}
         />
       ))}

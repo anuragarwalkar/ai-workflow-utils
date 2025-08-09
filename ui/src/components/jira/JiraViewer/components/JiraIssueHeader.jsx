@@ -1,9 +1,9 @@
 import React from 'react';
-import { Box, Typography, Chip } from '@mui/material';
+import { Box, Chip, Typography } from '@mui/material';
 import {
   BugReport,
-  Task,
   SubdirectoryArrowRight,
+  Task,
   Visibility,
 } from '@mui/icons-material';
 import { useAppTheme } from '../../../../theme/useAppTheme';
@@ -78,7 +78,6 @@ const JiraIssueHeader = ({ jiraData }) => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
         {getIssueIcon(jiraData.fields?.issuetype?.name)}
         <Typography
-          variant='body2'
           sx={{
             color: isDark
               ? 'rgba(255, 255, 255, 0.7)'
@@ -88,13 +87,13 @@ const JiraIssueHeader = ({ jiraData }) => {
             letterSpacing: 1,
             fontWeight: 500,
           }}
+          variant='body2'
         >
           {jiraData.fields?.project?.name || 'Project'} / {jiraData.key}
         </Typography>
       </Box>
 
       <Typography
-        variant='h6'
         sx={{
           color: isDark ? 'white' : '#2d3748',
           fontWeight: 600,
@@ -103,6 +102,7 @@ const JiraIssueHeader = ({ jiraData }) => {
           pr: 2,
           fontSize: '1.1rem',
         }}
+        variant='h6'
       >
         {jiraData.fields?.summary || 'No title available'}
       </Typography>

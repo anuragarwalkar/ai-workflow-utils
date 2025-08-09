@@ -24,7 +24,7 @@ class EmailRequest {
     // Validate URL format
     try {
       new URL(emailRequest.wikiUrl);
-    } catch (error) {
+    } catch {
       throw new Error('Invalid wikiUrl format');
     }
 

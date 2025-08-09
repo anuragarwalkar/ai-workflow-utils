@@ -1,42 +1,42 @@
-import React, { useRef, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
+  Alert,
   Box,
-  Paper,
-  Typography,
-  TextField,
-  IconButton,
-  Fab,
+  Chip,
+  CircularProgress,
   Collapse,
+  Divider,
+  Fab,
+  IconButton,
   List,
   ListItem,
   ListItemText,
-  CircularProgress,
-  Alert,
-  Chip,
-  Divider,
+  Paper,
+  TextField,
+  Typography,
 } from '@mui/material';
 import {
   Chat as ChatIcon,
-  Close as CloseIcon,
-  Minimize as MinimizeIcon,
-  Maximize as MaximizeIcon,
-  Send as SendIcon,
   Clear as ClearIcon,
+  Close as CloseIcon,
+  Maximize as MaximizeIcon,
+  Minimize as MinimizeIcon,
+  Send as SendIcon,
 } from '@mui/icons-material';
 import {
-  toggleChat,
-  closeChat,
-  minimizeChat,
-  maximizeChat,
-  setCurrentMessage,
   addMessage,
+  clearConversation,
+  clearError,
+  closeChat,
+  maximizeChat,
+  minimizeChat,
+  setCurrentMessage,
+  setError,
+  setProvider,
   setStreaming,
   setStreamingContent,
-  setError,
-  clearError,
-  setProvider,
-  clearConversation,
+  toggleChat,
 } from '../../store/slices/chatSlice';
 import { useSendChatMessageStreamingMutation } from '../../store/api/chatApi';
 
@@ -87,7 +87,7 @@ const ChatOverlay = () => {
     try {
       const result = await sendChatMessageStreaming({
         message: messageToSend,
-        conversationHistory: conversationHistory,
+        conversationHistory,
         template: 'CHAT_GENERIC', // Use generic template for overlay chat
         onChunk: (chunk, fullContent) => {
           finalContent = fullContent;
@@ -152,8 +152,8 @@ const ChatOverlay = () => {
         }}
       >
         <Fab
-          color='primary'
           aria-label='chat'
+          color='primary'
           sx={{
             width: '80px', // Made bigger horizontally
             height: '60px', // Slightly taller
@@ -227,7 +227,6 @@ const ChatOverlay = () => {
           />
         </Fab>
         <Typography
-          variant='caption'
           sx={{
             color: 'primary.main',
             fontWeight: 'bold',
@@ -248,6 +247,7 @@ const ChatOverlay = () => {
               },
             },
           }}
+          variant='caption'
         >
           AI Chat
         </Typography>
@@ -288,7 +288,7 @@ const ChatOverlay = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <ChatIcon />
           <Typography variant='subtitle2'>AI Assistant</Typography>
-          {provider && (
+          {provider ? (
             <Chip
               label={provider}
               size='small'
@@ -299,23 +299,23 @@ const ChatOverlay = () => {
                 height: 20,
               }}
             />
-          )}
+          ) : null}
         </Box>
         <Box>
           {!isMinimized && (
             <IconButton
               size='small'
-              onClick={() => dispatch(minimizeChat())}
               sx={{ color: 'inherit', mr: 0.5 }}
+              onClick={() => dispatch(minimizeChat())}
             >
               <MinimizeIcon fontSize='small' />
             </IconButton>
           )}
           <IconButton
             size='small'
-            onClick={() => dispatch(closeChat())}
             sx={{ color: 'inherit' }}
             title='Close chat'
+            onClick={() => dispatch(closeChat())}
           >
             <CloseIcon fontSize='small' />
           </IconButton>
@@ -344,7 +344,7 @@ const ChatOverlay = () => {
                   textAlign: 'center',
                 }}
               >
-                <Typography variant='body2' color='text.secondary'>
+                <Typography color='text.secondary' variant='body2'>
                   Hi! I'm your AI assistant. How can I help you today?
                 </Typography>
               </Box>
@@ -378,25 +378,25 @@ const ChatOverlay = () => {
                     <Typography variant='body2'>
                       {formatMessage(message.content)}
                     </Typography>
-                    {message.provider && (
+                    {message.provider ? (
                       <Typography
-                        variant='caption'
                         sx={{
                           display: 'block',
                           mt: 0.5,
                           opacity: 0.7,
                           fontSize: '0.7rem',
                         }}
+                        variant='caption'
                       >
                         via {message.provider}
                       </Typography>
-                    )}
+                    ) : null}
                   </Paper>
                 </ListItem>
               ))}
 
               {/* Streaming message */}
-              {isStreaming && streamingContent && (
+              {isStreaming && streamingContent ? (
                 <ListItem
                   sx={{
                     flexDirection: 'column',
@@ -425,16 +425,16 @@ const ChatOverlay = () => {
                       }}
                     >
                       <CircularProgress size={12} sx={{ mr: 0.5 }} />
-                      <Typography variant='caption' color='text.secondary'>
+                      <Typography color='text.secondary' variant='caption'>
                         Typing...
                       </Typography>
                     </Box>
                   </Paper>
                 </ListItem>
-              )}
+              ) : null}
 
               {/* Loading indicator */}
-              {(isLoading || isStreaming) && !streamingContent && (
+              {(isLoading || isStreaming) && !streamingContent ? (
                 <ListItem
                   sx={{
                     flexDirection: 'column',
@@ -449,22 +449,22 @@ const ChatOverlay = () => {
                     </Typography>
                   </Box>
                 </ListItem>
-              )}
+              ) : null}
             </List>
 
             <div ref={messagesEndRef} style={{ marginBottom: '30px' }} />
           </Box>
 
           {/* Error Display */}
-          {error && (
+          {error ? (
             <Alert
               severity='error'
-              onClose={() => dispatch(clearError())}
               sx={{ mx: 1, mb: 1 }}
+              onClose={() => dispatch(clearError())}
             >
               {error}
             </Alert>
-          )}
+          ) : null}
 
           {/* Input Area - Fixed at bottom */}
           <Box
@@ -491,7 +491,6 @@ const ChatOverlay = () => {
               >
                 <IconButton
                   size='small'
-                  onClick={handleClearConversation}
                   sx={{
                     color: 'text.secondary',
                     fontSize: '0.75rem',
@@ -505,9 +504,10 @@ const ChatOverlay = () => {
                     transition: 'all 0.2s ease-in-out',
                   }}
                   title='Clear conversation'
+                  onClick={handleClearConversation}
                 >
                   <ClearIcon fontSize='small' />
-                  <Typography variant='caption' sx={{ ml: 0.5 }}>
+                  <Typography sx={{ ml: 0.5 }} variant='caption'>
                     Clear Chat
                   </Typography>
                 </IconButton>
@@ -524,15 +524,12 @@ const ChatOverlay = () => {
               }}
             >
               <TextField
-                ref={inputRef}
                 fullWidth
                 multiline
+                disabled={isLoading || isStreaming}
                 maxRows={3}
                 placeholder='Type your message...'
-                value={currentMessage}
-                onChange={e => dispatch(setCurrentMessage(e.target.value))}
-                onKeyPress={handleKeyPress}
-                disabled={isLoading || isStreaming}
+                ref={inputRef}
                 size='small'
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -547,10 +544,12 @@ const ChatOverlay = () => {
                   },
                   marginBottom: 0,
                 }}
+                value={currentMessage}
+                onChange={e => dispatch(setCurrentMessage(e.target.value))}
+                onKeyPress={handleKeyPress}
               />
               <IconButton
                 color='primary'
-                onClick={handleSendMessage}
                 disabled={!currentMessage.trim() || isLoading || isStreaming}
                 sx={{
                   bgcolor: 'primary.main',
@@ -568,6 +567,7 @@ const ChatOverlay = () => {
                   },
                   transition: 'all 0.2s ease-in-out',
                 }}
+                onClick={handleSendMessage}
               >
                 <SendIcon fontSize='small' />
               </IconButton>

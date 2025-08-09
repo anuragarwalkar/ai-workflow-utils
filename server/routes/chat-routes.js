@@ -26,7 +26,7 @@ router.get('/stats', ChatController.getChatStats);
 router.get('/conversation/:sessionId', ChatController.getConversationHistory);
 router.delete(
   '/conversation/:sessionId',
-  ChatController.clearConversationMemory
+  ChatController.clearConversationMemory,
 );
 
 export default router;

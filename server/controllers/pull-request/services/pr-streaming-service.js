@@ -26,7 +26,7 @@ class PRStreamingService {
   static sendStatus(res, message, provider = null) {
     this.sendSSEData(res, {
       type: 'status',
-      message: message,
+      message,
       ...(provider && { provider }),
     });
   }
@@ -56,13 +56,13 @@ class PRStreamingService {
   static async streamPRContent(
     promptTemplateFormatter,
     templateIdentifier,
-    res
+    res,
   ) {
     try {
       const streamResult = await this.processStreamingProviders(
         promptTemplateFormatter,
         templateIdentifier,
-        res
+        res,
       );
       return streamResult;
     } catch (error) {
@@ -77,11 +77,11 @@ class PRStreamingService {
   static async processStreamingProviders(
     promptTemplateFormatter,
     templateIdentifier,
-    res
+    res,
   ) {
     const promptTemplate = await prLangChainService.createPromptTemplate(
       templateIdentifier,
-      false
+      false,
     );
     const formattedPrompt = await promptTemplate.format({
       ...promptTemplateFormatter,
@@ -97,12 +97,12 @@ class PRStreamingService {
         const result = await this.streamWithProvider(
           provider,
           formattedPrompt,
-          res
+          res,
         );
         return result;
       } catch (error) {
         logger.warn(
-          `Provider ${provider.name} failed for PR streaming: ${error.message}`
+          `Provider ${provider.name} failed for PR streaming: ${error.message}`,
         );
 
         if (
@@ -110,7 +110,7 @@ class PRStreamingService {
           prLangChainService.providers[prLangChainService.providers.length - 1]
         ) {
           throw new Error(
-            `All providers failed for PR streaming. Last error from ${provider.name}: ${error.message}`
+            `All providers failed for PR streaming. Last error from ${provider.name}: ${error.message}`,
           );
         }
         continue;
@@ -143,7 +143,7 @@ class PRStreamingService {
           fullContent,
           parsedTitle,
           parsedDescription,
-          res
+          res,
         );
         parsedTitle = parseResult.parsedTitle;
         parsedDescription = parseResult.parsedDescription;
@@ -160,8 +160,8 @@ class PRStreamingService {
     return {
       content: fullContent,
       provider: provider.name,
-      parsedTitle: parsedTitle,
-      parsedDescription: parsedDescription,
+      parsedTitle,
+      parsedDescription,
     };
   }
 
@@ -185,7 +185,7 @@ class PRStreamingService {
     // Send description chunks if found
     if (parsed.description && parsed.description !== currentDescription) {
       const descriptionChunk = parsed.description.slice(
-        currentDescription.length
+        currentDescription.length,
       );
       if (descriptionChunk) {
         this.sendSSEData(res, {
@@ -302,7 +302,7 @@ class PRStreamingService {
     description,
     aiGenerated,
     ticketNumber,
-    branchName
+    branchName,
   ) {
     // Send complete title
     this.sendSSEData(res, {

@@ -53,7 +53,7 @@ class JiraController {
       });
       return await JiraAttachmentService.handleAttachments(
         issueKey,
-        attachments
+        attachments,
       );
     } catch (error) {
       ErrorHandler.handleApiError(error, 'handleAttachments');
@@ -81,7 +81,7 @@ class JiraController {
       await JiraContentService.streamPreviewContent(
         { prompt, issueType },
         images,
-        res
+        res,
       );
     } catch (error) {
       ErrorHandler.handleApiError(error, 'previewBugReport', res);
@@ -175,7 +175,7 @@ class JiraController {
 
       const enhancedDescription = await JiraContentService.enhanceDescription(
         description,
-        issueType
+        issueType,
       );
 
       res.json({
@@ -215,7 +215,7 @@ class JiraController {
       const reply = await JiraContentService.generateCommentReply(
         comment,
         context,
-        tone
+        tone,
       );
 
       res.json({
@@ -255,7 +255,7 @@ class JiraController {
 
       const formattedComment = await JiraContentService.formatComment(
         comment,
-        format
+        format,
       );
 
       res.json({
@@ -273,7 +273,7 @@ class JiraController {
 }
 
 // Export the fetchJiraSummaries function for backward compatibility
-export const fetchJiraSummaries = JiraController.fetchJiraSummaries;
+export const { fetchJiraSummaries } = JiraController;
 
 // Export the controller class as default
 export default JiraController;

@@ -1,7 +1,7 @@
-import { Typography, Box, Avatar, IconButton } from '@mui/material';
+import { Avatar, Box, IconButton, Typography } from '@mui/material';
 import {
-  Psychology as PsychologyIcon,
   AutoAwesome as AutoAwesomeIcon,
+  Psychology as PsychologyIcon,
   Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
@@ -42,7 +42,6 @@ const Header = () => {
 
       {/* Center logo */}
       <Box
-        onClick={handleLogoClick}
         sx={{
           cursor: 'pointer',
           display: 'flex',
@@ -61,6 +60,7 @@ const Header = () => {
             boxShadow: '0 8px 32px rgba(102, 126, 234, 0.3)',
           },
         }}
+        onClick={handleLogoClick}
       >
         <Avatar
           sx={{
@@ -98,7 +98,6 @@ const Header = () => {
           </Box>
         </Avatar>
         <Typography
-          variant='h4'
           component='h1'
           sx={{
             color: 'white',
@@ -107,11 +106,11 @@ const Header = () => {
             textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
             fontSize: { xs: '1.5rem', md: '2rem' },
           }}
+          variant='h4'
         >
           AI Workflow Utils
         </Typography>
         <Typography
-          variant='caption'
           sx={{
             color: 'rgba(255, 255, 255, 0.8)',
             fontSize: '0.7rem',
@@ -123,6 +122,7 @@ const Header = () => {
             border: '1px solid rgba(255, 255, 255, 0.3)',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
           }}
+          variant='caption'
         >
           v {__APP_VERSION__}
         </Typography>
@@ -132,7 +132,6 @@ const Header = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <ThemeToggle />
         <IconButton
-          onClick={handleSettingsClick}
           sx={{
             color: 'white',
             background: 'rgba(255, 255, 255, 0.1)',
@@ -145,6 +144,7 @@ const Header = () => {
               boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
             },
           }}
+          onClick={handleSettingsClick}
         >
           <SettingsIcon />
         </IconButton>

@@ -5,7 +5,7 @@
 import { jiraLangChainService } from '../../../services/langchain/index.js';
 import { ValidationUtils } from '../utils/validation-utils.js';
 import { ErrorHandler } from '../utils/error-handler.js';
-import { SSE_HEADERS, ISSUE_TYPE_MAPPING } from '../utils/constants.js';
+import { ISSUE_TYPE_MAPPING, SSE_HEADERS } from '../utils/constants.js';
 import logger from '../../../logger.js';
 
 export class JiraContentService {
@@ -44,7 +44,7 @@ export class JiraContentService {
         { prompt },
         images || [],
         templateType,
-        res
+        res,
       );
 
       logger.info('AI preview generation completed', {
@@ -62,7 +62,7 @@ export class JiraContentService {
       ErrorHandler.handleStreamingError(
         error,
         `Failed to generate ${data?.issueType || 'issue'} preview`,
-        res
+        res,
       );
     }
   }
@@ -94,7 +94,7 @@ export class JiraContentService {
       const content = await jiraLangChainService.generateContent(
         { prompt },
         images,
-        templateType
+        templateType,
       );
 
       logger.info('AI content generation completed', {
@@ -109,7 +109,7 @@ export class JiraContentService {
         issueType: data?.issueType,
       });
       throw ErrorHandler.createServiceError(
-        `Failed to generate content: ${error.message}`
+        `Failed to generate content: ${error.message}`,
       );
     }
   }
@@ -266,7 +266,7 @@ export class JiraContentService {
   static async generateCommentReply(
     comment,
     context = '',
-    tone = 'professional'
+    tone = 'professional',
   ) {
     try {
       if (!comment || typeof comment !== 'string') {

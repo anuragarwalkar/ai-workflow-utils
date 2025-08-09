@@ -50,7 +50,7 @@ class UnidiffProcessor {
         const filteredCount = patches.length - filteredPatches.length;
         if (filteredCount > 0) {
           logger.info(
-            `UnidiffProcessor: Filtered out ${filteredCount} ignored files from string diff, processing ${filteredPatches.length} remaining files`
+            `UnidiffProcessor: Filtered out ${filteredCount} ignored files from string diff, processing ${filteredPatches.length} remaining files`,
           );
         }
 
@@ -59,23 +59,23 @@ class UnidiffProcessor {
 
       // Convert Bitbucket format to unified diff string
       logger.info(
-        'UnidiffProcessor: Converting structured diff to unified format'
+        'UnidiffProcessor: Converting structured diff to unified format',
       );
       const unifiedDiff = this.convertBitbucketToUnifiedDiff(diffData);
       if (unifiedDiff) {
         logger.info(
-          'UnidiffProcessor: Successfully converted to unified diff, parsing...'
+          'UnidiffProcessor: Successfully converted to unified diff, parsing...',
         );
         const patches = parsePatchFn(unifiedDiff);
         const result = this.formatUnidiffPatches(patches);
         logger.info(
-          `UnidiffProcessor: Successfully processed diff with ${result.hasChanges ? 'changes' : 'no changes'}`
+          `UnidiffProcessor: Successfully processed diff with ${result.hasChanges ? 'changes' : 'no changes'}`,
         );
         return result;
       }
 
       logger.warn(
-        'UnidiffProcessor: Failed to convert structured diff to unified format'
+        'UnidiffProcessor: Failed to convert structured diff to unified format',
       );
       return { codeChanges: '', hasChanges: false };
     } catch (error) {
@@ -149,7 +149,7 @@ class UnidiffProcessor {
         const segmentsContent = this.processHunkSegments(hunk);
         if (!segmentsContent) {
           logger.warn(
-            `UnidiffProcessor: No segments content for hunk ${index}`
+            `UnidiffProcessor: No segments content for hunk ${index}`,
           );
           return null;
         }
@@ -169,13 +169,13 @@ class UnidiffProcessor {
     try {
       if (!diffData || !diffData.diffs || !Array.isArray(diffData.diffs)) {
         logger.warn(
-          'UnidiffProcessor: Invalid or missing diffs array in diffData'
+          'UnidiffProcessor: Invalid or missing diffs array in diffData',
         );
         return null;
       }
 
       logger.info(
-        `UnidiffProcessor: Processing ${diffData.diffs.length} file diffs`
+        `UnidiffProcessor: Processing ${diffData.diffs.length} file diffs`,
       );
 
       // Filter out ignored files before processing
@@ -197,7 +197,7 @@ class UnidiffProcessor {
       const filteredCount = diffData.diffs.length - filteredDiffs.length;
       if (filteredCount > 0) {
         logger.info(
-          `UnidiffProcessor: Filtered out ${filteredCount} ignored files, processing ${filteredDiffs.length} remaining files`
+          `UnidiffProcessor: Filtered out ${filteredCount} ignored files, processing ${filteredDiffs.length} remaining files`,
         );
       }
 
@@ -218,7 +218,7 @@ class UnidiffProcessor {
           const hunksContent = this.processFileHunks(file);
           if (!hunksContent) {
             logger.warn(
-              `UnidiffProcessor: No hunks content for file ${sourceFile}`
+              `UnidiffProcessor: No hunks content for file ${sourceFile}`,
             );
             return null;
           }
@@ -230,14 +230,14 @@ class UnidiffProcessor {
 
       const result = unifiedDiffParts.join('');
       logger.info(
-        `UnidiffProcessor: Generated unified diff with ${result.length} characters from ${unifiedDiffParts.length} files`
+        `UnidiffProcessor: Generated unified diff with ${result.length} characters from ${unifiedDiffParts.length} files`,
       );
 
       return result || null;
     } catch (error) {
       logger.error(
         'UnidiffProcessor: Error in convertBitbucketToUnifiedDiff:',
-        error.message
+        error.message,
       );
       return null;
     }
@@ -307,7 +307,7 @@ class UnidiffProcessor {
             } else {
               console.warn(
                 `formatUnidiffPatches - Invalid line content at index ${lineIndex}:`,
-                line
+                line,
               );
               codeChanges += `${lineType || ' '}[Invalid line content]\n`;
             }

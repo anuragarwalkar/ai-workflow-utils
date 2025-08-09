@@ -1,30 +1,30 @@
 import { useState } from 'react';
 import { useAppTheme } from '../../../../theme/useAppTheme';
 import {
-  Paper,
-  Typography,
   Box,
-  Tabs,
-  Tab,
-  IconButton,
-  Tooltip,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Paper,
+  Tab,
+  Tabs,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import {
+  AutoAwesome,
+  Close,
+  Code,
   Description,
   Edit,
-  AutoAwesome,
-  Code,
-  Visibility,
   Save,
-  Close,
+  Visibility,
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -111,14 +111,14 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
       const match = /language-(\w+)/.exec(className || '');
       return !inline && match ? (
         <SyntaxHighlighter
-          style={vscDarkPlus}
-          language={match[1]}
-          PreTag='div'
           customStyle={{
             margin: '1rem 0',
             borderRadius: '8px',
             background: 'rgba(0, 0, 0, 0.5)',
           }}
+          language={match[1]}
+          PreTag='div'
+          style={vscDarkPlus}
           {...props}
         >
           {String(children).replace(/\n$/, '')}
@@ -142,51 +142,51 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
     },
     h1: ({ children }) => (
       <Typography
-        variant='h4'
         sx={{
           mt: 3,
           mb: 2,
           fontWeight: 700,
           color: isDark ? 'white' : 'black',
         }}
+        variant='h4'
       >
         {children}
       </Typography>
     ),
     h2: ({ children }) => (
       <Typography
-        variant='h5'
         sx={{
           mt: 2,
           mb: 1.5,
           fontWeight: 600,
           color: isDark ? 'white' : 'black',
         }}
+        variant='h5'
       >
         {children}
       </Typography>
     ),
     h3: ({ children }) => (
       <Typography
-        variant='h6'
         sx={{
           mt: 2,
           mb: 1,
           fontWeight: 600,
           color: isDark ? 'white' : 'black',
         }}
+        variant='h6'
       >
         {children}
       </Typography>
     ),
     p: ({ children }) => (
       <Typography
-        variant='body1'
         sx={{
           mb: 2,
           lineHeight: 1.7,
           color: isDark ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
         }}
+        variant='body1'
       >
         {children}
       </Typography>
@@ -246,11 +246,11 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
     li: ({ children }) => (
       <Typography
         component='li'
-        variant='body1'
         sx={{
           mb: 0.5,
           color: isDark ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
         }}
+        variant='body1'
       >
         {children}
       </Typography>
@@ -260,9 +260,8 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
   const tabContent = {
     description: (
       <MotionBox
-        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        initial={{ opacity: 0, y: 10 }}
         sx={{
           p: 3, // Add padding around content
           minHeight: '400px',
@@ -283,15 +282,13 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
             },
           },
         }}
+        transition={{ duration: 0.3 }}
       >
         {isEditing ? (
           <Box sx={{ position: 'relative', height: 400 }}>
             <Editor
-              height='400px'
               defaultLanguage='markdown'
-              value={editedDescription}
-              onChange={setEditedDescription}
-              theme='vs-dark'
+              height='400px'
               options={{
                 minimap: { enabled: false },
                 wordWrap: 'on',
@@ -300,22 +297,25 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
                 fontSize: 14,
                 padding: { top: 16, bottom: 16 },
               }}
+              theme='vs-dark'
+              value={editedDescription}
+              onChange={setEditedDescription}
             />
             <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
               <Button
-                variant='contained'
                 startIcon={<Save />}
-                onClick={handleSave}
                 sx={{
                   background:
                     'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 }}
+                variant='contained'
+                onClick={handleSave}
               >
                 Save
               </Button>
               <Button
-                variant='outlined'
                 startIcon={<Close />}
+                variant='outlined'
                 onClick={handleCancel}
               >
                 Cancel
@@ -325,8 +325,8 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
         ) : (
           <Box sx={{ minHeight: 200 }}>
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
               components={markdownComponents}
+              remarkPlugins={[remarkGfm]}
             >
               {description}
             </ReactMarkdown>
@@ -339,10 +339,9 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
   return (
     <>
       <MotionPaper
+        animate={{ opacity: 1, y: 0 }}
         elevation={0}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
         sx={{
           background: isDark
             ? 'rgba(25, 25, 55, 0.95)'
@@ -357,6 +356,7 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
             ? '0 20px 60px rgba(0, 0, 0, 0.3)'
             : '0 20px 60px rgba(0, 0, 0, 0.1)',
         }}
+        transition={{ duration: 0.5, delay: 0.1 }}
       >
         {/* Header with Tabs and Actions */}
         <Box
@@ -375,8 +375,6 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
           }}
         >
           <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
             sx={{
               '& .MuiTab-root': {
                 minHeight: 48,
@@ -395,19 +393,20 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
                 borderRadius: '3px 3px 0 0',
               },
             }}
+            value={activeTab}
+            onChange={handleTabChange}
           >
             <Tab
               icon={<Description sx={{ color: '#4ecdc4' }} />}
+              iconPosition='start'
               label='Description'
               value='description'
-              iconPosition='start'
             />
           </Tabs>
 
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Tooltip title='Enhance with AI'>
               <IconButton
-                onClick={handleEnhance}
                 disabled={isEnhancing}
                 sx={{
                   color: 'white',
@@ -424,6 +423,7 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
                   },
                   transition: 'all 0.3s ease',
                 }}
+                onClick={handleEnhance}
               >
                 {isEnhancing ? (
                   <CircularProgress size={20} sx={{ color: 'white' }} />
@@ -435,7 +435,6 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
 
             <Tooltip title={isEditing ? 'Preview' : 'Edit'}>
               <IconButton
-                onClick={isEditing ? () => setIsEditing(false) : handleEdit}
                 sx={{
                   color: 'white',
                   background: 'rgba(255, 255, 255, 0.1)',
@@ -445,6 +444,7 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
                   },
                   transition: 'all 0.3s ease',
                 }}
+                onClick={isEditing ? () => setIsEditing(false) : handleEdit}
               >
                 {isEditing ? <Visibility /> : <Edit />}
               </IconButton>
@@ -460,10 +460,9 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
 
       {/* Enhancement Dialog */}
       <Dialog
-        open={showEnhanceDialog}
-        onClose={() => setShowEnhanceDialog(false)}
-        maxWidth='md'
         fullWidth
+        maxWidth='md'
+        open={showEnhanceDialog}
         PaperProps={{
           sx: {
             background: 'rgba(25, 25, 55, 0.95)',
@@ -472,6 +471,7 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
             borderRadius: 3,
           },
         }}
+        onClose={() => setShowEnhanceDialog(false)}
       >
         <DialogTitle
           sx={{
@@ -488,8 +488,8 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
 
         <DialogContent sx={{ mt: 2 }}>
           <Typography
-            variant='subtitle2'
             sx={{ mb: 2, color: 'rgba(255, 255, 255, 0.7)' }}
+            variant='subtitle2'
           >
             Original:
           </Typography>
@@ -503,16 +503,16 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
             }}
           >
             <Typography
-              variant='body2'
               sx={{ color: 'rgba(255, 255, 255, 0.8)' }}
+              variant='body2'
             >
               {description.substring(0, 200)}...
             </Typography>
           </Paper>
 
           <Typography
-            variant='subtitle2'
             sx={{ mb: 2, color: 'rgba(255, 255, 255, 0.7)' }}
+            variant='subtitle2'
           >
             Enhanced:
           </Typography>
@@ -525,41 +525,40 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
             }}
           >
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
               components={{
                 ...markdownComponents,
                 p: ({ children }) => (
                   <Typography
-                    variant='body1'
                     sx={{
                       color: 'rgba(255, 255, 255, 0.9)',
                       lineHeight: 1.7,
                       mb: 1.5,
                     }}
+                    variant='body1'
                   >
                     {children}
                   </Typography>
                 ),
                 h1: ({ children }) => (
                   <Typography
-                    variant='h4'
                     sx={{ color: 'white', fontWeight: 700, my: 2 }}
+                    variant='h4'
                   >
                     {children}
                   </Typography>
                 ),
                 h2: ({ children }) => (
                   <Typography
-                    variant='h5'
                     sx={{ color: 'white', fontWeight: 600, my: 2 }}
+                    variant='h5'
                   >
                     {children}
                   </Typography>
                 ),
                 h3: ({ children }) => (
                   <Typography
-                    variant='h6'
                     sx={{ color: 'white', fontWeight: 600, my: 1.5 }}
+                    variant='h6'
                   >
                     {children}
                   </Typography>
@@ -581,6 +580,7 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
                   </Box>
                 ),
               }}
+              remarkPlugins={[remarkGfm]}
             >
               {enhancedText}
             </ReactMarkdown>
@@ -591,8 +591,6 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
           sx={{ p: 3, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
         >
           <Button
-            onClick={() => setShowEnhanceDialog(false)}
-            variant='outlined'
             sx={{
               color: 'white',
               borderColor: 'rgba(255, 255, 255, 0.3)',
@@ -601,18 +599,20 @@ const JiraDescription = ({ jiraData, activeTab, setActiveTab }) => {
                 background: 'rgba(255, 255, 255, 0.1)',
               },
             }}
+            variant='outlined'
+            onClick={() => setShowEnhanceDialog(false)}
           >
             Cancel
           </Button>
           <Button
-            onClick={handleAcceptEnhancement}
-            variant='contained'
             sx={{
               background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
               '&:hover': {
                 background: 'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
               },
             }}
+            variant='contained'
+            onClick={handleAcceptEnhancement}
           >
             Use Enhanced Version
           </Button>

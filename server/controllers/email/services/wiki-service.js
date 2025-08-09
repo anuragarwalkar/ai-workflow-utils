@@ -19,7 +19,7 @@ class WikiService {
 
       const requestOptions = {
         method: 'GET',
-        headers: headers,
+        headers,
         redirect: 'follow',
       };
 
@@ -29,7 +29,7 @@ class WikiService {
 
       if (!response.ok) {
         throw new Error(
-          `Wiki fetch failed with status: ${response.status} ${response.statusText}`
+          `Wiki fetch failed with status: ${response.status} ${response.statusText}`,
         );
       }
 
@@ -65,7 +65,7 @@ class WikiService {
 
       const tableData = await TableExtractor.extractTableAsArray(
         htmlContent,
-        version
+        version,
       );
 
       if (!Array.isArray(tableData) || tableData.length === 0) {

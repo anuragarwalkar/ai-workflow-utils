@@ -1,41 +1,41 @@
 import React, { useState } from 'react';
 import {
-  Paper,
-  Typography,
-  Box,
   Avatar,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   IconButton,
-  Button,
-  TextField,
   Menu,
   MenuItem,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  CircularProgress,
+  Paper,
+  TextField,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import {
-  Comment,
-  Reply,
-  MoreVert,
   AutoAwesome,
-  Send,
-  FormatQuote,
-  Edit,
+  Comment,
   Delete,
-  ThumbUp,
+  Edit,
+  FormatQuote,
+  MoreVert,
+  Reply,
+  Send,
   ThumbDown,
+  ThumbUp,
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
-  useGenerateCommentReplyMutation,
   useFormatCommentMutation,
+  useGenerateCommentReplyMutation,
 } from '../../../../store/api/jiraApi';
 
 const MotionPaper = motion(Paper);
@@ -163,10 +163,9 @@ const JiraComments = ({ jiraData }) => {
   return (
     <>
       <MotionPaper
+        animate={{ opacity: 1, y: 0 }}
         elevation={0}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
         sx={{
           background: 'rgba(255, 255, 255, 0.05)',
           backdropFilter: 'blur(20px)',
@@ -174,6 +173,7 @@ const JiraComments = ({ jiraData }) => {
           borderRadius: 3,
           overflow: 'hidden',
         }}
+        transition={{ duration: 0.5, delay: 0.3 }}
       >
         {/* Header */}
         <Box
@@ -187,24 +187,24 @@ const JiraComments = ({ jiraData }) => {
           }}
         >
           <Comment color='primary' />
-          <Typography variant='h6' sx={{ fontWeight: 600 }}>
+          <Typography sx={{ fontWeight: 600 }} variant='h6'>
             Comments ({comments.length})
           </Typography>
           <Chip
+            color='primary'
+            icon={<AutoAwesome />}
             label='AI Enhanced'
             size='small'
-            color='primary'
-            variant='outlined'
-            icon={<AutoAwesome />}
             sx={{ ml: 'auto', fontSize: '0.75rem' }}
+            variant='outlined'
           />
         </Box>
 
         <Box sx={{ p: 3 }}>
           {/* New Comment Input */}
           <MotionBox
-            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 10 }}
             sx={{
               mb: 3,
               p: 2,
@@ -216,11 +216,8 @@ const JiraComments = ({ jiraData }) => {
             <TextField
               fullWidth
               multiline
-              rows={3}
               placeholder='Add a comment...'
-              value={newComment}
-              onChange={e => setNewComment(e.target.value)}
-              variant='outlined'
+              rows={3}
               sx={{
                 mb: 2,
                 '& .MuiOutlinedInput-root': {
@@ -235,12 +232,15 @@ const JiraComments = ({ jiraData }) => {
                   },
                 },
               }}
+              value={newComment}
+              variant='outlined'
+              onChange={e => setNewComment(e.target.value)}
             />
             <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
               <Button
-                variant='outlined'
-                startIcon={<AutoAwesome />}
                 size='small'
+                startIcon={<AutoAwesome />}
+                variant='outlined'
                 onClick={() => {
                   // AI-powered comment suggestion
                   setNewComment(
@@ -251,13 +251,13 @@ const JiraComments = ({ jiraData }) => {
                 AI Suggest
               </Button>
               <Button
-                variant='contained'
-                startIcon={<Send />}
                 disabled={!newComment.trim()}
+                startIcon={<Send />}
                 sx={{
                   background:
                     'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 }}
+                variant='contained'
               >
                 Post Comment
               </Button>
@@ -266,15 +266,15 @@ const JiraComments = ({ jiraData }) => {
 
           {/* Comments List */}
           <motion.div
-            variants={containerVariants}
-            initial='hidden'
             animate='visible'
+            initial='hidden'
+            variants={containerVariants}
           >
             {comments.map(comment => (
               <MotionBox
                 key={comment.id}
-                variants={itemVariants}
                 sx={{ mb: 3 }}
+                variants={itemVariants}
               >
                 <Box
                   sx={{
@@ -299,10 +299,10 @@ const JiraComments = ({ jiraData }) => {
                     </Avatar>
 
                     <Box sx={{ flex: 1 }}>
-                      <Typography variant='subtitle2' sx={{ fontWeight: 600 }}>
+                      <Typography sx={{ fontWeight: 600 }} variant='subtitle2'>
                         {comment.author.displayName}
                       </Typography>
-                      <Typography variant='caption' color='text.secondary'>
+                      <Typography color='text.secondary' variant='caption'>
                         {formatDate(comment.created)}
                         {comment.created !== comment.updated && ' (edited)'}
                       </Typography>
@@ -312,8 +312,8 @@ const JiraComments = ({ jiraData }) => {
                       <Tooltip title='Reply with AI'>
                         <IconButton
                           size='small'
-                          onClick={() => handleReply(comment)}
                           sx={{ color: 'primary.main' }}
+                          onClick={() => handleReply(comment)}
                         >
                           <Reply />
                         </IconButton>
@@ -321,8 +321,8 @@ const JiraComments = ({ jiraData }) => {
 
                       <IconButton
                         size='small'
-                        onClick={e => handleMenuOpen(e, comment)}
                         sx={{ color: 'text.secondary' }}
+                        onClick={e => handleMenuOpen(e, comment)}
                       >
                         <MoreVert />
                       </IconButton>
@@ -332,12 +332,11 @@ const JiraComments = ({ jiraData }) => {
                   {/* Comment Body */}
                   <Box sx={{ ml: 5 }}>
                     <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
                       components={{
                         p: ({ children }) => (
                           <Typography
-                            variant='body2'
                             sx={{ mb: 1, lineHeight: 1.6 }}
+                            variant='body2'
                           >
                             {children}
                           </Typography>
@@ -358,23 +357,24 @@ const JiraComments = ({ jiraData }) => {
                           </Box>
                         ),
                       }}
+                      remarkPlugins={[remarkGfm]}
                     >
                       {comment.body}
                     </ReactMarkdown>
 
                     {/* Comment Actions */}
                     <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                      <IconButton size='small' color='success'>
+                      <IconButton color='success' size='small'>
                         <ThumbUp fontSize='small' />
                       </IconButton>
-                      <IconButton size='small' color='error'>
+                      <IconButton color='error' size='small'>
                         <ThumbDown fontSize='small' />
                       </IconButton>
                       <Button
                         size='small'
                         startIcon={<Reply />}
-                        onClick={() => handleReply(comment)}
                         sx={{ ml: 1 }}
+                        onClick={() => handleReply(comment)}
                       >
                         Reply
                       </Button>
@@ -386,9 +386,9 @@ const JiraComments = ({ jiraData }) => {
                 <AnimatePresence>
                   {replyTo?.id === comment.id && (
                     <motion.div
-                      initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
+                      initial={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.3 }}
                     >
                       <Box
@@ -404,12 +404,12 @@ const JiraComments = ({ jiraData }) => {
                         <TextField
                           fullWidth
                           multiline
-                          rows={2}
                           placeholder={`Reply to ${comment.author.displayName}...`}
-                          value={replyText}
-                          onChange={e => setReplyText(e.target.value)}
-                          variant='outlined'
+                          rows={2}
                           sx={{ mb: 2 }}
+                          value={replyText}
+                          variant='outlined'
+                          onChange={e => setReplyText(e.target.value)}
                         />
                         <Box
                           sx={{
@@ -423,21 +423,21 @@ const JiraComments = ({ jiraData }) => {
                           </Button>
                           <Button
                             size='small'
-                            variant='outlined'
                             startIcon={<AutoAwesome />}
+                            variant='outlined'
                             onClick={() => handleAiAction('reply')}
                           >
                             AI Reply
                           </Button>
                           <Button
-                            size='small'
-                            variant='contained'
-                            startIcon={<Send />}
                             disabled={!replyText.trim()}
+                            size='small'
+                            startIcon={<Send />}
                             sx={{
                               background:
                                 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                             }}
+                            variant='contained'
                           >
                             Reply
                           </Button>
@@ -456,7 +456,6 @@ const JiraComments = ({ jiraData }) => {
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
         PaperProps={{
           sx: {
             background: 'rgba(0, 0, 0, 0.9)',
@@ -464,6 +463,7 @@ const JiraComments = ({ jiraData }) => {
             border: '1px solid rgba(255, 255, 255, 0.1)',
           },
         }}
+        onClose={handleMenuClose}
       >
         <MenuItem onClick={() => handleAiAction('reply')}>
           <AutoAwesome sx={{ mr: 1 }} />
@@ -486,10 +486,9 @@ const JiraComments = ({ jiraData }) => {
 
       {/* AI Action Dialog */}
       <Dialog
-        open={aiDialogOpen}
-        onClose={() => setAiDialogOpen(false)}
-        maxWidth='md'
         fullWidth
+        maxWidth='md'
+        open={aiDialogOpen}
         PaperProps={{
           sx: {
             background: 'rgba(0, 0, 0, 0.9)',
@@ -497,6 +496,7 @@ const JiraComments = ({ jiraData }) => {
             border: '1px solid rgba(255, 255, 255, 0.1)',
           },
         }}
+        onClose={() => setAiDialogOpen(false)}
       >
         <DialogTitle
           sx={{
@@ -520,9 +520,9 @@ const JiraComments = ({ jiraData }) => {
           ) : (
             <Box>
               <Typography
-                variant='subtitle2'
                 color='text.secondary'
                 sx={{ mb: 2 }}
+                variant='subtitle2'
               >
                 AI Generated{' '}
                 {aiAction === 'reply' ? 'Reply' : 'Formatted Comment'}:
@@ -543,20 +543,20 @@ const JiraComments = ({ jiraData }) => {
         </DialogContent>
 
         <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setAiDialogOpen(false)} variant='outlined'>
+          <Button variant='outlined' onClick={() => setAiDialogOpen(false)}>
             Close
           </Button>
           {!isProcessing && (
             <Button
+              sx={{
+                background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+              }}
+              variant='contained'
               onClick={() => {
                 if (aiAction === 'reply') {
                   setReplyText(aiResult);
                 }
                 setAiDialogOpen(false);
-              }}
-              variant='contained'
-              sx={{
-                background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
               }}
             >
               Use This {aiAction === 'reply' ? 'Reply' : 'Format'}

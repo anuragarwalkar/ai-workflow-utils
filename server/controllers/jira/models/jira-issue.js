@@ -29,11 +29,11 @@ export class JiraIssue {
     // Validate custom fields if provided
     if (data.customFields) {
       const customFieldValidation = ValidationUtils.validateCustomFields(
-        data.customFields
+        data.customFields,
       );
       if (!customFieldValidation.isValid) {
         throw new Error(
-          `Custom field validation failed: ${customFieldValidation.errors.join(', ')}`
+          `Custom field validation failed: ${customFieldValidation.errors.join(', ')}`,
         );
       }
     }
@@ -97,7 +97,7 @@ export class JiraIssue {
               // Fallback to string if JSON parsing fails
               console.warn(
                 `Failed to parse JSON for field ${field.key}:`,
-                parseError.message
+                parseError.message,
               );
               processedFields[field.key] = val;
             }

@@ -46,7 +46,7 @@ class HtmlFormatter {
           group,
           groupByFields,
           filteredHeaders,
-          keepIndexes
+          keepIndexes,
         );
       }
 
@@ -74,7 +74,7 @@ class HtmlFormatter {
    */
   static _groupRowsByFields(rows, colIndex, groupByFields) {
     const grouped = {};
-    let lastGroup = {};
+    const lastGroup = {};
 
     rows.forEach(row => {
       const currentGroup = {};
@@ -112,7 +112,7 @@ class HtmlFormatter {
     group,
     groupByFields,
     filteredHeaders,
-    keepIndexes
+    keepIndexes,
   ) {
     const groupTitle = groupByFields
       .map(f => `${f}: ${group.groupValues[f]}`)
@@ -120,26 +120,26 @@ class HtmlFormatter {
 
     let html = `<div style="background-color:#eef3f7;padding:10px;font-weight:bold;text-align:left;border-left:4px solid #801C81;margin-top:30px;font-family:Arial,sans-serif;font-size:14px;">${groupTitle}</div>`;
 
-    html += `<table style="width:100%;border-collapse:collapse;margin-top:10px;font-family:Arial,sans-serif;font-size:14px;">`;
+    html += '<table style="width:100%;border-collapse:collapse;margin-top:10px;font-family:Arial,sans-serif;font-size:14px;">';
 
     // Generate table header
-    html += `<thead><tr>`;
+    html += '<thead><tr>';
     filteredHeaders.forEach(h => {
       html += `<th style="border:1px solid #ccc;padding:10px;background-color:#f2f2f2;text-align:center;vertical-align:middle;">${h}</th>`;
     });
-    html += `</tr></thead><tbody>`;
+    html += '</tr></thead><tbody>';
 
     // Generate table rows
     group.rows.forEach(row => {
-      html += `<tr>`;
+      html += '<tr>';
       keepIndexes.forEach(({ h, i }) => {
         const val = row[i] || '';
         html += this._generateTableCell(h, val);
       });
-      html += `</tr>`;
+      html += '</tr>';
     });
 
-    html += `</tbody></table>`;
+    html += '</tbody></table>';
     return html;
   }
 

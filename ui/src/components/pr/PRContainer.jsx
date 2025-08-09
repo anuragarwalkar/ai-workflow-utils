@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Tab, Tabs, Paper, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Paper, Tab, Tabs, Typography } from '@mui/material';
 import CreatePRContainer from './CreatePR/CreatePRContainer';
 import PRList from './ViewPR/PRList';
 
@@ -37,11 +37,11 @@ const PRContainer = () => {
     <Box sx={{ width: '100%', p: 3 }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
         <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
           indicatorColor='primary'
           textColor='primary'
+          value={tabValue}
           variant='fullWidth'
+          onChange={handleTabChange}
         >
           <Tab label='Create PR' />
           <Tab label='View PRs' />
@@ -55,8 +55,8 @@ const PRContainer = () => {
           <PRList
             projectKey={config.projectKey}
             repoSlug={config.repoSlug}
-            onViewDiff={handleViewDiff}
             onRequestReview={handleRequestReview}
+            onViewDiff={handleViewDiff}
           />
         ) : (
           <Box sx={{ p: 3, textAlign: 'center' }}>
