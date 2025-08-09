@@ -1,6 +1,6 @@
 import environmentDbService from '../../../services/environmentDbService.js';
 import configBridge from '../../../services/configBridge.js';
-import langchainService from '../../../services/langchainService.js';
+import langChainServiceFactory from '../../../services/langchain/LangChainServiceFactory.js';
 import logger from '../../../logger.js';
 
 /**
@@ -43,7 +43,7 @@ export class EnvironmentConfigService {
 
     // Reload configuration and reinitialize providers
     await configBridge.loadConfigToEnv();
-    langchainService.initializeProviders();
+    langChainServiceFactory.initializeProviders();
 
     logger.info('Environment settings updated successfully', {
       updatedKeys: Object.keys(updates),

@@ -1,6 +1,6 @@
 import { HtmlFormatter } from '../processors/html-formatter.js';
 import logger from '../../../logger.js';
-import LangChainService from '../../../services/langchainService.js';
+import langChainServiceFactory from '../../../services/langchain/LangChainServiceFactory.js';
 
 /**
  * EmailContentService - Handles email content generation and formatting
@@ -227,14 +227,14 @@ class EmailContentService {
 
     try {
       // Use the base LangChain service generateContent method
-      const baseService = LangChainService.factory.getBaseService();
+      const baseService = langChainServiceFactory.getBaseService();
       const result = await baseService.generateContent(
         { getPrompt: () => parsePrompt },
         [],
         'EMAIL_PARSING',
         false
       );
-      return JSON.parse(result);
+      return JSON.parse(result.content);
     } catch (error) {
       logger.warn('AI prompt parsing failed, using fallback', {
         error: error.message,
@@ -273,7 +273,7 @@ class EmailContentService {
 
     try {
       // Use the base LangChain service generateContent method
-      const baseService = LangChainService.factory.getBaseService();
+      const baseService = langChainServiceFactory.getBaseService();
       const result = await baseService.generateContent(
         { getPrompt: () => contentPrompt },
         attachedImages.map(img => img.data), // Pass image data
@@ -281,7 +281,7 @@ class EmailContentService {
         false
       );
 
-      const parsed = JSON.parse(result);
+      const parsed = JSON.parse(result.content);
 
       return {
         subject: parsed.subject || 'Professional Email',

@@ -23,7 +23,7 @@ import prRoutes from './routes/pull-request-routes.js';
 import templateRoutes from './routes/template-routes.js';
 import environmentSettingsRoutes from './routes/environment-routes.js';
 import logsRoutes from './routes/logs-routes.js';
-import langchainService from './services/langchainService.js';
+import langChainServiceFactory from './services/langchain/LangChainServiceFactory.js';
 
 // Load default .env file first (for fallback values)
 dotenv.config();
@@ -33,7 +33,7 @@ if (process.env.NODE_ENV === 'production') {
   await configBridge.loadConfigToEnv();
 }
 
-langchainService.initializeProviders();
+langChainServiceFactory.initializeProviders();
 
 logger.info('🔁 Configuration loaded from database and environment variables');
 
