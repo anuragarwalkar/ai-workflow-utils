@@ -3,7 +3,6 @@ import * as Template from '../models/template.js';
 import * as TemplateSettings from '../models/template-settings.js';
 import logger from '../../../logger.js';
 
-// Database service for template operations (function-based)
 export async function init() {
   try {
     await templateDbService.init();
