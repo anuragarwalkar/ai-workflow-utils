@@ -92,12 +92,6 @@ import { ConfigurationProcessor } from './controllers/environment/index.js';
 import { ErrorHandler, PROVIDER_TYPES } from './controllers/environment/index.js';
 ```
 
-### Backward Compatibility
-```javascript
-import environmentController from './controllers/environment/index.js';
-// Uses singleton instance for existing route compatibility
-```
-
 ## Provider Support
 
 ### AI Providers

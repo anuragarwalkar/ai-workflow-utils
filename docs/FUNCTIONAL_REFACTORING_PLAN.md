@@ -72,7 +72,6 @@ This document outlines a comprehensive plan to migrate the AI Workflow Utils bac
 ### Core Principles
 
 1. **Gradual Migration**: Phase-by-phase approach to minimize disruption
-2. **Backward Compatibility**: Maintain existing API contracts during transition
 3. **Test-Driven**: Comprehensive testing at each phase
 4. **Documentation**: Update documentation as we migrate
 

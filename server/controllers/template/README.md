@@ -180,10 +180,6 @@ All module constants are defined in `utils/constants.js`:
 - HTTP status codes
 - Supported formats and versions
 
-## Backward Compatibility
-
-The modular structure maintains backward compatibility through the index.js exports. Existing code can continue to import the main controller while new code can import specific services for targeted operations.
-
 ## Development Guidelines
 
 ### Adding New Features

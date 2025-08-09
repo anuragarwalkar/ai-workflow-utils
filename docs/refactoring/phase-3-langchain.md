@@ -734,56 +734,6 @@ export const streamPRContentWithParsing = withErrorHandling(
 
 ---
 
-## 5. Migration Strategy
-
-### Backward Compatibility Layer
-```javascript
-// server/services/langchain/compatibility/legacy-adapter.js (NEW)
-import langChainServiceFactory from '../langchain-service-factory.js';
-import logger from '../../../logger.js';
-
-// Adapter class to maintain backward compatibility
-export class LegacyLangChainAdapter {
-  constructor() {
-    this.baseService = langChainServiceFactory.getBaseService();
-    logger.info('Legacy LangChain adapter initialized');
-  }
-
-  // Maintain compatibility with existing BaseLangChainService interface
-  async generateContent(promptTemplateFormatter, images, promptTemplateIdentifier, streaming = false) {
-    return await this.baseService.generateContent(
-      promptTemplateFormatter,
-      images,
-      promptTemplateIdentifier,
-      streaming
-    );
-  }
-
-  getAvailableProviders() {
-    return this.baseService.getAvailableProviders();
-  }
-
-  initializeProviders() {
-    return langChainServiceFactory.initializeProviders();
-  }
-}
-
-// Factory function for creating legacy-compatible services
-export const createLegacyService = (serviceType = 'base') => {
-  switch (serviceType) {
-    case 'email':
-      return langChainServiceFactory.getEmailService();
-    case 'jira':
-      return langChainServiceFactory.getJiraService();
-    case 'pr':
-      return langChainServiceFactory.getPRService();
-    case 'chat':
-      return langChainServiceFactory.getChatService();
-    default:
-      return new LegacyLangChainAdapter();
-  }
-};
-```
 
 ### Gradual Migration Plan
 ```javascript
