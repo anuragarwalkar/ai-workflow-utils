@@ -79,7 +79,6 @@ const AiDevAssistant = () => {
     setMessages(prev => [...prev, loadingMessage]);
 
     try {
-      let assistantContent = '';
       let assistantMessageId = null;
 
       // Remove loading message and add real assistant message when first chunk arrives
@@ -114,11 +113,10 @@ const AiDevAssistant = () => {
           })),
         onChunk: (chunk, fullContent) => {
           handleFirstChunk();
-          assistantContent = fullContent;
           setMessages(prev =>
             prev.map(msg =>
               msg.id === assistantMessageId
-                ? { ...msg, content: assistantContent }
+                ? { ...msg, content: fullContent }
                 : msg
             )
           );

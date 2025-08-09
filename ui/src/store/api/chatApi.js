@@ -69,7 +69,7 @@ export const chatApi = createApi({
 
                     if (data.type === 'status') {
                       onStatus?.(data.message, data.provider);
-                    } else if (data.type === 'token') {
+                    } else if (data.type === 'chunk') {
                       fullContent += data.content;
                       onChunk?.(data.content, fullContent);
                     } else if (data.type === 'complete') {

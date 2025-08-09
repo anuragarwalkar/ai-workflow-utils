@@ -1,20 +1,20 @@
 # Chat Controller Module
 
 ## Overview
-The Chat Controller module provides AI-powered chat functionality with support for multiple AI providers and streaming responses. It follows the modular architecture pattern with clear separation of concerns.
+The Chat Controller module provides AI-powered chat functionality with support for multiple AI providers and streaming responses. It follows the functional programming pattern with clear separation of concerns.
 
 ## Architecture
 
 ### Structure
 ```
 server/controllers/chat/
-├── chat-controller.js          # Main orchestrator (delegates to services)
+├── chat-controller.js          # Main controller functions (functional approach)
 ├── index.js                   # Clean module exports
 ├── README.md                  # This documentation
 ├── models/
 │   └── chat-message.js        # Data models with validation
 ├── services/
-│   ├── chat-service.js        # Business logic coordination
+│   ├── chat-service.js        # Business logic functions
 │   ├── openai-service.js      # OpenAI API interactions
 │   └── ollama-service.js      # Ollama API interactions
 ├── processors/
@@ -127,10 +127,10 @@ Check health status of AI providers.
 ## Module Responsibilities
 
 ### Controllers
-- **ChatController**: Main orchestrator that handles HTTP requests/responses and delegates to services
+- **Chat Controller Functions**: Individual functions that handle HTTP requests/responses and delegate to services
 
 ### Services
-- **ChatService**: Coordinates between different AI providers with automatic fallback
+- **ChatService**: Functions that coordinate between different AI providers with automatic fallback
 - **OpenAIService**: Handles OpenAI-compatible API interactions
 - **OllamaService**: Handles Ollama local LLM interactions
 
@@ -148,13 +148,18 @@ Check health status of AI providers.
 
 ## Usage Examples
 
-### Import the Controller
+### Import Individual Functions
 ```javascript
-// Import the full controller (backward compatibility)
-import { ChatController } from './controllers/chat/index.js';
+// Import specific controller functions
+import { 
+  sendChatMessage,
+  sendChatMessageStreaming,
+  getChatConfig,
+  checkProviderHealth 
+} from './controllers/chat/index.js';
 
 // Import specific services for targeted operations
-import { ChatService, OpenAIService } from './controllers/chat/index.js';
+import { generateChatResponse, generateStreamingResponse } from './controllers/chat/index.js';
 
 // Import utilities for configuration
 import { ChatProviderConfig, ErrorHandler } from './controllers/chat/index.js';
@@ -163,14 +168,19 @@ import { ChatProviderConfig, ErrorHandler } from './controllers/chat/index.js';
 ### Use in Routes
 ```javascript
 import express from 'express';
-import { ChatController } from '../controllers/chat/index.js';
+import { 
+  sendChatMessage,
+  sendChatMessageStreaming,
+  getChatConfig,
+  checkProviderHealth 
+} from '../controllers/chat/index.js';
 
 const router = express.Router();
 
-router.post('/message', ChatController.sendChatMessage);
-router.post('/stream', ChatController.sendChatMessageStreaming);
-router.get('/config', ChatController.getChatConfig);
-router.get('/health', ChatController.checkProviderHealth);
+router.post('/message', sendChatMessage);
+router.post('/stream', sendChatMessageStreaming);
+router.get('/config', getChatConfig);
+router.get('/health', checkProviderHealth);
 
 export default router;
 ```
@@ -202,27 +212,38 @@ The module provides comprehensive error handling:
 - **Rate Limiting**: Automatic detection and user-friendly messages
 - **Authentication**: API key validation and error reporting
 
-## Migration from Legacy Controller
+## Migration from Class-based to Functional Controller
 
-The modular controller maintains backward compatibility. To migrate:
+The controller has been migrated from class-based to functional programming. **Note: This migration removes backward compatibility.**
 
-1. Update imports from named exports to default export:
+### Migration Steps:
+
+1. Update imports from class-based to functional imports:
    ```javascript
-   // Old
-   import { sendChatMessage } from '../controllers/chatController.js';
-   
-   // New
+   // Old (class-based)
    import { ChatController } from '../controllers/chat/index.js';
-   // Use: ChatController.sendChatMessage
+   
+   // New (functional)
+   import { 
+     sendChatMessage,
+     sendChatMessageStreaming,
+     getChatConfig,
+     checkProviderHealth 
+   } from '../controllers/chat/index.js';
    ```
 
 2. Update route handlers:
    ```javascript
-   // Old
-   router.post('/message', sendChatMessage);
-   
-   // New
+   // Old (class-based)
    router.post('/message', ChatController.sendChatMessage);
+   
+   // New (functional)
+   router.post('/message', sendChatMessage);
    ```
 
 3. The API remains the same - no client-side changes needed.
+
+### Breaking Changes:
+- **No backward compatibility**: The `ChatController` class no longer exists
+- **Import updates required**: All imports must be updated to use individual function exports
+- **Route handler updates required**: All route handlers must reference individual functions instead of class methods

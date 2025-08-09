@@ -1,32 +1,42 @@
 import express from 'express';
-import { ChatController } from '../controllers/chat/index.js';
+import { 
+  checkProviderHealth,
+  clearConversationMemoryHandler,
+  getChatConfig,
+  getChatStatsHandler,
+  getConversationHistoryHandler,
+  sendChatMessage,
+  sendChatMessageStreaming,
+  testChatFunctionalityHandler,
+  testChatTemplate,
+} from '../controllers/chat/index.js';
 
 const router = express.Router();
 
 // Regular chat endpoint
-router.post('/message', ChatController.sendChatMessage);
+router.post('/message', sendChatMessage);
 
 // Streaming chat endpoint
-router.post('/stream', ChatController.sendChatMessageStreaming);
+router.post('/stream', sendChatMessageStreaming);
 
 // Configuration endpoint
-router.get('/config', ChatController.getChatConfig);
+router.get('/config', getChatConfig);
 
 // Health check endpoint
-router.get('/health', ChatController.checkProviderHealth);
+router.get('/health', checkProviderHealth);
 
 // Chat testing endpoints
-router.post('/test-template', ChatController.testChatTemplate);
-router.post('/test', ChatController.testChatFunctionality);
+router.post('/test-template', testChatTemplate);
+router.post('/test', testChatFunctionalityHandler);
 
 // Chat statistics
-router.get('/stats', ChatController.getChatStats);
+router.get('/stats', getChatStatsHandler);
 
 // Conversation management endpoints
-router.get('/conversation/:sessionId', ChatController.getConversationHistory);
+router.get('/conversation/:sessionId', getConversationHistoryHandler);
 router.delete(
   '/conversation/:sessionId',
-  ChatController.clearConversationMemory,
+  clearConversationMemoryHandler,
 );
 
 export default router;
