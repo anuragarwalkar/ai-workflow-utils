@@ -14,13 +14,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  List,
-  ListItem,
-  ListItemText,
 } from '@mui/material';
 import {
   Search as SearchIcon,
