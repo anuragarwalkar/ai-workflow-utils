@@ -1,13 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
   CircularProgress,
+  IconButton,
   Paper,
   Stack,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from '@mui/material';
+import {
+  Code as CodeIcon,
+  Edit as EditIcon,
+  Visibility as VisibilityIcon,
+} from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { setDescription, setSummary } from '../../../store/slices/jiraSlice';
 import {
@@ -16,9 +24,14 @@ import {
 } from '../../../store/api/jiraApi';
 import { showNotification } from '../../../store/slices/uiSlice';
 import { saveToLocalStorage } from './utils';
+import RichTextViewer from '../../common/RichTextViewer';
+import Editor from '@monaco-editor/react';
+import { useAppTheme } from '../../../theme/useAppTheme';
 
 const PreviewSection = () => {
   const dispatch = useDispatch();
+  const { isDark } = useAppTheme();
+  const [descriptionMode, setDescriptionMode] = useState('view'); // 'view', 'edit', 'source'
   const {
     summary,
     description,
@@ -175,20 +188,96 @@ const PreviewSection = () => {
           onChange={handleSummaryChange}
         />
 
-        <TextField
-          fullWidth
-          multiline
-          label='Description'
-          rows={10}
-          sx={{
-            '& .MuiInputBase-root': {
-              backgroundColor: 'background.paper',
-            },
-          }}
-          value={description}
-          variant='outlined'
-          onChange={handleDescriptionChange}
-        />
+        <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Typography sx={{ flexGrow: 1 }} variant='h6'>
+              Description
+            </Typography>
+            <ToggleButtonGroup
+              exclusive
+              size='small'
+              value={descriptionMode}
+              onChange={(event, newMode) => {
+                if (newMode !== null) {
+                  setDescriptionMode(newMode);
+                }
+              }}
+            >
+              <ToggleButton value='view'>
+                <VisibilityIcon fontSize='small' />
+              </ToggleButton>
+              <ToggleButton value='edit'>
+                <CodeIcon fontSize='small' />
+              </ToggleButton>
+              <ToggleButton value='source'>
+                <EditIcon fontSize='small' />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+
+          {descriptionMode === 'view' && (
+            <Box
+              sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 1,
+                backgroundColor: 'background.paper',
+                minHeight: '240px',
+                p: 2,
+              }}
+            >
+              <RichTextViewer
+                content={description || 'No description available'}
+                sx={{ minHeight: '200px' }}
+                variant='inline'
+              />
+            </Box>
+          )}
+
+          {descriptionMode === 'edit' && (
+            <Box
+              sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 1,
+              }}
+            >
+              <Editor
+                defaultLanguage='markdown'
+                height='300px'
+                options={{
+                  minimap: { enabled: false },
+                  wordWrap: 'on',
+                  lineNumbers: 'on',
+                  folding: false,
+                  fontSize: 14,
+                  padding: { top: 16, bottom: 16 },
+                  scrollBeyondLastLine: false,
+                }}
+                theme={isDark ? 'vs-dark' : 'light'}
+                value={description}
+                onChange={value => dispatch(setDescription(value || ''))}
+              />
+            </Box>
+          )}
+
+          {descriptionMode === 'source' && (
+            <TextField
+              fullWidth
+              multiline
+              label='Description'
+              rows={10}
+              sx={{
+                '& .MuiInputBase-root': {
+                  backgroundColor: 'background.paper',
+                },
+              }}
+              value={description}
+              variant='outlined'
+              onChange={handleDescriptionChange}
+            />
+          )}
+        </Box>
 
         <Button
           disabled={isLoading || !projectType || projectType.trim() === ''}
