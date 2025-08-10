@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Accordion,
   AccordionDetails,
@@ -47,6 +47,7 @@ import {
   setSelectedPullRequest,
 } from '../../store/slices/prSlice';
 import { useStreamingPRReview } from '../../hooks/useStreamingPRReview';
+import RichTextViewer from '../common/RichTextViewer';
 
 const DiffLine = ({ line, type, lineNumber }) => {
   const theme = useTheme();
@@ -503,8 +504,17 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         </Box>
       </Box>
 
-      <Grid container spacing={3}>
-        <Grid item md={reviewData ? 6 : 12} xs={12}>
+      <Grid container spacing={3} sx={{ width: '100%' }}>
+        <Grid
+          item
+          md={
+            reviewData || isStreaming || streamingContent || streamingError
+              ? 6
+              : 12
+          }
+          xs={12}
+          sx={{ width: '100%' }}
+        >
           <Card elevation={1} sx={{ mb: 3 }}>
             <CardContent>
               <Box
@@ -592,9 +602,9 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         </Grid>
 
         {reviewData || isStreaming || streamingContent || streamingError ? (
-          <Grid item md={6} xs={12}>
-            <Card elevation={1} sx={{ mb: 3 }}>
-              <CardContent>
+          <Grid item md={6} xs={12} sx={{ width: '100%' }}>
+            <Card elevation={1} sx={{ mb: 3, width: '100%' }}>
+              <CardContent sx={{ width: '100%', '&:last-child': { pb: 2 } }}>
                 <Box
                   sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}
                 >
@@ -645,55 +655,43 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
                   </Alert>
                 ) : null}
 
-                <Paper
-                  sx={{ p: 2, backgroundColor: 'grey.50' }}
-                  variant='outlined'
-                >
-                  <Typography
-                    sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}
-                    variant='body1'
-                  >
-                    {isStreaming || streamingContent
-                      ? streamingContent
-                      : reviewData?.review}
-                    {isStreaming ? (
-                      <Box
-                        component='span'
-                        sx={{
-                          animation: 'blink 1s infinite',
-                          '@keyframes blink': {
-                            '0%, 50%': { opacity: 1 },
-                            '51%, 100%': { opacity: 0 },
-                          },
-                        }}
-                      >
-                        ▋
-                      </Box>
-                    ) : null}
-                  </Typography>
-                </Paper>
+                <RichTextViewer
+                  content={
+                    isStreaming || streamingContent
+                      ? streamingContent +
+                        (isStreaming
+                          ? ' ▋' // Add cursor while streaming
+                          : '')
+                      : reviewData?.review || 'No review available'
+                  }
+                  variant='inline'
+                  sx={{
+                    backgroundColor: 'grey.50',
+                    p: 2,
+                    border: '1px solid',
+                    borderColor: 'grey.300',
+                    borderRadius: 1,
+                    width: '100%',
+                    minWidth: 0, // Allow content to shrink if needed
+                    minHeight: '200px', // Add minimum height to make content area visible
+                    overflowWrap: 'break-word',
+                    wordWrap: 'break-word',
+                  }}
+                />
 
-                {reviewData?.reviewedAt && !isStreaming ? (
+                {reviewComplete?.reviewedAt ||
+                (reviewData?.reviewedAt && !isStreaming) ? (
                   <Typography
                     variant='caption'
                     color='text.secondary'
                     sx={{ mt: 1, display: 'block' }}
                   >
                     Generated on{' '}
-                    {new Date(reviewData.reviewedAt).toLocaleString()}
-                    {reviewData.aiProvider && ` using ${reviewData.aiProvider}`}
-                  </Typography>
-                ) : null}
-                {reviewComplete?.reviewedAt ? (
-                  <Typography
-                    variant='caption'
-                    color='text.secondary'
-                    sx={{ mt: 1, display: 'block' }}
-                  >
-                    Generated on{' '}
-                    {new Date(reviewComplete.reviewedAt).toLocaleString()}
-                    {reviewComplete.aiProvider &&
-                      ` using ${reviewComplete.aiProvider}`}
+                    {new Date(
+                      reviewComplete?.reviewedAt || reviewData.reviewedAt
+                    ).toLocaleString()}
+                    {(reviewComplete?.aiProvider || reviewData?.aiProvider) &&
+                      ` using ${reviewComplete?.aiProvider || reviewData.aiProvider}`}
                   </Typography>
                 ) : null}
               </CardContent>

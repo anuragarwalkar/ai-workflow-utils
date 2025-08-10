@@ -146,6 +146,17 @@ const PullRequestList = ({ onNext, onPrevious }) => {
         {selectedProject.repoSlug}
       </Typography>
 
+      {pullRequests?.values?.length > 0 && (
+        <Card elevation={1} sx={{ mb: 3 }}>
+          <CardContent>
+            <Typography color='text.secondary' variant='body2'>
+              Found {pullRequests?.values?.length || 0} pull request(s).
+              Select one to review its changes.
+            </Typography>
+          </CardContent>
+        </Card>
+      )}
+
       {pullRequests?.values?.length === 0 ? (
         <Card elevation={1} sx={{ textAlign: 'center', py: 6 }}>
           <CardContent>
@@ -200,15 +211,6 @@ const PullRequestList = ({ onNext, onPrevious }) => {
         </Card>
       ) : (
         <>
-          <Card elevation={1} sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography color='text.secondary' variant='body2'>
-                Found {pullRequests?.values?.length || 0} pull request(s).
-                Select one to review its changes.
-              </Typography>
-            </CardContent>
-          </Card>
-
           <List sx={{ mb: 3 }}>
             {pullRequests?.values?.map(pr => (
               <React.Fragment key={pr.id}>
@@ -256,21 +258,22 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                         </Box>
                       }
                       secondary={
-                        <Box component='div'>
+                        <Box component='span'>
                           <Typography
                             color='text.secondary'
-                            component='div'
-                            sx={{ mb: 0.5 }}
+                            component='span'
+                            sx={{ mb: 0.5, display: 'block' }}
                             variant='body2'
                           >
-                            #{pr.id} • by {pr.author?.displayName || 'Unknown'}
+                            #{pr.id} • by {pr.author?.user?.displayName || pr.author?.displayName || 'Unknown'}
                           </Typography>
                           <Box
-                            component='div'
+                            component='span'
                             sx={{
                               display: 'flex',
                               alignItems: 'center',
                               gap: 1,
+                              mb: 0.5,
                             }}
                           >
                             <ScheduleIcon color='action' fontSize='small' />
@@ -282,10 +285,61 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                               Created: {formatDate(pr.createdDate)}
                             </Typography>
                           </Box>
+                          <Box
+                            component='span'
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 2,
+                              flexWrap: 'wrap',
+                            }}
+                          >
+                            <Typography
+                              color='text.secondary'
+                              component='span'
+                              variant='caption'
+                            >
+                              From: {pr.fromRef?.displayId || 'Unknown'}
+                            </Typography>
+                            <Typography
+                              color='text.secondary'
+                              component='span'
+                              variant='caption'
+                            >
+                              To: {pr.toRef?.displayId || 'Unknown'}
+                            </Typography>
+                            {pr.reviewers?.length > 0 && (
+                              <Typography
+                                color='text.secondary'
+                                component='span'
+                                variant='caption'
+                              >
+                                Reviewers: {pr.reviewers.length}
+                              </Typography>
+                            )}
+                            {pr.properties?.commentCount > 0 && (
+                              <Typography
+                                color='text.secondary'
+                                component='span'
+                                variant='caption'
+                              >
+                                Comments: {pr.properties.commentCount}
+                              </Typography>
+                            )}
+                            {pr.properties?.openTaskCount > 0 && (
+                              <Typography
+                                color='text.secondary'
+                                component='span'
+                                variant='caption'
+                              >
+                                Tasks: {pr.properties.openTaskCount}
+                              </Typography>
+                            )}
+                          </Box>
                           {pr.description ? (
                             <Typography
-                              component='div'
-                              sx={{ mt: 1, maxWidth: '80%' }}
+                              component='span'
+                              sx={{ mt: 1, maxWidth: '80%', display: 'block' }}
                               variant='body2'
                             >
                               {pr.description.length > 100
