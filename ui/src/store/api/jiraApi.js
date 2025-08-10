@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../../config/environment.js';
 export const jiraApi = createApi({
   reducerPath: 'jiraApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: `${API_BASE_URL}/api/jira`,
+    baseUrl: `http://localhost:3000/api/jira`,
   }),
   tagTypes: ['Jira'],
   endpoints: builder => ({
@@ -166,6 +166,18 @@ export const jiraApi = createApi({
         body: { comment, format },
       }),
     }),
+    // Custom Field API endpoints
+    fetchAllCustomFields: builder.query({
+      query: () => '/custom-fields',
+      providesTags: ['CustomFields'],
+    }),
+    fetchCustomFieldValues: builder.query({
+      query: ({ fieldId, projectKey, maxResults = 50 }) => 
+        `/custom-fields/${fieldId}/values/${projectKey}?maxResults=${maxResults}`,
+      providesTags: (result, error, { fieldId, projectKey }) => [
+        { type: 'CustomFieldValues', id: `${fieldId}-${projectKey}` },
+      ],
+    }),
   }),
 });
 
@@ -179,4 +191,7 @@ export const {
   useEnhanceDescriptionMutation,
   useGenerateCommentReplyMutation,
   useFormatCommentMutation,
+  // Custom field hooks
+  useFetchAllCustomFieldsQuery,
+  useFetchCustomFieldValuesQuery,
 } = jiraApi;

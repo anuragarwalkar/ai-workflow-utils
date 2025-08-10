@@ -9,7 +9,11 @@ import {
   previewBugReport,
   uploadImage,
 } from '../controllers/jira/handlers/jira-handlers.js';
-import { asyncHandler, createRateLimit } from '../middleware/index.js';
+import {
+  fetchAllCustomFieldsHandler,
+  fetchCustomFieldValuesHandler,
+} from '../controllers/jira/handlers/custom-field-handlers.js';
+import { createRateLimit } from '../middleware/index.js';
 import multer from 'multer';
 import path from 'path';
 
@@ -86,5 +90,9 @@ router.get('/issue/:id', getJiraIssue);
 router.post('/ai/enhance-description', enhanceDescriptionHandler);
 router.post('/ai/generate-comment-reply', generateCommentReplyHandler);
 router.post('/ai/format-comment', formatCommentHandler);
+
+// Custom field routes
+router.get('/custom-fields', fetchAllCustomFieldsHandler);
+router.get('/custom-fields/:fieldId/values/:projectKey', fetchCustomFieldValuesHandler);
 
 export default router;

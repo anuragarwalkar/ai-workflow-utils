@@ -172,7 +172,7 @@ const PreviewSection = () => {
     <Paper elevation={1} sx={{ p: 3, mt: 3, backgroundColor: 'grey.50' }}>
       <Stack spacing={3}>
         <Typography component='h2' variant='h2'>
-          Bug Report Preview
+          {issueType} Preview
         </Typography>
 
         <TextField

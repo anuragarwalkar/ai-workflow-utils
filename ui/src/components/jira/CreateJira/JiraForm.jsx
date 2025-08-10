@@ -1,8 +1,13 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   IconButton,
   InputLabel,
@@ -28,17 +33,16 @@ import {
   setPriority,
   setProjectType,
   setPrompt,
-  updateCustomField,
-} from '../../../store/slices/jiraSlice';
-import { usePreviewJiraStreamingMutation } from '../../../store/api/jiraApi';
-import { showNotification } from '../../../store/slices/uiSlice';
-import {
   setPreviewData,
   setStreaming,
   setStreamingContent,
   setStreamingStatus,
+  updateCustomField,
 } from '../../../store/slices/jiraSlice';
+import { usePreviewJiraStreamingMutation } from '../../../store/api/jiraApi';
+import { showNotification } from '../../../store/slices/uiSlice';
 import { saveToLocalStorage } from './utils';
+import CustomFieldGuide from '../CustomFieldGuide/CustomFieldGuide';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -65,6 +69,7 @@ const JiraForm = () => {
     isStreaming,
   } = useSelector(state => state.jira.createJira);
 
+  const [isCustomFieldGuideOpen, setIsCustomFieldGuideOpen] = useState(false);
   const [previewJiraStreaming] = usePreviewJiraStreamingMutation();
 
   const loadFromLocalStorage = useCallback(() => {
@@ -296,8 +301,32 @@ const JiraForm = () => {
             These custom fields are specific to {issueType} issues and will be
             saved separately for each issue type.
             <br />
-            <strong>Value formats:</strong> Simple text: "11222" | Object:{' '}
+            <strong>Value formats:</strong> Simple text: &quot;11222&quot; | Object:{' '}
             {`{"id": "21304"}`} | Array: {`["value1", "value2"]`}
+            {projectType?.trim() && (
+              <>
+                <br />
+                <br />
+                💡 Need help finding custom field IDs?{' '}
+                <Button 
+                  variant='text' 
+                  size='small'
+                  onClick={() => {
+                    if (projectType?.trim()) {
+                      setIsCustomFieldGuideOpen(true);
+                    } else {
+                      dispatch(showNotification({
+                        message: 'Please enter a Project Key first',
+                        severity: 'warning',
+                      }));
+                    }
+                  }}
+                  sx={{ textTransform: 'none', minWidth: 'auto', p: 0 }}
+                >
+                  View available fields for &quot;{projectType}&quot;
+                </Button>
+              </>
+            )}
           </Typography>
           {customFields.map((field, index) => (
             <Box
@@ -394,6 +423,30 @@ const JiraForm = () => {
           {isLoading ? 'Generating Preview...' : 'Preview'}
         </Button>
       </Stack>
+
+      {/* Custom Field Guide Dialog */}
+      <Dialog
+        fullWidth
+        maxWidth='lg'
+        open={isCustomFieldGuideOpen}
+        onClose={() => setIsCustomFieldGuideOpen(false)}
+      >
+        <DialogTitle>Custom Fields Guide for {projectType || 'Project'}</DialogTitle>
+        <DialogContent>
+          {projectType?.trim() ? (
+            <CustomFieldGuide issueType={issueType} projectKey={projectType} />
+          ) : (
+            <Alert severity="warning">
+              <Typography>Please enter a Project Key first to view custom fields for that project.</Typography>
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsCustomFieldGuideOpen(false)}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
