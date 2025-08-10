@@ -287,6 +287,98 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 
 ---
 
+</details>
+
+---
+
+<details>
+<summary><strong>🏗️ Technical Architecture & Development</strong></summary>
+
+### **🧩 Functional Programming Architecture**
+
+AI Workflow Utils follows **functional programming principles** throughout the codebase:
+
+- **Pure Functions**: Side-effect free functions with predictable outputs
+- **Immutable State Management**: State updates create new objects instead of mutations
+- **Function Composition**: Small, composable functions that work together
+- **No Classes**: Functional approach instead of object-oriented programming
+- **Separation of Concerns**: Each module has a specific, well-defined responsibility
+
+**Benefits:**
+- **Easier Testing**: Pure functions are simple to test and reason about
+- **Better Maintainability**: Predictable code flow and reduced complexity
+- **Improved Reliability**: Immutable state prevents many common bugs
+- **Enhanced Debugging**: Clear data flow makes debugging straightforward
+
+### **🎭 Mock-First Development**
+
+**Comprehensive Jira Mocking Service** for development and testing:
+
+```bash
+# Enable mock mode (no real API calls)
+JIRA_MOCK_MODE=true
+
+# Use real Jira API
+JIRA_MOCK_MODE=false
+```
+
+**Mock Service Features:**
+- **Realistic API Responses**: Mock data that matches real Jira API structure
+- **Stateful Operations**: Created issues, comments, and attachments persist in memory
+- **Complete CRUD Support**: Create, read, update, delete operations
+- **Advanced Features**: JQL search, issue transitions, field validation
+- **Error Simulation**: Test error handling with realistic error responses
+- **Fast Development**: No external dependencies for development/testing
+
+**Functional Mock Architecture:**
+```javascript
+// Pure state management
+const getMockState = () => ({ ...mockState });
+const updateMockState = (updates) => ({ ...mockState, ...updates });
+
+// Functional API operations
+export const createIssue = async (issueData) => { /* pure function */ };
+export const getIssue = async (issueKey) => { /* pure function */ };
+export const searchIssues = async (jql) => { /* pure function */ };
+```
+
+### **📁 Modular Architecture**
+
+```
+server/
+├── controllers/           # Feature-based controllers
+│   ├── jira/             # Jira integration
+│   │   ├── services/     # Business logic services
+│   │   ├── models/       # Data models
+│   │   ├── utils/        # Utility functions
+│   │   └── README.md     # Module documentation
+│   ├── pull-request/     # PR creation & review
+│   ├── email/            # Email generation
+│   └── chat/             # AI chat integration
+├── mocks/                # Mock services (excluded from npm package)
+│   └── jira/             # Comprehensive Jira mocking
+└── services/             # Shared services
+```
+
+**Each module follows the same structure:**
+- **Services**: Core business logic (functional)
+- **Models**: Data transformation and validation
+- **Utils**: Pure utility functions
+- **README.md**: Complete module documentation
+
+### **🔧 Development Best Practices**
+
+- **ESLint Integration**: Enforces functional programming patterns
+- **Modular Design**: Each feature is self-contained
+- **Comprehensive Documentation**: Every module has detailed README
+- **Mock-First Testing**: Develop without external dependencies
+- **Environment Variables**: Configuration through environment
+- **Type Safety**: JSDoc annotations for better IDE support
+
+</details>
+
+---
+
 <details>
 <summary><strong>🛠️ CLI Commands (For Advanced Users)</strong></summary>
 

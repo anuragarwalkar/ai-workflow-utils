@@ -1,5 +1,6 @@
 /**
  * Jira API service for external API interactions
+ * Supports both real API calls and mock mode for testing
  */
 
 import axios from 'axios';
@@ -8,6 +9,71 @@ import { ErrorHandler } from '../utils/error-handler.js';
 import { JIRA_ENDPOINTS } from '../utils/constants.js';
 import logger from '../../../logger.js';
 import { JiraIssue } from '../models/jira-issue.js';
+import { createIssue as createIssueFromService, isMockMode } from '../../../mocks/jira/jira-mocking-service-core.js';
+
+/**
+ * Create issue using mock service
+ * @param {Object} payload - Jira issue payload
+ * @returns {Promise<Object>} Mock created issue data
+ */
+const createIssueMock = async (payload) => {
+  logger.info('Creating Jira issue in mock mode');
+  const jiraPayload = new JiraIssue(payload);
+  const mockResult = await createIssueFromService({
+    fields: jiraPayload.toJiraPayload().fields,
+  });
+  
+  if (!mockResult.success) {
+    throw ErrorHandler.createServiceError(
+      `Mock Jira creation failed: ${mockResult.error?.errorMessages?.join(', ') || 'Unknown error'}`,
+      mockResult.status || 500,
+    );
+  }
+  
+  return mockResult.data;
+};
+
+/**
+ * Create issue using real API
+ * @param {Object} payload - Jira issue payload
+ * @returns {Promise<Object>} Created issue data
+ */
+const createIssueReal = async (payload) => {
+  const baseUrl = EnvironmentConfig.getBaseUrl();
+  const headers = EnvironmentConfig.getAuthHeaders();
+  const url = `${baseUrl}${JIRA_ENDPOINTS.ISSUE}`;
+
+  logger.info('Creating Jira issue', { url });
+
+  const jiraPayload = new JiraIssue(payload);
+  const response = await axios.post(url, jiraPayload.toJiraPayload(), {
+    headers,
+  });
+
+  logger.info('Jira issue created successfully', {
+    issueKey: response.data.key,
+    issueId: response.data.id,
+  });
+
+  return response?.data;
+};
+
+/**
+ * Handle create issue error
+ * @param {Error} error - Error object
+ * @throws {Error} Service error
+ */
+const handleCreateIssueError = (error) => {
+  logger.error('Failed to create Jira issue', {
+    error: error.message,
+    status: error.response?.status,
+    data: error.response?.data,
+  });
+  throw ErrorHandler.createServiceError(
+    `Failed to create Jira issue: ${error.response?.data?.errorMessages?.join(', ') || error.message}`,
+    error.response?.status || 500,
+  );
+};
 
 /**
  * Create a Jira issue
@@ -16,37 +82,15 @@ import { JiraIssue } from '../models/jira-issue.js';
  */
 export const createIssue = async (payload) => {
   try {
-    const baseUrl = EnvironmentConfig.getBaseUrl();
-    const headers = EnvironmentConfig.getAuthHeaders();
+    // Check if mock mode is enabled
+    if (isMockMode()) {
+      return await createIssueMock(payload);
+    }
 
-    const url = `${baseUrl}${JIRA_ENDPOINTS.ISSUE}`;
-
-    logger.info('Creating Jira issue', {
-      url,
-    });
-
-    const jiraPayload = new JiraIssue(payload);
-
-    const response = await axios.post(url, jiraPayload.toJiraPayload(), {
-      headers,
-    });
-
-    logger.info('Jira issue created successfully', {
-      issueKey: response.data.key,
-      issueId: response.data.id,
-    });
-
-    return response?.data;
+    // Real API call
+    return await createIssueReal(payload);
   } catch (error) {
-    logger.error('Failed to create Jira issue', {
-      error: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
-    });
-    throw ErrorHandler.createServiceError(
-      `Failed to create Jira issue: ${error.response?.data?.errorMessages?.join(', ') || error.message}`,
-      error.response?.status || 500,
-    );
+    handleCreateIssueError(error);
   }
 };
 
