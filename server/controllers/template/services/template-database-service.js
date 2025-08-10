@@ -1,6 +1,17 @@
 import templateDbService from '../../../services/templateDbService.js';
-import * as Template from '../models/template.js';
-import * as TemplateSettings from '../models/template-settings.js';
+import {
+  canBeDeleted,
+  canBeModified,
+  createTemplate as createTemplateModel,
+  fromDb as templateFromDb,
+  toDbFormat,
+  updateTemplate as updateTemplateModel,
+  validateTemplate,
+} from '../models/template.js';
+import {
+  fromDb as settingsFromDb,
+  validateSettings,
+} from '../models/template-settings.js';
 import logger from '../../../logger.js';
 
 export async function init() {
@@ -16,7 +27,7 @@ export async function init() {
 export async function getAllTemplates() {
   try {
     const templates = await templateDbService.getAllTemplates();
-    return templates.map(template => Template.fromDb(template));
+    return templates.map(template => templateFromDb(template));
   } catch (error) {
     logger.error('Error getting all templates:', error);
     throw error;
@@ -26,7 +37,7 @@ export async function getAllTemplates() {
 export async function getTemplatesByType(issueType) {
   try {
     const templates = await templateDbService.getTemplatesByType(issueType);
-    return templates.map(template => Template.fromDb(template));
+    return templates.map(template => templateFromDb(template));
   } catch (error) {
     logger.error('Error getting templates by type:', error);
     throw error;
@@ -36,7 +47,7 @@ export async function getTemplatesByType(issueType) {
 export async function getActiveTemplate(issueType) {
   try {
     const template = await templateDbService.getActiveTemplate(issueType);
-    return template ? Template.fromDb(template) : null;
+    return template ? templateFromDb(template) : null;
   } catch (error) {
     logger.error('Error getting active template:', error);
     throw error;
@@ -45,10 +56,10 @@ export async function getActiveTemplate(issueType) {
 
 export async function createTemplate(templateData) {
   try {
-    Template.validateTemplate(templateData);
-    const template = Template.createTemplate(templateData);
-    const created = await templateDbService.createTemplate(Template.toDbFormat(template));
-    return Template.fromDb(created);
+    validateTemplate(templateData);
+    const template = createTemplateModel(templateData);
+    const created = await templateDbService.createTemplate(toDbFormat(template));
+    return templateFromDb(created);
   } catch (error) {
     logger.error('Error creating template:', error);
     throw error;
@@ -62,14 +73,14 @@ export async function updateTemplate(id, updates) {
     if (!existingTemplate) {
       throw new Error(`Template with ID ${id} not found`);
     }
-    let template = Template.fromDb(existingTemplate);
-    if (!Template.canBeModified(template)) {
+    let template = templateFromDb(existingTemplate);
+    if (!canBeModified(template)) {
       throw new Error('Cannot modify default templates');
     }
-    template = Template.updateTemplate(template, updates);
-    Template.validateTemplate(template);
-    const updated = await templateDbService.updateTemplate(id, Template.toDbFormat(template));
-    return Template.fromDb(updated);
+    template = updateTemplateModel(template, updates);
+    validateTemplate(template);
+    const updated = await templateDbService.updateTemplate(id, toDbFormat(template));
+    return templateFromDb(updated);
   } catch (error) {
     logger.error('Error updating template:', error);
     throw error;
@@ -83,12 +94,12 @@ export async function deleteTemplate(id) {
     if (!existingTemplate) {
       throw new Error(`Template with ID ${id} not found`);
     }
-    const template = Template.fromDb(existingTemplate);
-    if (!Template.canBeDeleted(template)) {
+    const template = templateFromDb(existingTemplate);
+    if (!canBeDeleted(template)) {
       throw new Error('Cannot delete default templates');
     }
     const deleted = await templateDbService.deleteTemplate(id);
-    return Template.fromDb(deleted);
+    return templateFromDb(deleted);
   } catch (error) {
     logger.error('Error deleting template:', error);
     throw error;
@@ -98,7 +109,7 @@ export async function deleteTemplate(id) {
 export async function setActiveTemplate(issueType, templateId) {
   try {
     const updated = await templateDbService.setActiveTemplate(issueType, templateId);
-    return Template.fromDb(updated);
+    return templateFromDb(updated);
   } catch (error) {
     logger.error('Error setting active template:', error);
     throw error;
@@ -108,7 +119,7 @@ export async function setActiveTemplate(issueType, templateId) {
 export async function getSettings() {
   try {
     const settings = await templateDbService.getSettings();
-    return TemplateSettings.fromDb(settings);
+    return settingsFromDb(settings);
   } catch (error) {
     logger.error('Error getting settings:', error);
     throw error;
@@ -117,9 +128,9 @@ export async function getSettings() {
 
 export async function updateSettings(updates) {
   try {
-    TemplateSettings.validateSettings(updates);
+    validateSettings(updates);
     const updated = await templateDbService.updateSettings(updates);
-    return TemplateSettings.fromDb(updated);
+    return settingsFromDb(updated);
   } catch (error) {
     logger.error('Error updating settings:', error);
     throw error;
@@ -151,7 +162,7 @@ export async function exportTemplates() {
 export async function importTemplates(importData) {
   try {
     const imported = await templateDbService.importTemplates(importData);
-    const templates = imported.map(template => Template.fromDb(template));
+    const templates = imported.map(template => templateFromDb(template));
     logger.info(`Imported ${templates.length} templates`);
     return templates;
   } catch (error) {
@@ -167,7 +178,7 @@ export async function duplicateTemplate(id, newName) {
     if (!originalTemplate) {
       throw new Error(`Template with ID ${id} not found`);
     }
-    const template = Template.fromDb(originalTemplate);
+    const template = templateFromDb(originalTemplate);
     const duplicateData = {
       name: newName || `${template.name} (Copy)`,
       issueType: template.issueType,

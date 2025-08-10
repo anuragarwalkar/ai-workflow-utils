@@ -32,10 +32,10 @@ import {
   setCustomFields,
   setImageFile,
   setIssueType,
+  setPreviewData,
   setPriority,
   setProjectType,
   setPrompt,
-  setPreviewData,
   setStreaming,
   setStreamingContent,
   setStreamingStatus,
@@ -58,6 +58,7 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
+// eslint-disable-next-line max-statements
 const JiraForm = () => {
   const dispatch = useDispatch();
   const {
@@ -301,71 +302,86 @@ const JiraForm = () => {
               Custom Fields ({issueType})
             </Typography>
             <Tooltip
+              arrow
+              placement='right-start'
               title={
                 <Box sx={{ maxWidth: 400 }}>
-                  <Typography variant="body2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                  <Typography
+                    sx={{ mb: 1, fontWeight: 'bold' }}
+                    variant='body2'
+                  >
                     Why Custom Fields Are Important:
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    • <strong>Compliance:</strong> Many organizations require specific custom fields to be populated for tracking, reporting, and workflow automation
+                  <Typography sx={{ mb: 1 }} variant='body2'>
+                    • <strong>Compliance:</strong> Many organizations require
+                    specific custom fields to be populated for tracking,
+                    reporting, and workflow automation
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    • <strong>Workflow Triggers:</strong> Custom fields often trigger automated actions like notifications, approvals, or status transitions
+                  <Typography sx={{ mb: 1 }} variant='body2'>
+                    • <strong>Workflow Triggers:</strong> Custom fields often
+                    trigger automated actions like notifications, approvals, or
+                    status transitions
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    • <strong>Data Integrity:</strong> Ensures all required project-specific information is captured consistently
+                  <Typography sx={{ mb: 1 }} variant='body2'>
+                    • <strong>Data Integrity:</strong> Ensures all required
+                    project-specific information is captured consistently
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 1 }}>
-                    • <strong>Reporting:</strong> Custom fields enable accurate filtering, grouping, and reporting across your organization
+                  <Typography sx={{ mb: 1 }} variant='body2'>
+                    • <strong>Reporting:</strong> Custom fields enable accurate
+                    filtering, grouping, and reporting across your organization
                   </Typography>
-                  <Typography variant="body2">
-                    <strong>Note:</strong> Required custom fields vary by project, issue type, and your organization's Jira configuration.
+                  <Typography variant='body2'>
+                    <strong>Note:</strong> Required custom fields vary by
+                    project, issue type, and your organization's Jira
+                    configuration.
                   </Typography>
                 </Box>
               }
-              arrow
-              placement="right-start"
             >
-              <IconButton size="small" sx={{ color: 'primary.main' }}>
-                <InfoIcon fontSize="small" />
+              <IconButton size='small' sx={{ color: 'primary.main' }}>
+                <InfoIcon fontSize='small' />
               </IconButton>
             </Tooltip>
           </Box>
-          
+
           <Typography color='text.secondary' sx={{ mb: 1 }} variant='body2'>
-            <strong>What are Custom Fields?</strong> Organization-specific fields required for {issueType.toLowerCase()} issues that ensure proper tracking, compliance, and workflow automation.
+            <strong>What are Custom Fields?</strong> Organization-specific
+            fields required for {issueType.toLowerCase()} issues that ensure
+            proper tracking, compliance, and workflow automation.
           </Typography>
-          
+
           <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
             These custom fields are specific to {issueType} issues and will be
             saved separately for each issue type.
             <br />
             <strong>Value formats:</strong> Simple text: &quot;11222&quot; |
             Object: {`{"id": "21304"}`} | Array: {`["value1", "value2"]`}
-            {projectType?.trim() && (
+            {projectType?.trim() ? (
               <>
                 <br />
                 <br />
                 💡 Need help finding custom field IDs?{' '}
-                <Button 
-                  variant='text' 
+                <Button
                   size='small'
+                  sx={{ textTransform: 'none', minWidth: 'auto', p: 0 }}
+                  variant='text'
                   onClick={() => {
                     if (projectType?.trim()) {
                       setIsCustomFieldGuideOpen(true);
                     } else {
-                      dispatch(showNotification({
-                        message: 'Please enter a Project Key first',
-                        severity: 'warning',
-                      }));
+                      dispatch(
+                        showNotification({
+                          message: 'Please enter a Project Key first',
+                          severity: 'warning',
+                        })
+                      );
                     }
                   }}
-                  sx={{ textTransform: 'none', minWidth: 'auto', p: 0 }}
                 >
                   View available fields for &quot;{projectType}&quot;
                 </Button>
               </>
-            )}
+            ) : null}
           </Typography>
           {customFields.map((field, index) => (
             <Box
@@ -470,13 +486,18 @@ const JiraForm = () => {
         open={isCustomFieldGuideOpen}
         onClose={() => setIsCustomFieldGuideOpen(false)}
       >
-        <DialogTitle>Custom Fields Guide for {projectType || 'Project'}</DialogTitle>
+        <DialogTitle>
+          Custom Fields Guide for {projectType || 'Project'}
+        </DialogTitle>
         <DialogContent>
           {projectType?.trim() ? (
             <CustomFieldGuide issueType={issueType} projectKey={projectType} />
           ) : (
-            <Alert severity="warning">
-              <Typography>Please enter a Project Key first to view custom fields for that project.</Typography>
+            <Alert severity='warning'>
+              <Typography>
+                Please enter a Project Key first to view custom fields for that
+                project.
+              </Typography>
             </Alert>
           )}
         </DialogContent>

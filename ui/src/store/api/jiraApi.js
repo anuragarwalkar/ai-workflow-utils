@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../../config/environment.js';
 export const jiraApi = createApi({
   reducerPath: 'jiraApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: `http://localhost:3000/api/jira`,
+    baseUrl: `${API_BASE_URL}/api/jira`,
   }),
   tagTypes: ['Jira'],
   endpoints: builder => ({
@@ -172,7 +172,7 @@ export const jiraApi = createApi({
       providesTags: ['CustomFields'],
     }),
     fetchCustomFieldValues: builder.query({
-      query: ({ fieldId, projectKey, maxResults = 50 }) => 
+      query: ({ fieldId, projectKey, maxResults = 50 }) =>
         `/custom-fields/${fieldId}/values/${projectKey}?maxResults=${maxResults}`,
       providesTags: (result, error, { fieldId, projectKey }) => [
         { type: 'CustomFieldValues', id: `${fieldId}-${projectKey}` },

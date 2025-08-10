@@ -1,7 +1,6 @@
 import logger from '../../../logger.js';
-import * as Template from '../models/template.js';
+import { toApiFormat } from '../models/template.js'; 
 
-// Processor for template export/import operations (function-based)
 export function processExport(templates, settings) {
   try {
     const exportData = {
@@ -128,7 +127,7 @@ function calculateComplexity(content, variableCount) {
 
 export function processApiResponse(templates) {
   try {
-    const processedTemplates = templates.map(template => Template.toApiFormat(template));
+    const processedTemplates = templates.map(template => toApiFormat(template));
     logger.debug(`Processed ${processedTemplates.length} templates for API response`);
     return processedTemplates;
   } catch (error) {

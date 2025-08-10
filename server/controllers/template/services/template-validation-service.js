@@ -1,10 +1,17 @@
-import * as Template from '../models/template.js';
-import * as TemplateSettings from '../models/template-settings.js';
+import {
+  canBeDeleted,
+  canBeModified,
+  toDbFormat,
+  validateTemplate,
+} from '../models/template.js';
+import {
+  validateSettings,
+} from '../models/template-settings.js';
 import logger from '../../../logger.js';
 
 export function validateTemplateCreation(data) {
   try {
-    Template.validateTemplate(data);
+    validateTemplate(data);
   } catch (error) {
     logger.warn('Template creation validation failed:', error.message);
     throw error;
@@ -13,14 +20,14 @@ export function validateTemplateCreation(data) {
 
 export function validateTemplateUpdate(updates, existingTemplate) {
   try {
-    if (!Template.canBeModified(existingTemplate)) {
+    if (!canBeModified(existingTemplate)) {
       throw new Error('Cannot modify default templates');
     }
     const tempData = {
-      ...Template.toDbFormat(existingTemplate),
+      ...toDbFormat(existingTemplate),
       ...updates,
     };
-    Template.validateTemplate(tempData);
+    validateTemplate(tempData);
   } catch (error) {
     logger.warn('Template update validation failed:', error.message);
     throw error;
@@ -29,7 +36,7 @@ export function validateTemplateUpdate(updates, existingTemplate) {
 
 export function validateTemplateDeletion(template) {
   try {
-    if (!Template.canBeDeleted(template)) {
+    if (!canBeDeleted(template)) {
       throw new Error('Cannot delete default templates');
     }
   } catch (error) {
@@ -40,7 +47,7 @@ export function validateTemplateDeletion(template) {
 
 export function validateSettingsUpdate(updates) {
   try {
-    TemplateSettings.validateSettings(updates);
+    validateSettings(updates);
   } catch (error) {
     logger.warn('Settings update validation failed:', error.message);
     throw error;
@@ -57,13 +64,13 @@ export function validateImportData(importData) {
     }
     importData.templates.forEach((templateData, index) => {
       try {
-        Template.validateTemplate(templateData);
+        validateTemplate(templateData);
       } catch (error) {
         throw new Error(`Invalid template at index ${index}: ${error.message}`);
       }
     });
     if (importData.settings) {
-      TemplateSettings.validateSettings(importData.settings);
+      validateSettings(importData.settings);
     }
   } catch (error) {
     logger.warn('Import data validation failed:', error.message);

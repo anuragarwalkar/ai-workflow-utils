@@ -68,6 +68,7 @@ export const fetchSummaries = async (issueKeys) => {
  * @param {Array<Array>} tableData - 2D array representing table data
  * @returns {Promise<Array<Array>>} Updated table data with summaries
  */
+// eslint-disable-next-line max-statements
 export const fetchAndMergeJiraSummary = async (tableData) => {
   try {
     // Validate table data structure
@@ -75,7 +76,7 @@ export const fetchAndMergeJiraSummary = async (tableData) => {
       throw ErrorHandler.createValidationError('Invalid table data');
     }
 
-    const headers = tableData[0];
+    const [headers] = tableData;
     const jiraKeyIndex = headers.indexOf('Jira URL');
 
     if (jiraKeyIndex === -1) {
@@ -354,6 +355,7 @@ export const getCommonWords = (summaries) => {
 export const JiraSummaryService = {
   fetchJiraSummaries,
   fetchSummaries,
+  // eslint-disable-next-line max-lines
   fetchAndMergeJiraSummary,
   extractIssueKeyFromUrl,
   getProjectSummaries,
