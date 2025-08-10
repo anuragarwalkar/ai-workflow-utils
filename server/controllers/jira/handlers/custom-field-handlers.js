@@ -168,14 +168,12 @@ export const fetchCustomFieldValues = fetchCustomFieldValuesCore;
 export const fetchCustomFieldValuesHandler = withExpressErrorHandling(
   async (req, res) => {
     const { fieldId, projectKey } = req.params;
-    const { maxResults = 50 } = req.query;
     
     logger.info(`Fetching custom field values for ${fieldId} in project ${projectKey}`);
     
     const result = await fetchCustomFieldValuesCore(
       projectKey, 
       fieldId, 
-      parseInt(maxResults, 10),
     );
     
     res.json({

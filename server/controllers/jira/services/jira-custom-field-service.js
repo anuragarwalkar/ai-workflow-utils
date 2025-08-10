@@ -31,7 +31,7 @@ const formatCustomField = (field) => ({
  * @param {number} maxResults - Maximum number of results to return
  * @returns {Promise<Object>} Field values data
  */
-const fetchCustomFieldValues = async (projectKey, fieldId, maxResults = 50) => {
+const fetchCustomFieldValues = async (projectKey, fieldId) => {
   try {
     const jiraUrl = EnvironmentConfig.getBaseUrl();
     const headers = EnvironmentConfig.getAuthHeaders();
@@ -56,39 +56,8 @@ const fetchCustomFieldValues = async (projectKey, fieldId, maxResults = 50) => {
       params,
     });
 
-    const issues = response.data.issues || [];
-    const fieldValues = [];
-    const uniqueValues = new Set();
-
-    // Extract unique values from issues
-    issues.forEach(issue => {
-      const fieldValue = issue.fields[fieldId];
-      if (fieldValue !== null && fieldValue !== undefined) {
-        const valueString = typeof fieldValue === 'object' 
-          ? JSON.stringify(fieldValue) 
-          : String(fieldValue);
-        
-        if (!uniqueValues.has(valueString)) {
-          uniqueValues.add(valueString);
-          fieldValues.push({
-            issueKey: issue.key,
-            value: fieldValue,
-            displayValue: fieldValue?.name || fieldValue?.value || fieldValue,
-          });
-        }
-      }
-    });
-
     return {
-      success: true,
-      data: {
-        fieldId,
-        projectKey,
-        totalIssues: response.data.total,
-        issuesWithField: fieldValues.length,
-        uniqueValues: fieldValues,
-        sampleSize: issues.length,
-      },
+      ...response?.data,
     };
 
   } catch (error) {

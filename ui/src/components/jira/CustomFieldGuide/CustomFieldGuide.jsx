@@ -128,92 +128,180 @@ const InstructionsAccordion = () => (
   </Accordion>
 );
 
+// Helper component to render field values
+const FieldValues = ({ valuesData, valuesLoading, fieldId }) => {
+  if (valuesLoading) return <CircularProgress size={20} />;
+  
+  // Access the issues from the correct path
+  const issues = valuesData?.data?.issues;
+  
+  if (!issues?.length) {
+    return (
+      <Typography color='text.secondary' variant='body2'>
+        No issues found in this project
+      </Typography>
+    );
+  }
+
+  // Extract all field values (including duplicates) to show raw data
+  const fieldValues = [];
+  issues.forEach(issue => {
+    const fieldValue = issue.fields?.[fieldId];
+    if (fieldValue !== null && fieldValue !== undefined) {
+      fieldValues.push({
+        issueKey: issue.key,
+        value: fieldValue,
+      });
+    }
+  });
+
+  if (fieldValues.length === 0) {
+    return (
+      <Typography color='text.secondary' variant='body2'>
+        No values found for field {fieldId} in {issues.length} issues
+      </Typography>
+    );
+  }
+
+  return (
+    <Box>
+      <Typography 
+        color='text.secondary' 
+        sx={{ mb: 1, display: 'block' }}
+        variant='caption'
+      >
+        Found {fieldValues.length} values from {issues.length} issues (showing all raw JSON):
+      </Typography>
+      {fieldValues.map((item, index) => (
+        <Box 
+          key={`${item.issueKey}-${index}`} 
+          sx={{ mb: 2, p: 1, bgcolor: 'grey.100', borderRadius: 1 }}
+        >
+          <Typography 
+            color='primary' 
+            sx={{ fontWeight: 'bold', mb: 0.5, display: 'block' }}
+            variant='caption'
+          >
+            Issue: {item.issueKey}
+          </Typography>
+          <Typography 
+            sx={{ 
+              fontFamily: 'monospace', 
+              fontSize: '0.75rem',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              backgroundColor: 'white',
+              p: 1,
+              borderRadius: 0.5,
+              border: '1px solid #ddd',
+            }}
+            variant='body2'
+          >
+            {JSON.stringify(item.value, null, 2)}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
+};
+
+// Helper component for field card content
+const FieldCardContent = ({
+  field,
+  showValues,
+  projectKey,
+  valuesData,
+  valuesLoading,
+}) => (
+  <Box sx={{ flexGrow: 1 }}>
+    <Typography sx={{ fontWeight: 'bold', mb: 1 }} variant='h6'>
+      {field.name || 'Unnamed Field'}
+    </Typography>
+    <Typography
+      sx={{ fontFamily: 'monospace', fontSize: '0.875rem', mb: 1 }}
+      variant='body2'
+    >
+      {field.id}
+    </Typography>
+    <Box sx={{ mt: 1 }}>{renderFieldType(field.type)}</Box>
+    
+    {/* Show values if requested */}
+    {Boolean(showValues && projectKey) && (
+      <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+        <Typography sx={{ fontWeight: 'bold', mb: 1 }} variant='subtitle2'>
+          Sample Values from {projectKey}:
+        </Typography>
+        <FieldValues
+          fieldId={field.id}
+          valuesData={valuesData}
+          valuesLoading={valuesLoading}
+        />
+      </Box>
+    )}
+  </Box>
+);
+
+// Helper component for field card actions
+const FieldCardActions = ({ field, projectKey, showValues, setShowValues }) => (
+  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+    <Button
+      size='small'
+      startIcon={<ContentCopyIcon />}
+      variant='outlined'
+      onClick={() => copyToClipboard(field.id)}
+    >
+      Copy ID
+    </Button>
+    {Boolean(projectKey) && (
+      <Button
+        size='small'
+        startIcon={<VisibilityIcon />}
+        variant='outlined'
+        onClick={() => setShowValues(!showValues)}
+      >
+        {showValues ? 'Hide' : 'Show'} Values
+      </Button>
+    )}
+  </Box>
+);
+
 // Helper component for field card with optional values
 const FieldCard = ({ field, projectKey }) => {
   const [showValues, setShowValues] = useState(false);
   
-  const { 
-    data: valuesData, 
-    isLoading: valuesLoading,
-  } = useFetchCustomFieldValuesQuery(
-    { fieldId: field.id, projectKey, maxResults: 10 },
-    { skip: !showValues || !projectKey },
-  );
+  const { data: valuesData, isLoading: valuesLoading } =
+    useFetchCustomFieldValuesQuery(
+      {
+        fieldId: field.id,
+        projectKey,
+        maxResults: 10,
+      },
+      { skip: !showValues || !projectKey }
+    );
 
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent>
-        <Box 
+        <Box
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
           }}
         >
-          <Box sx={{ flexGrow: 1 }}>
-            <Typography sx={{ fontWeight: 'bold', mb: 1 }} variant='h6'>
-              {field.name || 'Unnamed Field'}
-            </Typography>
-            <Typography 
-              sx={{ fontFamily: 'monospace', fontSize: '0.875rem', mb: 1 }} 
-              variant='body2'
-            >
-              {field.id}
-            </Typography>
-            <Box sx={{ mt: 1 }}>{renderFieldType(field.type)}</Box>
-            
-            {/* Show values if requested */}
-            {showValues && projectKey && (
-              <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-                <Typography sx={{ fontWeight: 'bold', mb: 1 }} variant='subtitle2'>
-                  Sample Values from {projectKey}:
-                </Typography>
-                {valuesLoading ? (
-                  <CircularProgress size={20} />
-                ) : valuesData?.data?.uniqueValues?.length > 0 ? (
-                  <Box>
-                    {valuesData.data.uniqueValues.slice(0, 5).map((item, index) => (
-                      <Chip 
-                        key={index}
-                        label={item.displayValue || 'No value'}
-                        size='small'
-                        sx={{ mr: 0.5, mb: 0.5 }}
-                      />
-                    ))}
-                    {valuesData.data.uniqueValues.length > 5 && (
-                      <Typography color='text.secondary' variant='caption'>
-                        +{valuesData.data.uniqueValues.length - 5} more values
-                      </Typography>
-                    )}
-                  </Box>
-                ) : (
-                  <Typography color='text.secondary' variant='body2'>
-                    No values found in this project
-                  </Typography>
-                )}
-              </Box>
-            )}
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-            <Button
-              size='small'
-              startIcon={<ContentCopyIcon />}
-              variant='outlined'
-              onClick={() => copyToClipboard(field.id)}
-            >
-              Copy ID
-            </Button>
-            {projectKey && (
-              <Button
-                size='small'
-                startIcon={<VisibilityIcon />}
-                variant='outlined'
-                onClick={() => setShowValues(!showValues)}
-              >
-                {showValues ? 'Hide' : 'Show'} Values
-              </Button>
-            )}
-          </Box>
+          <FieldCardContent
+            field={field}
+            projectKey={projectKey}
+            showValues={showValues}
+            valuesData={valuesData}
+            valuesLoading={valuesLoading}
+          />
+          <FieldCardActions
+            field={field}
+            projectKey={projectKey}
+            setShowValues={setShowValues}
+            showValues={showValues}
+          />
         </Box>
       </CardContent>
     </Card>
@@ -221,7 +309,12 @@ const FieldCard = ({ field, projectKey }) => {
 };
 
 // Helper component for search and field list
-const FieldListSection = ({ searchTerm, setSearchTerm, filteredFields, projectKey }) => (
+const FieldListSection = ({
+  searchTerm,
+  setSearchTerm,
+  filteredFields,
+  projectKey,
+}) => (
   <>
     <TextField
       fullWidth
@@ -274,36 +367,29 @@ const CustomFieldGuide = ({ _projectKey, _issueType = 'Task' }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [projectKey, setProjectKey] = useState(_projectKey || '');
 
-  const { 
-    data: allFieldsData, 
-    isLoading: isLoadingAll, 
+  const {
+    data: allFieldsData,
+    isLoading: isLoadingAll,
     error: allFieldsError,
   } = useFetchAllCustomFieldsQuery();
 
   const allFields = allFieldsData?.data || [];
   
   const filteredFields = allFields.filter(field => {
-    const matchesSearch = 
-      !searchTerm || 
+    const matchesSearch =
+      !searchTerm ||
       field.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       field.id?.toLowerCase().includes(searchTerm.toLowerCase());
     
     return matchesSearch;
   });
 
-  if (isLoadingAll) {
-    return <LoadingState />;
-  }
-
-  if (allFieldsError) {
-    return <ErrorState error={allFieldsError} />;
-  }
+  if (isLoadingAll) return <LoadingState />;
+  if (allFieldsError) return <ErrorState error={allFieldsError} />;
 
   return (
     <Box>
       <InstructionsAccordion />
-      
-      {/* Project Key Input */}
       <TextField
         fullWidth
         helperText='Enter a project key to view actual field values (e.g., PROJ)'
@@ -312,8 +398,7 @@ const CustomFieldGuide = ({ _projectKey, _issueType = 'Task' }) => {
         value={projectKey}
         onChange={e => setProjectKey(e.target.value.toUpperCase())}
       />
-      
-      <FieldListSection 
+      <FieldListSection
         filteredFields={filteredFields}
         projectKey={projectKey}
         searchTerm={searchTerm}
