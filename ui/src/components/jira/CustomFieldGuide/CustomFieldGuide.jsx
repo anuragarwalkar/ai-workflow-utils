@@ -1,27 +1,28 @@
 import React, { useState } from 'react';
 import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  InputAdornment,
-  Button,
-  Chip,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   AlertTitle,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
   CircularProgress,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  InputAdornment,
+  TextField,
+  Typography,
 } from '@mui/material';
 import {
-  Search as SearchIcon,
   ContentCopy as ContentCopyIcon,
   ExpandMore as ExpandMoreIcon,
+  Search as SearchIcon,
   Visibility as VisibilityIcon,
 } from '@mui/icons-material';
-import { 
+import { useSelector } from 'react-redux';
+import {
   useFetchAllCustomFieldsQuery,
   useFetchCustomFieldValuesQuery,
 } from '../../../store/api/jiraApi';
@@ -41,13 +42,13 @@ const renderFieldType = type => {
     date: 'success',
     unknown: 'default',
   };
-  
+
   return (
-    <Chip 
+    <Chip
       color={typeColors[type] || 'default'}
-      label={type || 'unknown'} 
-      size='small' 
-      variant='outlined' 
+      label={type || 'unknown'}
+      size='small'
+      variant='outlined'
     />
   );
 };
@@ -74,10 +75,7 @@ const InstructionsAccordion = () => (
     </AccordionSummary>
     <AccordionDetails>
       <Box sx={{ pl: 2 }}>
-        <Typography 
-          sx={{ fontWeight: 'bold', mb: 2 }}
-          variant='subtitle1'
-        >
+        <Typography sx={{ fontWeight: 'bold', mb: 2 }} variant='subtitle1'>
           Method 1: Using Jira UI
         </Typography>
         <ul>
@@ -88,8 +86,8 @@ const InstructionsAccordion = () => (
             customfield_XXXXX)
           </li>
         </ul>
-        
-        <Typography 
+
+        <Typography
           sx={{ fontWeight: 'bold', mb: 2, mt: 3 }}
           variant='subtitle1'
         >
@@ -98,7 +96,8 @@ const InstructionsAccordion = () => (
         <ul>
           <li>Open a Jira issue that contains the custom field</li>
           <li>
-            Right-click on a custom field and select &ldquo;Inspect Element&rdquo;
+            Right-click on a custom field and select &ldquo;Inspect
+            Element&rdquo;
           </li>
           <li>
             Look for HTML attributes like `id` or `name` containing
@@ -106,15 +105,16 @@ const InstructionsAccordion = () => (
           </li>
           <li>The ID format is: customfield_XXXXX (where XXXXX is a number)</li>
         </ul>
-        
-        <Typography 
+
+        <Typography
           sx={{ fontWeight: 'bold', mb: 2, mt: 3 }}
           variant='subtitle1'
         >
           Method 3: Use the fields list below
         </Typography>
         <Typography color='text.secondary' variant='body2'>
-          Browse through all available custom fields in your Jira instance below.
+          Browse through all available custom fields in your Jira instance
+          below.
         </Typography>
       </Box>
     </AccordionDetails>
@@ -124,10 +124,10 @@ const InstructionsAccordion = () => (
 // Helper component to render field values
 const FieldValues = ({ valuesData, valuesLoading, fieldId }) => {
   if (valuesLoading) return <CircularProgress size={20} />;
-  
+
   // Access the issues from the correct path
   const issues = valuesData?.data?.issues;
-  
+
   if (!issues?.length) {
     return (
       <Typography color='text.secondary' variant='body2'>
@@ -158,28 +158,29 @@ const FieldValues = ({ valuesData, valuesLoading, fieldId }) => {
 
   return (
     <Box>
-      <Typography 
-        color='text.secondary' 
+      <Typography
+        color='text.secondary'
         sx={{ mb: 1, display: 'block' }}
         variant='caption'
       >
-        Found {fieldValues.length} values from {issues.length} issues (showing all raw JSON):
+        Found {fieldValues.length} values from {issues.length} issues (showing
+        all raw JSON):
       </Typography>
       {fieldValues.map((item, index) => (
-        <Box 
-          key={`${item.issueKey}-${index}`} 
+        <Box
+          key={`${item.issueKey}-${index}`}
           sx={{ mb: 2, p: 1, bgcolor: 'grey.100', borderRadius: 1 }}
         >
-          <Typography 
-            color='primary' 
+          <Typography
+            color='primary'
             sx={{ fontWeight: 'bold', mb: 0.5, display: 'block' }}
             variant='caption'
           >
             Issue: {item.issueKey}
           </Typography>
-          <Typography 
-            sx={{ 
-              fontFamily: 'monospace', 
+          <Typography
+            sx={{
+              fontFamily: 'monospace',
               fontSize: '0.75rem',
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word',
@@ -217,7 +218,7 @@ const FieldCardContent = ({
       {field.id}
     </Typography>
     <Box sx={{ mt: 1 }}>{renderFieldType(field.type)}</Box>
-    
+
     {/* Show values if requested */}
     {Boolean(showValues && projectKey) && (
       <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
@@ -261,7 +262,7 @@ const FieldCardActions = ({ field, projectKey, showValues, setShowValues }) => (
 // Helper component for field card with optional values
 const FieldCard = ({ field, projectKey }) => {
   const [showValues, setShowValues] = useState(false);
-  
+
   const { data: valuesData, isLoading: valuesLoading } =
     useFetchCustomFieldValuesQuery(
       {
@@ -323,11 +324,11 @@ const FieldListSection = ({
       value={searchTerm}
       onChange={e => setSearchTerm(e.target.value)}
     />
-    
+
     <Typography sx={{ fontWeight: 'bold', mb: 2 }} variant='h6'>
       Available Custom Fields ({filteredFields.length})
     </Typography>
-    
+
     {filteredFields.length === 0 ? (
       <Typography color='text.secondary' variant='body2'>
         No custom fields found matching your search.
@@ -358,7 +359,17 @@ const QuickStartGuide = () => (
 
 const CustomFieldGuide = ({ _projectKey, _issueType = 'Task' }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [projectKey, setProjectKey] = useState(_projectKey || '');
+
+  // Get project key from Redux state with fallback priority
+  const selectedProject = useSelector(state => state.pr?.selectedProject);
+  const jiraProjectType = useSelector(
+    state => state.jira?.createJira?.projectType
+  );
+
+  const defaultProjectKey =
+    _projectKey || selectedProject?.projectKey || jiraProjectType || '';
+
+  const [projectKey, setProjectKey] = useState(defaultProjectKey);
 
   const {
     data: allFieldsData,
@@ -367,13 +378,13 @@ const CustomFieldGuide = ({ _projectKey, _issueType = 'Task' }) => {
   } = useFetchAllCustomFieldsQuery();
 
   const allFields = allFieldsData?.data || [];
-  
+
   const filteredFields = allFields.filter(field => {
     const matchesSearch =
       !searchTerm ||
       field.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       field.id?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     return matchesSearch;
   });
 
@@ -385,7 +396,13 @@ const CustomFieldGuide = ({ _projectKey, _issueType = 'Task' }) => {
       <InstructionsAccordion />
       <TextField
         fullWidth
-        helperText='Enter a project key to view actual field values (e.g., PROJ)'
+        helperText={`Enter a project key to view actual field values (e.g., PROJ)${
+          selectedProject?.projectKey
+            ? ` • Auto-filled from selected project: ${selectedProject.projectKey}`
+            : jiraProjectType
+              ? ` • Auto-filled from Jira form: ${jiraProjectType}`
+              : ''
+        }`}
         label='Project Key (Optional)'
         sx={{ mb: 3 }}
         value={projectKey}

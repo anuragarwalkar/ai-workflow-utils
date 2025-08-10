@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Box,
@@ -15,6 +15,7 @@ import {
   Select,
   Stack,
   TextField,
+  Tooltip,
   Typography,
   styled,
 } from '@mui/material';
@@ -22,6 +23,7 @@ import {
   Add as AddIcon,
   CloudUpload,
   Delete as DeleteIcon,
+  Info as InfoIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -294,15 +296,52 @@ const JiraForm = () => {
         />
 
         <Box>
-          <Typography gutterBottom variant='h6'>
-            Custom Fields ({issueType})
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <Typography gutterBottom variant='h6'>
+              Custom Fields ({issueType})
+            </Typography>
+            <Tooltip
+              title={
+                <Box sx={{ maxWidth: 400 }}>
+                  <Typography variant="body2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                    Why Custom Fields Are Important:
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    • <strong>Compliance:</strong> Many organizations require specific custom fields to be populated for tracking, reporting, and workflow automation
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    • <strong>Workflow Triggers:</strong> Custom fields often trigger automated actions like notifications, approvals, or status transitions
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    • <strong>Data Integrity:</strong> Ensures all required project-specific information is captured consistently
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    • <strong>Reporting:</strong> Custom fields enable accurate filtering, grouping, and reporting across your organization
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Note:</strong> Required custom fields vary by project, issue type, and your organization's Jira configuration.
+                  </Typography>
+                </Box>
+              }
+              arrow
+              placement="right-start"
+            >
+              <IconButton size="small" sx={{ color: 'primary.main' }}>
+                <InfoIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+          
+          <Typography color='text.secondary' sx={{ mb: 1 }} variant='body2'>
+            <strong>What are Custom Fields?</strong> Organization-specific fields required for {issueType.toLowerCase()} issues that ensure proper tracking, compliance, and workflow automation.
           </Typography>
+          
           <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
             These custom fields are specific to {issueType} issues and will be
             saved separately for each issue type.
             <br />
-            <strong>Value formats:</strong> Simple text: &quot;11222&quot; | Object:{' '}
-            {`{"id": "21304"}`} | Array: {`["value1", "value2"]`}
+            <strong>Value formats:</strong> Simple text: &quot;11222&quot; |
+            Object: {`{"id": "21304"}`} | Array: {`["value1", "value2"]`}
             {projectType?.trim() && (
               <>
                 <br />
