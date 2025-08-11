@@ -71,10 +71,10 @@ class ToastService {
       message = error.data.error;
     } else if (error?.data?.message) {
       // Server returned message field
-      message = error.data.message;
+      ({ message } = error.data);
     } else if (error?.message) {
       // RTK Query error message
-      message = error.message;
+      ({ message } = error);
     } else if (typeof error === 'string') {
       // String error
       message = error;
@@ -92,9 +92,9 @@ class ToastService {
     let message = defaultMessage;
 
     if (response?.message) {
-      message = response.message;
+      ({ message } = response);
     } else if (response?.data?.message) {
-      message = response.data.message;
+      ({ message } = response.data);
     }
 
     this.success(message);
