@@ -58,7 +58,144 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-// eslint-disable-next-line max-statements
+// CustomFieldsSection component
+const CustomFieldsSection = ({
+  customFields,
+  onAddCustomField,
+  onRemoveCustomField,
+  onUpdateCustomField,
+  onOpenGuide,
+}) => (
+  <Box>
+    <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+      <Typography variant="h6">Custom Fields</Typography>
+      <Tooltip title="Learn more about custom fields">
+        <IconButton size="small" onClick={onOpenGuide}>
+          <InfoIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+    </Stack>
+    {customFields.map((field, idx) => (
+      <Stack direction="row" spacing={1} alignItems="center" key={field.id} mb={1}>
+        <TextField
+          label="Field Name"
+          value={field.name}
+          onChange={e => onUpdateCustomField(field.id, { name: e.target.value })}
+          size="small"
+        />
+        <TextField
+          label="Field Value"
+          value={field.value}
+          onChange={e => onUpdateCustomField(field.id, { value: e.target.value })}
+          size="small"
+        />
+        <IconButton
+          aria-label="Remove custom field"
+          onClick={() => onRemoveCustomField(field.id)}
+          size="small"
+        >
+          <DeleteIcon fontSize="small" />
+        </IconButton>
+      </Stack>
+    ))}
+    <Button
+      startIcon={<AddIcon />}
+      onClick={onAddCustomField}
+      size="small"
+      variant="outlined"
+    >
+      Add Custom Field
+    </Button>
+  </Box>
+);
+
+// UploadSection component
+const UploadSection = ({
+  imageFile,
+  onImageChange,
+  onRemoveImage,
+}) => (
+  <Box>
+    <Stack direction="row" alignItems="center" spacing={2} mb={2}>
+      <Button
+        component="label"
+        variant="outlined"
+        startIcon={<CloudUpload />}
+      >
+        Upload Image
+        <VisuallyHiddenInput
+          type="file"
+          accept="image/*"
+          onChange={onImageChange}
+        />
+      </Button>
+      {imageFile && (
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Typography variant="body2">{imageFile.name}</Typography>
+          <IconButton aria-label="Remove image" onClick={onRemoveImage} size="small">
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+      )}
+    </Stack>
+  </Box>
+);
+
+// ConfigurationSection component
+const ConfigurationSection = ({
+  issueType,
+  onIssueTypeChange,
+  priority,
+  onPriorityChange,
+  projectType,
+  onProjectTypeChange,
+}) => (
+  <Box mb={2}>
+    <Stack direction="row" spacing={2}>
+      <FormControl fullWidth>
+        <InputLabel id="project-type-label">Project Type</InputLabel>
+        <Select
+          labelId="project-type-label"
+          value={projectType}
+          label="Project Type"
+          onChange={onProjectTypeChange}
+        >
+          <MenuItem value="software">Software</MenuItem>
+          <MenuItem value="business">Business</MenuItem>
+          <MenuItem value="service_desk">Service Desk</MenuItem>
+        </Select>
+      </FormControl>
+      <FormControl fullWidth>
+        <InputLabel id="issue-type-label">Issue Type</InputLabel>
+        <Select
+          labelId="issue-type-label"
+          value={issueType}
+          label="Issue Type"
+          onChange={onIssueTypeChange}
+        >
+          <MenuItem value="bug">Bug</MenuItem>
+          <MenuItem value="task">Task</MenuItem>
+          <MenuItem value="story">Story</MenuItem>
+        </Select>
+      </FormControl>
+      <FormControl fullWidth>
+        <InputLabel id="priority-label">Priority</InputLabel>
+        <Select
+          labelId="priority-label"
+          value={priority}
+          label="Priority"
+          onChange={onPriorityChange}
+        >
+          <MenuItem value="highest">Highest</MenuItem>
+          <MenuItem value="high">High</MenuItem>
+          <MenuItem value="medium">Medium</MenuItem>
+          <MenuItem value="low">Low</MenuItem>
+          <MenuItem value="lowest">Lowest</MenuItem>
+        </Select>
+      </FormControl>
+    </Stack>
+  </Box>
+);
 const JiraForm = () => {
   const dispatch = useDispatch();
   const {
