@@ -16,12 +16,20 @@ export default {
     clean: true,
     module: true,
     chunkFormat: 'module',
+    // Ensure unique import names
+    uniqueName: 'ai-workflow-utils',
   },
   externals: [
     nodeExternals({
       importType: 'module',
     }),
   ],
+  optimization: {
+    minimize: false,
+    // Avoid naming conflicts in module imports
+    moduleIds: 'named',
+    concatenateModules: false,
+  },
   experiments: {
     outputModule: true,
   },
@@ -54,9 +62,6 @@ export default {
   },
   resolve: {
     extensions: ['.js', '.json'],
-  },
-  optimization: {
-    minimize: false,
   },
   devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
   stats: {
