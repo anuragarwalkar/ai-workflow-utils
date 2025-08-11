@@ -265,7 +265,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                             sx={{ mb: 0.5, display: 'block' }}
                             variant='body2'
                           >
-                            #{pr.id} • by {pr.author?.user?.displayName || pr.author?.displayName || 'Unknown'}
+                            #{pr.id} • by {getAuthorName(pr)}
                           </Typography>
                           <Box
                             component='span'
