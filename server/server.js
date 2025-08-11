@@ -8,11 +8,7 @@ import dotenv from 'dotenv';
 import configBridge from './services/configBridge.js';
 
 // Import middleware
-import {
-  requestLogger,
-  errorHandler,
-  notFoundHandler,
-} from './middleware/index.js';
+import { errorHandler, notFoundHandler, requestLogger } from './middleware/index.js';
 
 // Import routes
 import jiraRoutes from './routes/jira-routes.js';
@@ -129,12 +125,7 @@ app.use((req, res, next) => {
 
   res.sendFile('index.html', { root: staticPath }, err => {
     if (err) {
-      logger.error(
-        '❌ Error sending index.html:',
-        err.message,
-        err.path,
-        err.status
-      );
+      logger.error('❌ Error sending index.html:', err.message, err.path, err.status);
       res.status(500).json({ error: 'Internal server error' });
     } else {
       logger.info(`✅ index.html served for: ${req.path}`);
@@ -152,9 +143,7 @@ io.on('connection', socket => {
 
   // Handle client disconnection
   socket.on('disconnect', reason => {
-    logger.info(
-      `Client disconnected from WebSocket: ${socket.id}, reason: ${reason}`
-    );
+    logger.info(`Client disconnected from WebSocket: ${socket.id}, reason: ${reason}`);
   });
 
   // Handle connection errors

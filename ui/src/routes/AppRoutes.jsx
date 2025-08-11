@@ -1,105 +1,105 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import {
-  HomeButtons,
-  CreateJiraContainer,
-  SendEmailContainer,
-  AiEmailComposer,
-  ReleaseBuildContainer,
-  GitStashContainer,
-  PRContainer,
-  SettingsContainer,
   AiDevAssistant,
-  JiraViewerPage,
+  AiEmailComposer,
+  CreateJiraContainer,
+  GitStashContainer,
+  HomeButtons,
   JiraIdPrompt,
+  JiraViewerPage,
+  PRContainer,
+  ReleaseBuildContainer,
+  SendEmailContainer,
+  SettingsContainer,
 } from './lazyComponents';
 
 const AppRoutes = () => (
   <Routes>
     {/* Full-screen Jira Viewer Routes - Outside Layout */}
-    <Route path='/ai-view-jira/:id' element={<JiraViewerPage />} />
+    <Route element={<JiraViewerPage />} path='/ai-view-jira/:id' />
 
     {/* Regular Layout Routes */}
     <Route
-      path='/'
       element={
         <Layout>
           <HomeButtons />
         </Layout>
       }
+      path='/'
     />
     <Route
-      path='/ai-create-jira'
       element={
         <Layout>
           <CreateJiraContainer />
         </Layout>
       }
+      path='/ai-create-jira'
     />
     <Route
-      path='/ai-view-jira'
       element={
         <Layout>
           <JiraIdPrompt />
         </Layout>
       }
+      path='/ai-view-jira'
     />
     <Route
-      path='/send-email'
       element={
         <Layout>
           <AiEmailComposer />
         </Layout>
       }
+      path='/send-email'
     />
     <Route
-      path='/send-email-legacy'
       element={
         <Layout>
           <SendEmailContainer />
         </Layout>
       }
+      path='/send-email-legacy'
     />
     <Route
-      path='/release-build'
       element={
         <Layout>
           <ReleaseBuildContainer />
         </Layout>
       }
+      path='/release-build'
     />
     <Route
-      path='/ai-pr-code-review'
       element={
         <Layout>
           <GitStashContainer />
         </Layout>
       }
+      path='/ai-pr-code-review'
     />
     <Route
-      path='/ai-generate-pr-template'
       element={
         <Layout>
           <PRContainer />
         </Layout>
       }
+      path='/ai-generate-pr-template'
     />
     <Route
-      path='/ai-dev-assistant'
       element={
         <Layout>
           <AiDevAssistant />
         </Layout>
       }
+      path='/ai-dev-assistant'
     />
     <Route
-      path='/settings'
       element={
         <Layout>
           <SettingsContainer />
         </Layout>
       }
+      path='/settings'
     />
   </Routes>
 );

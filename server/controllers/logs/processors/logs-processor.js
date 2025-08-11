@@ -199,7 +199,7 @@ class LogsProcessor {
 
       switch (period) {
         case 'hour':
-          key = date.toISOString().slice(0, 13) + ':00:00';
+          key = `${date.toISOString().slice(0, 13)}:00:00`;
           break;
         case 'week': {
           const weekStart = new Date(date);

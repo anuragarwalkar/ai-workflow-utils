@@ -15,9 +15,7 @@ class ConfigBridge {
       const settings = await environmentDbService.getSettings();
 
       if (!settings || Object.keys(settings).length === 0) {
-        logger.info(
-          'No database configuration found, using existing environment variables'
-        );
+        logger.info('No database configuration found, using existing environment variables');
         this.initialized = true;
         return;
       }

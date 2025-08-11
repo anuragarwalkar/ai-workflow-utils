@@ -32,6 +32,9 @@ export const JIRA_ENDPOINTS = {
   ISSUE: '/rest/api/2/issue',
   SEARCH: '/rest/api/2/search',
   ATTACHMENTS: issueKey => `/rest/api/2/issue/${issueKey}/attachments`,
+  CUSTOM_FIELDS: '/rest/api/2/field',
+  PROJECT_FIELDS: projectKey => `/rest/api/2/project/${projectKey}/statuses`,
+  CREATE_META: '/rest/api/2/issue/createmeta',
 };
 
 // File upload constants

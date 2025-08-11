@@ -9,10 +9,7 @@ class LegacyDiffProcessor {
     if (diffData && diffData.values && Array.isArray(diffData.values)) {
       diffData.values.forEach((file, index) => {
         const fileName =
-          file.srcPath?.toString ||
-          file.path?.toString ||
-          file.source?.toString ||
-          'Unknown file';
+          file.srcPath?.toString || file.path?.toString || file.source?.toString || 'Unknown file';
         codeChanges += `### File ${index + 1}: ${fileName}\n`;
 
         if (file.hunks && Array.isArray(file.hunks)) {
@@ -21,7 +18,7 @@ class LegacyDiffProcessor {
             if (hunk.oldLine !== undefined && hunk.newLine !== undefined) {
               codeChanges += `Lines: ${hunk.oldLine} → ${hunk.newLine}\n`;
             }
-            codeChanges += `\`\`\`diff\n`;
+            codeChanges += '```diff\n';
 
             if (hunk.lines && Array.isArray(hunk.lines)) {
               hunk.lines.forEach(line => {
@@ -48,15 +45,15 @@ class LegacyDiffProcessor {
               hasChanges = true;
               codeChanges += `${hunk.content}\n`;
             }
-            codeChanges += `\`\`\`\n\n`;
+            codeChanges += '```\n\n';
           });
         } else if (file.content || file.diff) {
           hasChanges = true;
-          codeChanges += `\n\`\`\`diff\n`;
+          codeChanges += '\n```diff\n';
           codeChanges += `${file.content || file.diff}\n`;
-          codeChanges += `\`\`\`\n\n`;
+          codeChanges += '```\n\n';
         }
-        codeChanges += `\n---\n\n`;
+        codeChanges += '\n---\n\n';
       });
     }
 

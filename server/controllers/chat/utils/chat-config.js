@@ -9,8 +9,7 @@ export class ChatProviderConfig {
    */
   static getOpenAIConfig() {
     return {
-      baseUrl:
-        process.env.OPENAI_COMPATIBLE_BASE_URL || 'https://api.openai.com/v1',
+      baseUrl: process.env.OPENAI_COMPATIBLE_BASE_URL || 'https://api.openai.com/v1',
       apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
       model: process.env.OPENAI_COMPATIBLE_MODEL || 'gpt-3.5-turbo',
     };

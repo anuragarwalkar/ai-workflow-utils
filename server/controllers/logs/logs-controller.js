@@ -1,7 +1,6 @@
 import LogsService from './services/logs-service.js';
 import LogsProcessor from './processors/logs-processor.js';
 import { ErrorHandler } from './utils/error-handler.js';
-import logger from '../../logger.js';
 
 /**
  * Logs Controller - Main orchestrator for log operations

@@ -59,9 +59,7 @@ export class ConfigurationProcessor {
 
     const maskValue = value => {
       if (typeof value === 'string' && value.length > 0) {
-        return (
-          value.substring(0, 4) + '*'.repeat(Math.max(0, value.length - 4))
-        );
+        return value.substring(0, 4) + '*'.repeat(Math.max(0, value.length - 4));
       }
       return value;
     };
@@ -72,11 +70,7 @@ export class ConfigurationProcessor {
       Object.keys(obj).forEach(key => {
         if (typeof obj[key] === 'object' && obj[key] !== null) {
           processObject(obj[key]);
-        } else if (
-          sensitiveFields.some(field =>
-            key.toLowerCase().includes(field.toLowerCase())
-          )
-        ) {
+        } else if (sensitiveFields.some(field => key.toLowerCase().includes(field.toLowerCase()))) {
           obj[key] = maskValue(obj[key]);
         }
       });

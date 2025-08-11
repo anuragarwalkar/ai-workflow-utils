@@ -1,34 +1,34 @@
 import React, { useState } from 'react';
 import {
-  Paper,
-  Typography,
   Box,
-  Grid,
-  Card,
-  CardMedia,
-  CardContent,
-  IconButton,
-  Tooltip,
-  Chip,
   Button,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
   Dialog,
-  DialogContent,
   DialogActions,
+  DialogContent,
   DialogTitle,
+  Grid,
+  IconButton,
+  Paper,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import {
-  Attachment,
-  Download,
-  Visibility,
-  Image,
-  PictureAsPdf,
-  Description,
-  VideoFile,
   Archive,
+  Attachment,
   Close,
+  Description,
+  Download,
+  Image,
   OpenInNew,
+  PictureAsPdf,
+  VideoFile,
+  Visibility,
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const MotionPaper = motion(Paper);
 const MotionCard = motion(Card);
@@ -60,7 +60,7 @@ const JiraAttachments = ({ jiraData }) => {
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   };
 
   const isImageFile = mimeType => {
@@ -99,10 +99,9 @@ const JiraAttachments = ({ jiraData }) => {
   if (!attachments || attachments.length === 0) {
     return (
       <MotionPaper
+        animate={{ opacity: 1, y: 0 }}
         elevation={0}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
         sx={{
           p: 4,
           background: 'rgba(255, 255, 255, 0.05)',
@@ -111,12 +110,13 @@ const JiraAttachments = ({ jiraData }) => {
           borderRadius: 3,
           textAlign: 'center',
         }}
+        transition={{ duration: 0.5, delay: 0.2 }}
       >
         <Attachment sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-        <Typography variant='h6' color='text.secondary'>
+        <Typography color='text.secondary' variant='h6'>
           No Attachments
         </Typography>
-        <Typography variant='body2' color='text.secondary'>
+        <Typography color='text.secondary' variant='body2'>
           This issue doesn't have any attachments yet.
         </Typography>
       </MotionPaper>
@@ -126,10 +126,9 @@ const JiraAttachments = ({ jiraData }) => {
   return (
     <>
       <MotionPaper
+        animate={{ opacity: 1, y: 0 }}
         elevation={0}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
         sx={{
           background: 'rgba(255, 255, 255, 0.05)',
           backdropFilter: 'blur(20px)',
@@ -137,6 +136,7 @@ const JiraAttachments = ({ jiraData }) => {
           borderRadius: 3,
           overflow: 'hidden',
         }}
+        transition={{ duration: 0.5, delay: 0.2 }}
       >
         {/* Header */}
         <Box
@@ -150,23 +150,18 @@ const JiraAttachments = ({ jiraData }) => {
           }}
         >
           <Attachment color='primary' />
-          <Typography variant='h6' sx={{ fontWeight: 600 }}>
+          <Typography sx={{ fontWeight: 600 }} variant='h6'>
             Attachments ({attachments.length})
           </Typography>
         </Box>
 
         {/* Attachments Grid */}
         <Box sx={{ p: 3 }}>
-          <motion.div
-            variants={containerVariants}
-            initial='hidden'
-            animate='visible'
-          >
+          <motion.div animate='visible' initial='hidden' variants={containerVariants}>
             <Grid container spacing={2}>
               {attachments.map((attachment, index) => (
-                <Grid item xs={12} sm={6} md={4} key={attachment.id || index}>
+                <Grid item key={attachment.id || index} md={4} sm={6} xs={12}>
                   <MotionCard
-                    variants={itemVariants}
                     sx={{
                       background: 'rgba(255, 255, 255, 0.05)',
                       backdropFilter: 'blur(10px)',
@@ -180,15 +175,15 @@ const JiraAttachments = ({ jiraData }) => {
                         border: '1px solid rgba(102, 126, 234, 0.3)',
                       },
                     }}
+                    variants={itemVariants}
                   >
                     {/* Preview Area */}
-                    {isImageFile(attachment.mimeType) &&
-                    attachment.thumbnail ? (
+                    {isImageFile(attachment.mimeType) && attachment.thumbnail ? (
                       <CardMedia
+                        alt={attachment.filename}
                         component='img'
                         height='120'
                         image={attachment.thumbnail}
-                        alt={attachment.filename}
                         sx={{
                           objectFit: 'cover',
                           cursor: 'pointer',
@@ -209,17 +204,13 @@ const JiraAttachments = ({ jiraData }) => {
                         onClick={() => handlePreview(attachment)}
                       >
                         <Box sx={{ fontSize: 48 }}>
-                          {getFileIcon(
-                            attachment.filename,
-                            attachment.mimeType
-                          )}
+                          {getFileIcon(attachment.filename, attachment.mimeType)}
                         </Box>
                       </Box>
                     )}
 
                     <CardContent sx={{ p: 2 }}>
                       <Typography
-                        variant='subtitle2'
                         sx={{
                           fontWeight: 600,
                           mb: 1,
@@ -228,6 +219,7 @@ const JiraAttachments = ({ jiraData }) => {
                           whiteSpace: 'nowrap',
                         }}
                         title={attachment.filename}
+                        variant='subtitle2'
                       >
                         {attachment.filename}
                       </Typography>
@@ -243,10 +235,10 @@ const JiraAttachments = ({ jiraData }) => {
                         <Chip
                           label={formatFileSize(attachment.size)}
                           size='small'
-                          variant='outlined'
                           sx={{ fontSize: '0.75rem' }}
+                          variant='outlined'
                         />
-                        <Typography variant='caption' color='text.secondary'>
+                        <Typography color='text.secondary' variant='caption'>
                           {new Date(attachment.created).toLocaleDateString()}
                         </Typography>
                       </Box>
@@ -255,13 +247,13 @@ const JiraAttachments = ({ jiraData }) => {
                         <Tooltip title='Preview'>
                           <IconButton
                             size='small'
-                            onClick={() => handlePreview(attachment)}
                             sx={{
                               color: 'primary.main',
                               '&:hover': {
                                 background: 'rgba(102, 126, 234, 0.1)',
                               },
                             }}
+                            onClick={() => handlePreview(attachment)}
                           >
                             <Visibility />
                           </IconButton>
@@ -270,13 +262,13 @@ const JiraAttachments = ({ jiraData }) => {
                         <Tooltip title='Download'>
                           <IconButton
                             size='small'
-                            onClick={() => handleDownload(attachment)}
                             sx={{
                               color: 'success.main',
                               '&:hover': {
                                 background: 'rgba(76, 175, 80, 0.1)',
                               },
                             }}
+                            onClick={() => handleDownload(attachment)}
                           >
                             <Download />
                           </IconButton>
@@ -285,15 +277,13 @@ const JiraAttachments = ({ jiraData }) => {
                         <Tooltip title='Open in new tab'>
                           <IconButton
                             size='small'
-                            onClick={() =>
-                              window.open(attachment.content, '_blank')
-                            }
                             sx={{
                               color: 'info.main',
                               '&:hover': {
                                 background: 'rgba(33, 150, 243, 0.1)',
                               },
                             }}
+                            onClick={() => window.open(attachment.content, '_blank')}
                           >
                             <OpenInNew />
                           </IconButton>
@@ -310,10 +300,9 @@ const JiraAttachments = ({ jiraData }) => {
 
       {/* Preview Dialog */}
       <Dialog
-        open={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-        maxWidth='md'
         fullWidth
+        maxWidth='md'
+        open={previewOpen}
         PaperProps={{
           sx: {
             background: 'rgba(0, 0, 0, 0.9)',
@@ -321,6 +310,7 @@ const JiraAttachments = ({ jiraData }) => {
             border: '1px solid rgba(255, 255, 255, 0.1)',
           },
         }}
+        onClose={() => setPreviewOpen(false)}
       >
         <DialogTitle
           sx={{
@@ -330,11 +320,9 @@ const JiraAttachments = ({ jiraData }) => {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {selectedAttachment &&
-              getFileIcon(
-                selectedAttachment.filename,
-                selectedAttachment.mimeType
-              )}
+            {selectedAttachment
+              ? getFileIcon(selectedAttachment.filename, selectedAttachment.mimeType)
+              : null}
             <Typography variant='h6'>{selectedAttachment?.filename}</Typography>
           </Box>
           <IconButton onClick={() => setPreviewOpen(false)}>
@@ -343,7 +331,7 @@ const JiraAttachments = ({ jiraData }) => {
         </DialogTitle>
 
         <DialogContent sx={{ p: 0 }}>
-          {selectedAttachment && (
+          {selectedAttachment ? (
             <Box sx={{ textAlign: 'center' }}>
               {isImageFile(selectedAttachment.mimeType) ? (
                 <img
@@ -363,38 +351,26 @@ const JiraAttachments = ({ jiraData }) => {
                     maxHeight: '70vh',
                   }}
                 >
-                  <source
-                    src={selectedAttachment.content}
-                    type={selectedAttachment.mimeType}
-                  />
+                  <source src={selectedAttachment.content} type={selectedAttachment.mimeType} />
                   Your browser does not support the video tag.
                 </video>
               ) : (
                 <Box sx={{ p: 4, textAlign: 'center' }}>
                   <Box sx={{ fontSize: 64, mb: 2 }}>
-                    {getFileIcon(
-                      selectedAttachment.filename,
-                      selectedAttachment.mimeType
-                    )}
+                    {getFileIcon(selectedAttachment.filename, selectedAttachment.mimeType)}
                   </Box>
                   <Typography variant='h6' sx={{ mb: 2 }}>
                     {selectedAttachment.filename}
                   </Typography>
-                  <Typography
-                    variant='body2'
-                    color='text.secondary'
-                    sx={{ mb: 3 }}
-                  >
-                    {formatFileSize(selectedAttachment.size)} •{' '}
-                    {selectedAttachment.mimeType}
+                  <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+                    {formatFileSize(selectedAttachment.size)} • {selectedAttachment.mimeType}
                   </Typography>
                   <Button
                     variant='contained'
                     startIcon={<Download />}
                     onClick={() => handleDownload(selectedAttachment)}
                     sx={{
-                      background:
-                        'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                      background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                     }}
                   >
                     Download File
@@ -402,23 +378,23 @@ const JiraAttachments = ({ jiraData }) => {
                 </Box>
               )}
             </Box>
-          )}
+          ) : null}
         </DialogContent>
 
         <DialogActions sx={{ p: 2 }}>
           <Button
-            onClick={() => handleDownload(selectedAttachment)}
             startIcon={<Download />}
             variant='outlined'
+            onClick={() => handleDownload(selectedAttachment)}
           >
             Download
           </Button>
           <Button
-            onClick={() => setPreviewOpen(false)}
-            variant='contained'
             sx={{
               background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
             }}
+            variant='contained'
+            onClick={() => setPreviewOpen(false)}
           >
             Close
           </Button>

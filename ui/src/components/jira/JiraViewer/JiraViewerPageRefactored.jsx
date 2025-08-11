@@ -1,21 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useAppTheme } from '../../../theme/useAppTheme';
-import {
-  Box,
-  Typography,
-  Fab,
-  Alert,
-  Tooltip,
-  Button,
-  Zoom,
-} from '@mui/material';
+import { Alert, Box, Button, Fab, Tooltip, Typography, Zoom } from '@mui/material';
 import {
   ArrowBack,
+  Attachment,
   AutoAwesome,
   Comment,
-  Attachment,
   Timeline,
   Visibility,
 } from '@mui/icons-material';
@@ -134,41 +126,37 @@ const JiraViewerPage = () => {
         }}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.6 }}
         >
           <Alert
-            severity='error'
             action={
               <Button
-                variant='contained'
-                onClick={handleBack}
                 startIcon={<ArrowBack />}
                 sx={{
-                  background:
-                    'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                  background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 }}
+                variant='contained'
+                onClick={handleBack}
               >
                 Go Back
               </Button>
             }
+            severity='error'
             sx={{
               maxWidth: 600,
-              backgroundColor: isDark
-                ? 'rgba(211, 47, 47, 0.1)'
-                : 'rgba(211, 47, 47, 0.05)',
+              backgroundColor: isDark ? 'rgba(211, 47, 47, 0.1)' : 'rgba(211, 47, 47, 0.05)',
               color: isDark ? 'white' : '#2d3748',
             }}
           >
-            <Typography variant='h6' gutterBottom>
+            <Typography gutterBottom variant='h6'>
               Failed to load Jira issue
             </Typography>
             <Typography variant='body2'>
               {error.status === 404
                 ? `Issue "${id}" not found. It may have been moved or deleted.`
-                : error.data?.message ||
-                  'Please check your connection and try again.'}
+                : error.data?.message || 'Please check your connection and try again.'}
             </Typography>
           </Alert>
         </motion.div>
@@ -226,8 +214,8 @@ const JiraViewerPage = () => {
     >
       {/* Navigation Bar */}
       <JiraNavigationBar
-        jiraData={jiraData}
         isStarred={isStarred}
+        jiraData={jiraData}
         onBack={handleBack}
         onRefresh={handleRefresh}
         onShare={handleShare}
@@ -253,7 +241,6 @@ const JiraViewerPage = () => {
             {/* Description Section */}
             <Box sx={{ mb: 4 }}>
               <Typography
-                variant='h6'
                 sx={{
                   color: isDark ? 'white' : '#2d3748',
                   fontWeight: 600,
@@ -262,6 +249,7 @@ const JiraViewerPage = () => {
                   alignItems: 'center',
                   gap: 1,
                 }}
+                variant='h6'
               >
                 <Visibility sx={{ fontSize: 20 }} />
                 Description
@@ -272,7 +260,6 @@ const JiraViewerPage = () => {
             {/* Comments Section */}
             <Box sx={{ mb: 4 }}>
               <Typography
-                variant='h6'
                 sx={{
                   color: isDark ? 'white' : '#2d3748',
                   fontWeight: 600,
@@ -281,6 +268,7 @@ const JiraViewerPage = () => {
                   alignItems: 'center',
                   gap: 1,
                 }}
+                variant='h6'
               >
                 <Comment sx={{ fontSize: 20 }} />
                 Comments
@@ -308,7 +296,6 @@ const JiraViewerPage = () => {
                 ].map(tab => (
                   <Button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
                     startIcon={tab.icon}
                     sx={{
                       color:
@@ -318,9 +305,7 @@ const JiraViewerPage = () => {
                             ? 'rgba(255, 255, 255, 0.7)'
                             : 'rgba(45, 55, 72, 0.7)',
                       borderBottom:
-                        activeTab === tab.id
-                          ? '2px solid #667eea'
-                          : '2px solid transparent',
+                        activeTab === tab.id ? '2px solid #667eea' : '2px solid transparent',
                       borderRadius: 0,
                       px: 3,
                       py: 2,
@@ -329,13 +314,12 @@ const JiraViewerPage = () => {
                       fontWeight: activeTab === tab.id ? 600 : 400,
                       background: 'transparent',
                       '&:hover': {
-                        background: isDark
-                          ? 'rgba(255, 255, 255, 0.05)'
-                          : 'rgba(0, 0, 0, 0.05)',
+                        background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
                         color: '#667eea',
                       },
                       transition: 'all 0.2s ease',
                     }}
+                    onClick={() => setActiveTab(tab.id)}
                   >
                     {tab.label}
                   </Button>
@@ -347,18 +331,14 @@ const JiraViewerPage = () => {
             <Box sx={{ flex: 1, mt: 2 }}>
               <AnimatePresence mode='wait'>
                 <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  key={activeTab}
                   transition={{ duration: 0.2 }}
                 >
-                  {activeTab === 'attachments' && (
-                    <JiraAttachments jiraData={jiraData} />
-                  )}
-                  {activeTab === 'timeline' && (
-                    <JiraTimelineSimple jiraData={jiraData} />
-                  )}
+                  {activeTab === 'attachments' && <JiraAttachments jiraData={jiraData} />}
+                  {activeTab === 'timeline' && <JiraTimelineSimple jiraData={jiraData} />}
                 </motion.div>
               </AnimatePresence>
             </Box>
@@ -370,24 +350,21 @@ const JiraViewerPage = () => {
 
         {/* AI Assistant Panel (when open) */}
         <AnimatePresence>
-          {showAiPanel && (
+          {showAiPanel ? (
             <motion.div
-              initial={{ x: 400, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 400, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 120, damping: 25 }}
+              initial={{ x: 400, opacity: 0 }}
               style={{
                 width: '400px',
                 height: '100%',
                 borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
               }}
+              transition={{ type: 'spring', stiffness: 120, damping: 25 }}
             >
-              <AiAssistantPanel
-                jiraData={jiraData}
-                onClose={() => setShowAiPanel(false)}
-              />
+              <AiAssistantPanel jiraData={jiraData} onClose={() => setShowAiPanel(false)} />
             </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
       </Box>
 
@@ -400,16 +377,15 @@ const JiraViewerPage = () => {
           zIndex: 1000,
         }}
       >
-        <Zoom in={true} style={{ transitionDelay: '200ms' }}>
-          <Tooltip title='AI Assistant' placement='left'>
+        <Zoom in style={{ transitionDelay: '200ms' }}>
+          <Tooltip placement='left' title='AI Assistant'>
             <Fab
               color='primary'
               sx={{
                 background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 boxShadow: '0 8px 32px rgba(102, 126, 234, 0.4)',
                 '&:hover': {
-                  background:
-                    'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
+                  background: 'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
                   transform: 'scale(1.1)',
                   boxShadow: '0 12px 40px rgba(118, 75, 162, 0.5)',
                 },

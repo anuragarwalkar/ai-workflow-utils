@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Paper, Box } from '@mui/material';
+import { Box, Container, Paper } from '@mui/material';
 import { useAppTheme } from '../../theme/useAppTheme';
 import Header from './Header';
 
@@ -60,17 +60,13 @@ const Layout = ({ children }) => {
           sx={{
             p: 3,
             width: '100%',
-            background: isDark
-              ? 'rgba(45, 55, 72, 0.95)'
-              : 'rgba(255, 255, 255, 0.95)',
+            background: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
             borderRadius: '24px',
             border: isDark
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: isDark
-              ? '0 20px 60px rgba(0, 0, 0, 0.3)'
-              : '0 20px 60px rgba(0, 0, 0, 0.1)',
+            boxShadow: isDark ? '0 20px 60px rgba(0, 0, 0, 0.3)' : '0 20px 60px rgba(0, 0, 0, 0.1)',
           }}
         >
           {children}

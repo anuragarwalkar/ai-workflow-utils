@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  IconButton,
   Avatar,
+  Box,
   Chip,
   Fade,
+  IconButton,
+  Paper,
+  TextField,
+  Typography,
   useTheme,
 } from '@mui/material';
 import {
-  Send as SendIcon,
-  Code as CodeIcon,
-  Clear as ClearIcon,
   SmartToy as AIIcon,
-  Person as PersonIcon,
+  Clear as ClearIcon,
+  Code as CodeIcon,
   AutoFixHigh as MagicIcon,
+  Person as PersonIcon,
+  Send as SendIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSendChatMessageStreamingMutation } from '../../store/api/chatApi';
@@ -79,7 +79,6 @@ const AiDevAssistant = () => {
     setMessages(prev => [...prev, loadingMessage]);
 
     try {
-      let assistantContent = '';
       let assistantMessageId = null;
 
       // Remove loading message and add real assistant message when first chunk arrives
@@ -114,12 +113,9 @@ const AiDevAssistant = () => {
           })),
         onChunk: (chunk, fullContent) => {
           handleFirstChunk();
-          assistantContent = fullContent;
           setMessages(prev =>
             prev.map(msg =>
-              msg.id === assistantMessageId
-                ? { ...msg, content: assistantContent }
-                : msg
+              msg.id === assistantMessageId ? { ...msg, content: fullContent } : msg
             )
           );
         },
@@ -135,9 +131,7 @@ const AiDevAssistant = () => {
       // Mark streaming as complete
       if (assistantMessageId) {
         setMessages(prev =>
-          prev.map(msg =>
-            msg.id === assistantMessageId ? { ...msg, isStreaming: false } : msg
-          )
+          prev.map(msg => (msg.id === assistantMessageId ? { ...msg, isStreaming: false } : msg))
         );
       }
     } catch (error) {
@@ -147,8 +141,7 @@ const AiDevAssistant = () => {
           msg.id === 'loading'
             ? {
                 ...msg,
-                content:
-                  'Sorry, I encountered an error processing your request. Please try again.',
+                content: 'Sorry, I encountered an error processing your request. Please try again.',
                 isError: true,
                 isLoading: false,
               }
@@ -244,12 +237,12 @@ const AiDevAssistant = () => {
             </Avatar>
             <Box>
               <Typography
-                variant='h5'
                 sx={{
                   color: 'white',
                   fontWeight: 700,
                   textShadow: '0 2px 4px rgba(0,0,0,0.3)',
                 }}
+                variant='h5'
               >
                 AI Development Assistant
               </Typography>
@@ -267,22 +260,22 @@ const AiDevAssistant = () => {
           </Box>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <IconButton
-              onClick={clearConversation}
               sx={{
                 background: 'rgba(255, 255, 255, 0.1)',
                 color: 'white',
                 '&:hover': { background: 'rgba(255, 255, 255, 0.2)' },
               }}
+              onClick={clearConversation}
             >
               <ClearIcon />
             </IconButton>
             <IconButton
-              onClick={() => navigate('/')}
               sx={{
                 background: 'rgba(255, 255, 255, 0.1)',
                 color: 'white',
                 '&:hover': { background: 'rgba(255, 255, 255, 0.2)' },
               }}
+              onClick={() => navigate('/')}
             >
               ×
             </IconButton>
@@ -322,12 +315,11 @@ const AiDevAssistant = () => {
           }}
         >
           {messages.map(message => (
-            <Fade in={true} timeout={300} key={message.id}>
+            <Fade in key={message.id} timeout={300}>
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent:
-                    message.role === 'user' ? 'flex-end' : 'flex-start',
+                  justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
                   mb: 2,
                   gap: 2,
                 }}
@@ -359,14 +351,10 @@ const AiDevAssistant = () => {
                         : 'rgba(255, 255, 255, 0.95)',
                     color: message.role === 'user' ? 'white' : 'black',
                     borderRadius:
-                      message.role === 'user'
-                        ? '20px 20px 4px 20px'
-                        : '20px 20px 20px 4px',
+                      message.role === 'user' ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
                     backdropFilter: 'blur(10px)',
                     border:
-                      message.role === 'assistant'
-                        ? '1px solid rgba(255, 255, 255, 0.2)'
-                        : 'none',
+                      message.role === 'assistant' ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
                     position: 'relative',
                     boxShadow:
                       message.role === 'user'
@@ -407,16 +395,12 @@ const AiDevAssistant = () => {
                         <div />
                         <div />
                       </Box>
-                      <Typography
-                        variant='body2'
-                        sx={{ color: 'text.secondary' }}
-                      >
+                      <Typography sx={{ color: 'text.secondary' }} variant='body2'>
                         Thinking...
                       </Typography>
                     </Box>
                   ) : (
                     <Typography
-                      variant='body1'
                       sx={{
                         whiteSpace: 'pre-wrap',
                         lineHeight: 1.6,
@@ -428,12 +412,13 @@ const AiDevAssistant = () => {
                           fontFamily: 'monospace',
                         },
                       }}
+                      variant='body1'
                     >
                       {message.content || (message.isStreaming ? '▊' : '')}
                     </Typography>
                   )}
 
-                  {message.isStreaming && message.content && (
+                  {message.isStreaming && message.content ? (
                     <Box
                       sx={{
                         position: 'absolute',
@@ -449,14 +434,13 @@ const AiDevAssistant = () => {
                         },
                       }}
                     />
-                  )}
+                  ) : null}
                 </Paper>
 
                 {message.role === 'user' && (
                   <Avatar
                     sx={{
-                      background:
-                        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                      background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                       width: 40,
                       height: 40,
                       alignSelf: 'flex-end',
@@ -486,12 +470,9 @@ const AiDevAssistant = () => {
             <TextField
               fullWidth
               multiline
-              maxRows={4}
-              value={inputMessage}
-              onChange={e => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder='Ask me about code, debugging, architecture, or any development question...'
               disabled={isLoading}
+              maxRows={4}
+              placeholder='Ask me about code, debugging, architecture, or any development question...'
               sx={{
                 '& .MuiOutlinedInput-root': {
                   background: 'rgba(255, 255, 255, 0.9)',
@@ -512,9 +493,11 @@ const AiDevAssistant = () => {
                   opacity: 1,
                 },
               }}
+              value={inputMessage}
+              onChange={e => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
             />
             <IconButton
-              onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isLoading}
               sx={{
                 background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
@@ -522,8 +505,7 @@ const AiDevAssistant = () => {
                 width: 48,
                 height: 48,
                 '&:hover': {
-                  background:
-                    'linear-gradient(135deg, #0f7b6c 0%, #2bb673 100%)',
+                  background: 'linear-gradient(135deg, #0f7b6c 0%, #2bb673 100%)',
                   transform: 'scale(1.05)',
                 },
                 '&:disabled': {
@@ -532,6 +514,7 @@ const AiDevAssistant = () => {
                 },
                 transition: 'all 0.2s ease',
               }}
+              onClick={handleSendMessage}
             >
               <SendIcon />
             </IconButton>

@@ -55,10 +55,7 @@ const errorHandler = (err, req, res, next) => {
 
   const errorResponse = {
     error: {
-      message:
-        status === 500 && !isDevelopment
-          ? 'Internal Server Error'
-          : err.message,
+      message: status === 500 && !isDevelopment ? 'Internal Server Error' : err.message,
       status,
       timestamp: new Date().toISOString(),
     },
@@ -84,9 +81,7 @@ const validateBody = schema => {
   return (req, res, next) => {
     const { error } = schema.validate(req.body);
     if (error) {
-      const validationError = new Error(
-        `Validation error: ${error.details[0].message}`
-      );
+      const validationError = new Error(`Validation error: ${error.details[0].message}`);
       validationError.status = 400;
       return next(validationError);
     }

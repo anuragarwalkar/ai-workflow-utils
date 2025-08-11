@@ -20,8 +20,7 @@ class TemplateErrorHandler {
     res.status(errorResponse.status).json({
       success: false,
       error: errorResponse.message,
-      details:
-        process.env.NODE_ENV === 'development' ? error.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 
@@ -38,7 +37,7 @@ class TemplateErrorHandler {
     if (this.isValidationError(message)) {
       return {
         status: TEMPLATE_CONSTANTS.HTTP_STATUS.BAD_REQUEST,
-        message: message,
+        message,
       };
     }
 
@@ -46,7 +45,7 @@ class TemplateErrorHandler {
     if (this.isNotFoundError(message)) {
       return {
         status: TEMPLATE_CONSTANTS.HTTP_STATUS.NOT_FOUND,
-        message: message,
+        message,
       };
     }
 
@@ -54,7 +53,7 @@ class TemplateErrorHandler {
     if (this.isPermissionError(message)) {
       return {
         status: TEMPLATE_CONSTANTS.HTTP_STATUS.FORBIDDEN,
-        message: message,
+        message,
       };
     }
 
@@ -91,11 +90,7 @@ class TemplateErrorHandler {
    * @returns {boolean} True if not found error
    */
   static isNotFoundError(message) {
-    const notFoundKeywords = [
-      'not found',
-      'does not exist',
-      'No active template',
-    ];
+    const notFoundKeywords = ['not found', 'does not exist', 'No active template'];
 
     return notFoundKeywords.some(keyword => message.includes(keyword));
   }
@@ -273,11 +268,7 @@ class TemplateErrorHandler {
     this.validateLength(key, value, rule, errors);
 
     // Pattern validation
-    if (
-      rule.pattern &&
-      typeof value === 'string' &&
-      !rule.pattern.test(value)
-    ) {
+    if (rule.pattern && typeof value === 'string' && !rule.pattern.test(value)) {
       errors.push(`Field '${key}' format is invalid`);
     }
 
@@ -314,15 +305,11 @@ class TemplateErrorHandler {
     if (typeof value !== 'string') return;
 
     if (rule.maxLength && value.length > rule.maxLength) {
-      errors.push(
-        `Field '${key}' must be ${rule.maxLength} characters or less`
-      );
+      errors.push(`Field '${key}' must be ${rule.maxLength} characters or less`);
     }
 
     if (rule.minLength && value.length < rule.minLength) {
-      errors.push(
-        `Field '${key}' must be at least ${rule.minLength} characters`
-      );
+      errors.push(`Field '${key}' must be at least ${rule.minLength} characters`);
     }
   }
 }

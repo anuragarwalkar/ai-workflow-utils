@@ -1,31 +1,31 @@
 import {
+  Avatar,
   Box,
   Card,
   CardContent,
-  Typography,
+  Chip,
   Grid,
   IconButton,
-  Avatar,
   Stack,
-  Chip,
+  Typography,
 } from '@mui/material';
 import {
-  BugReport as BugReportIcon,
-  Visibility as VisibilityIcon,
-  Email as EmailIcon,
-  Build as BuildIcon,
   Add as AddIcon,
-  Send as SendIcon,
-  RocketLaunch as RocketLaunchIcon,
-  Code as CodeIcon,
-  Reviews as ReviewsIcon,
-  Chat as ChatIcon,
   AutoFixHigh as AutoFixHighIcon,
-  AccountTree as WorkflowIcon,
+  BugReport as BugReportIcon,
+  Build as BuildIcon,
+  Chat as ChatIcon,
+  Code as CodeIcon,
+  Create as CreateIcon,
+  Email as EmailIcon,
+  MergeType as MergeIcon,
+  Reviews as ReviewsIcon,
+  RocketLaunch as RocketLaunchIcon,
+  Send as SendIcon,
   Settings as SettingsIcon,
   Tune as TuneIcon,
-  MergeType as MergeIcon,
-  Create as CreateIcon,
+  Visibility as VisibilityIcon,
+  AccountTree as WorkflowIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useUnreleasedFeatures } from '../../hooks/useFeatureFlag';
@@ -88,8 +88,7 @@ const ActionCards = () => {
     {
       id: 'create-jira',
       title: 'AI Create Jira',
-      description:
-        'AI-powered Jira ticket creation with intelligent suggestions',
+      description: 'AI-powered Jira ticket creation with intelligent suggestions',
       icon: BugReportIcon,
       actionIcon: AddIcon,
       onClick: handleCreateJira,
@@ -125,8 +124,7 @@ const ActionCards = () => {
     {
       id: 'create-pr',
       title: 'AI Draft Pull Request',
-      description:
-        'AI-generated pull request creation with content suggestions',
+      description: 'AI-generated pull request creation with content suggestions',
       icon: MergeIcon,
       actionIcon: CreateIcon,
       onClick: handleCreatePR,
@@ -138,8 +136,7 @@ const ActionCards = () => {
     {
       id: 'ai-chat',
       title: 'AI Chat Assistant',
-      description:
-        'Intelligent conversational AI for development task assistance',
+      description: 'Intelligent conversational AI for development task assistance',
       icon: ChatIcon,
       actionIcon: AutoFixHighIcon,
       onClick: handleAiChat,
@@ -211,9 +208,7 @@ const ActionCards = () => {
 
   // Filter cards based on feature flags and hidden status
   const visibleCards = allActionCards.filter(
-    card =>
-      !(card.isHidden && card.isHidden()) &&
-      (card.isReleased || showUnreleasedFeatures)
+    card => !(card.isHidden && card.isHidden()) && (card.isReleased || showUnreleasedFeatures)
   );
 
   // Helper function to render badges with DRY principle
@@ -272,12 +267,12 @@ const ActionCards = () => {
         }}
       >
         <Typography
-          variant='h5'
           component='h2'
           sx={{
             color: isDark ? '#ffffff' : '#2d3748',
             fontWeight: 700,
           }}
+          variant='h5'
         >
           Available Actions
         </Typography>
@@ -292,17 +287,13 @@ const ActionCards = () => {
           width: '100%',
         }}
       >
-        <Grid
-          container
-          spacing={2}
-          sx={{ maxWidth: 1000, mx: 'auto', justifyContent: 'center' }}
-        >
+        <Grid container spacing={2} sx={{ maxWidth: 1000, mx: 'auto', justifyContent: 'center' }}>
           {visibleCards.map(card => {
             const IconComponent = card.icon;
             const ActionIconComponent = card.actionIcon;
 
             return (
-              <Grid item xs={12} sm={6} md={4} key={card.id}>
+              <Grid item key={card.id} md={4} sm={6} xs={12}>
                 <Card
                   sx={{
                     width: 300,
@@ -313,9 +304,7 @@ const ActionCards = () => {
                     maxHeight: 280,
                     cursor: 'pointer',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    background: isDark
-                      ? 'rgba(45, 55, 72, 0.95)'
-                      : 'rgba(255, 255, 255, 0.95)',
+                    background: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
                     backdropFilter: 'blur(20px)',
                     border: isDark
                       ? '1px solid rgba(255, 255, 255, 0.1)'
@@ -328,9 +317,7 @@ const ActionCards = () => {
                     '&:hover': {
                       transform: 'translateY(-8px) scale(1.02)',
                       boxShadow: `0 20px 60px ${card.shadowColor}`,
-                      background: isDark
-                        ? 'rgba(45, 55, 72, 0.98)'
-                        : 'rgba(255, 255, 255, 0.98)',
+                      background: isDark ? 'rgba(45, 55, 72, 0.98)' : 'rgba(255, 255, 255, 0.98)',
                       '& .action-button': {
                         transform: 'scale(1.1)',
                         background: card.gradient,
@@ -355,8 +342,8 @@ const ActionCards = () => {
                     }}
                   >
                     <Stack
-                      spacing={2}
                       alignItems='center'
+                      spacing={2}
                       sx={{ height: '100%', justifyContent: 'space-between' }}
                     >
                       <Avatar
@@ -374,25 +361,23 @@ const ActionCards = () => {
 
                       <Box sx={{ flexGrow: 1 }}>
                         <Typography
-                          variant='h6'
                           sx={{
                             fontWeight: 700,
                             color: isDark ? '#ffffff' : '#2d3748',
                             mb: 1,
                           }}
+                          variant='h6'
                         >
                           {card.title}
                         </Typography>
 
                         <Typography
-                          variant='body2'
                           sx={{
-                            color: isDark
-                              ? 'rgba(255, 255, 255, 0.8)'
-                              : '#4a5568',
+                            color: isDark ? 'rgba(255, 255, 255, 0.8)' : '#4a5568',
                             lineHeight: 1.6,
                             mb: 2,
                           }}
+                          variant='body2'
                         >
                           {card.description}
                         </Typography>

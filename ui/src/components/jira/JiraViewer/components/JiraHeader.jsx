@@ -1,22 +1,22 @@
 import React from 'react';
 import { useAppTheme } from '../../../../theme/useAppTheme';
 import {
-  Paper,
-  Typography,
+  Avatar,
   Box,
   Chip,
-  Avatar,
-  Stack,
   Divider,
   LinearProgress,
+  Paper,
+  Stack,
+  Typography,
 } from '@mui/material';
 import {
-  BugReport,
-  Task,
   Assignment,
+  BugReport,
+  CalendarToday,
   Flag,
   Person,
-  CalendarToday,
+  Task,
   Update,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
@@ -85,23 +85,20 @@ const JiraHeader = ({ jiraData }) => {
   };
 
   const fields = jiraData?.fields || {};
-  const assignee = fields.assignee;
-  const reporter = fields.reporter;
+  const { assignee } = fields;
+  const { reporter } = fields;
   const status = fields.status?.name;
   const priority = fields.priority?.name;
   const issueType = fields.issuetype?.name;
 
   return (
     <MotionPaper
+      animate={{ opacity: 1, y: 0 }}
       elevation={0}
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
       sx={{
         p: 4,
-        background: isDark
-          ? 'rgba(45, 55, 72, 0.95)'
-          : 'rgba(255, 255, 255, 0.95)',
+        background: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(20px)',
         border: isDark
           ? '1px solid rgba(255, 255, 255, 0.1)'
@@ -110,6 +107,7 @@ const JiraHeader = ({ jiraData }) => {
         position: 'relative',
         overflow: 'hidden',
       }}
+      transition={{ duration: 0.5 }}
     >
       {/* Background Gradient Effect */}
       <Box
@@ -133,18 +131,17 @@ const JiraHeader = ({ jiraData }) => {
             {getIssueTypeIcon(issueType)}
             <Chip
               label={issueType || 'Unknown'}
-              variant='outlined'
               size='small'
               sx={{
                 borderColor: 'primary.main',
                 color: 'primary.main',
                 fontWeight: 600,
               }}
+              variant='outlined'
             />
           </Box>
 
           <Typography
-            variant='h4'
             sx={{
               fontWeight: 700,
               flex: 1,
@@ -154,6 +151,7 @@ const JiraHeader = ({ jiraData }) => {
               WebkitTextFillColor: 'transparent',
               lineHeight: 1.2,
             }}
+            variant='h4'
           >
             {fields.summary || 'Untitled Issue'}
           </Typography>
@@ -169,19 +167,17 @@ const JiraHeader = ({ jiraData }) => {
               mb: 1,
             }}
           >
-            <Typography variant='body2' color='text.secondary'>
+            <Typography color='text.secondary' variant='body2'>
               Progress
             </Typography>
             <Chip
+              color={getStatusProgress(status) === 100 ? 'success' : 'primary'}
               label={status || 'Unknown'}
               size='small'
-              color={getStatusProgress(status) === 100 ? 'success' : 'primary'}
               variant='filled'
             />
           </Box>
           <LinearProgress
-            variant='determinate'
-            value={getStatusProgress(status)}
             sx={{
               height: 8,
               borderRadius: 4,
@@ -194,6 +190,8 @@ const JiraHeader = ({ jiraData }) => {
                 borderRadius: 4,
               },
             }}
+            value={getStatusProgress(status)}
+            variant='determinate'
           />
         </Box>
 
@@ -212,17 +210,13 @@ const JiraHeader = ({ jiraData }) => {
           >
             <Flag color={getPriorityColor(priority)} />
             <Box>
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                display='block'
-              >
+              <Typography color='text.secondary' display='block' variant='caption'>
                 Priority
               </Typography>
               <Chip
+                color={getPriorityColor(priority)}
                 label={priority || 'Medium'}
                 size='small'
-                color={getPriorityColor(priority)}
                 variant='outlined'
               />
             </Box>
@@ -239,21 +233,14 @@ const JiraHeader = ({ jiraData }) => {
           >
             <Person color='action' />
             <Box>
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                display='block'
-              >
+              <Typography color='text.secondary' display='block' variant='caption'>
                 Assignee
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Avatar
-                  src={assignee?.avatarUrls?.['24x24']}
-                  sx={{ width: 24, height: 24 }}
-                >
+                <Avatar src={assignee?.avatarUrls?.['24x24']} sx={{ width: 24, height: 24 }}>
                   {assignee?.displayName?.[0] || 'U'}
                 </Avatar>
-                <Typography variant='body2' sx={{ fontWeight: 500 }}>
+                <Typography sx={{ fontWeight: 500 }} variant='body2'>
                   {assignee?.displayName || 'Unassigned'}
                 </Typography>
               </Box>
@@ -271,21 +258,14 @@ const JiraHeader = ({ jiraData }) => {
           >
             <Person color='action' />
             <Box>
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                display='block'
-              >
+              <Typography color='text.secondary' display='block' variant='caption'>
                 Reporter
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Avatar
-                  src={reporter?.avatarUrls?.['24x24']}
-                  sx={{ width: 24, height: 24 }}
-                >
+                <Avatar src={reporter?.avatarUrls?.['24x24']} sx={{ width: 24, height: 24 }}>
                   {reporter?.displayName?.[0] || 'U'}
                 </Avatar>
-                <Typography variant='body2' sx={{ fontWeight: 500 }}>
+                <Typography sx={{ fontWeight: 500 }} variant='body2'>
                   {reporter?.displayName || 'Unknown'}
                 </Typography>
               </Box>
@@ -303,14 +283,10 @@ const JiraHeader = ({ jiraData }) => {
           >
             <CalendarToday color='action' />
             <Box>
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                display='block'
-              >
+              <Typography color='text.secondary' display='block' variant='caption'>
                 Created
               </Typography>
-              <Typography variant='body2' sx={{ fontWeight: 500 }}>
+              <Typography sx={{ fontWeight: 500 }} variant='body2'>
                 {formatDate(fields.created)}
               </Typography>
             </Box>
@@ -327,14 +303,10 @@ const JiraHeader = ({ jiraData }) => {
           >
             <Update color='action' />
             <Box>
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                display='block'
-              >
+              <Typography color='text.secondary' display='block' variant='caption'>
                 Updated
               </Typography>
-              <Typography variant='body2' sx={{ fontWeight: 500 }}>
+              <Typography sx={{ fontWeight: 500 }} variant='body2'>
                 {formatDate(fields.updated)}
               </Typography>
             </Box>
@@ -342,23 +314,17 @@ const JiraHeader = ({ jiraData }) => {
         </Stack>
 
         {/* Labels */}
-        {fields.labels && fields.labels.length > 0 && (
+        {fields.labels && fields.labels.length > 0 ? (
           <Box sx={{ mt: 3 }}>
-            <Typography
-              variant='caption'
-              color='text.secondary'
-              display='block'
-              sx={{ mb: 1 }}
-            >
+            <Typography color='text.secondary' display='block' sx={{ mb: 1 }} variant='caption'>
               Labels
             </Typography>
-            <Stack direction='row' spacing={1} flexWrap='wrap'>
+            <Stack direction='row' flexWrap='wrap' spacing={1}>
               {fields.labels.map((label, index) => (
                 <Chip
                   key={index}
                   label={label}
                   size='small'
-                  variant='outlined'
                   sx={{
                     borderColor: 'rgba(102, 126, 234, 0.5)',
                     color: 'text.primary',
@@ -366,11 +332,12 @@ const JiraHeader = ({ jiraData }) => {
                       backgroundColor: 'rgba(102, 126, 234, 0.1)',
                     },
                   }}
+                  variant='outlined'
                 />
               ))}
             </Stack>
           </Box>
-        )}
+        ) : null}
       </Box>
     </MotionPaper>
   );

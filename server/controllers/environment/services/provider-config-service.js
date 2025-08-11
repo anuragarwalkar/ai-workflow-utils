@@ -23,10 +23,7 @@ export class ProviderConnectionService {
 
     try {
       // Validate provider configuration
-      const validationResult = this.validateProviderConfig(
-        provider,
-        testConfig
-      );
+      const validationResult = this.validateProviderConfig(provider, testConfig);
       if (!validationResult.valid) {
         result.status = 'error';
         result.message = validationResult.message;
@@ -56,13 +53,9 @@ export class ProviderConnectionService {
 
     switch (provider) {
       case 'openai':
-        if (
-          !config?.OPENAI_COMPATIBLE_API_KEY ||
-          !config?.OPENAI_COMPATIBLE_BASE_URL
-        ) {
+        if (!config?.OPENAI_COMPATIBLE_API_KEY || !config?.OPENAI_COMPATIBLE_BASE_URL) {
           result.valid = false;
-          result.message =
-            'API key and base URL are required for OpenAI provider';
+          result.message = 'API key and base URL are required for OpenAI provider';
         }
         break;
 
@@ -76,8 +69,7 @@ export class ProviderConnectionService {
       case 'bitbucket':
         if (!config?.BIT_BUCKET_URL || !config?.BITBUCKET_AUTHORIZATION_TOKEN) {
           result.valid = false;
-          result.message =
-            'Bitbucket URL and token are required for Bitbucket provider';
+          result.message = 'Bitbucket URL and token are required for Bitbucket provider';
         }
         break;
 

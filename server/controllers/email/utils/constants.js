@@ -5,11 +5,7 @@
 // Email processing constants
 export const EMAIL_CONSTANTS = {
   // Table formatting
-  COLUMNS_TO_REMOVE: [
-    'Value Stream',
-    'Value Stream Version',
-    'Remarks (Optional)',
-  ],
+  COLUMNS_TO_REMOVE: ['Value Stream', 'Value Stream Version', 'Remarks (Optional)'],
   GROUP_BY_FIELDS: ['Value Stream', 'Value Stream Version'],
 
   // Required fields for email generation
@@ -23,8 +19,7 @@ export const EMAIL_CONSTANTS = {
       'width:100%;border-collapse:collapse;margin-top:10px;font-family:Arial,sans-serif;font-size:14px;',
     TABLE_HEADER:
       'border:1px solid #ccc;padding:10px;background-color:#f2f2f2;text-align:center;vertical-align:middle;',
-    TABLE_CELL:
-      'border:1px solid #ccc;padding:10px;text-align:left;vertical-align:middle;',
+    TABLE_CELL: 'border:1px solid #ccc;padding:10px;text-align:left;vertical-align:middle;',
     LINK: 'color:#0645AD;text-decoration:none;',
     FOOTER:
       'margin-top:30px;padding:15px;background-color:#f5f5f5;border-top:2px solid #801C81;font-family:Arial,sans-serif;font-size:12px;color:#666;',

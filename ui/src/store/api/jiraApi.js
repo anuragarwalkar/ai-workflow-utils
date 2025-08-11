@@ -16,10 +16,7 @@ export const jiraApi = createApi({
       }),
     }),
     previewJiraStreaming: builder.mutation({
-      queryFn: async (
-        { prompt, images, issueType, onChunk, onStatus },
-        { signal }
-      ) => {
+      queryFn: async ({ prompt, images, issueType, onChunk, onStatus }, { signal }) => {
         try {
           // Use a more RTK Query-like approach while maintaining streaming capability
           const baseUrl = `${API_BASE_URL}/api/jira`;
@@ -107,14 +104,7 @@ export const jiraApi = createApi({
       },
     }),
     createJira: builder.mutation({
-      query: ({
-        summary,
-        description,
-        issueType,
-        priority,
-        projectType,
-        customFields,
-      }) => ({
+      query: ({ summary, description, issueType, priority, projectType, customFields }) => ({
         url: '/generate',
         method: 'POST',
         body: {
@@ -140,9 +130,7 @@ export const jiraApi = createApi({
         method: 'POST',
         body: formData,
       }),
-      invalidatesTags: (result, error, { issueKey }) => [
-        { type: 'Jira', id: issueKey },
-      ],
+      invalidatesTags: (result, error, { issueKey }) => [{ type: 'Jira', id: issueKey }],
     }),
     // AI-powered enhancement endpoints
     enhanceDescription: builder.mutation({
@@ -166,6 +154,18 @@ export const jiraApi = createApi({
         body: { comment, format },
       }),
     }),
+    // Custom Field API endpoints
+    fetchAllCustomFields: builder.query({
+      query: () => '/custom-fields',
+      providesTags: ['CustomFields'],
+    }),
+    fetchCustomFieldValues: builder.query({
+      query: ({ fieldId, projectKey, maxResults = 50 }) =>
+        `/custom-fields/${fieldId}/values/${projectKey}?maxResults=${maxResults}`,
+      providesTags: (result, error, { fieldId, projectKey }) => [
+        { type: 'CustomFieldValues', id: `${fieldId}-${projectKey}` },
+      ],
+    }),
   }),
 });
 
@@ -179,4 +179,7 @@ export const {
   useEnhanceDescriptionMutation,
   useGenerateCommentReplyMutation,
   useFormatCommentMutation,
+  // Custom field hooks
+  useFetchAllCustomFieldsQuery,
+  useFetchCustomFieldValuesQuery,
 } = jiraApi;

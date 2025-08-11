@@ -1,16 +1,23 @@
 # GitHub Copilot Instructions for AI Workflow Utils
 
 ## Project Overview
-AI Workflow Utils is a comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems.
+
+AI Workflow Utils is a comprehensive automation platform that streamlines
+software development workflows by integrating AI-powered content generation with
+popular development tools like Jira, Bitbucket, and email systems.
 
 ## Architecture
+
 - **Backend**: Node.js/Express server with WebSocket support
-- **Frontend**: React with Vite, Material-UI components, Redux Toolkit for state management
+- **Frontend**: React with Vite, Material-UI components, Redux Toolkit for state
+  management
 - **Database**: LowDB for local storage (~/.ai-workflow-utils/)
-- **AI Integration**: LangChain with multiple providers (OpenAI, Anthropic, Google Gemini, Ollama)
+- **AI Integration**: LangChain with multiple providers (OpenAI, Anthropic,
+  Google Gemini, Ollama)
 - **Build**: Webpack for server, Vite for UI
 
 ## Project Structure
+
 ```
 ├── bin/                    # CLI entry points
 ├── server/                 # Backend Express server
@@ -50,6 +57,7 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 ## Coding Standards & Conventions
 
 ### Backend (Node.js/Express)
+
 - Use ES6+ syntax with CommonJS modules
 - Async/await for asynchronous operations
 - Express router pattern for routes
@@ -63,6 +71,7 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
   - Maintain backward compatibility through index exports
 
 ### Frontend (React)
+
 - Functional components with hooks
 - Material-UI for UI components
 - Redux Toolkit Query for API calls
@@ -72,12 +81,14 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 - Lazy load all route components using React.lazy and Suspense for performance
 
 ### Key Technologies
+
 - **AI/LLM**: LangChain framework for AI integration
   - **LangChain Core**: Base abstractions and interfaces
   - **LangChain OpenAI**: OpenAI provider integration
   - **LangChain Google GenAI**: Google Gemini provider integration
   - **LangChain Ollama**: Local Ollama provider integration
-  - **LangChain Anthropic**: Anthropic Claude integration via OpenAI-compatible API
+  - **LangChain Anthropic**: Anthropic Claude integration via OpenAI-compatible
+    API
 - **State Management**: Redux Toolkit + RTK Query
 - **UI Framework**: Material-UI v5+
 - **Build Tools**: Webpack (server), Vite (client)
@@ -86,18 +97,23 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 - **Development**: Nodemon, Concurrently for parallel processes
 
 ## Configuration Management
-- All environment settings and sensitive keys are stored in `~/.ai-workflow-utils/environment.json`
+
+- All environment settings and sensitive keys are stored in
+  `~/.ai-workflow-utils/environment.json`
 - Schema-driven configuration with provider options
-- Dynamic provider switching (AI, Repository, Issue tracking) via `ai_provider`, `repository_provider`, `issue_provider` keys
+- Dynamic provider switching (AI, Repository, Issue tracking) via `ai_provider`,
+  `repository_provider`, `issue_provider` keys
 - Settings API for CRUD operations
 
 ## API Patterns
+
 - RESTful endpoints under `/api/`
 - Consistent response format: `{ success: boolean, data: any, error?: string }`
 - Error handling middleware
 - CORS enabled for development
 
 ### Key API Endpoints
+
 - `/api/environment-settings` - Configuration management
 - `/api/chat` - AI chat interactions
 - `/api/email` - Email operations
@@ -108,7 +124,9 @@ AI Workflow Utils is a comprehensive automation platform that streamlines softwa
 ## Modular Architecture Patterns
 
 ### PR Controller Module Structure
-The PR controller follows a modular architecture with clear separation of concerns:
+
+The PR controller follows a modular architecture with clear separation of
+concerns:
 
 ```
 server/controllers/pr/
@@ -134,6 +152,7 @@ server/controllers/pr/
 ```
 
 ### Module Responsibilities
+
 - **Controllers**: Orchestrate operations, handle HTTP requests/responses
 - **Services**: Contain business logic, coordinate between different systems
 - **Processors**: Transform and process data (diffs, formats, etc.)
@@ -141,23 +160,25 @@ server/controllers/pr/
 - **Utils**: Common utilities, configuration, error handling, constants
 
 ### Modular Import Patterns
+
 ```javascript
 // Import the full controller (backward compatibility)
-import { PRController } from './controllers/pr/index.js';
+import { PRController } from "./controllers/pr/index.js";
 
 // Import specific services for targeted operations
-import { BitbucketService, PRContentService } from './controllers/pr/index.js';
+import { BitbucketService, PRContentService } from "./controllers/pr/index.js";
 
 // Import individual processors for data transformation
-import { UnidiffProcessor } from './controllers/pr/index.js';
+import { UnidiffProcessor } from "./controllers/pr/index.js";
 
 // Import utilities for common operations
-import { ErrorHandler, EnvironmentConfig } from './controllers/pr/index.js';
+import { ErrorHandler, EnvironmentConfig } from "./controllers/pr/index.js";
 ```
 
 ## Component Patterns
 
 ### React Components
+
 - Use Material-UI components consistently
 - Implement proper error boundaries
 - Loading states with CircularProgress
@@ -167,6 +188,7 @@ import { ErrorHandler, EnvironmentConfig } from './controllers/pr/index.js';
 - Lazy load all route components
 
 ### State Management
+
 - RTK Query for server state
 - Local state for UI-only concerns
 - Optimistic updates where appropriate
@@ -174,29 +196,36 @@ import { ErrorHandler, EnvironmentConfig } from './controllers/pr/index.js';
 ## LangChain Integration Patterns
 
 ### LangChain Service Architecture
-- **Centralized Service**: `server/services/langchainService.js` handles all AI interactions
+
+- **Centralized Service**: `server/services/langchainService.js` handles all AI
+  interactions
 - **Provider Abstraction**: Unified interface for different AI providers
 - **Dynamic Provider Switching**: Runtime selection based on user configuration
 - **Chain Composition**: Use LangChain chains for complex AI workflows
 
 ### AI Provider Implementation
+
 ```javascript
 // LangChain provider pattern
 const createProvider = (providerType, config) => {
   switch (providerType) {
-    case 'openai':
-      return new ChatOpenAI({ ...config })
-    case 'anthropic':
-      return new ChatOpenAI({ baseURL: 'https://api.anthropic.com', ...config })
-    case 'google':
-      return new ChatGoogleGenerativeAI({ ...config })
-    case 'ollama':
-      return new ChatOllama({ ...config })
+    case "openai":
+      return new ChatOpenAI({ ...config });
+    case "anthropic":
+      return new ChatOpenAI({
+        baseURL: "https://api.anthropic.com",
+        ...config,
+      });
+    case "google":
+      return new ChatGoogleGenerativeAI({ ...config });
+    case "ollama":
+      return new ChatOllama({ ...config });
   }
-}
+};
 ```
 
 ### Common LangChain Patterns
+
 - **Chat Models**: Use for conversational AI interactions
 - **Prompts**: Template-based prompt management
 - **Chains**: Sequential AI operations
@@ -204,37 +233,44 @@ const createProvider = (providerType, config) => {
 - **Output Parsers**: Structured response handling
 
 ## Provider Integration
+
 The application supports multiple providers for different services:
 
 ### AI Providers
+
 - **Anthropic Claude** (recommended): Uses OpenAI-compatible API
 - **OpenAI GPT**: Direct OpenAI API integration
 - **Google Gemini**: Google AI integration
 - **Ollama**: Local LLM hosting
 
 ### Repository Providers
+
 - **Bitbucket/GitStash**: Primary git repository integration
 - **GitHub**: (Coming soon)
 - **GitLab**: (Coming soon)
 
 ### Issue Tracking
+
 - **Jira**: Primary issue tracking integration
 - **Linear**: (Coming soon)
 - **GitHub Issues**: (Coming soon)
 
 ## Development Workflow
+
 - `npm run dev` - Start development servers (backend + frontend)
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - Hot reload enabled for both frontend and backend
 
 ## Testing Considerations
+
 - No test framework currently configured
 - When adding tests, consider Jest for unit tests
 - React Testing Library for component tests
 - Supertest for API endpoint testing
 
 ## Security & Best Practices
+
 - API keys stored securely in environment configuration
 - Sensitive data masked in UI (password fields)
 - CORS configuration for cross-origin requests
@@ -244,6 +280,7 @@ The application supports multiple providers for different services:
 ## Common Patterns to Follow
 
 ### Modular Service Pattern
+
 ```javascript
 // Service class with static methods for stateless operations
 class BitbucketService {
@@ -251,7 +288,7 @@ class BitbucketService {
     const { bitbucketUrl, authToken } = EnvironmentConfig.get();
     // Implementation
   }
-  
+
   static async createPullRequest(projectKey, repoSlug, payload) {
     // Implementation with proper error handling
   }
@@ -259,6 +296,7 @@ class BitbucketService {
 ```
 
 ### Data Model Pattern
+
 ```javascript
 // Model with validation and payload generation
 class PullRequest {
@@ -266,15 +304,15 @@ class PullRequest {
     this.title = data.title;
     this.description = data.description;
   }
-  
+
   static validate(data) {
-    const required = ['title', 'description', 'fromBranch'];
+    const required = ["title", "description", "fromBranch"];
     const missing = required.filter(field => !data[field]);
     if (missing.length > 0) {
-      throw new Error(`Missing required fields: ${missing.join(', ')}`);
+      throw new Error(`Missing required fields: ${missing.join(", ")}`);
     }
   }
-  
+
   toBitbucketPayload() {
     return {
       title: this.title,
@@ -286,6 +324,7 @@ class PullRequest {
 ```
 
 ### Processor Pattern
+
 ```javascript
 // Stateless processors for data transformation
 class UnidiffProcessor {
@@ -302,6 +341,7 @@ class UnidiffProcessor {
 ```
 
 ### Error Handling
+
 ```javascript
 try {
   const result = await operation();
@@ -312,6 +352,7 @@ try {
 ```
 
 ### React Component Structure
+
 ```jsx
 const ComponentName = () => {
   // Hooks
@@ -321,32 +362,30 @@ const ComponentName = () => {
   const handleAction = () => {};
   // Render conditions
   if (isLoading) return <CircularProgress />;
-  if (error) return <Alert severity="error">{error.message}</Alert>;
-  return (
-    <Box>
-      {/* Component content */}
-    </Box>
-  );
+  if (error) return <Alert severity='error'>{error.message}</Alert>;
+  return <Box>{/* Component content */}</Box>;
 };
 ```
 
 ### API Service Pattern
+
 ```javascript
 // RTK Query API slice
 export const apiSlice = createApi({
-  reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
-  tagTypes: ['Settings', 'Templates'],
-  endpoints: (builder) => ({
+  reducerPath: "api",
+  baseQuery: fetchBaseQuery({ baseUrl: "/api/" }),
+  tagTypes: ["Settings", "Templates"],
+  endpoints: builder => ({
     getSettings: builder.query({
-      query: () => 'environment-settings',
-      providesTags: ['Settings']
-    })
-  })
-})
+      query: () => "environment-settings",
+      providesTags: ["Settings"],
+    }),
+  }),
+});
 ```
 
 ## Performance Considerations
+
 - Lazy loading for large components and all route components
 - Memoization for expensive calculations
 - Debounced inputs for search/filter operations
@@ -354,12 +393,14 @@ export const apiSlice = createApi({
 - WebSocket connections for real-time features
 
 ## Deployment Notes
+
 - Files to include in package: dist/, ui/dist/, bin/, README.md, LICENSE
 - Environment configuration persists in user directory
 - CLI tool available as `ai-workflow-utils` command
 - Requires Node.js >=16.0.0
 
 When providing suggestions or generating code:
+
 1. Follow the established patterns and conventions
 2. Use the appropriate technology stack components
 3. Maintain consistency with existing code style
@@ -368,7 +409,8 @@ When providing suggestions or generating code:
 6. Use Material-UI components for consistency
 7. Follow the API response format standards
 8. **Use modular architecture patterns for complex features**:
-   - Separate concerns into appropriate modules (controllers, services, processors, models, utils)
+   - Separate concerns into appropriate modules (controllers, services,
+     processors, models, utils)
    - Maintain single responsibility principle
    - Use static methods for stateless operations
    - Implement proper data validation in models

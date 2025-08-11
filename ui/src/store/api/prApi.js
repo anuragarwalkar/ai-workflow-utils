@@ -9,8 +9,7 @@ export const prApi = createApi({
   tagTypes: ['PullRequest', 'PRReview'],
   endpoints: builder => ({
     getPullRequests: builder.query({
-      query: ({ projectKey, repoSlug }) =>
-        `/${projectKey}/${repoSlug}/pull-requests`,
+      query: ({ projectKey, repoSlug }) => `/${projectKey}/${repoSlug}/pull-requests`,
       providesTags: (result, error, { projectKey, repoSlug }) => [
         { type: 'PullRequest', id: `${projectKey}-${repoSlug}` },
       ],
@@ -18,11 +17,7 @@ export const prApi = createApi({
     getPullRequestDiff: builder.query({
       query: ({ projectKey, repoSlug, pullRequestId }) =>
         `/${projectKey}/${repoSlug}/pull-requests/${pullRequestId}/diff`,
-      providesTags: (
-        result,
-        error,
-        { projectKey, repoSlug, pullRequestId }
-      ) => [
+      providesTags: (result, error, { projectKey, repoSlug, pullRequestId }) => [
         {
           type: 'PullRequest',
           id: `${projectKey}-${repoSlug}-${pullRequestId}`,
@@ -30,33 +25,17 @@ export const prApi = createApi({
       ],
     }),
     reviewPullRequest: builder.mutation({
-      query: ({
-        projectKey,
-        repoSlug,
-        pullRequestId,
-        diffData,
-        prDetails,
-      }) => ({
+      query: ({ projectKey, repoSlug, pullRequestId, diffData, prDetails }) => ({
         url: '/review',
         method: 'POST',
         body: { projectKey, repoSlug, pullRequestId, diffData, prDetails },
       }),
-      invalidatesTags: (
-        result,
-        error,
-        { projectKey, repoSlug, pullRequestId }
-      ) => [
+      invalidatesTags: (result, error, { projectKey, repoSlug, pullRequestId }) => [
         { type: 'PRReview', id: `${projectKey}-${repoSlug}-${pullRequestId}` },
       ],
     }),
     createPullRequest: builder.mutation({
-      query: ({
-        branchName,
-        projectKey,
-        repoSlug,
-        customTitle,
-        customDescription,
-      }) => ({
+      query: ({ branchName, projectKey, repoSlug, customTitle, customDescription }) => ({
         url: '/create',
         method: 'POST',
         body: {

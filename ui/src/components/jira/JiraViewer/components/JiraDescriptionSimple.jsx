@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Typography, Box } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -12,22 +12,21 @@ const MotionPaper = motion(Paper);
 const JiraDescriptionSimple = ({ jiraData }) => {
   const { isDark } = useAppTheme();
 
-  const description =
-    jiraData?.fields?.description || 'No description available';
+  const description = jiraData?.fields?.description || 'No description available';
 
   const MarkdownComponents = {
     code({ inline, className, children, ...props }) {
       const match = /language-(\w+)/.exec(className || '');
       return !inline && match ? (
         <SyntaxHighlighter
-          style={vscDarkPlus}
-          language={match[1]}
-          PreTag='div'
           customStyle={{
             margin: '1rem 0',
             borderRadius: '8px',
             background: 'rgba(0, 0, 0, 0.5)',
           }}
+          language={match[1]}
+          PreTag='div'
+          style={vscDarkPlus}
           {...props}
         >
           {String(children).replace(/\n$/, '')}
@@ -36,9 +35,7 @@ const JiraDescriptionSimple = ({ jiraData }) => {
         <code
           className={className}
           style={{
-            background: isDark
-              ? 'rgba(255, 255, 255, 0.1)'
-              : 'rgba(0, 0, 0, 0.1)',
+            background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
             padding: '2px 6px',
             borderRadius: '4px',
             fontFamily: 'Monaco, Consolas, monospace',
@@ -52,60 +49,57 @@ const JiraDescriptionSimple = ({ jiraData }) => {
     },
     h1: ({ children }) => (
       <Typography
-        variant='h4'
         sx={{
           mt: 3,
           mb: 2,
           fontWeight: 700,
           color: isDark ? 'white' : 'black',
         }}
+        variant='h4'
       >
         {children}
       </Typography>
     ),
     h2: ({ children }) => (
       <Typography
-        variant='h5'
         sx={{
           mt: 2,
           mb: 1.5,
           fontWeight: 600,
           color: isDark ? 'white' : 'black',
         }}
+        variant='h5'
       >
         {children}
       </Typography>
     ),
     h3: ({ children }) => (
       <Typography
-        variant='h6'
         sx={{
           mt: 2,
           mb: 1,
           fontWeight: 600,
           color: isDark ? 'white' : 'black',
         }}
+        variant='h6'
       >
         {children}
       </Typography>
     ),
     p: ({ children }) => (
       <Typography
-        variant='body1'
         sx={{
           mb: 2,
           lineHeight: 1.7,
           color: isDark ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
         }}
+        variant='body1'
       >
         {children}
       </Typography>
     ),
     strong: ({ children }) => (
-      <Box
-        component='strong'
-        sx={{ color: isDark ? 'white' : 'black', fontWeight: 700 }}
-      >
+      <Box component='strong' sx={{ color: isDark ? 'white' : 'black', fontWeight: 700 }}>
         {children}
       </Box>
     ),
@@ -141,11 +135,11 @@ const JiraDescriptionSimple = ({ jiraData }) => {
     li: ({ children }) => (
       <Typography
         component='li'
-        variant='body1'
         sx={{
           mb: 0.5,
           color: isDark ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)',
         }}
+        variant='body1'
       >
         {children}
       </Typography>
@@ -169,27 +163,20 @@ const JiraDescriptionSimple = ({ jiraData }) => {
 
   return (
     <MotionPaper
+      animate={{ opacity: 1, y: 0 }}
       elevation={0}
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
       sx={{
-        background: isDark
-          ? 'rgba(45, 55, 72, 0.95)'
-          : 'rgba(255, 255, 255, 0.95)',
+        background: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(20px)',
-        border: isDark
-          ? '1px solid rgba(255, 255, 255, 0.1)'
-          : '1px solid rgba(0, 0, 0, 0.1)',
+        border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
         borderRadius: 3,
         overflow: 'hidden',
       }}
+      transition={{ duration: 0.5 }}
     >
       <Box sx={{ p: 3 }}>
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={MarkdownComponents}
-        >
+        <ReactMarkdown components={MarkdownComponents} remarkPlugins={[remarkGfm]}>
           {description}
         </ReactMarkdown>
       </Box>

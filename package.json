@@ -1,6 +1,6 @@
 {
   "name": "ai-workflow-utils",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "type": "module",
   "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems. Includes startup service management for automatic system boot integration.",
   "main": "dist/server.js",
@@ -68,8 +68,14 @@
     "prepublishOnly": "npm run build",
     "format": "prettier --write \"ui/src/**/*.{js,jsx,ts,tsx,json,css,md}\" \"server/**/*.{js,ts,json}\" \"*.{js,ts,json,md}\"",
     "format:check": "prettier --check \"ui/src/**/*.{js,jsx,ts,tsx,json,css,md}\" \"server/**/*.{js,ts,json}\" \"*.{js,ts,json,md}\"",
-    "lint": "cd ui && eslint .",
-    "lint:fix": "cd ui && eslint . --fix"
+    "lint": "npm run lint:server && npm run lint:ui",
+    "lint:fix": "npm run lint:server:fix && npm run lint:ui:fix",
+    "lint:server": "eslint server/ bin/ scripts/ --ext .js",
+    "lint:server:fix": "eslint server/ bin/ scripts/ --ext .js --fix",
+    "lint:ui": "cd ui && eslint .",
+    "lint:ui:fix": "cd ui && eslint . --fix",
+    "lint:check": "npm run lint",
+    "refactor:check": "npm run lint -- --max-warnings 0"
   },
   "author": {
     "name": "Anurag Arwalkar",
@@ -77,11 +83,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@dnd-kit/core": "^6.3.1",
-    "@dnd-kit/sortable": "^10.0.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@fontsource/roboto": "^5.2.6",
     "@langchain/core": "^0.3.66",
     "@langchain/google-genai": "^0.1.0",
     "@langchain/ollama": "^0.2.3",
@@ -114,8 +117,7 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "unidiff": "^1.0.4",
-    "winston": "^3.17.0",
-    "zod": "^3.25.76"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
@@ -128,9 +130,11 @@
     "eslint": "^9.30.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.3",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "nock": "^14.0.9",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
     "vite": "^5.4.19",

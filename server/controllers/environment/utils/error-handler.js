@@ -23,17 +23,11 @@ export class ErrorHandler {
     // Determine appropriate status code
     let statusCode = 500;
 
-    if (
-      error.message.includes('Invalid configuration') ||
-      error.message.includes('validation')
-    ) {
+    if (error.message.includes('Invalid configuration') || error.message.includes('validation')) {
       statusCode = 400;
     } else if (error.message.includes('not found')) {
       statusCode = 404;
-    } else if (
-      error.message.includes('unauthorized') ||
-      error.message.includes('authentication')
-    ) {
+    } else if (error.message.includes('unauthorized') || error.message.includes('authentication')) {
       statusCode = 401;
     }
 

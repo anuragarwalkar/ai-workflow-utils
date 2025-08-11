@@ -1,44 +1,50 @@
-import React, { useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
+  Alert,
   Box,
-  TextField,
   Button,
-  Typography,
-  Stack,
   CircularProgress,
-  styled,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+  styled,
 } from '@mui/material';
 import {
+  Add as AddIcon,
   CloudUpload,
   Delete as DeleteIcon,
-  Add as AddIcon,
+  Info as InfoIcon,
 } from '@mui/icons-material';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  setPrompt,
-  setImageFile,
-  setIssueType,
-  setPriority,
-  setProjectType,
-  setCustomFields,
   addCustomField,
   removeCustomField,
+  setCustomFields,
+  setImageFile,
+  setIssueType,
+  setPreviewData,
+  setPriority,
+  setProjectType,
+  setPrompt,
+  setStreaming,
+  setStreamingContent,
+  setStreamingStatus,
   updateCustomField,
 } from '../../../store/slices/jiraSlice';
 import { usePreviewJiraStreamingMutation } from '../../../store/api/jiraApi';
 import { showNotification } from '../../../store/slices/uiSlice';
-import {
-  setPreviewData,
-  setStreamingContent,
-  setStreamingStatus,
-  setStreaming,
-} from '../../../store/slices/jiraSlice';
 import { saveToLocalStorage } from './utils';
+import CustomFieldGuide from '../CustomFieldGuide/CustomFieldGuide';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -65,6 +71,7 @@ const JiraForm = () => {
     isStreaming,
   } = useSelector(state => state.jira.createJira);
 
+  const [isCustomFieldGuideOpen, setIsCustomFieldGuideOpen] = useState(false);
   const [previewJiraStreaming] = usePreviewJiraStreamingMutation();
 
   const loadFromLocalStorage = useCallback(() => {
@@ -94,10 +101,7 @@ const JiraForm = () => {
         dispatch(setProjectType(savedData.projectType));
       }
       // Load custom fields for the current issue type
-      if (
-        savedData.customFieldsByType &&
-        savedData.customFieldsByType[issueType]
-      ) {
+      if (savedData.customFieldsByType && savedData.customFieldsByType[issueType]) {
         dispatch(setCustomFields(savedData.customFieldsByType[issueType]));
       } else {
         dispatch(setCustomFields([]));
@@ -108,11 +112,7 @@ const JiraForm = () => {
   // Handle issue type changes - load custom fields for the selected issue type
   useEffect(() => {
     const savedData = loadFromLocalStorage();
-    if (
-      savedData &&
-      savedData.customFieldsByType &&
-      savedData.customFieldsByType[issueType]
-    ) {
+    if (savedData && savedData.customFieldsByType && savedData.customFieldsByType[issueType]) {
       dispatch(setCustomFields(savedData.customFieldsByType[issueType]));
     }
     // Don't clear custom fields if no saved data - let user keep working with current fields
@@ -230,30 +230,30 @@ const JiraForm = () => {
   const isLoading = isPreviewLoading || isStreaming;
 
   return (
-    <Box component='form' onSubmit={handleSubmit} sx={{ width: '100%' }}>
+    <Box component='form' sx={{ width: '100%' }} onSubmit={handleSubmit}>
       <Stack spacing={3}>
-        <Typography variant='h2' component='h2'>
+        <Typography component='h2' variant='h2'>
           Create Jira Issue
         </Typography>
 
         <TextField
-          label='Prompt'
+          fullWidth
           multiline
+          required
+          label='Prompt'
           rows={4}
           value={prompt}
-          onChange={handlePromptChange}
-          required
-          fullWidth
           variant='outlined'
+          onChange={handlePromptChange}
         />
 
         <FormControl fullWidth>
           <InputLabel id='issue-type-label'>Issue Type</InputLabel>
           <Select
-            labelId='issue-type-label'
             id='issue-type-select'
-            value={issueType}
             label='Issue Type'
+            labelId='issue-type-label'
+            value={issueType}
             onChange={handleIssueTypeChange}
           >
             <MenuItem value='Task'>Task</MenuItem>
@@ -265,10 +265,10 @@ const JiraForm = () => {
         <FormControl fullWidth>
           <InputLabel id='priority-label'>Priority</InputLabel>
           <Select
-            labelId='priority-label'
             id='priority-select'
-            value={priority}
             label='Priority'
+            labelId='priority-label'
+            value={priority}
             onChange={handlePriorityChange}
           >
             <MenuItem value='Critical'>Critical</MenuItem>
@@ -279,25 +279,95 @@ const JiraForm = () => {
         </FormControl>
 
         <TextField
-          label='Project Key'
-          value={projectType}
-          onChange={handleProjectTypeChange}
-          required
           fullWidth
-          variant='outlined'
+          required
+          label='Project Key'
           placeholder='e.g., AIWUT, PROJ, etc.'
+          value={projectType}
+          variant='outlined'
+          onChange={handleProjectTypeChange}
         />
 
         <Box>
-          <Typography variant='h6' gutterBottom>
-            Custom Fields ({issueType})
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <Typography gutterBottom variant='h6'>
+              Custom Fields ({issueType})
+            </Typography>
+            <Tooltip
+              arrow
+              placement='right-start'
+              title={
+                <Box sx={{ maxWidth: 400 }}>
+                  <Typography sx={{ mb: 1, fontWeight: 'bold' }} variant='body2'>
+                    Why Custom Fields Are Important:
+                  </Typography>
+                  <Typography sx={{ mb: 1 }} variant='body2'>
+                    • <strong>Compliance:</strong> Many organizations require specific custom fields
+                    to be populated for tracking, reporting, and workflow automation
+                  </Typography>
+                  <Typography sx={{ mb: 1 }} variant='body2'>
+                    • <strong>Workflow Triggers:</strong> Custom fields often trigger automated
+                    actions like notifications, approvals, or status transitions
+                  </Typography>
+                  <Typography sx={{ mb: 1 }} variant='body2'>
+                    • <strong>Data Integrity:</strong> Ensures all required project-specific
+                    information is captured consistently
+                  </Typography>
+                  <Typography sx={{ mb: 1 }} variant='body2'>
+                    • <strong>Reporting:</strong> Custom fields enable accurate filtering, grouping,
+                    and reporting across your organization
+                  </Typography>
+                  <Typography variant='body2'>
+                    <strong>Note:</strong> Required custom fields vary by project, issue type, and
+                    your organization's Jira configuration.
+                  </Typography>
+                </Box>
+              }
+            >
+              <IconButton size='small' sx={{ color: 'primary.main' }}>
+                <InfoIcon fontSize='small' />
+              </IconButton>
+            </Tooltip>
+          </Box>
+
+          <Typography color='text.secondary' sx={{ mb: 1 }} variant='body2'>
+            <strong>What are Custom Fields?</strong> Organization-specific fields required for{' '}
+            {issueType.toLowerCase()} issues that ensure proper tracking, compliance, and workflow
+            automation.
           </Typography>
-          <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-            These custom fields are specific to {issueType} issues and will be
-            saved separately for each issue type.
+
+          <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
+            These custom fields are specific to {issueType} issues and will be saved separately for
+            each issue type.
             <br />
-            <strong>Value formats:</strong> Simple text: "11222" | Object:{' '}
+            <strong>Value formats:</strong> Simple text: &quot;11222&quot; | Object:{' '}
             {`{"id": "21304"}`} | Array: {`["value1", "value2"]`}
+            {projectType?.trim() ? (
+              <>
+                <br />
+                <br />
+                💡 Need help finding custom field IDs?{' '}
+                <Button
+                  size='small'
+                  sx={{ textTransform: 'none', minWidth: 'auto', p: 0 }}
+                  variant='text'
+                  onClick={() => {
+                    if (projectType?.trim()) {
+                      setIsCustomFieldGuideOpen(true);
+                    } else {
+                      dispatch(
+                        showNotification({
+                          message: 'Please enter a Project Key first',
+                          severity: 'warning',
+                        })
+                      );
+                    }
+                  }}
+                >
+                  View available fields for &quot;{projectType}&quot;
+                </Button>
+              </>
+            ) : null}
           </Typography>
           {customFields.map((field, index) => (
             <Box
@@ -312,74 +382,57 @@ const JiraForm = () => {
             >
               <TextField
                 label='Field Key'
-                value={field.key}
-                style={{ marginBottom: 0 }}
-                onChange={e =>
-                  handleUpdateCustomField(index, 'key', e.target.value)
-                }
-                size='small'
-                sx={{ flex: 1 }}
                 placeholder='e.g., customfield_1234'
+                size='small'
+                style={{ marginBottom: 0 }}
+                sx={{ flex: 1 }}
+                value={field.key}
+                onChange={e => handleUpdateCustomField(index, 'key', e.target.value)}
               />
               <TextField
                 label='Field Value'
-                style={{ marginBottom: 0 }}
-                value={field.value}
-                onChange={e =>
-                  handleUpdateCustomField(index, 'value', e.target.value)
-                }
-                size='small'
-                sx={{ flex: 1 }}
                 placeholder='e.g., 11222 or {"id": "007"}'
-              />
-              <IconButton
-                onClick={() => handleRemoveCustomField(index)}
-                color='error'
                 size='small'
-              >
+                style={{ marginBottom: 0 }}
+                sx={{ flex: 1 }}
+                value={field.value}
+                onChange={e => handleUpdateCustomField(index, 'value', e.target.value)}
+              />
+              <IconButton color='error' size='small' onClick={() => handleRemoveCustomField(index)}>
                 <DeleteIcon />
               </IconButton>
             </Box>
           ))}
           <Button
-            onClick={handleAddCustomField}
+            size='small'
             startIcon={<AddIcon />}
             variant='outlined'
-            size='small'
+            onClick={handleAddCustomField}
           >
             Add Custom Field
           </Button>
         </Box>
 
         <Box>
-          <Button
-            component='label'
-            variant='outlined'
-            startIcon={<CloudUpload />}
-            sx={{ mb: 1 }}
-          >
+          <Button component='label' startIcon={<CloudUpload />} sx={{ mb: 1 }} variant='outlined'>
             Upload Image
-            <VisuallyHiddenInput
-              type='file'
-              accept='image/*'
-              onChange={handleImageChange}
-            />
+            <VisuallyHiddenInput accept='image/*' type='file' onChange={handleImageChange} />
           </Button>
-          {imageFile && (
-            <Typography variant='body2' color='text.secondary' component='div'>
+          {imageFile ? (
+            <Typography color='text.secondary' component='div' variant='body2'>
               Selected: {imageFile.name}
             </Typography>
-          )}
+          ) : null}
         </Box>
 
         <Button
+          disabled={isLoading}
+          size='large'
+          sx={{ position: 'relative' }}
           type='submit'
           variant='contained'
-          size='large'
-          disabled={isLoading}
-          sx={{ position: 'relative' }}
         >
-          {isLoading && (
+          {isLoading ? (
             <CircularProgress
               size={24}
               sx={{
@@ -390,10 +443,34 @@ const JiraForm = () => {
                 marginLeft: '-12px',
               }}
             />
-          )}
+          ) : null}
           {isLoading ? 'Generating Preview...' : 'Preview'}
         </Button>
       </Stack>
+
+      {/* Custom Field Guide Dialog */}
+      <Dialog
+        fullWidth
+        maxWidth='lg'
+        open={isCustomFieldGuideOpen}
+        onClose={() => setIsCustomFieldGuideOpen(false)}
+      >
+        <DialogTitle>Custom Fields Guide for {projectType || 'Project'}</DialogTitle>
+        <DialogContent>
+          {projectType?.trim() ? (
+            <CustomFieldGuide issueType={issueType} projectKey={projectType} />
+          ) : (
+            <Alert severity='warning'>
+              <Typography>
+                Please enter a Project Key first to view custom fields for that project.
+              </Typography>
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsCustomFieldGuideOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

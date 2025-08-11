@@ -1,19 +1,19 @@
-import { Paper, Typography, Box, Chip } from '@mui/material';
+import { Box, Chip, Paper, Typography } from '@mui/material';
 import {
   Timeline,
-  TimelineItem,
-  TimelineSeparator,
   TimelineConnector,
   TimelineContent,
   TimelineDot,
+  TimelineItem,
+  TimelineSeparator,
 } from '@mui/lab';
 import {
-  Timeline as TimelineIcon,
-  Create,
-  Edit,
   Assignment,
   Comment,
+  Create,
   Done,
+  Edit,
+  Timeline as TimelineIcon,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useAppTheme } from '../../../../theme/useAppTheme';
@@ -91,21 +91,17 @@ const JiraTimelineSimple = ({ jiraData }) => {
       {/* Main Timeline */}
       <Box sx={{ flex: 2 }}>
         <MotionPaper
+          animate={{ opacity: 1, x: 0 }}
           elevation={0}
           initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
           sx={{
-            background: isDark
-              ? 'rgba(45, 55, 72, 0.95)'
-              : 'rgba(255, 255, 255, 0.95)',
+            background: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
-            border: isDark
-              ? '1px solid rgba(255, 255, 255, 0.1)'
-              : '1px solid rgba(0, 0, 0, 0.1)',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
             borderRadius: 2,
             overflow: 'hidden',
           }}
+          transition={{ duration: 0.5 }}
         >
           {/* Header */}
           <Box
@@ -121,10 +117,7 @@ const JiraTimelineSimple = ({ jiraData }) => {
             }}
           >
             <TimelineIcon color='primary' sx={{ fontSize: 18 }} />
-            <Typography
-              variant='subtitle1'
-              sx={{ fontWeight: 600, fontSize: '0.9rem' }}
-            >
+            <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }} variant='subtitle1'>
               Activity Timeline
             </Typography>
           </Box>
@@ -148,8 +141,7 @@ const JiraTimelineSimple = ({ jiraData }) => {
                   <TimelineSeparator>
                     <TimelineDot
                       sx={{
-                        background:
-                          'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                        background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                         border: 'none',
                         boxShadow: '0 0 8px rgba(102, 126, 234, 0.3)',
                         p: 0.5,
@@ -179,26 +171,23 @@ const JiraTimelineSimple = ({ jiraData }) => {
                         mb: 0.25,
                       }}
                     >
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 600, fontSize: '0.85rem' }}
-                      >
+                      <Typography sx={{ fontWeight: 600, fontSize: '0.85rem' }} variant='body2'>
                         {event.title}
                       </Typography>
                     </Box>
 
                     <Typography
-                      variant='caption'
                       color='text.secondary'
                       sx={{ mb: 0.25, fontSize: '0.75rem' }}
+                      variant='caption'
                     >
                       {event.description}
                     </Typography>
 
                     <Typography
-                      variant='caption'
                       color='text.secondary'
                       sx={{ fontSize: '0.7rem' }}
+                      variant='caption'
                     >
                       {formatDate(event.timestamp)}
                     </Typography>
@@ -213,27 +202,19 @@ const JiraTimelineSimple = ({ jiraData }) => {
       {/* Quick Info Sidebar */}
       <Box sx={{ flex: 1 }}>
         <MotionPaper
+          animate={{ opacity: 1, x: 0 }}
           elevation={0}
           initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
           sx={{
-            background: isDark
-              ? 'rgba(45, 55, 72, 0.95)'
-              : 'rgba(255, 255, 255, 0.95)',
+            background: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
-            border: isDark
-              ? '1px solid rgba(255, 255, 255, 0.1)'
-              : '1px solid rgba(0, 0, 0, 0.1)',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
             borderRadius: 2,
             p: 1.5,
           }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Typography
-            variant='caption'
-            color='text.secondary'
-            sx={{ mb: 1.5, fontWeight: 600 }}
-          >
+          <Typography color='text.secondary' sx={{ mb: 1.5, fontWeight: 600 }} variant='caption'>
             Quick Info
           </Typography>
 
@@ -245,15 +226,15 @@ const JiraTimelineSimple = ({ jiraData }) => {
                 alignItems: 'center',
               }}
             >
-              <Typography variant='caption' color='text.secondary'>
+              <Typography color='text.secondary' variant='caption'>
                 Status
               </Typography>
               <Chip
+                color='primary'
                 label={fields.status?.name || 'Unknown'}
                 size='small'
-                color='primary'
-                variant='outlined'
                 sx={{ height: 20, fontSize: '0.65rem' }}
+                variant='outlined'
               />
             </Box>
 
@@ -264,12 +245,10 @@ const JiraTimelineSimple = ({ jiraData }) => {
                 alignItems: 'center',
               }}
             >
-              <Typography variant='caption' color='text.secondary'>
+              <Typography color='text.secondary' variant='caption'>
                 Priority
               </Typography>
               <Chip
-                label={fields.priority?.name || 'Medium'}
-                size='small'
                 color={
                   fields.priority?.name?.toLowerCase() === 'high'
                     ? 'error'
@@ -277,8 +256,10 @@ const JiraTimelineSimple = ({ jiraData }) => {
                       ? 'success'
                       : 'warning'
                 }
-                variant='outlined'
+                label={fields.priority?.name || 'Medium'}
+                size='small'
                 sx={{ height: 20, fontSize: '0.65rem' }}
+                variant='outlined'
               />
             </Box>
 
@@ -289,10 +270,10 @@ const JiraTimelineSimple = ({ jiraData }) => {
                 alignItems: 'center',
               }}
             >
-              <Typography variant='caption' color='text.secondary'>
+              <Typography color='text.secondary' variant='caption'>
                 Resolution
               </Typography>
-              <Typography variant='caption' sx={{ fontSize: '0.7rem' }}>
+              <Typography sx={{ fontSize: '0.7rem' }} variant='caption'>
                 {fields.resolution?.name || 'Unresolved'}
               </Typography>
             </Box>

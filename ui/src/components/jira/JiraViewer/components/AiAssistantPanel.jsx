@@ -1,37 +1,37 @@
 import React, { useState } from 'react';
 import {
-  Drawer,
-  Typography,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
-  IconButton,
-  Divider,
   Button,
-  TextField,
-  Paper,
   Chip,
   CircularProgress,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Divider,
+  Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
+  Paper,
+  TextField,
+  Typography,
 } from '@mui/material';
 import {
-  Close,
   AutoAwesome,
-  Send,
-  Lightbulb,
-  TrendingUp,
-  Psychology,
-  Speed,
-  ExpandMore,
-  SmartToy,
+  Close,
   Code,
+  ExpandMore,
+  Lightbulb,
+  Psychology,
+  Send,
+  SmartToy,
+  Speed,
   Transform,
+  TrendingUp,
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   useEnhanceDescriptionMutation,
   useGenerateCommentReplyMutation,
@@ -235,8 +235,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
   return (
     <Drawer
       anchor='right'
-      open={true}
-      onClose={onClose}
+      open
       PaperProps={{
         sx: {
           width: 450,
@@ -246,13 +245,14 @@ Would you like me to provide more specific guidance on any of these aspects?`;
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
         },
       }}
+      onClose={onClose}
     >
       <motion.div
-        initial={{ x: 450 }}
         animate={{ x: 0 }}
         exit={{ x: 450 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+        initial={{ x: 450 }}
         style={{ height: '100%' }}
+        transition={{ type: 'spring', damping: 25, stiffness: 120 }}
       >
         {/* Header */}
         <Box
@@ -267,11 +267,11 @@ Would you like me to provide more specific guidance on any of these aspects?`;
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <SmartToy />
-            <Typography variant='h6' sx={{ fontWeight: 600 }}>
+            <Typography sx={{ fontWeight: 600 }} variant='h6'>
               AI Assistant
             </Typography>
           </Box>
-          <IconButton onClick={onClose} sx={{ color: 'white' }}>
+          <IconButton sx={{ color: 'white' }} onClick={onClose}>
             <Close />
           </IconButton>
         </Box>
@@ -279,8 +279,8 @@ Would you like me to provide more specific guidance on any of these aspects?`;
         <Box sx={{ p: 3, height: 'calc(100% - 80px)', overflow: 'auto' }}>
           {/* Issue Context */}
           <MotionPaper
-            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20 }}
             sx={{
               p: 2,
               mb: 3,
@@ -288,77 +288,75 @@ Would you like me to provide more specific guidance on any of these aspects?`;
               border: '1px solid rgba(102, 126, 234, 0.3)',
             }}
           >
-            <Typography variant='subtitle2' sx={{ mb: 1 }}>
+            <Typography sx={{ mb: 1 }} variant='subtitle2'>
               Current Issue Context
             </Typography>
-            <Typography variant='caption' color='text.secondary'>
+            <Typography color='text.secondary' variant='caption'>
               {jiraData?.key} - {jiraData?.fields?.summary}
             </Typography>
           </MotionPaper>
 
           {/* AI Features */}
-          <Typography variant='h6' sx={{ mb: 2, fontWeight: 600 }}>
+          <Typography sx={{ mb: 2, fontWeight: 600 }} variant='h6'>
             AI-Powered Features
           </Typography>
 
           <Box sx={{ mb: 3 }}>
-            {['Content', 'Analysis', 'Communication', 'Development'].map(
-              category => (
-                <Accordion
-                  key={category}
-                  sx={{
-                    mb: 1,
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    border: '1px solid rgba(0, 0, 0, 0.05)',
-                    '&:before': { display: 'none' },
-                    borderRadius: 2,
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-                  }}
-                >
-                  <AccordionSummary expandIcon={<ExpandMore />}>
-                    <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                      {category}
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails sx={{ p: 0 }}>
-                    <List>
-                      {aiFeatures
-                        .filter(feature => feature.category === category)
-                        .map(feature => (
-                          <ListItem
-                            key={feature.id}
-                            button
-                            onClick={() => handleFeatureSelect(feature)}
-                            sx={{
-                              borderRadius: 1,
-                              mb: 0.5,
-                              '&:hover': {
-                                background: 'rgba(102, 126, 234, 0.1)',
-                              },
+            {['Content', 'Analysis', 'Communication', 'Development'].map(category => (
+              <Accordion
+                key={category}
+                sx={{
+                  mb: 1,
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  border: '1px solid rgba(0, 0, 0, 0.05)',
+                  '&:before': { display: 'none' },
+                  borderRadius: 2,
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                }}
+              >
+                <AccordionSummary expandIcon={<ExpandMore />}>
+                  <Typography sx={{ fontWeight: 600 }} variant='subtitle1'>
+                    {category}
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 0 }}>
+                  <List>
+                    {aiFeatures
+                      .filter(feature => feature.category === category)
+                      .map(feature => (
+                        <ListItem
+                          button
+                          key={feature.id}
+                          sx={{
+                            borderRadius: 1,
+                            mb: 0.5,
+                            '&:hover': {
+                              background: 'rgba(102, 126, 234, 0.1)',
+                            },
+                          }}
+                          onClick={() => handleFeatureSelect(feature)}
+                        >
+                          <ListItemIcon>{feature.icon}</ListItemIcon>
+                          <ListItemText
+                            primary={feature.title}
+                            primaryTypographyProps={{
+                              variant: 'body2',
+                              fontWeight: 500,
                             }}
-                          >
-                            <ListItemIcon>{feature.icon}</ListItemIcon>
-                            <ListItemText
-                              primary={feature.title}
-                              secondary={feature.description}
-                              primaryTypographyProps={{
-                                variant: 'body2',
-                                fontWeight: 500,
-                              }}
-                              secondaryTypographyProps={{ variant: 'caption' }}
-                            />
-                          </ListItem>
-                        ))}
-                    </List>
-                  </AccordionDetails>
-                </Accordion>
-              )
-            )}
+                            secondary={feature.description}
+                            secondaryTypographyProps={{ variant: 'caption' }}
+                          />
+                        </ListItem>
+                      ))}
+                  </List>
+                </AccordionDetails>
+              </Accordion>
+            ))}
           </Box>
 
           {/* AI Response Area */}
           <AnimatePresence>
-            {(activeFeature || isProcessing) && (
+            {activeFeature || isProcessing ? (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -367,9 +365,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
               >
                 <Divider sx={{ my: 2 }} />
 
-                <Box
-                  sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}
-                >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                   <AutoAwesome color='primary' />
                   <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
                     {activeFeature?.title || 'AI Analysis'}
@@ -399,9 +395,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                       }}
                     >
                       <CircularProgress size={20} />
-                      <Typography variant='body2'>
-                        AI is analyzing...
-                      </Typography>
+                      <Typography variant='body2'>AI is analyzing...</Typography>
                     </Box>
                   ) : (
                     <Typography
@@ -416,13 +410,13 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                   )}
                 </MotionPaper>
               </motion.div>
-            )}
+            ) : null}
           </AnimatePresence>
 
           <Divider sx={{ my: 3 }} />
 
           {/* AI Chat */}
-          <Typography variant='h6' sx={{ mb: 2, fontWeight: 600 }}>
+          <Typography sx={{ mb: 2, fontWeight: 600 }} variant='h6'>
             Ask AI Anything
           </Typography>
 
@@ -435,38 +429,33 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                   p: 1.5,
                   borderRadius: 2,
                   background:
-                    chat.type === 'user'
-                      ? 'rgba(102, 126, 234, 0.2)'
-                      : 'rgba(255, 255, 255, 0.8)',
+                    chat.type === 'user' ? 'rgba(102, 126, 234, 0.2)' : 'rgba(255, 255, 255, 0.8)',
                   border: '1px solid rgba(0, 0, 0, 0.05)',
                   ml: chat.type === 'user' ? 2 : 0,
                   mr: chat.type === 'ai' ? 2 : 0,
                   boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
                 }}
               >
-                <Typography variant='body2' sx={{ whiteSpace: 'pre-wrap' }}>
+                <Typography sx={{ whiteSpace: 'pre-wrap' }} variant='body2'>
                   {chat.message}
                 </Typography>
               </Box>
             ))}
-            {isProcessing && (
+            {isProcessing ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1 }}>
                 <CircularProgress size={16} />
-                <Typography variant='body2' color='text.secondary'>
+                <Typography color='text.secondary' variant='body2'>
                   AI is typing...
                 </Typography>
               </Box>
-            )}
+            ) : null}
           </Box>
 
           <Box sx={{ display: 'flex', gap: 1 }}>
             <TextField
               fullWidth
-              size='small'
               placeholder='Ask me anything about this issue...'
-              value={userInput}
-              onChange={e => setUserInput(e.target.value)}
-              onKeyPress={e => e.key === 'Enter' && handleChatSubmit()}
+              size='small'
               sx={{
                 '& .MuiOutlinedInput-root': {
                   background: 'rgba(255, 255, 255, 0.9)',
@@ -481,18 +470,20 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                   },
                 },
               }}
+              value={userInput}
+              onChange={e => setUserInput(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && handleChatSubmit()}
             />
             <IconButton
-              onClick={handleChatSubmit}
               disabled={!userInput.trim() || isProcessing}
               sx={{
                 background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 color: 'white',
                 '&:hover': {
-                  background:
-                    'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
+                  background: 'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
                 },
               }}
+              onClick={handleChatSubmit}
             >
               <Send />
             </IconButton>
@@ -500,33 +491,27 @@ Would you like me to provide more specific guidance on any of these aspects?`;
 
           {/* Quick Actions */}
           <Box sx={{ mt: 3 }}>
-            <Typography variant='subtitle2' sx={{ mb: 1 }}>
+            <Typography sx={{ mb: 1 }} variant='subtitle2'>
               Quick Actions
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               <Chip
                 label='Analyze Impact'
                 size='small'
-                onClick={() =>
-                  setUserInput('What is the potential impact of this issue?')
-                }
                 sx={{ cursor: 'pointer' }}
+                onClick={() => setUserInput('What is the potential impact of this issue?')}
               />
               <Chip
                 label='Suggest Testing'
                 size='small'
-                onClick={() =>
-                  setUserInput('What testing approach would you recommend?')
-                }
                 sx={{ cursor: 'pointer' }}
+                onClick={() => setUserInput('What testing approach would you recommend?')}
               />
               <Chip
                 label='Timeline Estimate'
                 size='small'
-                onClick={() =>
-                  setUserInput('How long might this take to resolve?')
-                }
                 sx={{ cursor: 'pointer' }}
+                onClick={() => setUserInput('How long might this take to resolve?')}
               />
             </Box>
           </Box>

@@ -1,11 +1,23 @@
 import express from 'express';
-import { JiraController } from '../controllers/jira/index.js';
-import { asyncHandler, createRateLimit } from '../middleware/index.js';
+import {
+  createJiraIssueHandler,
+  enhanceDescriptionHandler,
+  fetchJiraSummariesHandler,
+  formatCommentHandler,
+  generateCommentReplyHandler,
+  getJiraIssue,
+  previewBugReport,
+  uploadImage,
+} from '../controllers/jira/handlers/jira-handlers.js';
+import {
+  fetchAllCustomFieldsHandler,
+  fetchCustomFieldValuesHandler,
+} from '../controllers/jira/handlers/custom-field-handlers.js';
+import { createRateLimit } from '../middleware/index.js';
 import multer from 'multer';
 import path from 'path';
 
 const router = express.Router();
-const jiraController = JiraController;
 
 // Configure multer with better options
 const storage = multer.diskStorage({
@@ -13,11 +25,8 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)
-    );
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
   },
 });
 
@@ -41,11 +50,14 @@ const upload = multer({
 const jiraRateLimit = createRateLimit(15 * 60 * 1000, 50); // 50 requests per 15 minutes
 router.use(jiraRateLimit);
 
+// Route for fetching summaries
+router.post('/summaries', fetchJiraSummariesHandler);
+
 // Route for preview bug report
-router.post('/preview', asyncHandler(jiraController.previewBugReport));
+router.post('/preview', previewBugReport);
 
 // Route for generating Jira issue
-router.post('/generate', asyncHandler(jiraController.createJiraIssue));
+router.post('/generate', createJiraIssueHandler);
 
 // Route for uploading files with error handling
 router.post(
@@ -54,9 +66,7 @@ router.post(
     upload.single('file')(req, res, err => {
       if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
-          return res
-            .status(400)
-            .json({ error: 'File too large. Maximum size is 10MB.' });
+          return res.status(400).json({ error: 'File too large. Maximum size is 10MB.' });
         }
         return res.status(400).json({ error: `Upload error: ${err.message}` });
       } else if (err) {
@@ -65,21 +75,19 @@ router.post(
       next();
     });
   },
-  asyncHandler(jiraController.uploadImage)
+  uploadImage
 );
 
 // Route for fetching a Jira issue by ID
-router.get('/issue/:id', asyncHandler(jiraController.getJiraIssue));
+router.get('/issue/:id', getJiraIssue);
 
 // AI-powered enhancement routes
-router.post(
-  '/ai/enhance-description',
-  asyncHandler(jiraController.enhanceDescription)
-);
-router.post(
-  '/ai/generate-comment-reply',
-  asyncHandler(jiraController.generateCommentReply)
-);
-router.post('/ai/format-comment', asyncHandler(jiraController.formatComment));
+router.post('/ai/enhance-description', enhanceDescriptionHandler);
+router.post('/ai/generate-comment-reply', generateCommentReplyHandler);
+router.post('/ai/format-comment', formatCommentHandler);
+
+// Custom field routes
+router.get('/custom-fields', fetchAllCustomFieldsHandler);
+router.get('/custom-fields/:fieldId/values/:projectKey', fetchCustomFieldValuesHandler);
 
 export default router;

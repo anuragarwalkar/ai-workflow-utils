@@ -3,7 +3,7 @@
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
-import { execSync, spawn } from 'child_process';
+import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 // Get the directory where the package is installed
@@ -53,7 +53,6 @@ class StartupManager {
       console.log('   • Stop:    ai-workflow-utils startup stop');
       console.log('   • Status:  ai-workflow-utils startup status');
       console.log('   • Remove:  ai-workflow-utils startup uninstall');
-
     } catch (error) {
       console.error('❌ Failed to install startup service:', error.message);
       process.exit(1);
@@ -62,7 +61,7 @@ class StartupManager {
 
   async uninstall() {
     console.log('🗑️  Removing AI Workflow Utils startup service...');
-    
+
     try {
       switch (this.platform) {
         case 'darwin':
@@ -87,7 +86,7 @@ class StartupManager {
 
   async start() {
     console.log('▶️  Starting AI Workflow Utils service...');
-    
+
     try {
       switch (this.platform) {
         case 'darwin':
@@ -109,7 +108,7 @@ class StartupManager {
 
   async stop() {
     console.log('⏹️  Stopping AI Workflow Utils service...');
-    
+
     try {
       switch (this.platform) {
         case 'darwin':
@@ -131,7 +130,7 @@ class StartupManager {
 
   async status() {
     console.log('🔍 Checking AI Workflow Utils service status...');
-    
+
     try {
       switch (this.platform) {
         case 'darwin':
@@ -152,22 +151,18 @@ class StartupManager {
   async installMacOS() {
     const launchAgentsDir = path.join(os.homedir(), 'Library', 'LaunchAgents');
     const plistPath = path.join(launchAgentsDir, `${this.serviceName}.plist`);
-    
+
     // Get the full path to Node.js, handling NVM installations
     let nodePath;
     try {
       nodePath = execSync('which node', { encoding: 'utf8' }).trim();
     } catch (error) {
       // Fallback to common Node.js locations
-      const commonPaths = [
-        '/usr/local/bin/node',
-        '/opt/homebrew/bin/node',
-        process.execPath
-      ];
-      
+      const commonPaths = ['/usr/local/bin/node', '/opt/homebrew/bin/node', process.execPath];
+
       nodePath = commonPaths.find(p => fs.existsSync(p)) || process.execPath;
     }
-    
+
     const cliPath = path.join(this.packageDir, 'bin', 'cli.js');
 
     // Ensure LaunchAgents directory exists
@@ -222,7 +217,7 @@ class StartupManager {
     console.log(`📝 Created plist file: ${plistPath}`);
     console.log(`🔧 Using Node.js at: ${nodePath}`);
     console.log(`📁 CLI path: ${cliPath}`);
-    console.log(`📊 Logs will be written to:`);
+    console.log('📊 Logs will be written to:');
     console.log(`   • Output: ${os.homedir()}/Library/Logs/${this.serviceName}.log`);
     console.log(`   • Errors: ${os.homedir()}/Library/Logs/${this.serviceName}.error.log`);
 
@@ -232,8 +227,13 @@ class StartupManager {
   }
 
   async uninstallMacOS() {
-    const plistPath = path.join(os.homedir(), 'Library', 'LaunchAgents', `${this.serviceName}.plist`);
-    
+    const plistPath = path.join(
+      os.homedir(),
+      'Library',
+      'LaunchAgents',
+      `${this.serviceName}.plist`
+    );
+
     if (fs.existsSync(plistPath)) {
       try {
         execSync(`launchctl unload ${plistPath}`, { stdio: 'pipe' });
@@ -250,7 +250,7 @@ class StartupManager {
   async installWindows() {
     const servicePath = path.join(this.packageDir, 'bin', 'windows-service.js');
     const nodePath = process.execPath;
-    
+
     // Create Windows service wrapper
     this.createWindowsServiceWrapper(servicePath);
 
@@ -275,7 +275,7 @@ class StartupManager {
     } catch (error) {
       // Ignore if service is already stopped
     }
-    
+
     execSync(`sc delete "${this.serviceName}"`, { stdio: 'inherit' });
     console.log('🗑️  Windows service removed');
 
@@ -356,7 +356,7 @@ if (process.argv.includes('--install')) {
     const serviceFilePath = `/etc/systemd/system/${this.serviceName}.service`;
     const nodePath = execSync('which node', { encoding: 'utf8' }).trim();
     const cliPath = path.join(this.packageDir, 'bin', 'cli.js');
-    const username = os.userInfo().username;
+    const { username } = os.userInfo();
 
     const serviceContent = `[Unit]
 Description=AI Workflow Utils - Comprehensive automation platform
@@ -394,7 +394,7 @@ WantedBy=multi-user.target`;
 
   async uninstallLinux() {
     const serviceFilePath = `/etc/systemd/system/${this.serviceName}.service`;
-    
+
     try {
       execSync(`sudo systemctl stop ${this.serviceName}`, { stdio: 'pipe' });
       execSync(`sudo systemctl disable ${this.serviceName}`, { stdio: 'pipe' });
@@ -434,7 +434,7 @@ async function main() {
       break;
     default:
       console.log('🚀 AI Workflow Utils - Startup Manager');
-      console.log('=' .repeat(50));
+      console.log('='.repeat(50));
       console.log('Usage: ai-workflow-utils startup <command>');
       console.log('');
       console.log('Commands:');
@@ -452,7 +452,7 @@ async function main() {
   }
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error('❌ Startup manager failed:', error.message);
   process.exit(1);
 });

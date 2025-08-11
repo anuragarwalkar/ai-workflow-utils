@@ -10,9 +10,7 @@ class TemplateService {
       await templateDbService.init();
       const template = await templateDbService.getActiveTemplate(templateType);
       if (!template) {
-        logger.warn(
-          `No active template found for ${templateType}, using fallback`
-        );
+        logger.warn(`No active template found for ${templateType}, using fallback`);
         return null;
       }
       return template;

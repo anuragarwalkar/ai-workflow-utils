@@ -18,10 +18,7 @@ class EnvironmentController {
       await EnvironmentConfigService.initialize();
       logger.info('Environment settings controller initialized');
     } catch (error) {
-      logger.error(
-        'Failed to initialize environment settings controller:',
-        error
-      );
+      logger.error('Failed to initialize environment settings controller:', error);
     }
   }
 
@@ -30,8 +27,7 @@ class EnvironmentController {
    */
   getSettings = async (req, res) => {
     try {
-      const structuredConfig =
-        await EnvironmentConfigService.getStructuredSettings();
+      const structuredConfig = await EnvironmentConfigService.getStructuredSettings();
 
       res.json({
         success: true,
@@ -52,8 +48,7 @@ class EnvironmentController {
 
       // If no valid updates after filtering, return current config
       if (Object.keys(updates).length === 0) {
-        const currentConfig =
-          await EnvironmentConfigService.getStructuredSettings();
+        const currentConfig = await EnvironmentConfigService.getStructuredSettings();
         return res.json({
           success: true,
           data: currentConfig,
@@ -68,8 +63,7 @@ class EnvironmentController {
       await EnvironmentConfigService.updateSettings(updates);
 
       // Return the updated structured config
-      const structuredConfig =
-        await EnvironmentConfigService.getStructuredSettings();
+      const structuredConfig = await EnvironmentConfigService.getStructuredSettings();
 
       res.json({
         success: true,
@@ -127,10 +121,7 @@ class EnvironmentController {
         });
       }
 
-      const testResult = await ProviderConnectionService.testConnection(
-        provider,
-        testConfig
-      );
+      const testResult = await ProviderConnectionService.testConnection(provider, testConfig);
 
       res.json({
         success: true,
@@ -163,8 +154,7 @@ class EnvironmentController {
   resetSettings = async (req, res) => {
     try {
       await EnvironmentConfigService.resetToDefaults();
-      const structuredConfig =
-        await EnvironmentConfigService.getStructuredSettings();
+      const structuredConfig = await EnvironmentConfigService.getStructuredSettings();
 
       res.json({
         success: true,
@@ -224,8 +214,7 @@ class EnvironmentController {
       }
 
       await EnvironmentConfigService.importSettings(importData);
-      const structuredConfig =
-        await EnvironmentConfigService.getStructuredSettings();
+      const structuredConfig = await EnvironmentConfigService.getStructuredSettings();
 
       res.json({
         success: true,

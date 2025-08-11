@@ -1,34 +1,19 @@
 import React from 'react';
+import { AppBar, Box, Chip, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
 import {
-  AppBar,
-  Toolbar,
-  Box,
-  IconButton,
-  Typography,
-  Chip,
-  Tooltip,
-} from '@mui/material';
-import {
+  BugReport,
   Home,
   Refresh,
+  Share,
   Star,
   StarBorder,
-  Share,
-  BugReport,
-  Task,
   SubdirectoryArrowRight,
+  Task,
 } from '@mui/icons-material';
 import { useAppTheme } from '../../../../theme/useAppTheme';
 import ThemeToggle from '../../../common/ThemeToggle';
 
-const JiraNavigationBar = ({
-  jiraData,
-  isStarred,
-  onBack,
-  onRefresh,
-  onShare,
-  onToggleStar,
-}) => {
+const JiraNavigationBar = ({ jiraData, isStarred, onBack, onRefresh, onShare, onToggleStar }) => {
   const { isDark } = useAppTheme();
 
   const getIssueIcon = issueType => {
@@ -65,12 +50,10 @@ const JiraNavigationBar = ({
 
   return (
     <AppBar
-      position='static'
       elevation={0}
+      position='static'
       sx={{
-        background: isDark
-          ? 'rgba(15, 15, 35, 0.95)'
-          : 'rgba(230, 232, 240, 0.95)',
+        background: isDark ? 'rgba(15, 15, 35, 0.95)' : 'rgba(230, 232, 240, 0.95)',
         backdropFilter: 'blur(20px)',
         borderBottom: isDark
           ? '1px solid rgba(255, 255, 255, 0.1)'
@@ -82,20 +65,16 @@ const JiraNavigationBar = ({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Tooltip title='Go Home'>
             <IconButton
-              onClick={onBack}
               sx={{
                 color: isDark ? 'white' : '#2d3748',
-                background: isDark
-                  ? 'rgba(255, 255, 255, 0.1)'
-                  : 'rgba(45, 55, 72, 0.1)',
+                background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(45, 55, 72, 0.1)',
                 '&:hover': {
-                  background: isDark
-                    ? 'rgba(255, 255, 255, 0.2)'
-                    : 'rgba(45, 55, 72, 0.2)',
+                  background: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(45, 55, 72, 0.2)',
                   transform: 'scale(1.1)',
                 },
                 transition: 'all 0.3s ease',
               }}
+              onClick={onBack}
             >
               <Home />
             </IconButton>
@@ -104,7 +83,6 @@ const JiraNavigationBar = ({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {getIssueIcon(jiraData.fields?.issuetype?.name)}
             <Typography
-              variant='h5'
               sx={{
                 fontWeight: 700,
                 color: isDark ? 'white' : '#2d3748',
@@ -112,6 +90,7 @@ const JiraNavigationBar = ({
                   ? '0 0 20px rgba(255, 255, 255, 0.5)'
                   : '0 0 20px rgba(45, 55, 72, 0.1)',
               }}
+              variant='h5'
             >
               {jiraData.key}
             </Typography>
@@ -144,7 +123,6 @@ const JiraNavigationBar = ({
 
           <Tooltip title='Refresh'>
             <IconButton
-              onClick={onRefresh}
               sx={{
                 color: isDark ? 'white' : '#2d3748',
                 '&:hover': {
@@ -153,16 +131,14 @@ const JiraNavigationBar = ({
                 },
                 transition: 'all 0.6s ease',
               }}
+              onClick={onRefresh}
             >
               <Refresh />
             </IconButton>
           </Tooltip>
 
-          <Tooltip
-            title={isStarred ? 'Remove from favorites' : 'Add to favorites'}
-          >
+          <Tooltip title={isStarred ? 'Remove from favorites' : 'Add to favorites'}>
             <IconButton
-              onClick={onToggleStar}
               sx={{
                 color: isStarred ? '#ffd700' : isDark ? 'white' : '#2d3748',
                 '&:hover': {
@@ -171,6 +147,7 @@ const JiraNavigationBar = ({
                 },
                 transition: 'all 0.3s ease',
               }}
+              onClick={onToggleStar}
             >
               {isStarred ? <Star /> : <StarBorder />}
             </IconButton>
@@ -178,7 +155,6 @@ const JiraNavigationBar = ({
 
           <Tooltip title='Share'>
             <IconButton
-              onClick={onShare}
               sx={{
                 color: isDark ? 'white' : '#2d3748',
                 '&:hover': {
@@ -187,6 +163,7 @@ const JiraNavigationBar = ({
                 },
                 transition: 'all 0.3s ease',
               }}
+              onClick={onShare}
             >
               <Share />
             </IconButton>

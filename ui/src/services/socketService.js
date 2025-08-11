@@ -1,10 +1,6 @@
 import { io } from 'socket.io-client';
 import store from '../store';
-import {
-  addBuildLog,
-  setBuildError,
-  setBranchName,
-} from '../store/slices/buildSlice';
+import { addBuildLog, setBranchName, setBuildError } from '../store/slices/buildSlice';
 import { API_BASE_URL } from '../config/environment.js';
 
 class SocketService {
@@ -48,9 +44,7 @@ class SocketService {
         // Look for branch name patterns in the message
         const branchNameMatch =
           data.message.match(/(?:branch|Branch):\s*([^\s\n]+)/i) ||
-          data.message.match(
-            /(?:created branch|switching to branch|on branch):\s*([^\s\n]+)/i
-          ) ||
+          data.message.match(/(?:created branch|switching to branch|on branch):\s*([^\s\n]+)/i) ||
           data.message.match(/(?:git checkout -b|git branch)\s+([^\s\n]+)/i);
 
         if (branchNameMatch && branchNameMatch[1]) {
@@ -62,10 +56,7 @@ class SocketService {
 
       // Also check if data has a specific branchName field
       if (data.branchName) {
-        console.log(
-          'Captured branch name from WebSocket data:',
-          data.branchName
-        );
+        console.log('Captured branch name from WebSocket data:', data.branchName);
         store.dispatch(setBranchName(data.branchName));
       }
     });

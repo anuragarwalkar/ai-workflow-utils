@@ -1,32 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
+  Avatar,
   Box,
-  Paper,
-  Typography,
-  TextField,
-  IconButton,
+  Chip,
   Fab,
   Fade,
-  Slide,
-  Avatar,
+  IconButton,
   LinearProgress,
-  Chip,
+  Paper,
+  Slide,
+  TextField,
   Tooltip,
-  useTheme,
+  Typography,
   alpha,
+  useTheme,
 } from '@mui/material';
 import {
   SmartToy as AIIcon,
-  Send as SendIcon,
+  Architecture as ArchIcon,
+  BugReport as BugIcon,
   Clear as ClearIcon,
   Close as CloseIcon,
   Code as CodeIcon,
-  BugReport as BugIcon,
-  Architecture as ArchIcon,
-  Psychology as PsyIcon,
-  AutoFixHigh as MagicIcon,
-  Fullscreen as FullscreenIcon,
   FullscreenExit as FullscreenExitIcon,
+  Fullscreen as FullscreenIcon,
+  AutoFixHigh as MagicIcon,
+  Psychology as PsyIcon,
+  Send as SendIcon,
 } from '@mui/icons-material';
 import { keyframes } from '@emotion/react';
 
@@ -186,8 +186,7 @@ const AIDevAssistant = () => {
     {
       icon: CodeIcon,
       label: 'Code Review',
-      prompt:
-        'Help me review this code for best practices and potential improvements',
+      prompt: 'Help me review this code for best practices and potential improvements',
     },
     {
       icon: BugIcon,
@@ -208,10 +207,9 @@ const AIDevAssistant = () => {
 
   if (!isOpen) {
     return (
-      <Tooltip title='AI Development Assistant' placement='left'>
+      <Tooltip placement='left' title='AI Development Assistant'>
         <Fab
           color='primary'
-          onClick={() => setIsOpen(true)}
           sx={{
             position: 'fixed',
             bottom: 24,
@@ -224,6 +222,7 @@ const AIDevAssistant = () => {
             },
             transition: 'all 0.3s ease',
           }}
+          onClick={() => setIsOpen(true)}
         >
           <AIIcon sx={{ fontSize: 28 }} />
         </Fab>
@@ -232,7 +231,7 @@ const AIDevAssistant = () => {
   }
 
   return (
-    <Slide direction='up' in={isOpen} mountOnEnter unmountOnExit>
+    <Slide mountOnEnter unmountOnExit direction='up' in={isOpen}>
       <Paper
         elevation={24}
         sx={{
@@ -282,35 +281,26 @@ const AIDevAssistant = () => {
               <AIIcon />
             </Avatar>
             <Box>
-              <Typography
-                variant='h6'
-                sx={{ fontWeight: 700, fontSize: '1rem' }}
-              >
+              <Typography sx={{ fontWeight: 700, fontSize: '1rem' }} variant='h6'>
                 AI Dev Assistant
               </Typography>
-              <Typography variant='caption' sx={{ opacity: 0.9 }}>
+              <Typography sx={{ opacity: 0.9 }} variant='caption'>
                 Powered by LangChain • Development Optimized
               </Typography>
             </Box>
           </Box>
           <Box>
-            <IconButton
-              onClick={() => setIsExpanded(!isExpanded)}
-              sx={{ color: 'white', mr: 1 }}
-            >
+            <IconButton sx={{ color: 'white', mr: 1 }} onClick={() => setIsExpanded(!isExpanded)}>
               {isExpanded ? <FullscreenExitIcon /> : <FullscreenIcon />}
             </IconButton>
-            <IconButton
-              onClick={() => setIsOpen(false)}
-              sx={{ color: 'white' }}
-            >
+            <IconButton sx={{ color: 'white' }} onClick={() => setIsOpen(false)}>
               <CloseIcon />
             </IconButton>
           </Box>
         </Box>
 
         {/* Status Bar */}
-        {isStreaming && (
+        {isStreaming ? (
           <LinearProgress
             sx={{
               height: 3,
@@ -319,7 +309,7 @@ const AIDevAssistant = () => {
               },
             }}
           />
-        )}
+        ) : null}
 
         {/* Messages Area */}
         <Box
@@ -332,15 +322,13 @@ const AIDevAssistant = () => {
         >
           {conversation.length === 0 && !streamingContent && (
             <Box sx={{ textAlign: 'center', py: 4 }}>
-              <MagicIcon
-                sx={{ fontSize: 48, color: theme.palette.primary.main, mb: 2 }}
-              />
-              <Typography variant='h6' gutterBottom>
+              <MagicIcon sx={{ fontSize: 48, color: theme.palette.primary.main, mb: 2 }} />
+              <Typography gutterBottom variant='h6'>
                 Welcome to AI Dev Assistant
               </Typography>
-              <Typography variant='body2' color='textSecondary' sx={{ mb: 3 }}>
-                I'm here to help with code review, debugging, architecture
-                advice, and development questions.
+              <Typography color='textSecondary' sx={{ mb: 3 }} variant='body2'>
+                I'm here to help with code review, debugging, architecture advice, and development
+                questions.
               </Typography>
 
               {/* Quick Actions */}
@@ -354,18 +342,18 @@ const AIDevAssistant = () => {
               >
                 {quickActions.map((action, index) => (
                   <Chip
-                    key={index}
-                    icon={<action.icon />}
-                    label={action.label}
-                    variant='outlined'
                     clickable
-                    onClick={() => setMessage(action.prompt)}
+                    icon={<action.icon />}
+                    key={index}
+                    label={action.label}
                     sx={{
                       '&:hover': {
                         background: alpha(theme.palette.primary.main, 0.1),
                         borderColor: theme.palette.primary.main,
                       },
                     }}
+                    variant='outlined'
+                    onClick={() => setMessage(action.prompt)}
                   />
                 ))}
               </Box>
@@ -378,8 +366,7 @@ const AIDevAssistant = () => {
                 sx={{
                   mb: 2,
                   display: 'flex',
-                  justifyContent:
-                    msg.role === 'user' ? 'flex-end' : 'flex-start',
+                  justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
                 }}
               >
                 <Paper
@@ -403,45 +390,43 @@ const AIDevAssistant = () => {
                   }}
                 >
                   <Typography
-                    variant='body2'
+                    dangerouslySetInnerHTML={{
+                      __html: formatContent(msg.content),
+                    }}
                     sx={{
                       whiteSpace: 'pre-wrap',
                       '& code': {
-                        fontFamily:
-                          'Monaco, Consolas, "Lucida Console", monospace',
+                        fontFamily: 'Monaco, Consolas, "Lucida Console", monospace',
                         fontSize: '0.85em',
                       },
                       '& pre': {
-                        fontFamily:
-                          'Monaco, Consolas, "Lucida Console", monospace',
+                        fontFamily: 'Monaco, Consolas, "Lucida Console", monospace',
                         fontSize: '0.85em',
                         overflow: 'auto',
                       },
                     }}
-                    dangerouslySetInnerHTML={{
-                      __html: formatContent(msg.content),
-                    }}
+                    variant='body2'
                   />
-                  {msg.provider && (
+                  {msg.provider ? (
                     <Typography
-                      variant='caption'
                       sx={{
                         display: 'block',
                         mt: 1,
                         opacity: 0.7,
                         fontSize: '0.7rem',
                       }}
+                      variant='caption'
                     >
                       via {msg.provider}
                     </Typography>
-                  )}
+                  ) : null}
                 </Paper>
               </Box>
             </Fade>
           ))}
 
           {/* Streaming Content */}
-          {streamingContent && (
+          {streamingContent ? (
             <Box
               sx={{
                 mb: 2,
@@ -460,7 +445,9 @@ const AIDevAssistant = () => {
                 }}
               >
                 <Typography
-                  variant='body2'
+                  dangerouslySetInnerHTML={{
+                    __html: formatContent(streamingContent),
+                  }}
                   sx={{
                     whiteSpace: 'pre-wrap',
                     '&::after': {
@@ -473,13 +460,11 @@ const AIDevAssistant = () => {
                       '51%, 100%': { opacity: 0 },
                     },
                   }}
-                  dangerouslySetInnerHTML={{
-                    __html: formatContent(streamingContent),
-                  }}
+                  variant='body2'
                 />
               </Paper>
             </Box>
-          )}
+          ) : null}
 
           <div ref={messagesEndRef} />
         </Box>
@@ -496,13 +481,9 @@ const AIDevAssistant = () => {
             <TextField
               fullWidth
               multiline
-              maxRows={3}
-              value={message}
-              onChange={e => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder='Ask me about code, debugging, architecture, or development practices...'
-              variant='outlined'
               disabled={isStreaming}
+              maxRows={3}
+              placeholder='Ask me about code, debugging, architecture, or development practices...'
               sx={{
                 '& .MuiOutlinedInput-root': {
                   background: alpha(theme.palette.background.paper, 0.7),
@@ -514,9 +495,12 @@ const AIDevAssistant = () => {
                   },
                 },
               }}
+              value={message}
+              variant='outlined'
+              onChange={e => setMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
             />
             <IconButton
-              onClick={sendMessage}
               disabled={!message.trim() || isStreaming}
               sx={{
                 background:
@@ -534,6 +518,7 @@ const AIDevAssistant = () => {
                   color: alpha(theme.palette.action.disabled, 0.5),
                 },
               }}
+              onClick={sendMessage}
             >
               <SendIcon />
             </IconButton>
@@ -547,13 +532,13 @@ const AIDevAssistant = () => {
                 alignItems: 'center',
               }}
             >
-              <Typography variant='caption' color='textSecondary'>
+              <Typography color='textSecondary' variant='caption'>
                 Session: {sessionId.split('_').slice(-1)[0]}
               </Typography>
               <IconButton
                 size='small'
-                onClick={clearConversation}
                 sx={{ color: theme.palette.text.secondary }}
+                onClick={clearConversation}
               >
                 <ClearIcon fontSize='small' />
               </IconButton>

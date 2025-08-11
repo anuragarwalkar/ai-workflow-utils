@@ -1,11 +1,6 @@
 import React from 'react';
-import { Box, Typography, Chip } from '@mui/material';
-import {
-  BugReport,
-  Task,
-  SubdirectoryArrowRight,
-  Visibility,
-} from '@mui/icons-material';
+import { Box, Chip, Typography } from '@mui/material';
+import { BugReport, SubdirectoryArrowRight, Task, Visibility } from '@mui/icons-material';
 import { useAppTheme } from '../../../../theme/useAppTheme';
 
 const JiraIssueHeader = ({ jiraData }) => {
@@ -67,34 +62,27 @@ const JiraIssueHeader = ({ jiraData }) => {
         mb: 2,
         p: 2,
         borderRadius: 2,
-        background: isDark
-          ? 'rgba(255, 255, 255, 0.02)'
-          : 'rgba(255, 255, 255, 0.7)',
-        border: isDark
-          ? '1px solid rgba(255, 255, 255, 0.05)'
-          : '1px solid rgba(0, 0, 0, 0.05)',
+        background: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.7)',
+        border: isDark ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(0, 0, 0, 0.05)',
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
         {getIssueIcon(jiraData.fields?.issuetype?.name)}
         <Typography
-          variant='body2'
           sx={{
-            color: isDark
-              ? 'rgba(255, 255, 255, 0.7)'
-              : 'rgba(45, 55, 72, 0.7)',
+            color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(45, 55, 72, 0.7)',
             textTransform: 'uppercase',
             fontSize: '0.7rem',
             letterSpacing: 1,
             fontWeight: 500,
           }}
+          variant='body2'
         >
           {jiraData.fields?.project?.name || 'Project'} / {jiraData.key}
         </Typography>
       </Box>
 
       <Typography
-        variant='h6'
         sx={{
           color: isDark ? 'white' : '#2d3748',
           fontWeight: 600,
@@ -103,6 +91,7 @@ const JiraIssueHeader = ({ jiraData }) => {
           pr: 2,
           fontSize: '1.1rem',
         }}
+        variant='h6'
       >
         {jiraData.fields?.summary || 'No title available'}
       </Typography>

@@ -15,11 +15,7 @@ export async function convertMovToMp4(filePath, fileName) {
 
   const convertedFilePath = `${filePath}.mp4`;
   await new Promise((resolve, reject) => {
-    ffmpeg(filePath)
-      .output(convertedFilePath)
-      .on('end', resolve)
-      .on('error', reject)
-      .run();
+    ffmpeg(filePath).output(convertedFilePath).on('end', resolve).on('error', reject).run();
   });
 
   fs.unlinkSync(filePath); // Remove the original .mov file

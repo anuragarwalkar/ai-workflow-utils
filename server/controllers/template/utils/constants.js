@@ -30,16 +30,14 @@ export const TEMPLATE_CONSTANTS = {
   // File patterns
   VARIABLE_PATTERN: /\{\{([^}]+)\}\}/g,
   ISSUE_TYPE_PATTERN: /^[a-zA-Z0-9_-]+$/,
-  UUID_PATTERN:
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+  UUID_PATTERN: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
 
   // Error messages
   ERROR_MESSAGES: {
     TEMPLATE_NOT_FOUND: 'Template not found',
     CANNOT_MODIFY_DEFAULT: 'Cannot modify default templates',
     CANNOT_DELETE_DEFAULT: 'Cannot delete default templates',
-    INVALID_ISSUE_TYPE:
-      'Issue type can only contain letters, numbers, underscores, and hyphens',
+    INVALID_ISSUE_TYPE: 'Issue type can only contain letters, numbers, underscores, and hyphens',
     INVALID_UUID: 'Template ID must be a valid UUID',
     MISSING_REQUIRED_FIELDS: 'Missing required fields',
     INVALID_IMPORT_DATA: 'Invalid import data format',

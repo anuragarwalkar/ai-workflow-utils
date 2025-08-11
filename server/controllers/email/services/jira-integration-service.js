@@ -13,9 +13,7 @@ class JiraIntegrationService {
   static async enhanceWithJiraSummaries(tableData) {
     try {
       if (!Array.isArray(tableData) || tableData.length < 2) {
-        throw new Error(
-          'Invalid table data: must be array with at least headers and one row'
-        );
+        throw new Error('Invalid table data: must be array with at least headers and one row');
       }
 
       logger.info('Enhancing table data with Jira summaries', {
@@ -47,12 +45,7 @@ class JiraIntegrationService {
       const summariesMap = await this._fetchJiraSummariesSafely(issueKeys);
 
       // Enhance table rows with summaries
-      this._addSummariesToTable(
-        tableData,
-        jiraKeyIndex,
-        headers.length - 1,
-        summariesMap
-      );
+      this._addSummariesToTable(tableData, jiraKeyIndex, headers.length - 1, summariesMap);
 
       logger.info('Table data enhanced successfully', {
         jiraKeysProcessed: issueKeys.length,
@@ -113,12 +106,7 @@ class JiraIntegrationService {
    * @param {number} summaryIndex - Index where summary should be added
    * @param {Object} summariesMap - Map of issue keys to summaries
    */
-  static _addSummariesToTable(
-    tableData,
-    jiraKeyIndex,
-    summaryIndex,
-    summariesMap
-  ) {
+  static _addSummariesToTable(tableData, jiraKeyIndex, summaryIndex, summariesMap) {
     for (let i = 1; i < tableData.length; i++) {
       const row = tableData[i];
       const jiraKey = row[jiraKeyIndex];

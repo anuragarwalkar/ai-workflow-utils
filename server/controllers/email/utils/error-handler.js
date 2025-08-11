@@ -29,8 +29,8 @@ class ErrorHandler {
     res.status(errorResponse.status).json({
       success: false,
       error: errorResponse.message,
-      errorId: errorId,
-      timestamp: timestamp,
+      errorId,
+      timestamp,
     });
   }
 
@@ -70,8 +70,8 @@ class ErrorHandler {
     res.status(503).json({
       success: false,
       error: `${service} service is currently unavailable. Please try again later.`,
-      errorId: errorId,
-      service: service,
+      errorId,
+      service,
       timestamp: new Date().toISOString(),
     });
   }
@@ -100,30 +100,21 @@ class ErrorHandler {
       };
     }
 
-    if (
-      error.message.includes('not found') ||
-      error.message.includes('Not found')
-    ) {
+    if (error.message.includes('not found') || error.message.includes('Not found')) {
       return {
         status: 404,
         message: `Resource not found during ${context}`,
       };
     }
 
-    if (
-      error.message.includes('fetch failed') ||
-      error.message.includes('ENOTFOUND')
-    ) {
+    if (error.message.includes('fetch failed') || error.message.includes('ENOTFOUND')) {
       return {
         status: 503,
         message: `External service unavailable during ${context}`,
       };
     }
 
-    if (
-      error.message.includes('Unauthorized') ||
-      error.message.includes('401')
-    ) {
+    if (error.message.includes('Unauthorized') || error.message.includes('401')) {
       return {
         status: 401,
         message: 'Authentication failed. Please check your credentials.',

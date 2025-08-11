@@ -14,43 +14,43 @@ const serverPath = path.join(packageDir, 'dist', 'server.js');
 async function main() {
   // Handle command line arguments
   const args = process.argv.slice(2);
-  
+
   // Handle startup command
   if (args[0] === 'startup') {
     const startupScript = path.join(packageDir, 'bin', 'startup.js');
     const startupArgs = args.slice(1);
-    
+
     const startupProcess = spawn('node', [startupScript, ...startupArgs], {
       stdio: 'inherit',
-      cwd: packageDir
+      cwd: packageDir,
     });
-    
-    startupProcess.on('exit', (code) => {
+
+    startupProcess.on('exit', code => {
       process.exit(code);
     });
-    
+
     return;
   }
 
   // Handle validate command
   if (args[0] === 'validate') {
     const validateScript = path.join(packageDir, 'bin', 'validate.js');
-    
+
     const validateProcess = spawn('node', [validateScript], {
       stdio: 'inherit',
-      cwd: packageDir
+      cwd: packageDir,
     });
-    
-    validateProcess.on('exit', (code) => {
+
+    validateProcess.on('exit', code => {
       process.exit(code);
     });
-    
+
     return;
   }
-  
+
   if (args.includes('--help') || args.includes('-h')) {
     console.log('🚀 AI Workflow Utils');
-    console.log('=' .repeat(50));
+    console.log('='.repeat(50));
     console.log('Usage: ai-workflow-utils [command] [options]');
     console.log('');
     console.log('Commands:');
@@ -88,7 +88,7 @@ async function main() {
   }
 
   console.log('🚀 AI Workflow Utils');
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
 
   // Verify server build exists
   if (!fs.existsSync(serverPath)) {
@@ -116,16 +116,16 @@ async function main() {
     env: {
       ...process.env,
       NODE_ENV: 'production',
-      PORT: '3000'
-    }
+      PORT: '3000',
+    },
   });
 
-  server.on('error', (err) => {
+  server.on('error', err => {
     console.error('❌ Failed to start server:', err);
     process.exit(1);
   });
 
-  server.on('close', (code) => {
+  server.on('close', code => {
     console.log(`🛑 Server process exited with code ${code}`);
     process.exit(code);
   });
@@ -143,7 +143,7 @@ async function main() {
 }
 
 // Handle async errors
-main().catch((error) => {
+main().catch(error => {
   console.error('❌ Application failed to start:', error.message);
   process.exit(1);
 });

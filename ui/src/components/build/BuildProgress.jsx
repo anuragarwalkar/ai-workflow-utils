@@ -1,24 +1,25 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  Box,
-  Typography,
-  Paper,
-  Button,
-  CircularProgress,
-  Chip,
   Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Paper,
+  Typography,
 } from '@mui/material';
 import {
   Clear as ClearIcon,
-  Refresh as RefreshIcon,
   Home as HomeIcon,
   CallMerge as PullRequestIcon,
+  Refresh as RefreshIcon,
 } from '@mui/icons-material';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { clearBuildLogs } from '../../store/slices/buildSlice';
 import { setCurrentView } from '../../store/slices/appSlice';
 import { useCreatePullRequestMutation } from '../../store/api/prApi';
 import socketService from '../../services/socketService';
+import ToastService from '../../services/toastService';
 
 const BuildProgress = ({ onReset, onBack }) => {
   const dispatch = useDispatch();
@@ -90,13 +91,19 @@ const BuildProgress = ({ onReset, onBack }) => {
 
       setPrStatus('success');
       setPrData(result);
-      console.log('Pull request created successfully:', result);
+      
+      // Show success toast with PR URL if available
+      const successMessage = result.pullRequestUrl
+        ? `${result.message} - View: ${result.pullRequestUrl}`
+        : result.message || 'Pull request created successfully';
+      
+      ToastService.success(successMessage);
     } catch (error) {
       setPrStatus('error');
       setPrError(
         error.data?.error || error.message || 'Failed to create pull request'
       );
-      console.error('Failed to create pull request:', error);
+      ToastService.handleApiError(error, 'Failed to create pull request');
     }
   };
 
@@ -129,9 +136,9 @@ const BuildProgress = ({ onReset, onBack }) => {
     if (isBuilding) {
       return (
         <Chip
+          color='primary'
           icon={<CircularProgress size={16} />}
           label='Building...'
-          color='primary'
           variant='outlined'
         />
       );
@@ -140,18 +147,18 @@ const BuildProgress = ({ onReset, onBack }) => {
     if (buildStatus === 'success') {
       return (
         <Chip
-          label='Build Completed Successfully'
           color='success'
+          label='Build Completed Successfully'
           variant='outlined'
         />
       );
     }
 
     if (buildStatus === 'error') {
-      return <Chip label='Build Failed' color='error' variant='outlined' />;
+      return <Chip color='error' label='Build Failed' variant='outlined' />;
     }
 
-    return <Chip label='Ready to Start' color='default' variant='outlined' />;
+    return <Chip color='default' label='Ready to Start' variant='outlined' />;
   };
 
   return (
@@ -168,14 +175,14 @@ const BuildProgress = ({ onReset, onBack }) => {
         {getStatusChip()}
       </Box>
 
-      {error && (
+      {error ? (
         <Alert severity='error' sx={{ mb: 3 }}>
           {error}
         </Alert>
-      )}
+      ) : null}
 
       {/* Pull Request Status */}
-      {buildConfig?.createPullRequest && (
+      {buildConfig?.createPullRequest ? (
         <Box sx={{ mb: 3 }}>
           {prStatus === 'creating' && (
             <Alert
@@ -242,34 +249,34 @@ const BuildProgress = ({ onReset, onBack }) => {
             </Alert>
           )}
         </Box>
-      )}
+      ) : null}
 
       <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
         <Button
-          variant='outlined'
-          startIcon={<ClearIcon />}
-          onClick={handleClearLogs}
           disabled={isBuilding}
           size='small'
+          startIcon={<ClearIcon />}
+          variant='outlined'
+          onClick={handleClearLogs}
         >
           Clear Logs
         </Button>
 
         <Button
-          variant='outlined'
-          startIcon={<RefreshIcon />}
-          onClick={onReset}
           disabled={isBuilding}
           size='small'
+          startIcon={<RefreshIcon />}
+          variant='outlined'
+          onClick={onReset}
         >
           Reset
         </Button>
 
         <Button
-          variant='outlined'
-          startIcon={<HomeIcon />}
-          onClick={handleGoHome}
           size='small'
+          startIcon={<HomeIcon />}
+          variant='outlined'
+          onClick={handleGoHome}
         >
           Go Home
         </Button>
@@ -346,47 +353,47 @@ const BuildProgress = ({ onReset, onBack }) => {
         }}
       >
         <Box>
-          <Typography variant='caption' color='text.secondary' display='block'>
+          <Typography color='text.secondary' display='block' variant='caption'>
             WebSocket Status:{' '}
             {socketService.isSocketConnected()
               ? '🟢 Connected'
               : '🔴 Disconnected'}
           </Typography>
-          {buildConfig?.createPullRequest && (
+          {buildConfig?.createPullRequest ? (
             <Typography
-              variant='caption'
               color='text.secondary'
               display='block'
+              variant='caption'
             >
               Branch: {branchName || 'Not captured yet'}
             </Typography>
-          )}
+          ) : null}
         </Box>
 
         <Box sx={{ display: 'flex', gap: 1 }}>
           {/* Manual PR Creation Button */}
           {buildConfig?.createPullRequest &&
-            buildStatus === 'success' &&
-            branchName &&
-            prStatus !== 'success' &&
-            prStatus !== 'creating' && (
-              <Button
-                variant='contained'
-                startIcon={<PullRequestIcon />}
-                onClick={handleCreatePullRequest}
+          buildStatus === 'success' &&
+          branchName &&
+          prStatus !== 'success' &&
+          prStatus !== 'creating' ? (
+            <Button
+              color='primary'
                 size='small'
-                color='primary'
-              >
-                Create PR
-              </Button>
-            )}
+                startIcon={<PullRequestIcon />}
+                variant='contained'
+                onClick={handleCreatePullRequest}
+            >
+              Create PR
+            </Button>
+          ) : null}
 
-          {!isBuilding && buildStatus && (
+          {!isBuilding && buildStatus ? (
             <Button onClick={onReset} variant='outlined'>
               Start New Build
             </Button>
-          )}
-          <Button onClick={onBack} disabled={isBuilding}>
+          ) : null}
+          <Button disabled={isBuilding} onClick={onBack}>
             Back
           </Button>
         </Box>

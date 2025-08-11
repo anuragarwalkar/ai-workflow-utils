@@ -97,11 +97,7 @@ export class ChatResponse {
    * @param {string} provider - Provider name
    * @returns {ChatResponse} Error response instance
    */
-  static createErrorResponse(
-    errorMessage,
-    sessionId = 'error_session',
-    provider = 'unknown'
-  ) {
+  static createErrorResponse(errorMessage, sessionId = 'error_session', provider = 'unknown') {
     return new ChatResponse({
       content: '',
       sessionId,

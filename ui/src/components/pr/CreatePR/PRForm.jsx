@@ -1,4 +1,4 @@
-import { TextField, Box } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 
 const PRForm = ({ formData, onChange }) => {
   const handleChange = field => event => {
@@ -11,28 +11,28 @@ const PRForm = ({ formData, onChange }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <TextField
+        fullWidth
+        required
         label='Project Key'
+        placeholder='Enter project key'
         value={formData.projectKey}
         onChange={handleChange('projectKey')}
-        placeholder='Enter project key'
-        fullWidth
-        required
       />
       <TextField
+        fullWidth
+        required
         label='Repository Slug'
+        placeholder='Enter repository slug'
         value={formData.repoSlug}
         onChange={handleChange('repoSlug')}
-        placeholder='Enter repository slug'
-        fullWidth
-        required
       />
       <TextField
-        label='Branch Name'
-        value={formData.branchName}
-        onChange={handleChange('branchName')}
-        placeholder='Enter branch name'
         fullWidth
         required
+        label='Branch Name'
+        placeholder='Enter branch name'
+        value={formData.branchName}
+        onChange={handleChange('branchName')}
       />
     </Box>
   );

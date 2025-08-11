@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Box,
-  Typography,
-  Chip,
   Alert,
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Typography,
 } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  selectIsFormOpen,
-  selectFormMode,
-  selectEditingTemplate,
-  selectIsSaving,
   closeForm,
+  selectEditingTemplate,
+  selectFormMode,
+  selectIsFormOpen,
+  selectIsSaving,
   setError,
 } from '../../../store/slices/templateSlice';
 import {
@@ -124,8 +124,7 @@ const TemplateForm = () => {
       // Toast notifications are now handled in Redux API layer
       // Keep local error for form validation display
       console.error('Template save error:', error);
-      const errorMessage =
-        error?.data?.error || error?.message || 'Failed to save template';
+      const errorMessage = error?.data?.error || error?.message || 'Failed to save template';
       dispatch(setError(errorMessage));
     }
   };
@@ -150,32 +149,29 @@ const TemplateForm = () => {
     if (textarea) {
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
-      const newContent =
-        formData.content.substring(0, start) +
-        `{${variable}}` +
-        formData.content.substring(end);
+      const newContent = `${formData.content.substring(
+        0,
+        start
+      )}{${variable}}${formData.content.substring(end)}`;
       setFormData(prev => ({ ...prev, content: newContent }));
 
       // Set cursor position after the inserted variable
       setTimeout(() => {
         textarea.focus();
-        textarea.setSelectionRange(
-          start + variable.length + 2,
-          start + variable.length + 2
-        );
+        textarea.setSelectionRange(start + variable.length + 2, start + variable.length + 2);
       }, 0);
     }
   };
 
   return (
     <Dialog
-      open={isOpen}
-      onClose={handleClose}
-      maxWidth='md'
       fullWidth
+      maxWidth='md'
+      open={isOpen}
       PaperProps={{
         sx: { minHeight: '600px' },
       }}
+      onClose={handleClose}
     >
       <DialogTitle>{getDialogTitle()}</DialogTitle>
 
@@ -183,42 +179,42 @@ const TemplateForm = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 1 }}>
           {/* Template Name */}
           <TextField
-            label='Template Name'
-            value={formData.name}
-            onChange={handleInputChange('name')}
             fullWidth
             required
+            label='Template Name'
             placeholder='e.g., Bug Report Template, PR Review Template'
+            value={formData.name}
+            onChange={handleInputChange('name')}
           />
 
           {/* Template For */}
           <Box>
             <TextField
+              disabled
+              fullWidth
+              helperText='This field shows what the template is designed for. Editing capability will be available in a future update'
               label='Template For'
+              placeholder='e.g., JIRA_BUG, JIRA_TASK, PR_REVIEW'
               value={formData.templateFor}
               onChange={handleInputChange('templateFor')}
-              fullWidth
-              disabled
-              placeholder='e.g., JIRA_BUG, JIRA_TASK, PR_REVIEW'
-              helperText='This field shows what the template is designed for. Editing capability will be available in a future update'
             />
           </Box>
 
           {/* Variable Helper */}
           <Box>
-            <Typography variant='subtitle2' gutterBottom>
+            <Typography gutterBottom variant='subtitle2'>
               Common Variables (click to insert):
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
               {['prompt', 'imageReference', 'imageContext'].map(variable => (
                 <Chip
+                  clickable
                   key={variable}
                   label={`{${variable}}`}
                   size='small'
-                  variant='outlined'
-                  clickable
-                  onClick={() => insertVariable(variable)}
                   sx={{ cursor: 'pointer' }}
+                  variant='outlined'
+                  onClick={() => insertVariable(variable)}
                 />
               ))}
             </Box>
@@ -226,31 +222,31 @@ const TemplateForm = () => {
 
           {/* Template Content */}
           <TextField
+            fullWidth
+            multiline
+            required
+            helperText='Use curly braces {} to define variables that will be replaced when the template is used'
             id='template-content'
             label='Template Content'
+            placeholder='Enter your template content here. Use {prompt} for user input, {imageReference} for image context, etc.'
+            rows={12}
             value={formData.content}
             onChange={handleInputChange('content')}
-            multiline
-            rows={12}
-            fullWidth
-            required
-            placeholder='Enter your template content here. Use {prompt} for user input, {imageReference} for image context, etc.'
-            helperText='Use curly braces {} to define variables that will be replaced when the template is used'
           />
 
           {/* Detected Variables */}
           {variables.length > 0 && (
             <Box>
-              <Typography variant='subtitle2' gutterBottom>
+              <Typography gutterBottom variant='subtitle2'>
                 Detected Variables:
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {variables.map(variable => (
                   <Chip
+                    color='primary'
                     key={variable}
                     label={`{${variable}}`}
                     size='small'
-                    color='primary'
                     variant='outlined'
                   />
                 ))}
@@ -261,10 +257,10 @@ const TemplateForm = () => {
       </DialogContent>
 
       <DialogActions sx={{ p: 3 }}>
-        <Button onClick={handleClose} disabled={isSaving}>
+        <Button disabled={isSaving} onClick={handleClose}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} variant='contained' disabled={isSaving}>
+        <Button disabled={isSaving} variant='contained' onClick={handleSubmit}>
           {isSaving ? 'Saving...' : mode === 'edit' ? 'Update' : 'Create'}
         </Button>
       </DialogActions>

@@ -1,18 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Typography,
-  Paper,
-  CircularProgress,
-  TextField,
-} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, CircularProgress, Paper, Typography } from '@mui/material';
+import DescriptionEditor from './DescriptionEditor';
+import TitleEditor from './TitleEditor';
 
-const PreviewSection = ({ preview, onConfirm, isLoading }) => {
+// Preview Info Component
+const PreviewInfo = ({ preview }) => (
+  <Box sx={{ mt: 2 }}>
+    <Typography color='text.secondary' variant='subtitle2'>
+      Branch: {preview?.branchName}
+    </Typography>
+    {preview?.aiGenerated ? (
+      <Typography color='primary' variant='subtitle2'>
+        AI-Generated Content (Streamed)
+      </Typography>
+    ) : null}
+  </Box>
+);
+
+// Preview Form Component
+const PreviewForm = ({
+  editableTitle,
+  setEditableTitle,
+  editableDescription,
+  setEditableDescription,
+  descriptionMode,
+  setDescriptionMode,
+  preview,
+}) => (
+  <Paper sx={{ p: 2, bgcolor: 'grey.100', mb: 2 }}>
+    <TitleEditor title={editableTitle} onChange={setEditableTitle} />
+    <DescriptionEditor
+      description={editableDescription}
+      mode={descriptionMode}
+      onChange={setEditableDescription}
+      onModeChange={setDescriptionMode}
+    />
+    <PreviewInfo preview={preview} />
+  </Paper>
+);
+
+// Hook for managing preview state
+const usePreviewState = preview => {
   const [editableTitle, setEditableTitle] = useState('');
   const [editableDescription, setEditableDescription] = useState('');
+  const [descriptionMode, setDescriptionMode] = useState('view');
 
-  // Initialize editable fields when preview changes
   useEffect(() => {
     if (preview) {
       setEditableTitle(preview.prTitle || '');
@@ -20,85 +52,43 @@ const PreviewSection = ({ preview, onConfirm, isLoading }) => {
     }
   }, [preview]);
 
+  return {
+    editableTitle,
+    setEditableTitle,
+    editableDescription,
+    setEditableDescription,
+    descriptionMode,
+    setDescriptionMode,
+  };
+};
+
+// Render preview content
+const renderPreviewContent = (formProps, preview) => (
+  <>
+    <Typography gutterBottom variant='h6'>
+      Preview
+    </Typography>
+    <PreviewForm {...formProps} preview={preview} />
+  </>
+);
+
+const PreviewSection = ({ preview, onConfirm, isLoading }) => {
+  const previewState = usePreviewState(preview);
+
   const handleConfirm = () => {
-    // Pass the edited values to the parent component
     onConfirm({
       ...preview,
-      prTitle: editableTitle,
-      prDescription: editableDescription,
+      prTitle: previewState.editableTitle,
+      prDescription: previewState.editableDescription,
     });
   };
 
+  const isDisabled = isLoading || !previewState.editableTitle || !previewState.editableDescription;
+
   return (
     <Box sx={{ mt: 4 }}>
-      <Typography variant='h6' gutterBottom>
-        Preview
-      </Typography>
-
-      <Paper sx={{ p: 2, bgcolor: 'grey.100', mb: 2 }}>
-        <Typography variant='subtitle1' gutterBottom>
-          Title
-        </Typography>
-        <TextField
-          fullWidth
-          multiline
-          value={editableTitle}
-          onChange={e => setEditableTitle(e.target.value)}
-          variant='outlined'
-          size='small'
-          sx={{ mb: 2 }}
-          placeholder={!editableTitle ? 'Generating title...' : ''}
-          InputProps={{
-            endAdornment: !editableTitle && (
-              <CircularProgress size={16} sx={{ mr: 1 }} />
-            ),
-          }}
-        />
-
-        <Typography variant='subtitle1' gutterBottom>
-          Description
-        </Typography>
-        <TextField
-          fullWidth
-          multiline
-          rows={8}
-          value={editableDescription}
-          onChange={e => setEditableDescription(e.target.value)}
-          variant='outlined'
-          size='small'
-          sx={{
-            mb: 2,
-            '& .MuiInputBase-input': {
-              fontFamily: 'monospace',
-              fontSize: '0.875rem',
-            },
-          }}
-          placeholder={!editableDescription ? 'Generating description...' : ''}
-          InputProps={{
-            endAdornment: !editableDescription && (
-              <CircularProgress size={16} sx={{ mr: 1 }} />
-            ),
-          }}
-        />
-
-        <Box sx={{ mt: 2 }}>
-          <Typography variant='subtitle2' color='text.secondary'>
-            Branch: {preview.branchName}
-          </Typography>
-          {preview.aiGenerated && (
-            <Typography variant='subtitle2' color='primary'>
-              AI-Generated Content (Streamed)
-            </Typography>
-          )}
-        </Box>
-      </Paper>
-
-      <Button
-        variant='contained'
-        color='primary'
-        onClick={handleConfirm}
-        disabled={isLoading || !editableTitle || !editableDescription}
-      >
+      {renderPreviewContent(previewState, preview)}
+      <Button color='primary' disabled={isDisabled} variant='contained' onClick={handleConfirm}>
         {isLoading ? <CircularProgress size={24} /> : 'Create Pull Request'}
       </Button>
     </Box>

@@ -17,9 +17,11 @@ export default {
     module: true,
     chunkFormat: 'module',
   },
-  externals: [nodeExternals({
-    importType: 'module'
-  })],
+  externals: [
+    nodeExternals({
+      importType: 'module',
+    }),
+  ],
   experiments: {
     outputModule: true,
   },

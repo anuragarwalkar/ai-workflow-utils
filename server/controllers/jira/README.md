@@ -1,11 +1,15 @@
 # Jira Controller Module
 
 ## Overview
-The Jira controller module manages all Jira-related operations including issue creation, file uploads, AI-powered content generation, and issue retrieval. It follows a modular architecture with clear separation of concerns.
+
+The Jira controller module manages all Jira-related operations including issue
+creation, file uploads, AI-powered content generation, and issue retrieval. It
+follows a modular architecture with clear separation of concerns.
 
 ## Architecture
 
 ### Components
+
 - **JiraController**: Main orchestrator handling HTTP requests and responses
 - **Services**: Business logic for Jira operations
 - **Models**: Data validation and payload generation
@@ -13,6 +17,7 @@ The Jira controller module manages all Jira-related operations including issue c
 - **Utils**: Common utilities and configuration
 
 ### Module Structure
+
 ```
 jira/
 ├── jiraController.js          # Main orchestrator
@@ -37,6 +42,7 @@ jira/
 ```
 
 ## API Endpoints
+
 - `POST /api/jira/preview` - Generate AI-powered issue previews
 - `POST /api/jira/create` - Create new Jira issues
 - `POST /api/jira/upload` - Upload attachments to issues
@@ -46,27 +52,36 @@ jira/
 ## Usage Examples
 
 ### Import Full Controller
+
 ```javascript
-import { JiraController } from './controllers/jira/index.js';
+import { JiraController } from "./controllers/jira/index.js";
 ```
 
 ### Import Specific Services
+
 ```javascript
-import { JiraApiService, JiraContentService } from './controllers/jira/index.js';
+import {
+  JiraApiService,
+  JiraContentService,
+} from "./controllers/jira/index.js";
 ```
 
 ### Import Utilities
+
 ```javascript
-import { ErrorHandler, EnvironmentConfig } from './controllers/jira/index.js';
+import { ErrorHandler, EnvironmentConfig } from "./controllers/jira/index.js";
 ```
 
 ## Dependencies
+
 - LangChain for AI content generation
 - Axios for HTTP requests
 - Multer for file uploads
 - FormData for multipart requests
 
 ## Configuration
+
 All Jira configuration is managed through environment settings:
+
 - `JIRA_URL`: Base URL for Jira instance
 - `JIRA_TOKEN`: API authentication token

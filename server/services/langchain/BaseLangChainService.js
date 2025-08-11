@@ -32,7 +32,6 @@ export class BaseLangChainService {
           openAIApiKey: process.env.OPENAI_API_KEY,
           modelName: process.env.OPENAI_MODEL || 'gpt-4-vision-preview',
           temperature: 0.4,
-          timeout: 60000,
         }),
         supportsVision: this.modelSupportsVision(
           process.env.OPENAI_MODEL || 'gpt-4-vision-preview'
@@ -42,25 +41,18 @@ export class BaseLangChainService {
     }
 
     // 2. OpenAI-Compatible APIs (Anthropic Claude, local models, etc.)
-    if (
-      process.env.OPENAI_COMPATIBLE_BASE_URL &&
-      process.env.OPENAI_COMPATIBLE_API_KEY
-    ) {
+    if (process.env.OPENAI_COMPATIBLE_BASE_URL && process.env.OPENAI_COMPATIBLE_API_KEY) {
       this.providers.push({
         name: 'OpenAI Compatible',
         model: new ChatOpenAI({
           apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
-          model:
-            process.env.OPENAI_COMPATIBLE_MODEL || 'claude-3-sonnet-20240229',
+          model: process.env.OPENAI_COMPATIBLE_MODEL || 'claude-3-sonnet-20240229',
           temperature: 0.4,
-          timeout: 60000,
           configuration: {
             baseURL: process.env.OPENAI_COMPATIBLE_BASE_URL,
           },
         }),
-        supportsVision: this.modelSupportsVision(
-          process.env.OPENAI_COMPATIBLE_MODEL
-        ),
+        supportsVision: this.modelSupportsVision(process.env.OPENAI_COMPATIBLE_MODEL),
         priority: 2,
       });
     }
@@ -210,10 +202,7 @@ export class BaseLangChainService {
       throw new Error('No AI providers are configured');
     }
 
-    const promptTemplate = await this.createPromptTemplate(
-      promptTemplateIdentifier,
-      hasImages
-    );
+    const promptTemplate = await this.createPromptTemplate(promptTemplateIdentifier, hasImages);
     const formattedPrompt = await promptTemplate.format({
       ...promptTemplateFormatter,
     });
@@ -231,8 +220,7 @@ export class BaseLangChainService {
         } else {
           messageContent = formattedPrompt;
           if (hasImages && !provider.supportsVision) {
-            messageContent +=
-              " (note: images were provided but this model doesn't support vision)";
+            messageContent += " (note: images were provided but this model doesn't support vision)";
           }
         }
 

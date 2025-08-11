@@ -32,10 +32,7 @@ export const environmentSettingsApi = createApi({
           await queryFulfilled;
           ToastService.success('Environment settings saved successfully!');
         } catch (error) {
-          ToastService.handleApiError(
-            error,
-            'Failed to save environment settings'
-          );
+          ToastService.handleApiError(error, 'Failed to save environment settings');
         }
       },
     }),
@@ -56,9 +53,7 @@ export const environmentSettingsApi = createApi({
       async onQueryStarted({ provider }, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          ToastService.success(
-            `${provider} connection test: ${data.data.message}`
-          );
+          ToastService.success(`${provider} connection test: ${data.data.message}`);
         } catch (error) {
           ToastService.handleApiError(error, 'Connection test failed');
         }

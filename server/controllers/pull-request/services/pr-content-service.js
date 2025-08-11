@@ -8,9 +8,7 @@ class PRContentService {
    * Analyze commits to determine the type (feat/fix/chore)
    */
   static analyzeCommitType(commits) {
-    const commitMessages = commits
-      .map(commit => commit.message.toLowerCase())
-      .join(' ');
+    const commitMessages = commits.map(commit => commit.message.toLowerCase()).join(' ');
 
     let featScore = 0;
     let fixScore = 0;

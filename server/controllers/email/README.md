@@ -1,47 +1,57 @@
 # Email Module
 
-The Email module provides a comprehensive system for generating formatted email content from wiki data with Jira integration. It follows a modular architecture with clear separation of concerns.
+The Email module provides a comprehensive system for generating formatted email
+content from wiki data with Jira integration. It follows a modular architecture
+with clear separation of concerns.
 
 ## Architecture
 
 ### Controllers
-- **EmailController**: Main orchestrator that coordinates the email generation workflow
+
+- **EmailController**: Main orchestrator that coordinates the email generation
+  workflow
 
 ### Models
+
 - **EmailRequest**: Data validation and structure for email generation requests
 
 ### Services
+
 - **WikiService**: Handles wiki content fetching and initial processing
 - **JiraIntegrationService**: Manages Jira data integration and enhancement
 - **EmailContentService**: Generates final email content with formatting
 
 ### Processors
+
 - **TableExtractor**: Extracts table data from HTML content
 - **HtmlFormatter**: Formats table data into styled HTML email content
 
 ### Utils
+
 - **ErrorHandler**: Centralized error handling and response formatting
 - **Constants**: Centralized configuration and constant values
 
 ## Usage
 
 ### Basic Usage
+
 ```javascript
-import { EmailController } from './controllers/email/index.js';
+import { EmailController } from "./controllers/email/index.js";
 
 // In your route handler
-router.post('/send', async (req, res) => {
+router.post("/send", async (req, res) => {
   await EmailController.sendEmail(req, res);
 });
 ```
 
 ### Individual Service Usage
+
 ```javascript
-import { 
-  WikiService, 
-  JiraIntegrationService, 
-  EmailContentService 
-} from './controllers/email/index.js';
+import {
+  WikiService,
+  JiraIntegrationService,
+  EmailContentService,
+} from "./controllers/email/index.js";
 
 // Fetch wiki content
 const content = await WikiService.fetchWikiContent(url, auth);
@@ -50,15 +60,17 @@ const content = await WikiService.fetchWikiContent(url, auth);
 const tableData = await WikiService.extractTableData(content, version);
 
 // Enhance with Jira data
-const enhanced = await JiraIntegrationService.enhanceWithJiraSummaries(tableData);
+const enhanced =
+  await JiraIntegrationService.enhanceWithJiraSummaries(tableData);
 
 // Generate email content
 const emailBody = EmailContentService.generateEmailBody(enhanced, metadata);
 ```
 
 ### Processor Usage
+
 ```javascript
-import { TableExtractor, HtmlFormatter } from './controllers/email/index.js';
+import { TableExtractor, HtmlFormatter } from "./controllers/email/index.js";
 
 // Extract table from HTML
 const tableData = await TableExtractor.extractTableAsArray(html, buildNumber);
@@ -70,9 +82,11 @@ const formattedHtml = HtmlFormatter.formatTableByGroup(tableData);
 ## API Endpoints
 
 ### POST /api/email/send
+
 Generates formatted email content from wiki data.
 
 **Request:**
+
 ```json
 {
   "wikiUrl": "https://wiki.example.com/page",
@@ -81,9 +95,11 @@ Generates formatted email content from wiki data.
 ```
 
 **Query Parameters:**
+
 - `version`: Build version to extract data for
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -113,6 +129,7 @@ The module provides comprehensive error handling:
 - **Internal Errors**: 500 - Unexpected server errors
 
 Each error includes:
+
 - Error ID for tracking
 - Timestamp
 - Context information
@@ -130,12 +147,14 @@ Each error includes:
 ## Validation
 
 ### Email Request Validation
+
 - Required fields: `version`, `wikiUrl`, `wikiBasicAuth`
 - URL format validation
 - Version format validation
 - Authentication token validation
 
 ### Table Data Validation
+
 - Must be non-empty array
 - All rows must be arrays
 - Headers and data consistency checks
@@ -172,13 +191,15 @@ The module is designed to be easily testable:
 
 ## Migration from Legacy
 
-The module maintains backward compatibility with the existing email controller while providing a cleaner, more maintainable architecture. The old controller can be gradually replaced by updating route imports:
+The module maintains backward compatibility with the existing email controller
+while providing a cleaner, more maintainable architecture. The old controller
+can be gradually replaced by updating route imports:
 
 ```javascript
 // Old way
-import emailController from '../controllers/emailController.js';
+import emailController from "../controllers/emailController.js";
 
 // New way
-import { EmailController } from '../controllers/email/index.js';
+import { EmailController } from "../controllers/email/index.js";
 // Then use EmailController.sendEmail instead of emailController
 ```

@@ -23,8 +23,5 @@ export const buildApi = createApi({
   }),
 });
 
-export const {
-  useStartBuildMutation,
-  useGetBuildStatusQuery,
-  useLazyGetBuildStatusQuery,
-} = buildApi;
+export const { useStartBuildMutation, useGetBuildStatusQuery, useLazyGetBuildStatusQuery } =
+  buildApi;

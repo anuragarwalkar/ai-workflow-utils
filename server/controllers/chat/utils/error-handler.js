@@ -86,7 +86,7 @@ export class ErrorHandler {
     ) {
       return {
         statusCode: 400,
-        message: message,
+        message,
         type: ChatConstants.ERROR_TYPES.VALIDATION,
       };
     }
@@ -105,11 +105,7 @@ export class ErrorHandler {
     }
 
     // Provider-specific errors
-    if (
-      message.includes('API Error') ||
-      message.includes('OpenAI') ||
-      message.includes('Ollama')
-    ) {
+    if (message.includes('API Error') || message.includes('OpenAI') || message.includes('Ollama')) {
       return {
         statusCode: 502,
         message: 'AI service error. Please try again.',

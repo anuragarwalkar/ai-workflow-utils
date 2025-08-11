@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import fs from "fs";
-import path from "path";
-import os from "os";
-import readline from "readline";
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import readline from 'readline';
 import { fileURLToPath } from 'url';
 
 // Get the directory where the package is installed
@@ -13,14 +13,14 @@ const __dirname = path.dirname(__filename);
 class EnvironmentSetup {
   constructor() {
     this.packageDir = path.dirname(__dirname);
-    
+
     // Home directory configuration paths
-    this.configDir = path.join(os.homedir(), ".ai-workflow-utils");
-    this.serverEnvPath = path.join(this.configDir, "config.env");
-    this.configMetaPath = path.join(this.configDir, "config.json");
-    
+    this.configDir = path.join(os.homedir(), '.ai-workflow-utils');
+    this.serverEnvPath = path.join(this.configDir, 'config.env');
+    this.configMetaPath = path.join(this.configDir, 'config.json');
+
     // Package directory paths for examples
-    this.serverEnvExamplePath = path.join(this.packageDir, ".env.example");
+    this.serverEnvExamplePath = path.join(this.packageDir, '.env.example');
 
     this.rl = readline.createInterface({
       input: process.stdin,
@@ -34,96 +34,97 @@ class EnvironmentSetup {
         // Jira configuration
         jira: {
           required: false,
-          description: "Jira integration for creating and managing tickets",
+          description: 'Jira integration for creating and managing tickets',
           url: {
-            description:
-              "Your Jira instance URL (e.g., https://your-company.atlassian.net)",
+            description: 'Your Jira instance URL (e.g., https://your-company.atlassian.net)',
             required: true,
-            envKey: "JIRA_URL",
+            envKey: 'JIRA_URL',
           },
           token: {
             description:
-              "Your Jira API token (create one at: https://id.atlassian.com/manage-profile/security/api-tokens)",
+              'Your Jira API token (create one at: https://id.atlassian.com/manage-profile/security/api-tokens)',
             required: true,
             sensitive: true,
-            envKey: "JIRA_TOKEN",
+            envKey: 'JIRA_TOKEN',
           },
         },
 
         // AI configuration
         openai: {
           required: false,
-          description: "OpenAI/Anthropic compatible AI API configuration",
+          description: 'OpenAI/Anthropic compatible AI API configuration',
           baseUrl: {
-            description: "AI API base URL (default: https://api.anthropic.com), Else - setup local AI server with ollama",
+            description:
+              'AI API base URL (default: https://api.anthropic.com), Else - setup local AI server with ollama',
             required: false,
-            default: "https://api.anthropic.com",
-            envKey: "OPENAI_COMPATIBLE_BASE_URL",
+            default: 'https://api.anthropic.com',
+            envKey: 'OPENAI_COMPATIBLE_BASE_URL',
           },
           apiKey: {
-            description: "Your AI API key (OpenAI, Anthropic, etc.)",
+            description: 'Your AI API key (OpenAI, Anthropic, etc.)',
             required: false,
             sensitive: true,
-            envKey: "OPENAI_COMPATIBLE_API_KEY",
+            envKey: 'OPENAI_COMPATIBLE_API_KEY',
           },
           model: {
-            description: "AI model to use (default: claude-3-sonnet-20240229)",
+            description: 'AI model to use (default: claude-3-sonnet-20240229)',
             required: false,
-            default: "claude-3-sonnet-20240229",
-            envKey: "OPENAI_COMPATIBLE_MODEL",
+            default: 'claude-3-sonnet-20240229',
+            envKey: 'OPENAI_COMPATIBLE_MODEL',
           },
         },
 
         // Bitbucket configuration
         bitbucket: {
           required: false,
-          description: "Bitbucket integration for PR creation and review",
+          description: 'Bitbucket integration for PR creation and review',
           url: {
-            description: "Your Bitbucket server URL (optional, To create, view & review PR using AI)",
+            description:
+              'Your Bitbucket server URL (optional, To create, view & review PR using AI)',
             required: false,
-            envKey: "BIT_BUCKET_URL",
+            envKey: 'BIT_BUCKET_URL',
           },
           token: {
-            description: "Bitbucket API token (optional)",
+            description: 'Bitbucket API token (optional)',
             required: false,
             sensitive: true,
-            envKey: "BITBUCKET_AUTHORIZATION_TOKEN",
+            envKey: 'BITBUCKET_AUTHORIZATION_TOKEN',
           },
         },
 
         // Ollama configuration
         ollama: {
           required: false,
-          description: "Local Ollama AI server configuration",
+          description: 'Local Ollama AI server configuration',
           baseUrl: {
-            description: "Ollama base URL (default: http://localhost:11434)",
+            description: 'Ollama base URL (default: http://localhost:11434)',
             required: false,
-            default: "http://localhost:11434",
-            envKey: "OLLAMA_BASE_URL",
+            default: 'http://localhost:11434',
+            envKey: 'OLLAMA_BASE_URL',
           },
           model: {
-            description: "Ollama model (default: llava)",
+            description: 'Ollama model (default: llava)',
             required: false,
-            default: "llava",
-            envKey: "OLLAMA_MODEL",
+            default: 'llava',
+            envKey: 'OLLAMA_MODEL',
           },
         },
 
         // Server configuration
         server: {
           required: false,
-          description: "Basic server configuration",
+          description: 'Basic server configuration',
           port: {
-            description: "Server port (default: 3000)",
+            description: 'Server port (default: 3000)',
             required: false,
-            default: "3000",
-            envKey: "PORT",
+            default: '3000',
+            envKey: 'PORT',
           },
           environment: {
-            description: "Server environment (default: prod)",
+            description: 'Server environment (default: prod)',
             required: false,
-            default: "production",
-            envKey: "NODE_ENV",
+            default: 'production',
+            envKey: 'NODE_ENV',
           },
         },
       },
@@ -131,16 +132,14 @@ class EnvironmentSetup {
   }
 
   async question(prompt) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       this.rl.question(prompt, resolve);
     });
   }
 
   async setupEnvironment() {
-    console.log("🚀 Welcome to AI Workflow Utils Setup!");
-    console.log(
-      "This setup will help you configure the application for first use.\n"
-    );
+    console.log('🚀 Welcome to AI Workflow Utils Setup!');
+    console.log('This setup will help you configure the application for first use.\n');
 
     // Ensure config directory exists
     if (!fs.existsSync(this.configDir)) {
@@ -152,18 +151,13 @@ class EnvironmentSetup {
     const serverEnvExists = fs.existsSync(this.serverEnvPath);
 
     if (serverEnvExists) {
-      console.log("⚠️  Configuration file already exists in:");
+      console.log('⚠️  Configuration file already exists in:');
       console.log(`   📁 ${this.configDir}`);
-      console.log("   - config.env (server configuration)");
+      console.log('   - config.env (server configuration)');
 
-      const overwrite = await this.question(
-        "\nDo you want to reconfigure? (y/N): "
-      );
-      if (
-        overwrite.toLowerCase() !== "y" &&
-        overwrite.toLowerCase() !== "yes"
-      ) {
-        console.log("✅ Using existing configuration. Starting application...");
+      const overwrite = await this.question('\nDo you want to reconfigure? (y/N): ');
+      if (overwrite.toLowerCase() !== 'y' && overwrite.toLowerCase() !== 'yes') {
+        console.log('✅ Using existing configuration. Starting application...');
         this.rl.close();
         return false; // Don't run setup, use existing config
       }
@@ -171,28 +165,24 @@ class EnvironmentSetup {
 
     // Load existing values from .env files or .env.example
     const existingServerEnv =
-      this.loadExistingEnv(this.serverEnvPath) ||
-      this.loadExistingEnv(this.serverEnvExamplePath);
+      this.loadExistingEnv(this.serverEnvPath) || this.loadExistingEnv(this.serverEnvExamplePath);
 
     console.log("\n📋 Let's configure your environment variables...\n");
 
     // Setup server environment
-    console.log("🖥️  Server Configuration:");
-    console.log("=".repeat(50));
-    const serverEnv = await this.configureEnvironment(
-      "server",
-      existingServerEnv
-    );
+    console.log('🖥️  Server Configuration:');
+    console.log('='.repeat(50));
+    const serverEnv = await this.configureEnvironment('server', existingServerEnv);
 
     // Write environment files
     await this.writeEnvFile(this.serverEnvPath, serverEnv);
 
-    console.log("\n✅ Configuration complete!");
-    console.log("📁 Environment file created in:");
+    console.log('\n✅ Configuration complete!');
+    console.log('📁 Environment file created in:');
     console.log(`   📁 ${this.configDir}`);
-    console.log("   - config.env (server configuration)");
-    console.log("\n💡 Configuration will persist across package upgrades!");
-    console.log("\n🌐 Frontend configuration is now handled directly in the UI application.");
+    console.log('   - config.env (server configuration)');
+    console.log('\n💡 Configuration will persist across package upgrades!');
+    console.log('\n🌐 Frontend configuration is now handled directly in the UI application.');
 
     this.rl.close();
     return true; // Setup completed successfully
@@ -212,14 +202,12 @@ class EnvironmentSetup {
 
     // Handle required sections first
     if (requiredSections.length > 0) {
-      console.log("\n🔴 Required Configuration Sections:");
+      console.log('\n🔴 Required Configuration Sections:');
       for (const [sectionKey, sectionConf] of requiredSections) {
         console.log(`\n📋 ${sectionConf.description}`);
-        const setupSection = await this.question(
-          `Do you want to setup ${sectionKey}? (Y/n): `
-        );
-        
-        if (setupSection.toLowerCase() !== "n" && setupSection.toLowerCase() !== "no") {
+        const setupSection = await this.question(`Do you want to setup ${sectionKey}? (Y/n): `);
+
+        if (setupSection.toLowerCase() !== 'n' && setupSection.toLowerCase() !== 'no') {
           await this.configureSectionVariables(sectionKey, sectionConf, existingEnv, envVars);
         }
       }
@@ -227,14 +215,12 @@ class EnvironmentSetup {
 
     // Handle optional sections
     if (optionalSections.length > 0) {
-      console.log("\n🟡 Optional Configuration Sections:");
+      console.log('\n🟡 Optional Configuration Sections:');
       for (const [sectionKey, sectionConf] of optionalSections) {
         console.log(`\n📋 ${sectionConf.description || `${sectionKey} configuration`}`);
-        const setupSection = await this.question(
-          `Do you want to setup ${sectionKey}? (y/N): `
-        );
-        
-        if (setupSection.toLowerCase() === "y" || setupSection.toLowerCase() === "yes") {
+        const setupSection = await this.question(`Do you want to setup ${sectionKey}? (y/N): `);
+
+        if (setupSection.toLowerCase() === 'y' || setupSection.toLowerCase() === 'yes') {
           await this.configureSectionVariables(sectionKey, sectionConf, existingEnv, envVars);
         } else {
           // Apply defaults for this section
@@ -249,7 +235,7 @@ class EnvironmentSetup {
     );
 
     if (standaloneVars.length > 0) {
-      console.log("\n⚙️  Additional Configuration:");
+      console.log('\n⚙️  Additional Configuration:');
       for (const [key, conf] of standaloneVars) {
         if (conf.envKey) {
           const value = await this.promptForVariable(key, conf, existingEnv[conf.envKey]);
@@ -263,15 +249,15 @@ class EnvironmentSetup {
 
   async configureSectionVariables(sectionKey, sectionConf, existingEnv, envVars) {
     console.log(`\n🔧 Configuring ${sectionKey}:`);
-    
+
     for (const [varKey, varConf] of Object.entries(sectionConf)) {
       // Skip meta properties
       if (varKey === 'required' || varKey === 'description') continue;
-      
+
       if (varConf.envKey) {
         const value = await this.promptForVariable(
-          `${sectionKey}.${varKey}`, 
-          varConf, 
+          `${sectionKey}.${varKey}`,
+          varConf,
           existingEnv[varConf.envKey]
         );
         if (value) envVars[varConf.envKey] = value;
@@ -283,7 +269,7 @@ class EnvironmentSetup {
     for (const [varKey, varConf] of Object.entries(sectionConf)) {
       // Skip meta properties
       if (varKey === 'required' || varKey === 'description') continue;
-      
+
       if (varConf.default && varConf.envKey) {
         envVars[varConf.envKey] = varConf.default;
       }
@@ -294,12 +280,12 @@ class EnvironmentSetup {
     const hasExisting =
       existingValue &&
       existingValue !== `your_${key.toLowerCase()}_here` &&
-      !existingValue.startsWith("your-");
+      !existingValue.startsWith('your-');
     const defaultValue = hasExisting ? existingValue : config.default;
 
     let prompt = `\n${config.description}`;
     if (defaultValue) {
-      const displayValue = config.sensitive ? "*".repeat(8) : defaultValue;
+      const displayValue = config.sensitive ? '*'.repeat(8) : defaultValue;
       prompt += `\n(current: ${displayValue})`;
     }
     prompt += `\n${key}: `;
@@ -308,12 +294,12 @@ class EnvironmentSetup {
 
     // If no value provided, use existing or default
     if (!value.trim()) {
-      return defaultValue || "";
+      return defaultValue || '';
     }
 
     // Validate if validation function exists
     if (config.validate && !config.validate(value)) {
-      console.log("❌ Invalid value. Please try again.");
+      console.log('❌ Invalid value. Please try again.');
       return await this.promptForVariable(key, config, existingValue);
     }
 
@@ -324,15 +310,15 @@ class EnvironmentSetup {
     if (!fs.existsSync(filePath)) return {};
 
     try {
-      const content = fs.readFileSync(filePath, "utf8");
+      const content = fs.readFileSync(filePath, 'utf8');
       const env = {};
 
-      content.split("\n").forEach((line) => {
+      content.split('\n').forEach(line => {
         const trimmed = line.trim();
-        if (trimmed && !trimmed.startsWith("#")) {
-          const [key, ...valueParts] = trimmed.split("=");
+        if (trimmed && !trimmed.startsWith('#')) {
+          const [key, ...valueParts] = trimmed.split('=');
           if (key && valueParts.length > 0) {
-            env[key.trim()] = valueParts.join("=").replace(/^["']|["']$/g, "");
+            env[key.trim()] = valueParts.join('=').replace(/^["']|["']$/g, '');
           }
         }
       });
@@ -353,7 +339,7 @@ class EnvironmentSetup {
       }
 
       // Generate content with comments
-      let content = `# AI Workflow Utils Configuration\n`;
+      let content = '# AI Workflow Utils Configuration\n';
       content += `# Generated on ${new Date().toISOString()}\n\n`;
 
       Object.entries(envVars).forEach(([key, value]) => {
@@ -369,7 +355,7 @@ class EnvironmentSetup {
   }
 
   async checkEnvironmentHealth() {
-    console.log("\n🔍 Checking configuration health...");
+    console.log('\n🔍 Checking configuration health...');
 
     const serverEnv = this.loadExistingEnv(this.serverEnvPath);
     const missingVars = [];
@@ -380,10 +366,10 @@ class EnvironmentSetup {
         // This is a required section, check all its required variables
         for (const [varKey, varConf] of Object.entries(sectionConf)) {
           if (varKey === 'required' || varKey === 'description') continue;
-          
+
           if (varConf.required && varConf.envKey) {
             const envValue = serverEnv[varConf.envKey];
-            if (!envValue || envValue.includes("your_")) {
+            if (!envValue || envValue.includes('your_')) {
               missingVars.push(`${sectionKey}.${varKey} (${varConf.envKey})`);
             }
           }
@@ -392,29 +378,29 @@ class EnvironmentSetup {
     }
 
     if (missingVars.length > 0) {
-      console.log("⚠️  Missing required configuration:");
-      missingVars.forEach((key) => console.log(`   - ${key}`));
+      console.log('⚠️  Missing required configuration:');
+      missingVars.forEach(key => console.log(`   - ${key}`));
       return false;
     }
 
-    console.log("✅ Configuration looks good!");
+    console.log('✅ Configuration looks good!');
     return true;
   }
 
   showConfigurationInfo() {
-    console.log("\n📁 Configuration Information:");
-    console.log("=".repeat(50));
+    console.log('\n📁 Configuration Information:');
+    console.log('='.repeat(50));
     console.log(`Configuration directory: ${this.configDir}`);
     console.log(`Server config file: ${this.serverEnvPath}`);
-    
+
     const serverExists = fs.existsSync(this.serverEnvPath);
-    
-    console.log(`\nStatus:`);
+
+    console.log('\nStatus:');
     console.log(`  Server config: ${serverExists ? '✅ Exists' : '❌ Missing'}`);
-    console.log(`  UI config: Handled directly in the UI application`);
-    
+    console.log('  UI config: Handled directly in the UI application');
+
     if (!serverExists) {
-      console.log(`\n💡 Run 'ai-workflow-setup' to create missing configuration file.`);
+      console.log("\n💡 Run 'ai-workflow-setup' to create missing configuration file.");
     }
   }
 }
@@ -427,17 +413,17 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const setup = new EnvironmentSetup();
   setup
     .setupEnvironment()
-    .then((completed) => {
+    .then(completed => {
       if (completed) {
         return setup.checkEnvironmentHealth();
       }
       return true;
     })
-    .then((healthy) => {
+    .then(healthy => {
       process.exit(healthy ? 0 : 1);
     })
-    .catch((error) => {
-      console.error("❌ Setup failed:", error.message);
+    .catch(error => {
+      console.error('❌ Setup failed:', error.message);
       process.exit(1);
     });
 }

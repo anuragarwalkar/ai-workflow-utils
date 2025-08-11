@@ -24,15 +24,12 @@ class EmailRequest {
     // Validate URL format
     try {
       new URL(emailRequest.wikiUrl);
-    } catch (error) {
+    } catch {
       throw new Error('Invalid wikiUrl format');
     }
 
     // Validate version format (basic check)
-    if (
-      typeof emailRequest.version !== 'string' ||
-      emailRequest.version.trim().length === 0
-    ) {
+    if (typeof emailRequest.version !== 'string' || emailRequest.version.trim().length === 0) {
       throw new Error('Version must be a non-empty string');
     }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CircularProgress, Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { useAppTheme } from '../../theme/useAppTheme';
 
 const LoadingFallback = () => {

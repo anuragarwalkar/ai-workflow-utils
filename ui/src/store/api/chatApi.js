@@ -17,13 +17,7 @@ export const chatApi = createApi({
     }),
     sendChatMessageStreaming: builder.mutation({
       queryFn: async (
-        {
-          message,
-          conversationHistory,
-          template = 'CHAT_GENERIC',
-          onChunk,
-          onStatus,
-        },
+        { message, conversationHistory, template = 'CHAT_GENERIC', onChunk, onStatus },
         { signal }
       ) => {
         try {
@@ -69,7 +63,7 @@ export const chatApi = createApi({
 
                     if (data.type === 'status') {
                       onStatus?.(data.message, data.provider);
-                    } else if (data.type === 'token') {
+                    } else if (data.type === 'chunk') {
                       fullContent += data.content;
                       onChunk?.(data.content, fullContent);
                     } else if (data.type === 'complete') {
@@ -111,7 +105,4 @@ export const chatApi = createApi({
   }),
 });
 
-export const {
-  useSendChatMessageMutation,
-  useSendChatMessageStreamingMutation,
-} = chatApi;
+export const { useSendChatMessageMutation, useSendChatMessageStreamingMutation } = chatApi;

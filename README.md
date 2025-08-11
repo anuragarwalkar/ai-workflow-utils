@@ -11,7 +11,9 @@
 
 **The Ultimate AI-Powered Development Workflow Automation Platform**
 
-_Streamline your development process with intelligent Jira ticket creation, AI-powered code reviews & pull request creation with custom template support, featuring a beautiful dark/light theme interface_
+_Streamline your development process with intelligent Jira ticket creation,
+AI-powered code reviews & pull request creation with custom template support,
+featuring a beautiful dark/light theme interface_
 
 ![v1 6 6](https://github.com/user-attachments/assets/14699d96-56bc-4a4b-9c17-74e0c90afddb)
 
@@ -21,25 +23,34 @@ _Streamline your development process with intelligent Jira ticket creation, AI-p
 
 ### 🎯 **Feature #1: AI-Powered Jira Ticket Creation**
 
-Create professional Jira tickets (Tasks, Bugs, Stories) using AI with multiple provider support:
+Create professional Jira tickets (Tasks, Bugs, Stories) using AI with multiple
+provider support:
 
 - **🤖 OpenAI Compatible APIs**: GPT-4, Claude, and other cloud providers
 - **🏠 Local AI with Ollama LLaVA**: Complete privacy with local image analysis
-- **📸 Smart Image Analysis**: Upload screenshots and get detailed issue descriptions
+- **📸 Smart Image Analysis**: Upload screenshots and get detailed issue
+  descriptions
 - **⚡ Real-time Streaming**: Watch AI generate content live
-- **🎨 Professional Templates**: Auto-formatted with proper sections and acceptance criteria
-- **🔗 Direct Jira Integration**: Creates tickets instantly with your access token
+- **🎨 Professional Templates**: Auto-formatted with proper sections and
+  acceptance criteria
+- **🔗 Direct Jira Integration**: Creates tickets instantly with your access
+  token
 
 ### 🚀 **Feature #2: AI-Powered Pull Request Creation**
 
 Revolutionary AI-powered pull request creation for Atlassian Bitbucket:
 
-- **🤖 Intelligent PR Generation**: AI analyzes commit messages to create professional PR titles and descriptions
-- **📝 Smart Commit Analysis**: Automatically determines PR type (feat/fix/chore) based on commit patterns
-- **⚡ Real-time Streaming**: Watch AI generate PR content live with streaming updates
+- **🤖 Intelligent PR Generation**: AI analyzes commit messages to create
+  professional PR titles and descriptions
+- **📝 Smart Commit Analysis**: Automatically determines PR type
+  (feat/fix/chore) based on commit patterns
+- **⚡ Real-time Streaming**: Watch AI generate PR content live with streaming
+  updates
 - **🔄 Multi-Model Support**: Uses Ollama for local AI processing with privacy
-- **✏️ Editable Previews**: Review and edit AI-generated content before creating the PR
-- **💾 Smart Persistence**: Remembers project and repository settings for faster workflow
+- **✏️ Editable Previews**: Review and edit AI-generated content before creating
+  the PR
+- **💾 Smart Persistence**: Remembers project and repository settings for faster
+  workflow
 
 ### 🔍 **Feature #3: AI-Powered Code Review**
 
@@ -53,31 +64,41 @@ Revolutionary AI-powered pull request reviews for Atlassian Bitbucket:
 
 ### 📊 **Feature #4: Real-time Logs & Monitoring**
 
-Comprehensive logging and monitoring system for troubleshooting and system insights:
+Comprehensive logging and monitoring system for troubleshooting and system
+insights:
 
-- **📋 Real-time Log Streaming**: Live view of application logs with automatic updates
-- **🔍 Advanced Filtering**: Filter logs by level (Error, Warn, Info, Debug) and search by content
+- **📋 Real-time Log Streaming**: Live view of application logs with automatic
+  updates
+- **🔍 Advanced Filtering**: Filter logs by level (Error, Warn, Info, Debug) and
+  search by content
 - **📅 Log History**: Access historical logs with pagination and date filtering
 - **🎨 Syntax Highlighting**: Color-coded log levels for easy identification
 - **💾 Log Management**: Automatic log rotation and size management
 - **🔧 Debug Mode**: Enable detailed debug logging for troubleshooting
-- **📱 Responsive Design**: Access logs from any device with mobile-friendly interface
+- **📱 Responsive Design**: Access logs from any device with mobile-friendly
+  interface
 
 ### **🌙 Feature #5: Intelligent Dark Theme System**
 
 Beautiful, adaptive interface that automatically adjusts to your preferences:
 
-- **🌓 Auto Theme Detection**: Automatically follows your system's dark/light mode preference
-- **🎨 Manual Theme Control**: Switch between Light, Dark, and Auto modes with a single click
+- **🌓 Auto Theme Detection**: Automatically follows your system's dark/light
+  mode preference
+- **🎨 Manual Theme Control**: Switch between Light, Dark, and Auto modes with a
+  single click
 - **🎭 Persistent Preferences**: Your theme choice is remembered across sessions
-- **🌈 Gradient Design System**: Stunning gradient backgrounds and glass-morphism effects
+- **🌈 Gradient Design System**: Stunning gradient backgrounds and
+  glass-morphism effects
 - **📱 Consistent Theming**: Dark theme support across all components and pages
-- **👁️ Eye-friendly**: Carefully crafted colors that reduce eye strain during long sessions
+- **👁️ Eye-friendly**: Carefully crafted colors that reduce eye strain during
+  long sessions
 - **🔄 Smooth Transitions**: Elegant animations when switching between themes
 
 ---
 
-Here’s a cleaned-up and renumbered version of your “Quick Start Guide” section for the README. All step numbers are sequential, and optional sub-steps are clearly labeled. Copy-paste this to replace your existing section:
+Here’s a cleaned-up and renumbered version of your “Quick Start Guide” section
+for the README. All step numbers are sequential, and optional sub-steps are
+clearly labeled. Copy-paste this to replace your existing section:
 
 ---
 
@@ -117,7 +138,8 @@ npm install -g ai-workflow-utils
 ai-workflow-utils
 ```
 
-The application will start immediately and be available at `http://localhost:3000`
+The application will start immediately and be available at
+`http://localhost:3000`
 
 ### **Step 4: (Optional) Install as Startup Service**
 
@@ -127,7 +149,8 @@ For production use or to run automatically on system boot:
 ai-workflow-utils startup install
 ```
 
-The service will now start automatically on boot. Access at `http://localhost:3000`
+The service will now start automatically on boot. Access at
+`http://localhost:3000`
 
 **Startup Service Management:**
 
@@ -150,19 +173,23 @@ For detailed startup service documentation, see [STARTUP.md](STARTUP.md)
 
 All configuration is managed through the web-based settings page:
 
-- Visit [`http://localhost:3000/settings/environment`](http://localhost:3000/settings/environment)
-- Configure your AI provider (Anthropic Claude, OpenAI GPT, Google Gemini, Ollama)
+- Visit
+  [`http://localhost:3000/settings/environment`](http://localhost:3000/settings/environment)
+- Configure your AI provider (Anthropic Claude, OpenAI GPT, Google Gemini,
+  Ollama)
 - Set up Jira integration (URL, API token)
 - Configure repository provider (Bitbucket)
 - Set up issue tracking (Jira, etc.)
 
-All changes are saved to `~/.ai-workflow-utils/environment.json` and persist across upgrades.
+All changes are saved to `~/.ai-workflow-utils/environment.json` and persist
+across upgrades.
 
 **No manual .env setup required!**
 
 ### **Step 6: (Optional) PWA Installation (Progressive Web App)**
 
-**AI Workflow Utils is a fully-featured PWA!** Install it as a native app for the best experience:
+**AI Workflow Utils is a fully-featured PWA!** Install it as a native app for
+the best experience:
 
 **🖥️ Desktop Installation:**
 
@@ -214,11 +241,16 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 
 **Revolutionary PR Generation:**
 
-- **Smart Commit Analysis**: AI analyzes your commit messages to understand the changes
-- **Automatic Type Detection**: Determines if changes are features, fixes, or chores
-- **Professional Formatting**: Generates conventional commit-style titles (feat/fix/chore)
-- **Streaming Generation**: Watch AI create content in real-time with live updates
-- **Local AI Processing**: Uses Ollama for complete privacy and offline capability
+- **Smart Commit Analysis**: AI analyzes your commit messages to understand the
+  changes
+- **Automatic Type Detection**: Determines if changes are features, fixes, or
+  chores
+- **Professional Formatting**: Generates conventional commit-style titles
+  (feat/fix/chore)
+- **Streaming Generation**: Watch AI create content in real-time with live
+  updates
+- **Local AI Processing**: Uses Ollama for complete privacy and offline
+  capability
 
 **How it works:**
 
@@ -231,11 +263,14 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 
 **AI Features:**
 
-- **Commit Message Analysis**: Extracts meaningful information from commit history
-- **Smart Categorization**: Automatically prefixes with feat/fix/chore based on content
+- **Commit Message Analysis**: Extracts meaningful information from commit
+  history
+- **Smart Categorization**: Automatically prefixes with feat/fix/chore based on
+  content
 - **Ticket Integration**: Includes ticket numbers in standardized format
 - **Editable Previews**: Full control over final content before submission
-- **Persistent Settings**: Remembers project and repo settings for faster workflow
+- **Persistent Settings**: Remembers project and repo settings for faster
+  workflow
 
 ### **🔍 AI Code Review**
 
@@ -284,6 +319,112 @@ All changes are saved to `~/.ai-workflow-utils/environment.json` and persist acr
 </details>
 
 <!-- Manual environment setup is deprecated. All configuration should be done via the web-based settings page. -->
+
+---
+
+</details>
+
+---
+
+<details>
+<summary><strong>🏗️ Technical Architecture & Development</strong></summary>
+
+### **🧩 Functional Programming Architecture**
+
+AI Workflow Utils follows **functional programming principles** throughout the
+codebase:
+
+- **Pure Functions**: Side-effect free functions with predictable outputs
+- **Immutable State Management**: State updates create new objects instead of
+  mutations
+- **Function Composition**: Small, composable functions that work together
+- **No Classes**: Functional approach instead of object-oriented programming
+- **Separation of Concerns**: Each module has a specific, well-defined
+  responsibility
+
+**Benefits:**
+
+- **Easier Testing**: Pure functions are simple to test and reason about
+- **Better Maintainability**: Predictable code flow and reduced complexity
+- **Improved Reliability**: Immutable state prevents many common bugs
+- **Enhanced Debugging**: Clear data flow makes debugging straightforward
+
+### **🎭 Mock-First Development**
+
+**Comprehensive Jira Mocking Service** for development and testing:
+
+```bash
+# Enable mock mode (no real API calls)
+JIRA_MOCK_MODE=true
+
+# Use real Jira API
+JIRA_MOCK_MODE=false
+```
+
+**Mock Service Features:**
+
+- **Realistic API Responses**: Mock data that matches real Jira API structure
+- **Stateful Operations**: Created issues, comments, and attachments persist in
+  memory
+- **Complete CRUD Support**: Create, read, update, delete operations
+- **Advanced Features**: JQL search, issue transitions, field validation
+- **Error Simulation**: Test error handling with realistic error responses
+- **Fast Development**: No external dependencies for development/testing
+
+**Functional Mock Architecture:**
+
+```javascript
+// Pure state management
+const getMockState = () => ({ ...mockState });
+const updateMockState = updates => ({ ...mockState, ...updates });
+
+// Functional API operations
+export const createIssue = async issueData => {
+  /* pure function */
+};
+export const getIssue = async issueKey => {
+  /* pure function */
+};
+export const searchIssues = async jql => {
+  /* pure function */
+};
+```
+
+### **📁 Modular Architecture**
+
+```
+server/
+├── controllers/           # Feature-based controllers
+│   ├── jira/             # Jira integration
+│   │   ├── services/     # Business logic services
+│   │   ├── models/       # Data models
+│   │   ├── utils/        # Utility functions
+│   │   └── README.md     # Module documentation
+│   ├── pull-request/     # PR creation & review
+│   ├── email/            # Email generation
+│   └── chat/             # AI chat integration
+├── mocks/                # Mock services (excluded from npm package)
+│   └── jira/             # Comprehensive Jira mocking
+└── services/             # Shared services
+```
+
+**Each module follows the same structure:**
+
+- **Services**: Core business logic (functional)
+- **Models**: Data transformation and validation
+- **Utils**: Pure utility functions
+- **README.md**: Complete module documentation
+
+### **🔧 Development Best Practices**
+
+- **ESLint Integration**: Enforces functional programming patterns
+- **Modular Design**: Each feature is self-contained
+- **Comprehensive Documentation**: Every module has detailed README
+- **Mock-First Testing**: Develop without external dependencies
+- **Environment Variables**: Configuration through environment
+- **Type Safety**: JSDoc annotations for better IDE support
+
+</details>
 
 ---
 
@@ -681,9 +822,12 @@ tail -f logs/app.log
 
 ### **Getting Help**
 
-- **📖 Documentation**: [GitHub Wiki](https://github.com/anuragarwalkar/ai-workflow-utils/wiki)
-- **🐛 Bug Reports**: [GitHub Issues](https://github.com/anuragarwalkar/ai-workflow-utils/issues)
-- **💬 Discussions**: [GitHub Discussions](https://github.com/anuragarwalkar/ai-workflow-utils/discussions)
+- **📖 Documentation**:
+  [GitHub Wiki](https://github.com/anuragarwalkar/ai-workflow-utils/wiki)
+- **🐛 Bug Reports**:
+  [GitHub Issues](https://github.com/anuragarwalkar/ai-workflow-utils/issues)
+- **💬 Discussions**:
+  [GitHub Discussions](https://github.com/anuragarwalkar/ai-workflow-utils/discussions)
 - **📧 Email**: anurag.arwalkar@gmail.com
 
 ### **Community**
@@ -715,13 +859,15 @@ tail -f logs/app.log
 
 ## 📄 **License**
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+for details.
 
 ---
 
 ## 🎖️ **Acknowledgments**
 
-Special thanks to the amazing open-source community and the following technologies that make this project possible:
+Special thanks to the amazing open-source community and the following
+technologies that make this project possible:
 
 - **🤖 OpenAI & Anthropic**: For providing excellent AI APIs
 - **🏠 Ollama**: For enabling local AI processing with privacy

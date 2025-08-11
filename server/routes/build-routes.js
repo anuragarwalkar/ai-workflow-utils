@@ -42,10 +42,7 @@ export default io => {
       });
 
       // Path to the release script
-      const scriptPath = path.join(
-        projectRoot,
-        'server/scripts/release_build.sh'
-      );
+      const scriptPath = path.join(projectRoot, 'server/scripts/release_build.sh');
 
       // Prepare script arguments
       const scriptArgs = [
@@ -99,7 +96,7 @@ export default io => {
 
         io.emit('build-progress', {
           type: code === 0 ? 'success' : 'error',
-          message: message,
+          message,
           exitCode: code,
           timestamp: new Date().toISOString(),
         });
@@ -112,7 +109,7 @@ export default io => {
 
         io.emit('build-progress', {
           type: 'error',
-          message: message,
+          message,
           error: error.message,
           timestamp: new Date().toISOString(),
         });
