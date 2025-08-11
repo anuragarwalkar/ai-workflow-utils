@@ -3,13 +3,7 @@ export function createTemplateSettings(data = {}) {
   return {
     version: data.version || '1.0.0',
     lastUpdated: data.lastUpdated || new Date().toISOString(),
-    defaultIssueTypes: data.defaultIssueTypes || [
-      'story',
-      'task',
-      'bug',
-      'epic',
-      'subtask',
-    ],
+    defaultIssueTypes: data.defaultIssueTypes || ['story', 'task', 'bug', 'epic', 'subtask'],
     maxTemplatesPerType: data.maxTemplatesPerType || 10,
     allowCustomIssueTypes: data.allowCustomIssueTypes !== false,
     autoBackup: data.autoBackup !== false,
@@ -19,10 +13,7 @@ export function createTemplateSettings(data = {}) {
 
 // Validate settings data
 export function validateSettings(data) {
-  if (
-    data.maxTemplatesPerType &&
-    (data.maxTemplatesPerType < 1 || data.maxTemplatesPerType > 50)
-  ) {
+  if (data.maxTemplatesPerType && (data.maxTemplatesPerType < 1 || data.maxTemplatesPerType > 50)) {
     throw new Error('maxTemplatesPerType must be between 1 and 50');
   }
   if (

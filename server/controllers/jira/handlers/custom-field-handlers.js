@@ -44,7 +44,7 @@ const fetchProjectCustomFieldsCore = async (projectKey, issueType) => {
  * @param {string} customFieldId - Custom field ID
  * @returns {Promise<Object>} Custom field details
  */
-const getCustomFieldDetailsCore = async (customFieldId) => {
+const getCustomFieldDetailsCore = async customFieldId => {
   return await JiraCustomFieldService.getCustomFieldDetails(customFieldId);
 };
 
@@ -55,73 +55,64 @@ const getCustomFieldDetailsCore = async (customFieldId) => {
 /**
  * Express handler for fetching all custom fields
  */
-export const fetchAllCustomFieldsHandler = withExpressErrorHandling(
-  async (req, res) => {
-    logger.info('Fetching all custom fields');
-    
-    const customFields = await fetchAllCustomFieldsCore();
-    
-    res.json({
-      success: true,
-      data: customFields,
-      count: customFields.length,
-    });
-  },
-  'fetchAllCustomFieldsHandler',
-);
+export const fetchAllCustomFieldsHandler = withExpressErrorHandling(async (req, res) => {
+  logger.info('Fetching all custom fields');
+
+  const customFields = await fetchAllCustomFieldsCore();
+
+  res.json({
+    success: true,
+    data: customFields,
+    count: customFields.length,
+  });
+}, 'fetchAllCustomFieldsHandler');
 
 /**
  * Express handler for fetching project-specific custom fields
  */
-export const fetchProjectCustomFieldsHandler = withExpressErrorHandling(
-  async (req, res) => {
-    const { projectKey } = req.params;
-    const { issueType = 'Task' } = req.query;
-    
-    if (!projectKey) {
-      return res.status(400).json({
-        success: false,
-        error: 'projectKey is required',
-      });
-    }
-    
-    logger.info('Fetching project custom fields', { projectKey, issueType });
-    
-    const result = await fetchProjectCustomFieldsCore(projectKey, issueType);
-    
-    res.json({
-      success: true,
-      data: result,
+export const fetchProjectCustomFieldsHandler = withExpressErrorHandling(async (req, res) => {
+  const { projectKey } = req.params;
+  const { issueType = 'Task' } = req.query;
+
+  if (!projectKey) {
+    return res.status(400).json({
+      success: false,
+      error: 'projectKey is required',
     });
-  },
-  'fetchProjectCustomFieldsHandler',
-);
+  }
+
+  logger.info('Fetching project custom fields', { projectKey, issueType });
+
+  const result = await fetchProjectCustomFieldsCore(projectKey, issueType);
+
+  res.json({
+    success: true,
+    data: result,
+  });
+}, 'fetchProjectCustomFieldsHandler');
 
 /**
  * Express handler for getting custom field details
  */
-export const getCustomFieldDetailsHandler = withExpressErrorHandling(
-  async (req, res) => {
-    const { fieldId } = req.params;
-    
-    if (!fieldId) {
-      return res.status(400).json({
-        success: false,
-        error: 'fieldId is required',
-      });
-    }
-    
-    logger.info('Getting custom field details', { fieldId });
-    
-    const fieldDetails = await getCustomFieldDetailsCore(fieldId);
-    
-    res.json({
-      success: true,
-      data: fieldDetails,
+export const getCustomFieldDetailsHandler = withExpressErrorHandling(async (req, res) => {
+  const { fieldId } = req.params;
+
+  if (!fieldId) {
+    return res.status(400).json({
+      success: false,
+      error: 'fieldId is required',
     });
-  },
-  'getCustomFieldDetailsHandler',
-);
+  }
+
+  logger.info('Getting custom field details', { fieldId });
+
+  const fieldDetails = await getCustomFieldDetailsCore(fieldId);
+
+  res.json({
+    success: true,
+    data: fieldDetails,
+  });
+}, 'getCustomFieldDetailsHandler');
 
 // ============================================================================
 // PURE FUNCTIONS (BUSINESS LOGIC EXPORTS)
@@ -165,21 +156,15 @@ export const fetchCustomFieldValues = fetchCustomFieldValuesCore;
  * Express handler for fetching custom field values
  * GET /api/jira/custom-fields/:fieldId/values/:projectKey
  */
-export const fetchCustomFieldValuesHandler = withExpressErrorHandling(
-  async (req, res) => {
-    const { fieldId, projectKey } = req.params;
-    
-    logger.info(`Fetching custom field values for ${fieldId} in project ${projectKey}`);
-    
-    const result = await fetchCustomFieldValuesCore(
-      projectKey, 
-      fieldId, 
-    );
-    
-    res.json({
-      success: true,
-      data: result,
-    });
-  },
-  'fetchCustomFieldValuesHandler',
-);
+export const fetchCustomFieldValuesHandler = withExpressErrorHandling(async (req, res) => {
+  const { fieldId, projectKey } = req.params;
+
+  logger.info(`Fetching custom field values for ${fieldId} in project ${projectKey}`);
+
+  const result = await fetchCustomFieldValuesCore(projectKey, fieldId);
+
+  res.json({
+    success: true,
+    data: result,
+  });
+}, 'fetchCustomFieldValuesHandler');

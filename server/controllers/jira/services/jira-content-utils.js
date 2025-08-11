@@ -15,20 +15,12 @@ export const getAvailableIssueTypes = () => {
     Task: {
       description: 'A unit of work to be completed',
       templateType: ISSUE_TYPE_MAPPING.Task,
-      aiCapabilities: [
-        'Task breakdown',
-        'Implementation details',
-        'Checklist generation',
-      ],
+      aiCapabilities: ['Task breakdown', 'Implementation details', 'Checklist generation'],
     },
     Story: {
       description: 'A user story representing a feature or requirement',
       templateType: ISSUE_TYPE_MAPPING.Story,
-      aiCapabilities: [
-        'User story formatting',
-        'Acceptance criteria',
-        'Use case scenarios',
-      ],
+      aiCapabilities: ['User story formatting', 'Acceptance criteria', 'Use case scenarios'],
     },
   };
 };

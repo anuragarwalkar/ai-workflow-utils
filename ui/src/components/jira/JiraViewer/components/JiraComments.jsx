@@ -243,9 +243,7 @@ const JiraComments = ({ jiraData }) => {
                 variant='outlined'
                 onClick={() => {
                   // AI-powered comment suggestion
-                  setNewComment(
-                    'Based on the issue description, I suggest we...'
-                  );
+                  setNewComment('Based on the issue description, I suggest we...');
                 }}
               >
                 AI Suggest
@@ -254,8 +252,7 @@ const JiraComments = ({ jiraData }) => {
                 disabled={!newComment.trim()}
                 startIcon={<Send />}
                 sx={{
-                  background:
-                    'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                  background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 }}
                 variant='contained'
               >
@@ -265,17 +262,9 @@ const JiraComments = ({ jiraData }) => {
           </MotionBox>
 
           {/* Comments List */}
-          <motion.div
-            animate='visible'
-            initial='hidden'
-            variants={containerVariants}
-          >
+          <motion.div animate='visible' initial='hidden' variants={containerVariants}>
             {comments.map(comment => (
-              <MotionBox
-                key={comment.id}
-                sx={{ mb: 3 }}
-                variants={itemVariants}
-              >
+              <MotionBox key={comment.id} sx={{ mb: 3 }} variants={itemVariants}>
                 <Box
                   sx={{
                     p: 3,
@@ -334,10 +323,7 @@ const JiraComments = ({ jiraData }) => {
                     <ReactMarkdown
                       components={{
                         p: ({ children }) => (
-                          <Typography
-                            sx={{ mb: 1, lineHeight: 1.6 }}
-                            variant='body2'
-                          >
+                          <Typography sx={{ mb: 1, lineHeight: 1.6 }} variant='body2'>
                             {children}
                           </Typography>
                         ),
@@ -434,8 +420,7 @@ const JiraComments = ({ jiraData }) => {
                             size='small'
                             startIcon={<Send />}
                             sx={{
-                              background:
-                                'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                              background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                             }}
                             variant='contained'
                           >
@@ -519,13 +504,8 @@ const JiraComments = ({ jiraData }) => {
             </Box>
           ) : (
             <Box>
-              <Typography
-                color='text.secondary'
-                sx={{ mb: 2 }}
-                variant='subtitle2'
-              >
-                AI Generated{' '}
-                {aiAction === 'reply' ? 'Reply' : 'Formatted Comment'}:
+              <Typography color='text.secondary' sx={{ mb: 2 }} variant='subtitle2'>
+                AI Generated {aiAction === 'reply' ? 'Reply' : 'Formatted Comment'}:
               </Typography>
               <Paper
                 sx={{
@@ -534,9 +514,7 @@ const JiraComments = ({ jiraData }) => {
                   border: '1px solid rgba(102, 126, 234, 0.3)',
                 }}
               >
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {aiResult}
-                </ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiResult}</ReactMarkdown>
               </Paper>
             </Box>
           )}

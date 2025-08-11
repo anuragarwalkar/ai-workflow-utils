@@ -30,7 +30,6 @@ const uiSlice = createSlice({
   },
 });
 
-export const { showNotification, hideNotification, clearNotification } =
-  uiSlice.actions;
+export const { showNotification, hideNotification, clearNotification } = uiSlice.actions;
 
 export default uiSlice.reducer;

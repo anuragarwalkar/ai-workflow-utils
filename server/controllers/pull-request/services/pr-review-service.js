@@ -18,14 +18,11 @@ class PRReviewService {
     }
 
     logger.info(
-      `Starting AI review using LangChain with custom templates (streaming: ${streaming})`,
+      `Starting AI review using LangChain with custom templates (streaming: ${streaming})`
     );
 
     // Prepare the prompt data
-    const promptData = await DiffProcessorService.buildReviewPromptData(
-      diffData,
-      prDetails,
-    );
+    const promptData = await DiffProcessorService.buildReviewPromptData(diffData, prDetails);
 
     if (!langChainServiceFactory.hasProviders()) {
       throw new Error('No AI providers are configured in LangChain service');
@@ -59,7 +56,7 @@ class PRReviewService {
         promptData,
         null, // no images for PR review
         'PR_REVIEW',
-        false, // not streaming
+        false // not streaming
       );
 
       if (!result || !result.content || result.content.trim() === '') {
@@ -72,9 +69,7 @@ class PRReviewService {
       aiProvider = result.provider;
     }
 
-    logger.info(
-      `Successfully generated review using LangChain with ${aiProvider}`,
-    );
+    logger.info(`Successfully generated review using LangChain with ${aiProvider}`);
 
     return { review, aiProvider };
   }
@@ -92,11 +87,8 @@ class PRReviewService {
       }
 
       // Log available providers for debugging
-      const availableProviders =
-        langChainServiceFactory.getAvailableProviders();
-      logger.info(
-        `Available providers for PR review: ${JSON.stringify(availableProviders)}`,
-      );
+      const availableProviders = langChainServiceFactory.getAvailableProviders();
+      logger.info(`Available providers for PR review: ${JSON.stringify(availableProviders)}`);
 
       logger.info('Starting PR review streaming with template: PR_REVIEW');
 
@@ -106,10 +98,7 @@ class PRReviewService {
       }
 
       // Get the base template and format it
-      const promptTemplate = await prLangChainService.createPromptTemplate(
-        'PR_REVIEW',
-        false,
-      );
+      const promptTemplate = await prLangChainService.createPromptTemplate('PR_REVIEW', false);
       const formattedPrompt = await promptTemplate.format({ ...promptData });
 
       if (!formattedPrompt || formattedPrompt.trim() === '') {
@@ -119,10 +108,7 @@ class PRReviewService {
       logger.info(formattedPrompt);
 
       // Use the existing streaming infrastructure from PRLangChainService
-      return await prLangChainService.tryProvidersForStreaming(
-        formattedPrompt,
-        res,
-      );
+      return await prLangChainService.tryProvidersForStreaming(formattedPrompt, res);
     } catch (error) {
       logger.error('Error in streamPRReview:', error);
       throw error;

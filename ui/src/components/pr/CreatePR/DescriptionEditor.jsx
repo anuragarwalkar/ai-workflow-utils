@@ -68,7 +68,7 @@ const ViewMode = ({ description }) => (
 // Edit Mode Component
 const EditMode = ({ description, onChange }) => {
   const { isDark } = useAppTheme();
-  
+
   return (
     <Box
       sx={{
@@ -103,9 +103,7 @@ const SourceMode = ({ description, onChange }) => (
     fullWidth
     multiline
     InputProps={{
-      endAdornment: !description && (
-        <CircularProgress size={16} sx={{ mr: 1 }} />
-      ),
+      endAdornment: !description && <CircularProgress size={16} sx={{ mr: 1 }} />,
     }}
     placeholder={!description ? 'Generating description...' : ''}
     rows={8}

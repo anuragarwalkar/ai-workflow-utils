@@ -65,8 +65,8 @@ const AdvancedSettings = () => {
       </Typography>
 
       <Alert severity='warning' sx={{ mb: 3 }}>
-        These settings are for advanced users. Changing these settings may
-        affect application performance or data integrity.
+        These settings are for advanced users. Changing these settings may affect application
+        performance or data integrity.
       </Alert>
 
       <Card sx={{ mb: 3 }}>
@@ -76,14 +76,8 @@ const AdvancedSettings = () => {
           </Typography>
 
           <FormControlLabel control={<Switch />} label='Enable debug mode' />
-          <FormControlLabel
-            control={<Switch />}
-            label='Show API request logs'
-          />
-          <FormControlLabel
-            control={<Switch />}
-            label='Enable verbose logging'
-          />
+          <FormControlLabel control={<Switch />} label='Show API request logs' />
+          <FormControlLabel control={<Switch />} label='Enable verbose logging' />
 
           <TextField
             fullWidth
@@ -107,18 +101,10 @@ const AdvancedSettings = () => {
           </Typography>
 
           <Stack direction='row' spacing={2} sx={{ mb: 2 }}>
-            <Button
-              startIcon={<ImportIcon />}
-              variant='outlined'
-              onClick={handleImportData}
-            >
+            <Button startIcon={<ImportIcon />} variant='outlined' onClick={handleImportData}>
               Import Data
             </Button>
-            <Button
-              startIcon={<ImportIcon />}
-              variant='outlined'
-              onClick={handleExportData}
-            >
+            <Button startIcon={<ImportIcon />} variant='outlined' onClick={handleExportData}>
               Export All Data
             </Button>
           </Stack>
@@ -156,10 +142,7 @@ const AdvancedSettings = () => {
             type='number'
           />
 
-          <FormControlLabel
-            control={<Switch defaultChecked />}
-            label='Enable request caching'
-          />
+          <FormControlLabel control={<Switch defaultChecked />} label='Enable request caching' />
 
           <Divider sx={{ my: 2 }} />
 
@@ -168,8 +151,7 @@ const AdvancedSettings = () => {
           </Typography>
 
           <Alert severity='error' sx={{ mb: 2 }}>
-            These actions are irreversible. Please make sure you have backups
-            before proceeding.
+            These actions are irreversible. Please make sure you have backups before proceeding.
           </Alert>
 
           <Button

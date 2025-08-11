@@ -19,12 +19,7 @@ export const streamPreviewContentCore = async (data, images, res) => {
     promptLength: prompt.length,
   });
   res.writeHead(200, SSE_HEADERS);
-  await jiraLangChainService.streamContent(
-    { prompt },
-    images || [],
-    templateType,
-    res,
-  );
+  await jiraLangChainService.streamContent({ prompt }, images || [], templateType, res);
   logger.info('AI preview generation completed', {
     issueType,
     templateType,
@@ -43,11 +38,7 @@ export const generateContentCore = async (data, images = []) => {
     templateType,
     hasImages: images.length > 0,
   });
-  const content = await jiraLangChainService.generateContent(
-    { prompt },
-    images,
-    templateType,
-  );
+  const content = await jiraLangChainService.generateContent({ prompt }, images, templateType);
   logger.info('AI content generation completed', {
     issueType,
     contentLength: content?.length || 0,
@@ -104,11 +95,7 @@ export const generateAcceptanceCriteriaCore = async description => {
   return criteria || 'Acceptance criteria to be defined';
 };
 
-export const generateCommentReplyCore = async (
-  comment,
-  context = '',
-  tone = 'professional',
-) => {
+export const generateCommentReplyCore = async (comment, context = '', tone = 'professional') => {
   if (!comment || typeof comment !== 'string') {
     throw ErrorHandler.createValidationError('Comment is required');
   }
@@ -128,10 +115,7 @@ export const generateCommentReplyCore = async (
     replyLength: reply?.length || 0,
     tone,
   });
-  return (
-    reply ||
-    'Thank you for your comment. I will review and follow up accordingly.'
-  );
+  return reply || 'Thank you for your comment. I will review and follow up accordingly.';
 };
 
 export const formatCommentCore = async (comment, format = 'jira') => {
@@ -142,8 +126,7 @@ export const formatCommentCore = async (comment, format = 'jira') => {
     jira: 'Format this comment using Jira markup syntax for better readability. Use *bold*, _italic_, {{monospace}}, bullet points, numbered lists, and proper line breaks where appropriate.',
     markdown:
       'Format this comment using proper Markdown syntax with **bold**, *italic*, `code`, bullet points, numbered lists, and appropriate headings.',
-    plain:
-      'Format this comment as plain text with proper paragraph breaks and clear structure.',
+    plain: 'Format this comment as plain text with proper paragraph breaks and clear structure.',
   };
   const formatInstruction = formatInstructions[format] || formatInstructions.jira;
   const formatPrompt = `${formatInstruction}\n\nOriginal comment:\n${comment}\n\nFormatted comment:`;

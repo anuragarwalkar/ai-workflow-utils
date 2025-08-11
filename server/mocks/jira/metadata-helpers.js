@@ -87,9 +87,9 @@ const getFieldConfigurations = () => ({
  * @param {object} issueType - Issue type object
  * @returns {object} Issue type with fields
  */
-export const buildIssueTypeWithFields = (issueType) => {
+export const buildIssueTypeWithFields = issueType => {
   const fieldConfigs = getFieldConfigurations();
-  
+
   return {
     ...issueType,
     fields: {
@@ -167,9 +167,9 @@ export const getTransitionsData = () => ({
  * @param {string} transitionId - Transition ID
  * @returns {object|null} Status object or null
  */
-export const getStatusByTransitionId = (transitionId) => {
+export const getStatusByTransitionId = transitionId => {
   const statusMap = {
-    '21': {
+    21: {
       id: '3',
       name: 'In Progress',
       statusCategory: {
@@ -178,7 +178,7 @@ export const getStatusByTransitionId = (transitionId) => {
         colorName: 'yellow',
       },
     },
-    '31': {
+    31: {
       id: '10001',
       name: 'Done',
       statusCategory: {
@@ -188,6 +188,6 @@ export const getStatusByTransitionId = (transitionId) => {
       },
     },
   };
-  
+
   return statusMap[transitionId] || null;
 };

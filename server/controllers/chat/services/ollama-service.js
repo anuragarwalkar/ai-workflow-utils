@@ -23,10 +23,7 @@ export async function generateOllamaResponse(messageData) {
   };
 
   try {
-    const response = await axios.post(
-      `${config.baseUrl}/api/generate`,
-      requestPayload,
-    );
+    const response = await axios.post(`${config.baseUrl}/api/generate`, requestPayload);
 
     logger.info('Ollama API response received');
     return response.data?.response;
@@ -49,13 +46,9 @@ export async function generateOllamaStreamingResponse(messageData) {
     stream: true,
   };
   try {
-    const response = await axios.post(
-      `${config.baseUrl}/api/generate`,
-      requestPayload,
-      {
-        responseType: 'stream',
-      },
-    );
+    const response = await axios.post(`${config.baseUrl}/api/generate`, requestPayload, {
+      responseType: 'stream',
+    });
     return response;
   } catch (error) {
     handleOllamaServiceApiError(error);
@@ -66,4 +59,3 @@ function handleOllamaServiceApiError(error) {
   logger.error('OllamaService API error:', error);
   throw error;
 }
-

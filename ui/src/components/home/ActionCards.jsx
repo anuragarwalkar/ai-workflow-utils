@@ -88,8 +88,7 @@ const ActionCards = () => {
     {
       id: 'create-jira',
       title: 'AI Create Jira',
-      description:
-        'AI-powered Jira ticket creation with intelligent suggestions',
+      description: 'AI-powered Jira ticket creation with intelligent suggestions',
       icon: BugReportIcon,
       actionIcon: AddIcon,
       onClick: handleCreateJira,
@@ -125,8 +124,7 @@ const ActionCards = () => {
     {
       id: 'create-pr',
       title: 'AI Draft Pull Request',
-      description:
-        'AI-generated pull request creation with content suggestions',
+      description: 'AI-generated pull request creation with content suggestions',
       icon: MergeIcon,
       actionIcon: CreateIcon,
       onClick: handleCreatePR,
@@ -138,8 +136,7 @@ const ActionCards = () => {
     {
       id: 'ai-chat',
       title: 'AI Chat Assistant',
-      description:
-        'Intelligent conversational AI for development task assistance',
+      description: 'Intelligent conversational AI for development task assistance',
       icon: ChatIcon,
       actionIcon: AutoFixHighIcon,
       onClick: handleAiChat,
@@ -211,9 +208,7 @@ const ActionCards = () => {
 
   // Filter cards based on feature flags and hidden status
   const visibleCards = allActionCards.filter(
-    card =>
-      !(card.isHidden && card.isHidden()) &&
-      (card.isReleased || showUnreleasedFeatures)
+    card => !(card.isHidden && card.isHidden()) && (card.isReleased || showUnreleasedFeatures)
   );
 
   // Helper function to render badges with DRY principle
@@ -292,11 +287,7 @@ const ActionCards = () => {
           width: '100%',
         }}
       >
-        <Grid
-          container
-          spacing={2}
-          sx={{ maxWidth: 1000, mx: 'auto', justifyContent: 'center' }}
-        >
+        <Grid container spacing={2} sx={{ maxWidth: 1000, mx: 'auto', justifyContent: 'center' }}>
           {visibleCards.map(card => {
             const IconComponent = card.icon;
             const ActionIconComponent = card.actionIcon;
@@ -313,9 +304,7 @@ const ActionCards = () => {
                     maxHeight: 280,
                     cursor: 'pointer',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    background: isDark
-                      ? 'rgba(45, 55, 72, 0.95)'
-                      : 'rgba(255, 255, 255, 0.95)',
+                    background: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
                     backdropFilter: 'blur(20px)',
                     border: isDark
                       ? '1px solid rgba(255, 255, 255, 0.1)'
@@ -328,9 +317,7 @@ const ActionCards = () => {
                     '&:hover': {
                       transform: 'translateY(-8px) scale(1.02)',
                       boxShadow: `0 20px 60px ${card.shadowColor}`,
-                      background: isDark
-                        ? 'rgba(45, 55, 72, 0.98)'
-                        : 'rgba(255, 255, 255, 0.98)',
+                      background: isDark ? 'rgba(45, 55, 72, 0.98)' : 'rgba(255, 255, 255, 0.98)',
                       '& .action-button': {
                         transform: 'scale(1.1)',
                         background: card.gradient,
@@ -386,9 +373,7 @@ const ActionCards = () => {
 
                         <Typography
                           sx={{
-                            color: isDark
-                              ? 'rgba(255, 255, 255, 0.8)'
-                              : '#4a5568',
+                            color: isDark ? 'rgba(255, 255, 255, 0.8)' : '#4a5568',
                             lineHeight: 1.6,
                             mb: 2,
                           }}

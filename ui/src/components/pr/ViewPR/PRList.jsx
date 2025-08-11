@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Box,
   Button,
@@ -101,18 +100,10 @@ const PRList = ({ projectKey, repoSlug, onViewDiff, onRequestReview }) => {
                   ml: { xs: 0, sm: 2 },
                 }}
               >
-                <Button
-                  size='small'
-                  variant='outlined'
-                  onClick={() => onViewDiff(pr)}
-                >
+                <Button size='small' variant='outlined' onClick={() => onViewDiff(pr)}>
                   View Diff
                 </Button>
-                <Button
-                  size='small'
-                  variant='outlined'
-                  onClick={() => onRequestReview(pr)}
-                >
+                <Button size='small' variant='outlined' onClick={() => onRequestReview(pr)}>
                   Request Review
                 </Button>
               </Box>

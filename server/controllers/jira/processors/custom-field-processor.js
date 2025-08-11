@@ -9,7 +9,7 @@ import logger from '../../../logger.js';
  * @param {Array} customFields - Array of custom field objects
  * @returns {Object} Processed custom fields object
  */
-export const processCustomFields = (customFields) => {
+export const processCustomFields = customFields => {
   const processedFields = {};
 
   if (!customFields || !Array.isArray(customFields)) {
@@ -80,7 +80,7 @@ export const processFieldValue = (value, type = null) => {
  * @param {Object} obj - Object value
  * @returns {Object} Processed object
  */
-export const processObjectValue = (obj) => {
+export const processObjectValue = obj => {
   const processed = {};
 
   for (const [key, val] of Object.entries(obj)) {
@@ -139,28 +139,28 @@ export const processStringValue = (value, type) => {
  */
 export const processTypedStringValue = (value, type) => {
   switch (type.toLowerCase()) {
-  case 'number':
-    const num = parseFloat(value);
-    return isNaN(num) ? value : num;
+    case 'number':
+      const num = parseFloat(value);
+      return isNaN(num) ? value : num;
 
-  case 'boolean':
-    return parseBoolean(value);
+    case 'boolean':
+      return parseBoolean(value);
 
-  case 'date':
-    return parseDate(value);
+    case 'date':
+      return parseDate(value);
 
-  case 'multi-select':
-  case 'array':
-    return parseCommaSeparatedList(value);
+    case 'multi-select':
+    case 'array':
+      return parseCommaSeparatedList(value);
 
-  case 'user':
-    return parseUserValue(value);
+    case 'user':
+      return parseUserValue(value);
 
-  case 'option':
-    return { value };
+    case 'option':
+      return { value };
 
-  default:
-    return value;
+    default:
+      return value;
   }
 };
 
@@ -169,11 +169,8 @@ export const processTypedStringValue = (value, type) => {
  * @param {string} str - String to check
  * @returns {boolean} True if JSON-like
  */
-export const isJsonLike = (str) => {
-  return (
-    (str.startsWith('{') && str.endsWith('}')) ||
-    (str.startsWith('[') && str.endsWith(']'))
-  );
+export const isJsonLike = str => {
+  return (str.startsWith('{') && str.endsWith('}')) || (str.startsWith('[') && str.endsWith(']'));
 };
 
 /**
@@ -181,7 +178,7 @@ export const isJsonLike = (str) => {
  * @param {string} jsonStr - JSON string
  * @returns {string} Sanitized JSON string
  */
-export const sanitizeJsonString = (jsonStr) => {
+export const sanitizeJsonString = jsonStr => {
   // Fix unquoted object keys like { id: "007" } -> { "id": "007" }
   return jsonStr.replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":');
 };
@@ -191,10 +188,8 @@ export const sanitizeJsonString = (jsonStr) => {
  * @param {string} str - String to check
  * @returns {boolean} True if comma-separated
  */
-export const isCommaSeparatedList = (str) => {
-  return (
-    str.includes(',') && !isJsonLike(str) && str.split(',').length > 1
-  );
+export const isCommaSeparatedList = str => {
+  return str.includes(',') && !isJsonLike(str) && str.split(',').length > 1;
 };
 
 /**
@@ -202,7 +197,7 @@ export const isCommaSeparatedList = (str) => {
  * @param {string} str - Comma-separated string
  * @returns {Array} Array of trimmed values
  */
-export const parseCommaSeparatedList = (str) => {
+export const parseCommaSeparatedList = str => {
   return str
     .split(',')
     .map(item => item.trim())
@@ -214,7 +209,7 @@ export const parseCommaSeparatedList = (str) => {
  * @param {string} str - String to parse
  * @returns {boolean} Boolean value
  */
-export const parseBoolean = (str) => {
+export const parseBoolean = str => {
   const lowerStr = str.toLowerCase().trim();
   return lowerStr === 'true' || lowerStr === '1' || lowerStr === 'yes';
 };
@@ -224,7 +219,7 @@ export const parseBoolean = (str) => {
  * @param {string} str - Date string
  * @returns {string} ISO date string or original string
  */
-export const parseDate = (str) => {
+export const parseDate = str => {
   try {
     const date = new Date(str);
     return isNaN(date.getTime()) ? str : date.toISOString();
@@ -238,7 +233,7 @@ export const parseDate = (str) => {
  * @param {string} str - User string (could be username, email, or display name)
  * @returns {Object} User object
  */
-export const parseUserValue = (str) => {
+export const parseUserValue = str => {
   // If it looks like JSON, try to parse it
   if (isJsonLike(str)) {
     try {
@@ -261,7 +256,7 @@ export const parseUserValue = (str) => {
  * @param {Object} processedFields - Processed custom fields
  * @returns {Object} Validation result
  */
-export const validateProcessedFields = (processedFields) => {
+export const validateProcessedFields = processedFields => {
   const errors = [];
 
   for (const [key, value] of Object.entries(processedFields)) {
@@ -269,9 +264,7 @@ export const validateProcessedFields = (processedFields) => {
       // Check if value can be serialized (no circular references, etc.)
       JSON.stringify(value);
     } catch (error) {
-      errors.push(
-        `Custom field '${key}' contains invalid data: ${error.message}`,
-      );
+      errors.push(`Custom field '${key}' contains invalid data: ${error.message}`);
     }
   }
 
@@ -286,7 +279,7 @@ export const validateProcessedFields = (processedFields) => {
  * @param {any} value - Field value
  * @returns {Array<string>} Suggested field types
  */
-export const suggestFieldTypes = (value) => {
+export const suggestFieldTypes = value => {
   const suggestions = [];
 
   if (typeof value === 'string') {
@@ -314,7 +307,7 @@ export const suggestFieldTypes = (value) => {
  * @param {Object} customFields - Custom fields object
  * @returns {Object} Display-friendly custom fields
  */
-export const cleanForDisplay = (customFields) => {
+export const cleanForDisplay = customFields => {
   const cleaned = {};
 
   for (const [key, value] of Object.entries(customFields)) {

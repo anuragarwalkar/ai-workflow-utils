@@ -28,9 +28,7 @@ class WikiService {
       const response = await fetch(wikiUrl, requestOptions);
 
       if (!response.ok) {
-        throw new Error(
-          `Wiki fetch failed with status: ${response.status} ${response.statusText}`,
-        );
+        throw new Error(`Wiki fetch failed with status: ${response.status} ${response.statusText}`);
       }
 
       const htmlContent = await response.text();
@@ -63,10 +61,7 @@ class WikiService {
     try {
       logger.info('Extracting table data', { version });
 
-      const tableData = await TableExtractor.extractTableAsArray(
-        htmlContent,
-        version,
-      );
+      const tableData = await TableExtractor.extractTableAsArray(htmlContent, version);
 
       if (!Array.isArray(tableData) || tableData.length === 0) {
         throw new Error('No table data extracted from wiki content');

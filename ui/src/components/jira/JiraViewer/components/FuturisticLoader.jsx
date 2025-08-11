@@ -201,8 +201,7 @@ const FuturisticLoader = () => {
                 borderRadius: 2,
                 backgroundColor: 'rgba(102, 126, 234, 0.1)',
                 '& .MuiLinearProgress-bar': {
-                  background:
-                    'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                  background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                   borderRadius: 2,
                 },
               }}

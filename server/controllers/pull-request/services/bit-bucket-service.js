@@ -31,9 +31,7 @@ class BitbucketService {
       },
     });
 
-    logger.info(
-      `Successfully fetched ${response.data.values?.length || 0} pull requests`,
-    );
+    logger.info(`Successfully fetched ${response.data.values?.length || 0} pull requests`);
     return response.data;
   }
 
@@ -86,9 +84,7 @@ class BitbucketService {
         date: commit.authorTimestamp,
       }));
 
-      logger.info(
-        `Successfully fetched ${commits.length} commits from branch ${branchName}`,
-      );
+      logger.info(`Successfully fetched ${commits.length} commits from branch ${branchName}`);
       return commits;
     }
 

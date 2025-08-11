@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  AppBar,
-  Box,
-  Chip,
-  IconButton,
-  Toolbar,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { AppBar, Box, Chip, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
 import {
   BugReport,
   Home,
@@ -21,14 +13,7 @@ import {
 import { useAppTheme } from '../../../../theme/useAppTheme';
 import ThemeToggle from '../../../common/ThemeToggle';
 
-const JiraNavigationBar = ({
-  jiraData,
-  isStarred,
-  onBack,
-  onRefresh,
-  onShare,
-  onToggleStar,
-}) => {
+const JiraNavigationBar = ({ jiraData, isStarred, onBack, onRefresh, onShare, onToggleStar }) => {
   const { isDark } = useAppTheme();
 
   const getIssueIcon = issueType => {
@@ -68,9 +53,7 @@ const JiraNavigationBar = ({
       elevation={0}
       position='static'
       sx={{
-        background: isDark
-          ? 'rgba(15, 15, 35, 0.95)'
-          : 'rgba(230, 232, 240, 0.95)',
+        background: isDark ? 'rgba(15, 15, 35, 0.95)' : 'rgba(230, 232, 240, 0.95)',
         backdropFilter: 'blur(20px)',
         borderBottom: isDark
           ? '1px solid rgba(255, 255, 255, 0.1)'
@@ -84,13 +67,9 @@ const JiraNavigationBar = ({
             <IconButton
               sx={{
                 color: isDark ? 'white' : '#2d3748',
-                background: isDark
-                  ? 'rgba(255, 255, 255, 0.1)'
-                  : 'rgba(45, 55, 72, 0.1)',
+                background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(45, 55, 72, 0.1)',
                 '&:hover': {
-                  background: isDark
-                    ? 'rgba(255, 255, 255, 0.2)'
-                    : 'rgba(45, 55, 72, 0.2)',
+                  background: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(45, 55, 72, 0.2)',
                   transform: 'scale(1.1)',
                 },
                 transition: 'all 0.3s ease',
@@ -158,9 +137,7 @@ const JiraNavigationBar = ({
             </IconButton>
           </Tooltip>
 
-          <Tooltip
-            title={isStarred ? 'Remove from favorites' : 'Add to favorites'}
-          >
+          <Tooltip title={isStarred ? 'Remove from favorites' : 'Add to favorites'}>
             <IconButton
               sx={{
                 color: isStarred ? '#ffd700' : isDark ? 'white' : '#2d3748',

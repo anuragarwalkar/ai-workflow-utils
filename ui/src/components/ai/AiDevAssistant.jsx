@@ -115,9 +115,7 @@ const AiDevAssistant = () => {
           handleFirstChunk();
           setMessages(prev =>
             prev.map(msg =>
-              msg.id === assistantMessageId
-                ? { ...msg, content: fullContent }
-                : msg
+              msg.id === assistantMessageId ? { ...msg, content: fullContent } : msg
             )
           );
         },
@@ -133,9 +131,7 @@ const AiDevAssistant = () => {
       // Mark streaming as complete
       if (assistantMessageId) {
         setMessages(prev =>
-          prev.map(msg =>
-            msg.id === assistantMessageId ? { ...msg, isStreaming: false } : msg
-          )
+          prev.map(msg => (msg.id === assistantMessageId ? { ...msg, isStreaming: false } : msg))
         );
       }
     } catch (error) {
@@ -145,8 +141,7 @@ const AiDevAssistant = () => {
           msg.id === 'loading'
             ? {
                 ...msg,
-                content:
-                  'Sorry, I encountered an error processing your request. Please try again.',
+                content: 'Sorry, I encountered an error processing your request. Please try again.',
                 isError: true,
                 isLoading: false,
               }
@@ -324,8 +319,7 @@ const AiDevAssistant = () => {
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent:
-                    message.role === 'user' ? 'flex-end' : 'flex-start',
+                  justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start',
                   mb: 2,
                   gap: 2,
                 }}
@@ -357,14 +351,10 @@ const AiDevAssistant = () => {
                         : 'rgba(255, 255, 255, 0.95)',
                     color: message.role === 'user' ? 'white' : 'black',
                     borderRadius:
-                      message.role === 'user'
-                        ? '20px 20px 4px 20px'
-                        : '20px 20px 20px 4px',
+                      message.role === 'user' ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
                     backdropFilter: 'blur(10px)',
                     border:
-                      message.role === 'assistant'
-                        ? '1px solid rgba(255, 255, 255, 0.2)'
-                        : 'none',
+                      message.role === 'assistant' ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
                     position: 'relative',
                     boxShadow:
                       message.role === 'user'
@@ -405,10 +395,7 @@ const AiDevAssistant = () => {
                         <div />
                         <div />
                       </Box>
-                      <Typography
-                        sx={{ color: 'text.secondary' }}
-                        variant='body2'
-                      >
+                      <Typography sx={{ color: 'text.secondary' }} variant='body2'>
                         Thinking...
                       </Typography>
                     </Box>
@@ -453,8 +440,7 @@ const AiDevAssistant = () => {
                 {message.role === 'user' && (
                   <Avatar
                     sx={{
-                      background:
-                        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                      background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                       width: 40,
                       height: 40,
                       alignSelf: 'flex-end',
@@ -519,8 +505,7 @@ const AiDevAssistant = () => {
                 width: 48,
                 height: 48,
                 '&:hover': {
-                  background:
-                    'linear-gradient(135deg, #0f7b6c 0%, #2bb673 100%)',
+                  background: 'linear-gradient(135deg, #0f7b6c 0%, #2bb673 100%)',
                   transform: 'scale(1.05)',
                 },
                 '&:disabled': {

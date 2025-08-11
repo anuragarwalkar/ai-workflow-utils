@@ -24,18 +24,14 @@ export const templateApi = createApi({
     // Get templates by type
     getTemplatesByType: builder.query({
       query: issueType => `/type/${issueType}`,
-      providesTags: (result, error, issueType) => [
-        { type: 'Template', id: `TYPE_${issueType}` },
-      ],
+      providesTags: (result, error, issueType) => [{ type: 'Template', id: `TYPE_${issueType}` }],
       transformResponse: response => response.data,
     }),
 
     // Get active template for issue type
     getActiveTemplate: builder.query({
       query: issueType => `/active/${issueType}`,
-      providesTags: (result, error, issueType) => [
-        { type: 'Template', id: `ACTIVE_${issueType}` },
-      ],
+      providesTags: (result, error, issueType) => [{ type: 'Template', id: `ACTIVE_${issueType}` }],
       transformResponse: response => response.data,
     }),
 
@@ -51,9 +47,7 @@ export const templateApi = createApi({
       onQueryStarted: async (template, { queryFulfilled }) => {
         try {
           await queryFulfilled;
-          ToastService.success(
-            `Template "${template.name}" created successfully`
-          );
+          ToastService.success(`Template "${template.name}" created successfully`);
         } catch (error) {
           ToastService.handleApiError(error, 'Failed to create template');
         }
@@ -67,18 +61,13 @@ export const templateApi = createApi({
         method: 'PUT',
         body: updates,
       }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'Template', id },
-        'Template',
-      ],
+      invalidatesTags: (result, error, { id }) => [{ type: 'Template', id }, 'Template'],
       transformResponse: response => response.data,
       onQueryStarted: async ({ name, ...updates }, { queryFulfilled }) => {
         try {
           await queryFulfilled;
           const templateName = name || updates.name || 'Template';
-          ToastService.success(
-            `Template "${templateName}" updated successfully`
-          );
+          ToastService.success(`Template "${templateName}" updated successfully`);
         } catch (error) {
           ToastService.handleApiError(error, 'Failed to update template');
         }
@@ -97,8 +86,7 @@ export const templateApi = createApi({
         try {
           await queryFulfilled;
           // Get template name from current state for better message
-          const templates =
-            getState().templateApi?.queries?.getAllTemplates?.data || [];
+          const templates = getState().templateApi?.queries?.getAllTemplates?.data || [];
           const template = templates.find(t => t.id === id);
           const templateName = template?.name || 'Template';
 

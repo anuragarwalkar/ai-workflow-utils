@@ -12,7 +12,7 @@ import logger from '../../../logger.js';
  * @param {Array<string>} issueKeys - Array of issue keys
  * @returns {Promise<Object>} Map of issue key to summary
  */
-export const fetchJiraSummaries = async (issueKeys) => {
+export const fetchJiraSummaries = async issueKeys => {
   return fetchSummaries(issueKeys);
 };
 
@@ -21,7 +21,7 @@ export const fetchJiraSummaries = async (issueKeys) => {
  * @param {Array<string>} issueKeys - Array of issue keys
  * @returns {Promise<Object>} Map of issue key to summary
  */
-export const fetchSummaries = async (issueKeys) => {
+export const fetchSummaries = async issueKeys => {
   try {
     // Validate input
     const validation = ValidationUtils.validateIssueKeys(issueKeys);
@@ -69,7 +69,7 @@ export const fetchSummaries = async (issueKeys) => {
  * @returns {Promise<Array<Array>>} Updated table data with summaries
  */
 // eslint-disable-next-line max-statements
-export const fetchAndMergeJiraSummary = async (tableData) => {
+export const fetchAndMergeJiraSummary = async tableData => {
   try {
     // Validate table data structure
     if (!Array.isArray(tableData) || tableData.length < 2) {
@@ -80,7 +80,7 @@ export const fetchAndMergeJiraSummary = async (tableData) => {
     const jiraKeyIndex = headers.indexOf('Jira URL');
 
     if (jiraKeyIndex === -1) {
-      throw ErrorHandler.createValidationError('Missing \'Jira URL\' column');
+      throw ErrorHandler.createValidationError("Missing 'Jira URL' column");
     }
 
     logger.info('Processing table data for Jira summaries', {
@@ -139,7 +139,7 @@ export const fetchAndMergeJiraSummary = async (tableData) => {
  * @param {string} jiraUrl - Jira URL or issue key
  * @returns {string|null} Extracted issue key or null
  */
-export const extractIssueKeyFromUrl = (jiraUrl) => {
+export const extractIssueKeyFromUrl = jiraUrl => {
   if (!jiraUrl || typeof jiraUrl !== 'string') {
     return null;
   }
@@ -182,11 +182,7 @@ export const getProjectSummaries = async (projectKey, limit = 100) => {
     }
 
     const jql = `project = ${projectKey} ORDER BY created DESC`;
-    const searchResult = await searchIssues(
-      jql,
-      ['summary'],
-      limit,
-    );
+    const searchResult = await searchIssues(jql, ['summary'], limit);
 
     const summariesMap = {};
     if (searchResult.issues) {
@@ -230,11 +226,7 @@ export const searchBySummary = async (searchText, projectKey = null, limit = 50)
     }
     jql += ' ORDER BY updated DESC';
 
-    const searchResult = await searchIssues(
-      jql,
-      ['summary', 'status', 'assignee'],
-      limit,
-    );
+    const searchResult = await searchIssues(jql, ['summary', 'status', 'assignee'], limit);
 
     const issues =
       searchResult.issues?.map(issue => ({
@@ -266,7 +258,7 @@ export const searchBySummary = async (searchText, projectKey = null, limit = 50)
  * @param {string} projectKey - Project key
  * @returns {Promise<Object>} Summary statistics
  */
-export const getSummaryStats = async (projectKey) => {
+export const getSummaryStats = async projectKey => {
   try {
     const summaries = await getProjectSummaries(projectKey, 1000);
     const summaryTexts = Object.values(summaries);
@@ -276,15 +268,12 @@ export const getSummaryStats = async (projectKey) => {
       averageLength:
         summaryTexts.length > 0
           ? Math.round(
-            summaryTexts.reduce((sum, text) => sum + text.length, 0) /
-                summaryTexts.length,
-          )
+              summaryTexts.reduce((sum, text) => sum + text.length, 0) / summaryTexts.length
+            )
           : 0,
       longestSummary: Math.max(...summaryTexts.map(text => text.length), 0),
       shortestSummary:
-        summaryTexts.length > 0
-          ? Math.min(...summaryTexts.map(text => text.length))
-          : 0,
+        summaryTexts.length > 0 ? Math.min(...summaryTexts.map(text => text.length)) : 0,
       commonWords: getCommonWords(summaryTexts),
     };
 
@@ -314,7 +303,7 @@ export const getSummaryStats = async (projectKey) => {
  * @param {Array<string>} summaries - Array of summary texts
  * @returns {Array} Top 10 common words
  */
-export const getCommonWords = (summaries) => {
+export const getCommonWords = summaries => {
   const wordCounts = {};
   const stopWords = new Set([
     'the',
@@ -355,7 +344,7 @@ export const getCommonWords = (summaries) => {
 export const JiraSummaryService = {
   fetchJiraSummaries,
   fetchSummaries,
-  // eslint-disable-next-line max-lines
+
   fetchAndMergeJiraSummary,
   extractIssueKeyFromUrl,
   getProjectSummaries,

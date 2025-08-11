@@ -33,15 +33,10 @@ const cleanupOldLogs = async () => {
         const stats = await promisify(fs.stat)(filePath);
         if (stats.mtime < cutoffDate) {
           await promisify(fs.unlink)(filePath);
-          console.log(
-            `🗑️  Deleted old log file: ${file} (${stats.mtime.toDateString()})`,
-          );
+          console.log(`🗑️  Deleted old log file: ${file} (${stats.mtime.toDateString()})`);
         }
       } catch (error) {
-        console.warn(
-          `Warning: Could not process log file ${file}:`,
-          error.message,
-        );
+        console.warn(`Warning: Could not process log file ${file}:`, error.message);
       }
     }
   } catch (error) {
@@ -63,11 +58,7 @@ const formatArgs = (args, pretty = false) => {
 
   return args
     .map(arg => {
-      if (
-        typeof arg === 'string' ||
-        typeof arg === 'number' ||
-        typeof arg === 'boolean'
-      ) {
+      if (typeof arg === 'string' || typeof arg === 'number' || typeof arg === 'boolean') {
         return String(arg);
       } else if (arg instanceof Error) {
         return `Error: ${arg.message}`;
@@ -102,11 +93,8 @@ const consoleTransport = new transports.Console({
         }
       }
 
-      return colorizer(
-        info.level,
-        `${info.timestamp} [${info.level.toUpperCase()}]: ${message}`,
-      );
-    }),
+      return colorizer(info.level, `${info.timestamp} [${info.level.toUpperCase()}]: ${message}`);
+    })
   ),
 });
 
@@ -127,7 +115,7 @@ const fileFormat = format.combine(
     }
 
     return `${info.timestamp} [${info.level.toUpperCase()}]: ${message}`;
-  }),
+  })
 );
 
 // Determine log level based on environment
@@ -156,13 +144,10 @@ try {
     new transports.File({
       filename: path.join(projectRoot, 'logs/combined.log'),
       format: fileFormat,
-    }),
+    })
   );
 } catch (error) {
-  console.warn(
-    'Warning: Could not create file transports, using console only:',
-    error.message,
-  );
+  console.warn('Warning: Could not create file transports, using console only:', error.message);
 }
 
 // Create the logger instance
@@ -171,7 +156,7 @@ const logger = createLogger({
   format: format.combine(
     format.splat(), // This is crucial for handling multiple arguments
     format.timestamp(),
-    format.errors({ stack: true }),
+    format.errors({ stack: true })
   ),
   transports: logTransports,
   // Prevent Winston from exiting on unhandled exceptions in production
@@ -183,7 +168,7 @@ const logLevel = getLogLevel();
 const nodeEnv = process.env.NODE_ENV || 'development';
 const explicitLogLevel = process.env.LOG_LEVEL || 'undefined';
 console.log(
-  `🔧 Logger initialized with level: ${logLevel.toUpperCase()} (NODE_ENV: ${nodeEnv}, LOG_LEVEL: ${explicitLogLevel})`,
+  `🔧 Logger initialized with level: ${logLevel.toUpperCase()} (NODE_ENV: ${nodeEnv}, LOG_LEVEL: ${explicitLogLevel})`
 );
 
 export default logger;

@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Paper,
-  Typography,
-} from '@mui/material';
+import { Box, Button, CircularProgress, Paper, Typography } from '@mui/material';
 import DescriptionEditor from './DescriptionEditor';
 import TitleEditor from './TitleEditor';
 
@@ -89,20 +83,12 @@ const PreviewSection = ({ preview, onConfirm, isLoading }) => {
     });
   };
 
-  const isDisabled =
-    isLoading ||
-    !previewState.editableTitle ||
-    !previewState.editableDescription;
+  const isDisabled = isLoading || !previewState.editableTitle || !previewState.editableDescription;
 
   return (
     <Box sx={{ mt: 4 }}>
       {renderPreviewContent(previewState, preview)}
-      <Button
-        color='primary'
-        disabled={isDisabled}
-        variant='contained'
-        onClick={handleConfirm}
-      >
+      <Button color='primary' disabled={isDisabled} variant='contained' onClick={handleConfirm}>
         {isLoading ? <CircularProgress size={24} /> : 'Create Pull Request'}
       </Button>
     </Box>

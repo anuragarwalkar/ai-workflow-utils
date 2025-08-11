@@ -1,6 +1,7 @@
 # AI Workflow Utils - Startup Service
 
-This document explains how to set up AI Workflow Utils to automatically start on system boot, similar to PM2's startup functionality.
+This document explains how to set up AI Workflow Utils to automatically start on
+system boot, similar to PM2's startup functionality.
 
 ## Overview
 
@@ -62,7 +63,8 @@ ai-workflow-utils startup uninstall
 
 ### macOS (LaunchAgents)
 
-The service is installed as a user LaunchAgent in `~/Library/LaunchAgents/ai-workflow-utils.plist`.
+The service is installed as a user LaunchAgent in
+`~/Library/LaunchAgents/ai-workflow-utils.plist`.
 
 **Features:**
 
@@ -86,7 +88,8 @@ launchctl list | grep ai-workflow-utils
 
 ### Windows (Windows Service)
 
-The service is registered as a Windows Service using the Service Control Manager.
+The service is registered as a Windows Service using the Service Control
+Manager.
 
 **Features:**
 
@@ -119,7 +122,8 @@ You can also manage the service through:
 
 ### Linux (systemd)
 
-The service is installed as a systemd service in `/etc/systemd/system/ai-workflow-utils.service`.
+The service is installed as a systemd service in
+`/etc/systemd/system/ai-workflow-utils.service`.
 
 **Features:**
 
@@ -220,7 +224,8 @@ If port 3000 is already in use, you may need to:
 1. Verify the service is enabled for auto-start:
    - **macOS**: Check if plist file exists in LaunchAgents
    - **Windows**: Verify service start type is "Automatic"
-   - **Linux**: Check if service is enabled with `systemctl is-enabled ai-workflow-utils`
+   - **Linux**: Check if service is enabled with
+     `systemctl is-enabled ai-workflow-utils`
 
 2. Check system logs for startup errors
 3. Ensure all dependencies are available at boot time

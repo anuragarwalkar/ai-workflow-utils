@@ -21,13 +21,13 @@ import { createScope, enableService } from './server/mocks/core/nock-mock-servic
 export const developNewFeature = async () => {
   // Enable mocking just for this feature development
   const mockContext = enableMockingForFeature(['jira']);
-  
+
   try {
     // Your feature code - API calls will be automatically mocked
     const response = await fetch('https://your-jira-instance.atlassian.net/rest/api/2/issue', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer your-token',
+        Authorization: 'Bearer your-token',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -38,10 +38,10 @@ export const developNewFeature = async () => {
         },
       }),
     });
-    
+
     const issue = await response.json();
     console.log('Created issue:', issue.key);
-    
+
     return issue;
   } finally {
     // Clean up mocking when done
@@ -52,7 +52,7 @@ export const developNewFeature = async () => {
 // ========== TESTING HELPER FUNCTIONS ==========
 
 // Setup for test files (use in your test setup)
-export const setupTestMocks = (services) => {
+export const setupTestMocks = services => {
   return testUtils.setupMocks(services);
 };
 
@@ -60,7 +60,7 @@ export const teardownTestMocks = () => {
   testUtils.teardownMocks();
 };
 
-export const verifyTestMockState = (expectedServices) => {
+export const verifyTestMockState = expectedServices => {
   return testUtils.verifyMockState(expectedServices);
 };
 
@@ -98,11 +98,11 @@ export const addCustomJiraInterceptor = () => {
 // ========== APPLICATION SERVICE FUNCTIONS ==========
 
 // Your existing Jira service functions work unchanged
-export const createJiraIssue = async (issueData) => {
+export const createJiraIssue = async issueData => {
   const response = await fetch('https://your-jira-instance.atlassian.net/rest/api/2/issue', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.JIRA_TOKEN}`,
+      Authorization: `Bearer ${process.env.JIRA_TOKEN}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(issueData),
@@ -121,34 +121,34 @@ export const addJiraComment = async (issueKey, commentData) => {
     {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.JIRA_TOKEN}`,
+        Authorization: `Bearer ${process.env.JIRA_TOKEN}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(commentData),
-    },
+    }
   );
 
   return response.json();
 };
 
-export const searchJiraIssues = async (jql) => {
+export const searchJiraIssues = async jql => {
   const url = new URL('https://your-jira-instance.atlassian.net/rest/api/2/search');
   url.searchParams.set('jql', jql);
 
   const response = await fetch(url, {
     headers: {
-      'Authorization': `Bearer ${process.env.JIRA_TOKEN}`,
+      Authorization: `Bearer ${process.env.JIRA_TOKEN}`,
     },
   });
 
   return response.json();
 };
 
-export const sendNotificationEmail = async (emailData) => {
+export const sendNotificationEmail = async emailData => {
   const response = await fetch('https://your-email-service.com/api/email/send', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.EMAIL_TOKEN}`,
+      Authorization: `Bearer ${process.env.EMAIL_TOKEN}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(emailData),
@@ -161,8 +161,11 @@ export const sendNotificationEmail = async (emailData) => {
 
 export const debugMockState = () => {
   // Dynamic import to avoid circular dependencies
-  const { getCurrentState, getActiveServices } = require('./server/mocks/core/nock-mock-service.js');
-  
+  const {
+    getCurrentState,
+    getActiveServices,
+  } = require('./server/mocks/core/nock-mock-service.js');
+
   const state = getCurrentState();
   console.log('=== Mock State Debug ===');
   console.log('Global Mock Mode:', state.globalMockMode);

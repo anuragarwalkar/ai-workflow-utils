@@ -5,9 +5,7 @@ import { hideNotification } from '../../store/slices/uiSlice';
 
 const NotificationSnackbar = () => {
   const dispatch = useDispatch();
-  const { message, severity, open } = useSelector(
-    state => state.ui.notifications
-  );
+  const { message, severity, open } = useSelector(state => state.ui.notifications);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {

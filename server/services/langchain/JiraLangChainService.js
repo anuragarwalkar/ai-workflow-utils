@@ -20,7 +20,7 @@ export class JiraLangChainService extends BaseLangChainService {
         type: 'status',
         message: 'Starting content generation...',
         provider: 'Initializing',
-      })}\n\n`,
+      })}\n\n`
     );
 
     try {
@@ -28,7 +28,7 @@ export class JiraLangChainService extends BaseLangChainService {
       const result = await this.generateTemplateBasedContent(
         promptTemplateFormatter,
         images,
-        issueType,
+        issueType
       );
 
       res.write(
@@ -36,7 +36,7 @@ export class JiraLangChainService extends BaseLangChainService {
           type: 'status',
           message: `Using ${result.provider}...`,
           provider: result.provider,
-        })}\n\n`,
+        })}\n\n`
       );
 
       // Stream the content naturally from the template
@@ -45,13 +45,13 @@ export class JiraLangChainService extends BaseLangChainService {
         // Simulate streaming by sending chunks
         const words = content.split(' ');
         for (let i = 0; i < words.length; i += 5) {
-          const chunk = `${words.slice(i, i + 5).join(' ')  } `;
+          const chunk = `${words.slice(i, i + 5).join(' ')} `;
           fullContent += chunk;
           res.write(
             `data: ${JSON.stringify({
               type: 'chunk',
               content: chunk,
-            })}\n\n`,
+            })}\n\n`
           );
           // Small delay to simulate streaming
           await new Promise(resolve => setTimeout(resolve, 50));
@@ -63,17 +63,13 @@ export class JiraLangChainService extends BaseLangChainService {
           type: 'complete',
           message: `${issueType} preview generated successfully`,
           bugReport: fullContent || result.content,
-          summary: this.extractSummaryFromContent(
-            fullContent || result.content,
-          ),
+          summary: this.extractSummaryFromContent(fullContent || result.content),
           description: fullContent || result.content,
           provider: result.provider,
-        })}\n\n`,
+        })}\n\n`
       );
 
-      logger.info(
-        `Successfully streamed template-based Jira content using ${result.provider}`,
-      );
+      logger.info(`Successfully streamed template-based Jira content using ${result.provider}`);
     } catch (error) {
       logger.error(`Error in Jira template-based streaming: ${error.message}`);
       res.write(
@@ -81,7 +77,7 @@ export class JiraLangChainService extends BaseLangChainService {
           type: 'error',
           error: `Failed to generate ${issueType} preview`,
           details: error.message,
-        })}\n\n`,
+        })}\n\n`
       );
     }
   }
@@ -89,11 +85,7 @@ export class JiraLangChainService extends BaseLangChainService {
   /**
    * Generate template-based content for Jira issues
    */
-  async generateTemplateBasedContent(
-    promptTemplateFormatter,
-    images,
-    issueType,
-  ) {
+  async generateTemplateBasedContent(promptTemplateFormatter, images, issueType) {
     const hasImages = images && images.length > 0;
 
     if (this.providers.length === 0) {
@@ -101,19 +93,12 @@ export class JiraLangChainService extends BaseLangChainService {
     }
 
     // Get the template and format it
-    const promptTemplate = await this.createPromptTemplate(
-      issueType,
-      hasImages,
-    );
+    const promptTemplate = await this.createPromptTemplate(issueType, hasImages);
     const formattedPrompt = await promptTemplate.format({
       ...promptTemplateFormatter,
     });
 
-    return await this.tryProvidersForTemplateContent(
-      formattedPrompt,
-      images,
-      hasImages,
-    );
+    return await this.tryProvidersForTemplateContent(formattedPrompt, images, hasImages);
   }
 
   /**
@@ -122,15 +107,13 @@ export class JiraLangChainService extends BaseLangChainService {
   async tryProvidersForTemplateContent(formattedPrompt, images, hasImages) {
     for (const provider of this.providers) {
       try {
-        logger.info(
-          `Trying provider: ${provider.name} for template-based output`,
-        );
+        logger.info(`Trying provider: ${provider.name} for template-based output`);
 
         const messageContent = this.prepareMessageContentForProvider(
           formattedPrompt,
           images,
           hasImages,
-          provider.supportsVision,
+          provider.supportsVision
         );
 
         const response = await provider.model.invoke([
@@ -140,9 +123,7 @@ export class JiraLangChainService extends BaseLangChainService {
           },
         ]);
 
-        logger.info(
-          `Successfully generated template-based content using ${provider.name}`,
-        );
+        logger.info(`Successfully generated template-based content using ${provider.name}`);
 
         // Log the raw response for debugging
         console.log(`Raw Jira response from ${provider.name}:`, {
@@ -160,7 +141,7 @@ export class JiraLangChainService extends BaseLangChainService {
 
         if (provider === this.providers[this.providers.length - 1]) {
           throw new Error(
-            `All providers failed. Last error from ${provider.name}: ${error.message}`,
+            `All providers failed. Last error from ${provider.name}: ${error.message}`
           );
         }
 
@@ -195,22 +176,17 @@ export class JiraLangChainService extends BaseLangChainService {
         return firstSentence;
       }
       // If too long, truncate
-      return `${firstSentence.substring(0, 97)  }...`;
+      return `${firstSentence.substring(0, 97)}...`;
     }
 
     // Final fallback
-    return `${content.substring(0, 50)  }...`;
+    return `${content.substring(0, 50)}...`;
   }
 
   /**
    * Prepare message content for a specific provider
    */
-  prepareMessageContentForProvider(
-    formattedPrompt,
-    images,
-    hasImages,
-    supportsVision,
-  ) {
+  prepareMessageContentForProvider(formattedPrompt, images, hasImages, supportsVision) {
     const useImages = hasImages && supportsVision;
 
     if (useImages) {
@@ -218,8 +194,7 @@ export class JiraLangChainService extends BaseLangChainService {
     } else {
       let messageContent = formattedPrompt;
       if (hasImages && !supportsVision) {
-        messageContent +=
-          ' (note: images were provided but this model doesn\'t support vision)';
+        messageContent += " (note: images were provided but this model doesn't support vision)";
       }
       return messageContent;
     }
@@ -234,11 +209,7 @@ export class JiraLangChainService extends BaseLangChainService {
    */
   async generateContentWithRetry(promptTemplateFormatter, images, issueType) {
     try {
-      return await this.generateTemplateBasedContent(
-        promptTemplateFormatter,
-        images,
-        issueType,
-      );
+      return await this.generateTemplateBasedContent(promptTemplateFormatter, images, issueType);
     } catch (error) {
       logger.error(`Error generating template-based content: ${error.message}`);
       throw error;

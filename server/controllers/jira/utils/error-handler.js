@@ -64,7 +64,7 @@ export const handleStreamingError = (error, context, res) => {
         type: 'error',
         error: context,
         details: error.message,
-      })}\n\n`,
+      })}\n\n`
     );
   }
 };
@@ -82,9 +82,7 @@ export const validateRequiredFields = (body, requiredFields) => {
   });
 
   if (missing.length > 0) {
-    throw new Error(
-      `${ERROR_MESSAGES.MISSING_REQUIRED_FIELDS}: ${missing.join(', ')}`,
-    );
+    throw new Error(`${ERROR_MESSAGES.MISSING_REQUIRED_FIELDS}: ${missing.join(', ')}`);
   }
 };
 
@@ -93,7 +91,7 @@ export const validateRequiredFields = (body, requiredFields) => {
  * @param {string} message - Error message
  * @returns {Error} Validation error
  */
-export const createValidationError = (message) => {
+export const createValidationError = message => {
   const error = new Error(message);
   error.name = 'ValidationError';
   error.statusCode = 400;

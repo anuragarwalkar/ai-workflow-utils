@@ -9,10 +9,7 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import {
-  Person as PersonIcon,
-  Schedule as ScheduleIcon,
-} from '@mui/icons-material';
+import { Person as PersonIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
 
 const formatDate = timestamp =>
   new Date(timestamp).toLocaleDateString('en-US', {
@@ -36,8 +33,7 @@ const getStatusColor = state => {
   }
 };
 
-const getAuthorName = pr =>
-  pr.author?.user?.displayName || pr.author?.displayName || 'Unknown';
+const getAuthorName = pr => pr.author?.user?.displayName || pr.author?.displayName || 'Unknown';
 
 const PullRequestHeader = ({ pr }) => (
   <Box
@@ -51,23 +47,13 @@ const PullRequestHeader = ({ pr }) => (
     <Typography component='span' variant='subtitle1'>
       {pr.title}
     </Typography>
-    <Chip
-      color={getStatusColor(pr.state)}
-      label={pr.state}
-      size='small'
-      variant='outlined'
-    />
+    <Chip color={getStatusColor(pr.state)} label={pr.state} size='small' variant='outlined' />
   </Box>
 );
 
 const PullRequestMeta = ({ pr }) => (
   <Box component='div'>
-    <Typography
-      color='text.secondary'
-      component='div'
-      sx={{ mb: 0.5 }}
-      variant='body2'
-    >
+    <Typography color='text.secondary' component='div' sx={{ mb: 0.5 }} variant='body2'>
       #{pr.id} • by {getAuthorName(pr)}
     </Typography>
     <Box
@@ -126,9 +112,7 @@ const PullRequestDescription = ({ description }) => {
 
   return (
     <Typography component='div' sx={{ mt: 1, maxWidth: '80%' }} variant='body2'>
-      {description.length > 100
-        ? `${description.substring(0, 100)}...`
-        : description}
+      {description.length > 100 ? `${description.substring(0, 100)}...` : description}
     </Typography>
   );
 };
@@ -139,8 +123,7 @@ const PullRequestItem = ({ pr, selectedPullRequest, onSelectPR }) => (
       selected={selectedPullRequest?.id === pr.id}
       sx={{
         border: selectedPullRequest?.id === pr.id ? 2 : 1,
-        borderColor:
-          selectedPullRequest?.id === pr.id ? 'primary.main' : 'divider',
+        borderColor: selectedPullRequest?.id === pr.id ? 'primary.main' : 'divider',
         borderRadius: 1,
         mb: 1,
         '&:hover': {

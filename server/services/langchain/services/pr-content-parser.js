@@ -80,11 +80,7 @@ class PRContentParser {
     if (!foundTitle && lines.length > 0) {
       for (const line of lines) {
         const cleanLine = line.trim();
-        if (
-          cleanLine &&
-          cleanLine.length < 100 &&
-          !this.isDescriptionLine(cleanLine)
-        ) {
+        if (cleanLine && cleanLine.length < 100 && !this.isDescriptionLine(cleanLine)) {
           title = cleanLine.replace(/^\*\*|\*\*$/g, '').trim(); // Remove markdown bold
           break;
         }

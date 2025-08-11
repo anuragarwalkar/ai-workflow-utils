@@ -9,10 +9,7 @@ import {
   generateSummaryCore,
   streamPreviewContentCore,
 } from './jira-content-core.js';
-import {
-  withErrorHandling,
-  withSafeExecution,
-} from '../../../utils/error-handling.js';
+import { withErrorHandling, withSafeExecution } from '../../../utils/error-handling.js';
 import { withLogging, withPerformanceLogging } from '../../../utils/logging.js';
 import { withValidation } from '../../../utils/validation.js';
 
@@ -23,9 +20,9 @@ export const streamPreviewContent = withErrorHandling(
       images: { type: 'array', required: false },
       res: { type: 'object', required: true },
     }),
-    'streamPreviewContent',
+    'streamPreviewContent'
   ),
-  'streamPreviewContent',
+  'streamPreviewContent'
 );
 
 export const generateContent = withErrorHandling(
@@ -34,9 +31,9 @@ export const generateContent = withErrorHandling(
       data: { type: 'object', required: true },
       images: { type: 'array', required: false },
     }),
-    'generateContent',
+    'generateContent'
   ),
-  'generateContent',
+  'generateContent'
 );
 
 export const enhanceDescription = withSafeExecution(
@@ -45,9 +42,9 @@ export const enhanceDescription = withSafeExecution(
       description: { type: 'string', required: true, minLength: 1 },
       issueType: { type: 'string', required: false },
     }),
-    'enhanceDescription',
+    'enhanceDescription'
   ),
-  'enhanceDescription',
+  'enhanceDescription'
 );
 
 export const generateSummary = withSafeExecution(
@@ -56,9 +53,9 @@ export const generateSummary = withSafeExecution(
       description: { type: 'string', required: true, minLength: 1 },
       issueType: { type: 'string', required: false },
     }),
-    'generateSummary',
+    'generateSummary'
   ),
-  'generateSummary',
+  'generateSummary'
 );
 
 export const generateAcceptanceCriteria = withSafeExecution(
@@ -66,9 +63,9 @@ export const generateAcceptanceCriteria = withSafeExecution(
     withValidation(generateAcceptanceCriteriaCore, {
       description: { type: 'string', required: true, minLength: 1 },
     }),
-    'generateAcceptanceCriteria',
+    'generateAcceptanceCriteria'
   ),
-  'generateAcceptanceCriteria',
+  'generateAcceptanceCriteria'
 );
 
 export const generateCommentReply = withSafeExecution(
@@ -78,9 +75,9 @@ export const generateCommentReply = withSafeExecution(
       context: { type: 'string', required: false },
       tone: { type: 'string', required: false },
     }),
-    'generateCommentReply',
+    'generateCommentReply'
   ),
-  'generateCommentReply',
+  'generateCommentReply'
 );
 
 export const formatComment = withSafeExecution(
@@ -89,9 +86,9 @@ export const formatComment = withSafeExecution(
       comment: { type: 'string', required: true, minLength: 1 },
       format: { type: 'string', required: false },
     }),
-    'formatComment',
+    'formatComment'
   ),
-  'formatComment',
+  'formatComment'
 );
 
 export const analyzeCommentSentiment = withSafeExecution(
@@ -99,7 +96,7 @@ export const analyzeCommentSentiment = withSafeExecution(
     withValidation(analyzeCommentSentimentCore, {
       comment: { type: 'string', required: true, minLength: 1 },
     }),
-    'analyzeCommentSentiment',
+    'analyzeCommentSentiment'
   ),
-  'analyzeCommentSentiment',
+  'analyzeCommentSentiment'
 );

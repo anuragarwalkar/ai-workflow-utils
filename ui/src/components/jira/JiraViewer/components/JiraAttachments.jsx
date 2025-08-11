@@ -157,15 +157,10 @@ const JiraAttachments = ({ jiraData }) => {
 
         {/* Attachments Grid */}
         <Box sx={{ p: 3 }}>
-          <motion.div
-            animate='visible'
-            initial='hidden'
-            variants={containerVariants}
-          >
+          <motion.div animate='visible' initial='hidden' variants={containerVariants}>
             <Grid container spacing={2}>
               {attachments.map((attachment, index) => (
-                <Grid item key={attachment.id || index} md={4}
-sm={6} xs={12}>
+                <Grid item key={attachment.id || index} md={4} sm={6} xs={12}>
                   <MotionCard
                     sx={{
                       background: 'rgba(255, 255, 255, 0.05)',
@@ -183,8 +178,7 @@ sm={6} xs={12}>
                     variants={itemVariants}
                   >
                     {/* Preview Area */}
-                    {isImageFile(attachment.mimeType) &&
-                    attachment.thumbnail ? (
+                    {isImageFile(attachment.mimeType) && attachment.thumbnail ? (
                       <CardMedia
                         alt={attachment.filename}
                         component='img'
@@ -210,10 +204,7 @@ sm={6} xs={12}>
                         onClick={() => handlePreview(attachment)}
                       >
                         <Box sx={{ fontSize: 48 }}>
-                          {getFileIcon(
-                            attachment.filename,
-                            attachment.mimeType
-                          )}
+                          {getFileIcon(attachment.filename, attachment.mimeType)}
                         </Box>
                       </Box>
                     )}
@@ -292,9 +283,7 @@ sm={6} xs={12}>
                                 background: 'rgba(33, 150, 243, 0.1)',
                               },
                             }}
-                            onClick={() =>
-                              window.open(attachment.content, '_blank')
-                            }
+                            onClick={() => window.open(attachment.content, '_blank')}
                           >
                             <OpenInNew />
                           </IconButton>
@@ -332,10 +321,7 @@ sm={6} xs={12}>
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {selectedAttachment
-              ? getFileIcon(
-                  selectedAttachment.filename,
-                  selectedAttachment.mimeType
-                )
+              ? getFileIcon(selectedAttachment.filename, selectedAttachment.mimeType)
               : null}
             <Typography variant='h6'>{selectedAttachment?.filename}</Typography>
           </Box>
@@ -365,38 +351,26 @@ sm={6} xs={12}>
                     maxHeight: '70vh',
                   }}
                 >
-                  <source
-                    src={selectedAttachment.content}
-                    type={selectedAttachment.mimeType}
-                  />
+                  <source src={selectedAttachment.content} type={selectedAttachment.mimeType} />
                   Your browser does not support the video tag.
                 </video>
               ) : (
                 <Box sx={{ p: 4, textAlign: 'center' }}>
                   <Box sx={{ fontSize: 64, mb: 2 }}>
-                    {getFileIcon(
-                      selectedAttachment.filename,
-                      selectedAttachment.mimeType
-                    )}
+                    {getFileIcon(selectedAttachment.filename, selectedAttachment.mimeType)}
                   </Box>
                   <Typography variant='h6' sx={{ mb: 2 }}>
                     {selectedAttachment.filename}
                   </Typography>
-                  <Typography
-                    variant='body2'
-                    color='text.secondary'
-                    sx={{ mb: 3 }}
-                  >
-                    {formatFileSize(selectedAttachment.size)} •{' '}
-                    {selectedAttachment.mimeType}
+                  <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+                    {formatFileSize(selectedAttachment.size)} • {selectedAttachment.mimeType}
                   </Typography>
                   <Button
                     variant='contained'
                     startIcon={<Download />}
                     onClick={() => handleDownload(selectedAttachment)}
                     sx={{
-                      background:
-                        'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                      background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                     }}
                   >
                     Download File

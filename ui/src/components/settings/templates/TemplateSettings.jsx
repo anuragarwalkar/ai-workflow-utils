@@ -123,9 +123,7 @@ const TemplateSettings = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `templates-export-${
-        new Date().toISOString().split('T')[0]
-      }.json`;
+      a.download = `templates-export-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -174,12 +172,8 @@ const TemplateSettings = () => {
               borderColor: isDark ? 'rgba(102, 126, 234, 0.5)' : 'primary.main',
               color: isDark ? 'rgba(102, 126, 234, 0.9)' : 'primary.main',
               '&:hover': {
-                borderColor: isDark
-                  ? 'rgba(102, 126, 234, 0.8)'
-                  : 'primary.dark',
-                backgroundColor: isDark
-                  ? 'rgba(102, 126, 234, 0.1)'
-                  : 'rgba(102, 126, 234, 0.04)',
+                borderColor: isDark ? 'rgba(102, 126, 234, 0.8)' : 'primary.dark',
+                backgroundColor: isDark ? 'rgba(102, 126, 234, 0.1)' : 'rgba(102, 126, 234, 0.04)',
               },
             }}
             variant='outlined'
@@ -194,12 +188,8 @@ const TemplateSettings = () => {
               borderColor: isDark ? 'rgba(102, 126, 234, 0.5)' : 'primary.main',
               color: isDark ? 'rgba(102, 126, 234, 0.9)' : 'primary.main',
               '&:hover': {
-                borderColor: isDark
-                  ? 'rgba(102, 126, 234, 0.8)'
-                  : 'primary.dark',
-                backgroundColor: isDark
-                  ? 'rgba(102, 126, 234, 0.1)'
-                  : 'rgba(102, 126, 234, 0.04)',
+                borderColor: isDark ? 'rgba(102, 126, 234, 0.8)' : 'primary.dark',
+                backgroundColor: isDark ? 'rgba(102, 126, 234, 0.1)' : 'rgba(102, 126, 234, 0.04)',
               },
             }}
             variant='outlined'
@@ -276,8 +266,7 @@ const TemplateSettings = () => {
               />
             </Tooltip>
           </Grid>
-          <Grid item alignItems='center' md={5}
-xs={12}>
+          <Grid item alignItems='center' md={5} xs={12}>
             <Tooltip title='Template filtering feature is currently not available'>
               <span>
                 <FormControlLabel
@@ -285,9 +274,7 @@ xs={12}>
                   control={
                     <Switch
                       checked={showDefaultTemplates}
-                      onChange={e =>
-                        dispatch(setShowDefaultTemplates(e.target.checked))
-                      }
+                      onChange={e => dispatch(setShowDefaultTemplates(e.target.checked))}
                     />
                   }
                   label='Show default templates'
@@ -301,24 +288,19 @@ xs={12}>
       {/* Templates Grid */}
       <Grid container spacing={2}>
         {templates.map(template => (
-          <Grid item key={template.id} lg={4}
-md={6} xs={12}>
+          <Grid item key={template.id} lg={4} md={6} xs={12}>
             <Card
               sx={{
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                backgroundColor: isDark
-                  ? 'rgba(45, 55, 72, 0.8)'
-                  : 'rgba(255, 255, 255, 0.9)',
+                backgroundColor: isDark ? 'rgba(45, 55, 72, 0.8)' : 'rgba(255, 255, 255, 0.9)',
                 border: isDark
                   ? '1px solid rgba(255, 255, 255, 0.1)'
                   : '1px solid rgba(0, 0, 0, 0.1)',
                 backdropFilter: 'blur(10px)',
                 '&:hover': {
-                  backgroundColor: isDark
-                    ? 'rgba(45, 55, 72, 0.9)'
-                    : 'rgba(255, 255, 255, 0.95)',
+                  backgroundColor: isDark ? 'rgba(45, 55, 72, 0.9)' : 'rgba(255, 255, 255, 0.95)',
                   transform: 'translateY(-2px)',
                   boxShadow: isDark
                     ? '0 8px 32px rgba(102, 126, 234, 0.2)'
@@ -336,11 +318,7 @@ md={6} xs={12}>
                     mb: 2,
                   }}
                 >
-                  <Typography
-                    component='h3'
-                    sx={{ fontWeight: 600 }}
-                    variant='h6'
-                  >
+                  <Typography component='h3' sx={{ fontWeight: 600 }} variant='h6'>
                     {template.name}
                   </Typography>
                   <Stack direction='row' spacing={0.5}>
@@ -348,11 +326,7 @@ md={6} xs={12}>
                   </Stack>
                 </Box>
 
-                <Typography
-                  color='text.secondary'
-                  sx={{ mb: 2 }}
-                  variant='body2'
-                >
+                <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
                   {template.content.substring(0, 150)}...
                 </Typography>
 
@@ -371,12 +345,8 @@ md={6} xs={12}>
                             mr: 0.5,
                             mb: 0.5,
                             fontSize: '0.7rem',
-                            borderColor: isDark
-                              ? 'rgba(255, 255, 255, 0.3)'
-                              : 'rgba(0, 0, 0, 0.3)',
-                            color: isDark
-                              ? 'rgba(255, 255, 255, 0.8)'
-                              : 'rgba(0, 0, 0, 0.7)',
+                            borderColor: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
+                            color: isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
                             backgroundColor: isDark
                               ? 'rgba(255, 255, 255, 0.05)'
                               : 'rgba(0, 0, 0, 0.02)',
@@ -389,9 +359,7 @@ md={6} xs={12}>
                 ) : null}
               </CardContent>
 
-              <CardActions
-                sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}
-              >
+              <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
                 <Box>
                   <IconButton
                     size='small'

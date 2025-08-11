@@ -9,10 +9,7 @@ class LegacyDiffProcessor {
     if (diffData && diffData.values && Array.isArray(diffData.values)) {
       diffData.values.forEach((file, index) => {
         const fileName =
-          file.srcPath?.toString ||
-          file.path?.toString ||
-          file.source?.toString ||
-          'Unknown file';
+          file.srcPath?.toString || file.path?.toString || file.source?.toString || 'Unknown file';
         codeChanges += `### File ${index + 1}: ${fileName}\n`;
 
         if (file.hunks && Array.isArray(file.hunks)) {

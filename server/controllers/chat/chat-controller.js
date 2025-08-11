@@ -1,4 +1,11 @@
-import { clearConversationMemory, generateChatResponse, generateStreamingResponse, getChatStats, getConversationHistory, testChatFunctionality } from './services/chat-service.js';
+import {
+  clearConversationMemory,
+  generateChatResponse,
+  generateStreamingResponse,
+  getChatStats,
+  getConversationHistory,
+  testChatFunctionality,
+} from './services/chat-service.js';
 import { sendError, setupSSEHeaders } from './processors/streaming-processor.js';
 import { ErrorHandler } from './utils/error-handler.js';
 import logger from '../../logger.js';
@@ -15,12 +22,7 @@ import logger from '../../logger.js';
  */
 export async function sendChatMessage(req, res) {
   try {
-    const {
-      message,
-      conversationHistory = [],
-      template = 'CHAT_GENERIC',
-      sessionId,
-    } = req.body;
+    const { message, conversationHistory = [], template = 'CHAT_GENERIC', sessionId } = req.body;
 
     // Generate response using chat service
     const response = await generateChatResponse({
@@ -43,12 +45,7 @@ export async function sendChatMessage(req, res) {
  */
 export async function sendChatMessageStreaming(req, res) {
   try {
-    const {
-      message,
-      conversationHistory = [],
-      template = 'CHAT_GENERIC',
-      sessionId,
-    } = req.body;
+    const { message, conversationHistory = [], template = 'CHAT_GENERIC', sessionId } = req.body;
 
     if (!message) {
       return res.status(400).json({
@@ -67,7 +64,7 @@ export async function sendChatMessageStreaming(req, res) {
         conversationHistory,
         options: { template, sessionId },
       },
-      res,
+      res
     );
   } catch (error) {
     logger.error('Error in streaming chat controller:', error);
@@ -77,7 +74,7 @@ export async function sendChatMessageStreaming(req, res) {
       sendError(
         res,
         'Failed to process chat message. Please try again.',
-        'sendChatMessageStreaming',
+        'sendChatMessageStreaming'
       );
     } else {
       ErrorHandler.handleApiError(error, 'sendChatMessageStreaming', res);
@@ -124,9 +121,7 @@ export async function checkProviderHealth(req, res) {
     const health = {
       openai: {
         configured: ChatProviderConfig.isOpenAIConfigValid(),
-        status: ChatProviderConfig.isOpenAIConfigValid()
-          ? 'ready'
-          : 'not_configured',
+        status: ChatProviderConfig.isOpenAIConfigValid() ? 'ready' : 'not_configured',
       },
       ollama: {
         configured: ChatProviderConfig.isOllamaConfigValid(),
@@ -219,8 +214,7 @@ export async function clearConversationMemoryHandler(req, res) {
  */
 export async function testChatTemplate(req, res) {
   try {
-    const { template = 'CHAT_GENERIC', message = 'Hello, can you help me?' } =
-      req.body;
+    const { template = 'CHAT_GENERIC', message = 'Hello, can you help me?' } = req.body;
 
     const result = await testChatFunctionality(message, null, {
       template,
@@ -262,10 +256,7 @@ export async function testChatFunctionalityHandler(req, res) {
   try {
     const { testMessage, provider } = req.body;
 
-    const result = await testChatFunctionality(
-      testMessage,
-      provider,
-    );
+    const result = await testChatFunctionality(testMessage, provider);
 
     res.json({
       success: true,

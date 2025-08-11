@@ -55,7 +55,6 @@ export function sendChunk(res, content) {
   res.write(`data: ${JSON.stringify(chunkData)}\n\n`);
 }
 
-
 export function sendComplete(res, fullResponse, provider) {
   const completeData = {
     type: 'complete',
@@ -63,11 +62,8 @@ export function sendComplete(res, fullResponse, provider) {
     provider,
   };
   res.write(`data: ${JSON.stringify(completeData)}\n\n`);
-  logger.info(
-    `Streaming complete: ${fullResponse.length} characters from ${provider}`,
-  );
+  logger.info(`Streaming complete: ${fullResponse.length} characters from ${provider}`);
 }
-
 
 /**
  * Send error message to streaming client

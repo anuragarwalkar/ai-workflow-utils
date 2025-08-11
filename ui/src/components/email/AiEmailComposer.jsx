@@ -39,10 +39,7 @@ import {
   KeyboardVoice as VoiceIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import {
-  useComposeWithAIMutation,
-  useSendAIEmailMutation,
-} from '../../store/api/emailApi';
+import { useComposeWithAIMutation, useSendAIEmailMutation } from '../../store/api/emailApi';
 
 const AiEmailComposer = () => {
   const theme = useTheme();
@@ -389,11 +386,7 @@ const AiEmailComposer = () => {
                       >
                         Attached Images ({attachedImages.length})
                       </Typography>
-                      <Stack
-                        direction='row'
-                        spacing={2}
-                        sx={{ flexWrap: 'wrap', gap: 2 }}
-                      >
+                      <Stack direction='row' spacing={2} sx={{ flexWrap: 'wrap', gap: 2 }}>
                         {attachedImages.map(image => (
                           <Grow in key={image.id} timeout={300}>
                             <Box
@@ -419,10 +412,7 @@ const AiEmailComposer = () => {
                                   position: 'absolute',
                                   top: 4,
                                   right: 4,
-                                  background: alpha(
-                                    theme.palette.error.main,
-                                    0.8
-                                  ),
+                                  background: alpha(theme.palette.error.main, 0.8),
                                   color: 'white',
                                   '&:hover': {
                                     background: theme.palette.error.main,
@@ -446,24 +436,18 @@ const AiEmailComposer = () => {
                     disabled={!prompt.trim() || isProcessing}
                     size='large'
                     startIcon={
-                      isProcessing ? (
-                        <CircularProgress color='inherit' size={20} />
-                      ) : (
-                        <MagicIcon />
-                      )
+                      isProcessing ? <CircularProgress color='inherit' size={20} /> : <MagicIcon />
                     }
                     sx={{
                       borderRadius: 2,
                       px: 4,
                       py: 1.5,
-                      background:
-                        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                       fontSize: '1.1rem',
                       fontWeight: 600,
                       textTransform: 'none',
                       '&:hover': {
-                        background:
-                          'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                        background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
                       },
                     }}
                     variant='contained'
@@ -498,9 +482,7 @@ const AiEmailComposer = () => {
                       background: isListening
                         ? alpha(theme.palette.error.main, 0.2)
                         : alpha(theme.palette.primary.main, 0.1),
-                      color: isListening
-                        ? theme.palette.error.main
-                        : theme.palette.primary.main,
+                      color: isListening ? theme.palette.error.main : theme.palette.primary.main,
                       '&:hover': {
                         background: isListening
                           ? alpha(theme.palette.error.main, 0.3)
@@ -558,10 +540,7 @@ const AiEmailComposer = () => {
                         size='small'
                         sx={{ fontWeight: 600 }}
                       />
-                      <IconButton
-                        disabled={isProcessing}
-                        onClick={regenerateDraft}
-                      >
+                      <IconButton disabled={isProcessing} onClick={regenerateDraft}>
                         <RefreshIcon />
                       </IconButton>
                     </Stack>
@@ -639,8 +618,7 @@ const AiEmailComposer = () => {
                     </Box>
 
                     {/* AI Suggestions */}
-                    {emailDraft.suggestions &&
-                    emailDraft.suggestions.length > 0 ? (
+                    {emailDraft.suggestions && emailDraft.suggestions.length > 0 ? (
                       <Box>
                         <Typography
                           variant='body2'
@@ -648,11 +626,7 @@ const AiEmailComposer = () => {
                         >
                           AI Suggestions:
                         </Typography>
-                        <Stack
-                          direction='row'
-                          spacing={1}
-                          sx={{ flexWrap: 'wrap', gap: 1 }}
-                        >
+                        <Stack direction='row' spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
                           {emailDraft.suggestions.map((suggestion, index) => (
                             <Chip
                               key={index}
@@ -669,14 +643,11 @@ const AiEmailComposer = () => {
                   </Stack>
 
                   {/* Send Button */}
-                  <Box
-                    sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}
-                  >
+                  <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
                     <Fab
                       disabled={isSending}
                       sx={{
-                        background:
-                          'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                        background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
                         color: 'white',
                         px: 4,
                         py: 1,
@@ -684,19 +655,14 @@ const AiEmailComposer = () => {
                         fontWeight: 600,
                         textTransform: 'none',
                         '&:hover': {
-                          background:
-                            'linear-gradient(135deg, #0f8a7e 0%, #32d16a 100%)',
+                          background: 'linear-gradient(135deg, #0f8a7e 0%, #32d16a 100%)',
                         },
                       }}
                       variant='extended'
                       onClick={handleSendEmail}
                     >
                       {isSending ? (
-                        <CircularProgress
-                          color='inherit'
-                          size={24}
-                          sx={{ mr: 1 }}
-                        />
+                        <CircularProgress color='inherit' size={24} sx={{ mr: 1 }} />
                       ) : (
                         <SendIcon sx={{ mr: 1 }} />
                       )}
@@ -711,10 +677,7 @@ const AiEmailComposer = () => {
       </Box>
 
       {/* Loading Backdrop */}
-      <Backdrop
-        open={isProcessing}
-        sx={{ color: '#fff', zIndex: theme.zIndex.drawer + 1 }}
-      >
+      <Backdrop open={isProcessing} sx={{ color: '#fff', zIndex: theme.zIndex.drawer + 1 }}>
         <Box sx={{ textAlign: 'center' }}>
           <CircularProgress color='inherit' size={60} />
           <Typography sx={{ mt: 2 }} variant='h6'>

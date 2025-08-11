@@ -22,40 +22,24 @@ class PRStreamingService {
 
     try {
       // Fetch commit messages from the branch
-      commits = await BitbucketService.getCommitMessages(
-        projectKey,
-        repoSlug,
-        branchName,
-      );
+      commits = await BitbucketService.getCommitMessages(projectKey, repoSlug, branchName);
 
       if (commits.length > 0) {
         // Generate PR content using AI
         return await PRContentGenerationService.generateAIContent(
           commits,
           ticketNumber,
-          branchName,
+          branchName
         );
       } else {
-        logger.warn(
-          `No commits found for branch ${branchName}, using fallback title/description`,
-        );
-        return this.generateFallbackContent(
-          ticketNumber,
-          branchName,
-          [],
-        );
+        logger.warn(`No commits found for branch ${branchName}, using fallback title/description`);
+        return this.generateFallbackContent(ticketNumber, branchName, []);
       }
     } catch (error) {
-      logger.info(
-        `AI generation not available, using basic title/description: ${error.message}`,
-      );
+      logger.info(`AI generation not available, using basic title/description: ${error.message}`);
       // Use commits if available from previous fetch attempt
       const commitsForFallback = commits || [];
-      return this.generateFallbackContent(
-        ticketNumber,
-        branchName,
-        commitsForFallback,
-      );
+      return this.generateFallbackContent(ticketNumber, branchName, commitsForFallback);
     }
   }
 
@@ -67,13 +51,13 @@ class PRStreamingService {
       ticketNumber,
       branchName,
       null, // no response object for non-streaming
-      commits,
+      commits
     );
 
     const finalTitle = PRContentGenerationService.applyCommitTypePrefix(
       fallbackResult.prTitle,
       commits,
-      ticketNumber,
+      ticketNumber
     );
 
     return {
@@ -111,39 +95,32 @@ class PRStreamingService {
         StreamingService.sendStatus(res, 'Fetching commit messages...');
 
         // Fetch commit messages from the branch
-        commits = await BitbucketService.getCommitMessages(
-          projectKey,
-          repoSlug,
-          branchName,
-        );
+        commits = await BitbucketService.getCommitMessages(projectKey, repoSlug, branchName);
 
         if (commits.length > 0) {
           // Generate PR content using AI
-          StreamingService.sendStatus(
-            res,
-            'Generating PR title and description...',
-          );
+          StreamingService.sendStatus(res, 'Generating PR title and description...');
 
           await PRContentGenerationService.generateAIContent(
             commits,
             ticketNumber,
             branchName,
-            res,
+            res
           );
         } else {
           logger.warn(
-            `No commits found for branch ${branchName}, using fallback title/description`,
+            `No commits found for branch ${branchName}, using fallback title/description`
           );
           const fallbackResult = PRContentGenerationService.generateFallbackContent(
             ticketNumber,
             branchName,
             res,
-            [],
+            []
           );
           const finalTitle = PRContentGenerationService.applyCommitTypePrefix(
             fallbackResult.prTitle,
             [],
-            ticketNumber,
+            ticketNumber
           );
           prLangChainService.sendFinalResults(
             res,
@@ -151,12 +128,12 @@ class PRStreamingService {
             fallbackResult.prDescription,
             false,
             ticketNumber,
-            branchName,
+            branchName
           );
         }
       } catch (aiError) {
         logger.info(
-          `AI generation not available, using basic title/description: ${aiError.message}`,
+          `AI generation not available, using basic title/description: ${aiError.message}`
         );
         // Use commits if available from previous fetch attempt
         const commitsForFallback = commits || [];
@@ -164,12 +141,12 @@ class PRStreamingService {
           ticketNumber,
           branchName,
           res,
-          commitsForFallback,
+          commitsForFallback
         );
         const finalTitle = PRContentGenerationService.applyCommitTypePrefix(
           fallbackResult.prTitle,
           commitsForFallback,
-          ticketNumber,
+          ticketNumber
         );
         prLangChainService.sendFinalResults(
           res,
@@ -177,7 +154,7 @@ class PRStreamingService {
           fallbackResult.prDescription,
           false,
           ticketNumber,
-          branchName,
+          branchName
         );
       }
 

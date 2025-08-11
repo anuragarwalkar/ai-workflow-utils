@@ -73,13 +73,9 @@ const GitStashContainer = () => {
   const getStepContent = step => {
     switch (step) {
       case 0:
-        return (
-          <GitStashForm onDirectNext={handleDirectNext} onNext={handleNext} />
-        );
+        return <GitStashForm onDirectNext={handleDirectNext} onNext={handleNext} />;
       case 1:
-        return (
-          <PullRequestList onNext={handleNext} onPrevious={handlePrevious} />
-        );
+        return <PullRequestList onNext={handleNext} onPrevious={handlePrevious} />;
       case 2:
         return (
           <PullRequestDiff
@@ -96,11 +92,7 @@ const GitStashContainer = () => {
     <Container maxWidth='xl' sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <Button
-            startIcon={<ArrowBackIcon />}
-            sx={{ mr: 2 }}
-            onClick={handleBack}
-          >
+          <Button startIcon={<ArrowBackIcon />} sx={{ mr: 2 }} onClick={handleBack}>
             Back to Home
           </Button>
           <Typography component='h1' sx={{ fontWeight: 600 }} variant='h4'>
@@ -124,10 +116,7 @@ const GitStashContainer = () => {
           </Stepper>
         </Paper>
 
-        <Paper
-          elevation={2}
-          sx={{ p: 3, minHeight: activeStep === 0 ? 'auto' : '60vh' }}
-        >
+        <Paper elevation={2} sx={{ p: 3, minHeight: activeStep === 0 ? 'auto' : '60vh' }}>
           {getStepContent(activeStep)}
         </Paper>
       </Box>

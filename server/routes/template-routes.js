@@ -30,10 +30,7 @@ router.delete('/:id', deleteTemplate);
 // Template type routes
 router.get('/type/:issueType', getTemplatesByType);
 router.get('/active/:issueType', getActiveTemplate);
-router.put(
-  '/active/:issueType/:templateId',
-  setActiveTemplate,
-);
+router.put('/active/:issueType/:templateId', setActiveTemplate);
 
 // Settings routes
 router.get('/settings', getSettings);

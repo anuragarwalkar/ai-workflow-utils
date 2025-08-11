@@ -17,15 +17,15 @@ let mockState = {
 };
 
 // Pure function to get current state
-const getMockState = () => ({ 
-  ...mockState, 
+const getMockState = () => ({
+  ...mockState,
   services: new Map(mockState.services),
   activeMocks: new Set(mockState.activeMocks),
   interceptors: new Map(mockState.interceptors),
 });
 
 // Pure function to update state
-const updateMockState = (updates) => {
+const updateMockState = updates => {
   mockState = { ...mockState, ...updates };
   return getMockState();
 };
@@ -40,7 +40,7 @@ export const registerService = (serviceName, mockService) => {
   const currentState = getMockState();
   const newServices = new Map(currentState.services);
   newServices.set(serviceName, mockService);
-  
+
   updateMockState({ services: newServices });
   logger.debug(`Mock service registered: ${serviceName}`);
   return getMockState();
@@ -55,7 +55,7 @@ export const registerService = (serviceName, mockService) => {
 export const enableService = (serviceName, config = {}) => {
   const currentState = getMockState();
   const mockService = currentState.services.get(serviceName);
-  
+
   if (!mockService) {
     throw new Error(`Mock service '${serviceName}' not found`);
   }
@@ -68,15 +68,15 @@ export const enableService = (serviceName, config = {}) => {
   const interceptors = mockService.enable(config);
   const newActiveMocks = new Set(currentState.activeMocks);
   const newInterceptors = new Map(currentState.interceptors);
-  
+
   newActiveMocks.add(serviceName);
   newInterceptors.set(serviceName, interceptors);
-  
-  updateMockState({ 
+
+  updateMockState({
     activeMocks: newActiveMocks,
     interceptors: newInterceptors,
   });
-  
+
   logger.info(`Mock service enabled: ${serviceName}`);
   return { success: true, message: 'Service enabled', interceptors };
 };
@@ -86,10 +86,10 @@ export const enableService = (serviceName, config = {}) => {
  * @param {string} serviceName - Name of the service
  * @returns {Object} Result of operation
  */
-export const disableService = (serviceName) => {
+export const disableService = serviceName => {
   const currentState = getMockState();
   const mockService = currentState.services.get(serviceName);
-  
+
   if (!mockService) {
     throw new Error(`Mock service '${serviceName}' not found`);
   }
@@ -101,18 +101,18 @@ export const disableService = (serviceName) => {
 
   const interceptors = currentState.interceptors.get(serviceName);
   mockService.disable(interceptors);
-  
+
   const newActiveMocks = new Set(currentState.activeMocks);
   const newInterceptors = new Map(currentState.interceptors);
-  
+
   newActiveMocks.delete(serviceName);
   newInterceptors.delete(serviceName);
-  
-  updateMockState({ 
+
+  updateMockState({
     activeMocks: newActiveMocks,
     interceptors: newInterceptors,
   });
-  
+
   logger.info(`Mock service disabled: ${serviceName}`);
   return { success: true, message: 'Service disabled' };
 };
@@ -125,7 +125,7 @@ export const disableService = (serviceName) => {
 export const enableAll = (globalConfig = {}) => {
   const currentState = getMockState();
   const results = [];
-  
+
   for (const [serviceName] of currentState.services) {
     const serviceConfig = globalConfig[serviceName] || {};
     try {
@@ -136,7 +136,7 @@ export const enableAll = (globalConfig = {}) => {
       results.push({ serviceName, success: false, error: error.message });
     }
   }
-  
+
   return { success: true, results };
 };
 
@@ -147,7 +147,7 @@ export const enableAll = (globalConfig = {}) => {
 export const disableAll = () => {
   const currentState = getMockState();
   const results = [];
-  
+
   for (const serviceName of currentState.activeMocks) {
     try {
       const result = disableService(serviceName);
@@ -157,7 +157,7 @@ export const disableAll = () => {
       results.push({ serviceName, success: false, error: error.message });
     }
   }
-  
+
   return { success: true, results };
 };
 
@@ -167,8 +167,8 @@ export const disableAll = () => {
  */
 export const cleanAll = () => {
   nock.cleanAll();
-  updateMockState({ 
-    activeMocks: new Set(), 
+  updateMockState({
+    activeMocks: new Set(),
     interceptors: new Map(),
   });
   logger.info('All nock interceptors cleaned');
@@ -180,7 +180,7 @@ export const cleanAll = () => {
  * @param {string} serviceName - Name of the service
  * @returns {boolean} True if service is active
  */
-export const isServiceActive = (serviceName) => {
+export const isServiceActive = serviceName => {
   const currentState = getMockState();
   return currentState.activeMocks.has(serviceName);
 };
@@ -208,16 +208,16 @@ export const isGlobalMockMode = () => {
  * @param {boolean} enabled - Enable/disable global mock mode
  * @returns {Object} Result of operation
  */
-export const setGlobalMockMode = (enabled) => {
+export const setGlobalMockMode = enabled => {
   updateMockState({ globalMockMode: enabled });
-  
+
   if (enabled) {
     logger.info('Global mock mode enabled');
   } else {
     logger.info('Global mock mode disabled');
     disableAll();
   }
-  
+
   return { success: true, globalMockMode: enabled };
 };
 
@@ -236,21 +236,21 @@ export const getCurrentState = () => getMockState();
  * @param {string} baseURL - Base URL for the service
  * @returns {nock.Scope} Nock scope
  */
-export const createScope = (baseURL) => nock(baseURL);
+export const createScope = baseURL => nock(baseURL);
 
 /**
  * Create a delay for async operations
  * @param {number} ms - Delay in milliseconds
  * @returns {Promise} Promise that resolves after delay
  */
-export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+export const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * Generate a random ID
  * @param {string} prefix - ID prefix
  * @returns {string} Random ID
  */
-export const generateId = (prefix = 'MOCK') => 
+export const generateId = (prefix = 'MOCK') =>
   `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
 /**
@@ -290,9 +290,10 @@ export const validateRequiredFields = (data, requiredFields) => {
   return {
     isValid: missingFields.length === 0,
     missingFields,
-    message: missingFields.length > 0 
-      ? `Missing required fields: ${missingFields.join(', ')}`
-      : 'Validation passed',
+    message:
+      missingFields.length > 0
+        ? `Missing required fields: ${missingFields.join(', ')}`
+        : 'Validation passed',
   };
 };
 

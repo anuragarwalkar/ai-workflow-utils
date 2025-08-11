@@ -103,9 +103,7 @@ class LangChainServiceFactory {
     if (!this.initialized) {
       this.initializeProviders();
     }
-    return (
-      this.services.base.providers && this.services.base.providers.length > 0
-    );
+    return this.services.base.providers && this.services.base.providers.length > 0;
   }
 }
 

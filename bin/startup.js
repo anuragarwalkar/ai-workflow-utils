@@ -27,17 +27,17 @@ class StartupManager {
 
     try {
       switch (this.platform) {
-      case 'darwin':
-        await this.installMacOS();
-        break;
-      case 'win32':
-        await this.installWindows();
-        break;
-      case 'linux':
-        await this.installLinux();
-        break;
-      default:
-        throw new Error(`Unsupported platform: ${this.platform}`);
+        case 'darwin':
+          await this.installMacOS();
+          break;
+        case 'win32':
+          await this.installWindows();
+          break;
+        case 'linux':
+          await this.installLinux();
+          break;
+        default:
+          throw new Error(`Unsupported platform: ${this.platform}`);
       }
 
       console.log('');
@@ -53,7 +53,6 @@ class StartupManager {
       console.log('   • Stop:    ai-workflow-utils startup stop');
       console.log('   • Status:  ai-workflow-utils startup status');
       console.log('   • Remove:  ai-workflow-utils startup uninstall');
-
     } catch (error) {
       console.error('❌ Failed to install startup service:', error.message);
       process.exit(1);
@@ -62,20 +61,20 @@ class StartupManager {
 
   async uninstall() {
     console.log('🗑️  Removing AI Workflow Utils startup service...');
-    
+
     try {
       switch (this.platform) {
-      case 'darwin':
-        await this.uninstallMacOS();
-        break;
-      case 'win32':
-        await this.uninstallWindows();
-        break;
-      case 'linux':
-        await this.uninstallLinux();
-        break;
-      default:
-        throw new Error(`Unsupported platform: ${this.platform}`);
+        case 'darwin':
+          await this.uninstallMacOS();
+          break;
+        case 'win32':
+          await this.uninstallWindows();
+          break;
+        case 'linux':
+          await this.uninstallLinux();
+          break;
+        default:
+          throw new Error(`Unsupported platform: ${this.platform}`);
       }
 
       console.log('✅ Startup service removed successfully!');
@@ -87,18 +86,18 @@ class StartupManager {
 
   async start() {
     console.log('▶️  Starting AI Workflow Utils service...');
-    
+
     try {
       switch (this.platform) {
-      case 'darwin':
-        execSync(`launchctl start ${this.serviceName}`, { stdio: 'inherit' });
-        break;
-      case 'win32':
-        execSync(`sc start "${this.serviceName}"`, { stdio: 'inherit' });
-        break;
-      case 'linux':
-        execSync(`sudo systemctl start ${this.serviceName}`, { stdio: 'inherit' });
-        break;
+        case 'darwin':
+          execSync(`launchctl start ${this.serviceName}`, { stdio: 'inherit' });
+          break;
+        case 'win32':
+          execSync(`sc start "${this.serviceName}"`, { stdio: 'inherit' });
+          break;
+        case 'linux':
+          execSync(`sudo systemctl start ${this.serviceName}`, { stdio: 'inherit' });
+          break;
       }
       console.log('✅ Service started successfully!');
     } catch (error) {
@@ -109,18 +108,18 @@ class StartupManager {
 
   async stop() {
     console.log('⏹️  Stopping AI Workflow Utils service...');
-    
+
     try {
       switch (this.platform) {
-      case 'darwin':
-        execSync(`launchctl stop ${this.serviceName}`, { stdio: 'inherit' });
-        break;
-      case 'win32':
-        execSync(`sc stop "${this.serviceName}"`, { stdio: 'inherit' });
-        break;
-      case 'linux':
-        execSync(`sudo systemctl stop ${this.serviceName}`, { stdio: 'inherit' });
-        break;
+        case 'darwin':
+          execSync(`launchctl stop ${this.serviceName}`, { stdio: 'inherit' });
+          break;
+        case 'win32':
+          execSync(`sc stop "${this.serviceName}"`, { stdio: 'inherit' });
+          break;
+        case 'linux':
+          execSync(`sudo systemctl stop ${this.serviceName}`, { stdio: 'inherit' });
+          break;
       }
       console.log('✅ Service stopped successfully!');
     } catch (error) {
@@ -131,18 +130,18 @@ class StartupManager {
 
   async status() {
     console.log('🔍 Checking AI Workflow Utils service status...');
-    
+
     try {
       switch (this.platform) {
-      case 'darwin':
-        execSync(`launchctl list | grep ${this.serviceName}`, { stdio: 'inherit' });
-        break;
-      case 'win32':
-        execSync(`sc query "${this.serviceName}"`, { stdio: 'inherit' });
-        break;
-      case 'linux':
-        execSync(`sudo systemctl status ${this.serviceName}`, { stdio: 'inherit' });
-        break;
+        case 'darwin':
+          execSync(`launchctl list | grep ${this.serviceName}`, { stdio: 'inherit' });
+          break;
+        case 'win32':
+          execSync(`sc query "${this.serviceName}"`, { stdio: 'inherit' });
+          break;
+        case 'linux':
+          execSync(`sudo systemctl status ${this.serviceName}`, { stdio: 'inherit' });
+          break;
       }
     } catch (error) {
       console.log('❌ Service is not running or not installed');
@@ -152,22 +151,18 @@ class StartupManager {
   async installMacOS() {
     const launchAgentsDir = path.join(os.homedir(), 'Library', 'LaunchAgents');
     const plistPath = path.join(launchAgentsDir, `${this.serviceName}.plist`);
-    
+
     // Get the full path to Node.js, handling NVM installations
     let nodePath;
     try {
       nodePath = execSync('which node', { encoding: 'utf8' }).trim();
     } catch (error) {
       // Fallback to common Node.js locations
-      const commonPaths = [
-        '/usr/local/bin/node',
-        '/opt/homebrew/bin/node',
-        process.execPath,
-      ];
-      
+      const commonPaths = ['/usr/local/bin/node', '/opt/homebrew/bin/node', process.execPath];
+
       nodePath = commonPaths.find(p => fs.existsSync(p)) || process.execPath;
     }
-    
+
     const cliPath = path.join(this.packageDir, 'bin', 'cli.js');
 
     // Ensure LaunchAgents directory exists
@@ -232,8 +227,13 @@ class StartupManager {
   }
 
   async uninstallMacOS() {
-    const plistPath = path.join(os.homedir(), 'Library', 'LaunchAgents', `${this.serviceName}.plist`);
-    
+    const plistPath = path.join(
+      os.homedir(),
+      'Library',
+      'LaunchAgents',
+      `${this.serviceName}.plist`
+    );
+
     if (fs.existsSync(plistPath)) {
       try {
         execSync(`launchctl unload ${plistPath}`, { stdio: 'pipe' });
@@ -250,7 +250,7 @@ class StartupManager {
   async installWindows() {
     const servicePath = path.join(this.packageDir, 'bin', 'windows-service.js');
     const nodePath = process.execPath;
-    
+
     // Create Windows service wrapper
     this.createWindowsServiceWrapper(servicePath);
 
@@ -275,7 +275,7 @@ class StartupManager {
     } catch (error) {
       // Ignore if service is already stopped
     }
-    
+
     execSync(`sc delete "${this.serviceName}"`, { stdio: 'inherit' });
     console.log('🗑️  Windows service removed');
 
@@ -394,7 +394,7 @@ WantedBy=multi-user.target`;
 
   async uninstallLinux() {
     const serviceFilePath = `/etc/systemd/system/${this.serviceName}.service`;
-    
+
     try {
       execSync(`sudo systemctl stop ${this.serviceName}`, { stdio: 'pipe' });
       execSync(`sudo systemctl disable ${this.serviceName}`, { stdio: 'pipe' });
@@ -417,42 +417,42 @@ async function main() {
   const command = process.argv[2];
 
   switch (command) {
-  case 'install':
-    await manager.install();
-    break;
-  case 'uninstall':
-    await manager.uninstall();
-    break;
-  case 'start':
-    await manager.start();
-    break;
-  case 'stop':
-    await manager.stop();
-    break;
-  case 'status':
-    await manager.status();
-    break;
-  default:
-    console.log('🚀 AI Workflow Utils - Startup Manager');
-    console.log('=' .repeat(50));
-    console.log('Usage: ai-workflow-utils startup <command>');
-    console.log('');
-    console.log('Commands:');
-    console.log('  install    Install as startup service');
-    console.log('  uninstall  Remove startup service');
-    console.log('  start      Start the service');
-    console.log('  stop       Stop the service');
-    console.log('  status     Check service status');
-    console.log('');
-    console.log('Examples:');
-    console.log('  ai-workflow-utils startup install');
-    console.log('  ai-workflow-utils startup status');
-    console.log('  ai-workflow-utils startup uninstall');
-    process.exit(1);
+    case 'install':
+      await manager.install();
+      break;
+    case 'uninstall':
+      await manager.uninstall();
+      break;
+    case 'start':
+      await manager.start();
+      break;
+    case 'stop':
+      await manager.stop();
+      break;
+    case 'status':
+      await manager.status();
+      break;
+    default:
+      console.log('🚀 AI Workflow Utils - Startup Manager');
+      console.log('='.repeat(50));
+      console.log('Usage: ai-workflow-utils startup <command>');
+      console.log('');
+      console.log('Commands:');
+      console.log('  install    Install as startup service');
+      console.log('  uninstall  Remove startup service');
+      console.log('  start      Start the service');
+      console.log('  stop       Stop the service');
+      console.log('  status     Check service status');
+      console.log('');
+      console.log('Examples:');
+      console.log('  ai-workflow-utils startup install');
+      console.log('  ai-workflow-utils startup status');
+      console.log('  ai-workflow-utils startup uninstall');
+      process.exit(1);
   }
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error('❌ Startup manager failed:', error.message);
   process.exit(1);
 });

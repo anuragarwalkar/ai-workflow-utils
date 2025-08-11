@@ -11,8 +11,8 @@ import {
   setupMetadataInterceptors,
   setupProjectInterceptors,
 } from './jira-mock-interceptors.js';
-import { 
-  setupCreateMetaInterceptors, 
+import {
+  setupCreateMetaInterceptors,
   setupTransitionInterceptors,
 } from './jira-transition-interceptors.js';
 import logger from '../../logger.js';
@@ -20,7 +20,7 @@ import logger from '../../logger.js';
 // Main setup function
 const setupJiraInterceptors = (baseURL, config = {}) => {
   logger.info(`Setting up Jira mock interceptors for ${baseURL}`);
-  
+
   const allInterceptors = [
     ...setupProjectInterceptors(baseURL),
     ...setupIssueInterceptors(baseURL),
@@ -43,7 +43,7 @@ const setupJiraInterceptors = (baseURL, config = {}) => {
 export const jiraMockService = createMockService(
   'jira',
   'https://mock-jira.atlassian.net',
-  setupJiraInterceptors,
+  setupJiraInterceptors
 );
 
 // Re-export everything for convenience

@@ -3,7 +3,12 @@
  * Example implementation of email service mocking using nock
  */
 
-import { createMockService, createScope, createSuccessResponse, delay } from '../core/nock-mock-service.js';
+import {
+  createMockService,
+  createScope,
+  createSuccessResponse,
+  delay,
+} from '../core/nock-mock-service.js';
 import logger from '../../logger.js';
 
 // Mock email state
@@ -15,16 +20,16 @@ let emailState = {
 // Pure functions for email state management
 const getEmailState = () => ({ ...emailState });
 
-const updateEmailState = (updates) => {
+const updateEmailState = updates => {
   emailState = { ...emailState, ...updates };
   return getEmailState();
 };
 
 // Helper functions
-const createMockEmail = (emailData) => {
+const createMockEmail = emailData => {
   const currentState = getEmailState();
   const emailId = `EMAIL-${currentState.emailCounter}`;
-  
+
   updateEmailState({ emailCounter: currentState.emailCounter + 1 });
 
   const email = {
@@ -46,7 +51,7 @@ const createMockEmail = (emailData) => {
 // Setup email interceptors
 const setupEmailInterceptors = (baseURL, _config = {}) => {
   logger.info(`Setting up Email mock interceptors for ${baseURL}`);
-  
+
   const interceptors = [];
 
   // Send email
@@ -54,10 +59,10 @@ const setupEmailInterceptors = (baseURL, _config = {}) => {
     .post('/api/email/send')
     .reply(async (_uri, requestBody) => {
       await delay(200); // Simulate email sending delay
-      
+
       const email = createMockEmail(requestBody);
       logger.info(`Mock Email: Sent email ${email.id} to ${email.to}`);
-      
+
       return [200, createSuccessResponse(email)];
     })
     .persist();
@@ -81,12 +86,8 @@ const setupEmailInterceptors = (baseURL, _config = {}) => {
 export const emailMockService = createMockService(
   'email',
   'https://mock-email.service.com',
-  setupEmailInterceptors,
+  setupEmailInterceptors
 );
 
 // Export utilities
-export {
-  createMockEmail,
-  getEmailState,
-  updateEmailState,
-};
+export { createMockEmail, getEmailState, updateEmailState };

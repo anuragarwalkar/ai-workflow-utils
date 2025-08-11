@@ -227,15 +227,13 @@ export const selectIsFormOpen = state => state.templates.isFormOpen;
 export const selectFormMode = state => state.templates.formMode;
 export const selectSearchTerm = state => state.templates.searchTerm;
 export const selectFilterType = state => state.templates.filterType;
-export const selectShowDefaultTemplates = state =>
-  state.templates.showDefaultTemplates;
+export const selectShowDefaultTemplates = state => state.templates.showDefaultTemplates;
 export const selectPreviewTemplate = state => state.templates.previewTemplate;
 export const selectPreviewVariables = state => state.templates.previewVariables;
 
 // Filtered templates selector
 export const selectFilteredTemplates = state => {
-  const { templates, searchTerm, filterType, showDefaultTemplates } =
-    state.templates;
+  const { templates, searchTerm, filterType, showDefaultTemplates } = state.templates;
 
   return templates.filter(template => {
     // Search filter
@@ -264,8 +262,7 @@ export const selectFilteredTemplates = state => {
 // Templates by type selector
 export const selectTemplatesByType = state => issueType => {
   return state.templates.templates.filter(
-    template =>
-      template.templateType === issueType || template.templateType === 'All'
+    template => template.templateType === issueType || template.templateType === 'All'
   );
 };
 
@@ -276,9 +273,7 @@ export const selectActiveTemplate = state => issueType => {
     return state.templates.templates.find(t => t.id === activeTemplateId);
   }
   // Fallback to first template of that type
-  return state.templates.templates.find(
-    t => t.issueType === issueType && t.isActive
-  );
+  return state.templates.templates.find(t => t.issueType === issueType && t.isActive);
 };
 
 // Available issue types selector

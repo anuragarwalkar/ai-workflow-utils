@@ -124,8 +124,7 @@ const TemplateForm = () => {
       // Toast notifications are now handled in Redux API layer
       // Keep local error for form validation display
       console.error('Template save error:', error);
-      const errorMessage =
-        error?.data?.error || error?.message || 'Failed to save template';
+      const errorMessage = error?.data?.error || error?.message || 'Failed to save template';
       dispatch(setError(errorMessage));
     }
   };
@@ -159,10 +158,7 @@ const TemplateForm = () => {
       // Set cursor position after the inserted variable
       setTimeout(() => {
         textarea.focus();
-        textarea.setSelectionRange(
-          start + variable.length + 2,
-          start + variable.length + 2
-        );
+        textarea.setSelectionRange(start + variable.length + 2, start + variable.length + 2);
       }, 0);
     }
   };

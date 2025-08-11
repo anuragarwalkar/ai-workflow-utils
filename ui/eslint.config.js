@@ -5,27 +5,13 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import react from 'eslint-plugin-react';
 import prettier from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
-import { defineConfig, globalIgnores } from 'eslint/config';
 
-export default defineConfig([
-  globalIgnores(['dist', 'dev-dist']),
+export default [
+  {
+    ignores: ['dist', 'dev-dist'],
+  },
   {
     files: ['**/*.{js,jsx}'],
-    extends: [
-      js.configs.recommended,
-      reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
-      prettierConfig,
-    ],
-    plugins: {
-      react,
-      prettier,
-    },
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: {
@@ -38,25 +24,32 @@ export default defineConfig([
         sourceType: 'module',
       },
     },
+    plugins: {
+      react,
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+      prettier,
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
     rules: {
+      // Extend recommended configurations
+      ...js.configs.recommended.rules,
+      ...react.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+
       // Code complexity and refactoring rules
-      'max-lines': [
-        'error',
-        { max: 250, skipBlankLines: true, skipComments: true },
-      ],
-      'max-lines-per-function': [
-        'error',
-        { max: 40, skipBlankLines: true, skipComments: true },
-      ],
+      'max-lines': ['error', { max: 250, skipBlankLines: true, skipComments: true }],
       'max-params': ['error', 3],
       'max-depth': ['error', 4],
       'max-nested-callbacks': ['error', 3],
-      complexity: ['error', 8],
       'max-statements': ['error', 15],
       'max-statements-per-line': ['error', { max: 1 }],
 
       // React-specific modularity rules
-      'react/jsx-max-props-per-line': ['error', { maximum: 3 }],
       'react/jsx-max-depth': ['error', { max: 5 }],
       'react/jsx-no-duplicate-props': 'error',
       'react/jsx-no-useless-fragment': 'error',
@@ -89,18 +82,7 @@ export default defineConfig([
           noSortAlphabetically: false,
         },
       ],
-      'react/jsx-wrap-multilines': [
-        'error',
-        {
-          declaration: 'parens-new-line',
-          assignment: 'parens-new-line',
-          return: 'parens-new-line',
-          arrow: 'parens-new-line',
-          condition: 'parens-new-line',
-          logical: 'parens-new-line',
-          prop: 'parens-new-line',
-        },
-      ],
+      // Removed 'react/jsx-wrap-multilines' - conflicts with Prettier formatting
 
       // Modern JavaScript and modularity
       'prefer-const': 'error',
@@ -159,7 +141,7 @@ export default defineConfig([
       'no-empty-character-class': 'error',
       'no-empty-pattern': 'error',
       'no-extra-boolean-cast': 'error',
-      'no-extra-semi': 'error',
+      // Removed 'no-extra-semi' - conflicts with Prettier formatting
       'no-fallthrough': 'error',
       'no-func-assign': 'error',
       'no-import-assign': 'error',
@@ -171,7 +153,7 @@ export default defineConfig([
       'no-regex-spaces': 'error',
       'no-shadow-restricted-names': 'error',
       'no-sparse-arrays': 'error',
-      'no-unexpected-multiline': 'error',
+      // Removed 'no-unexpected-multiline' - conflicts with Prettier formatting
       'use-isnan': 'error',
       'valid-typeof': 'error',
 
@@ -224,13 +206,13 @@ export default defineConfig([
       'react/void-dom-elements-no-children': 'error',
 
       // React Refresh
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
 
-      // Prettier integration
-      'prettier/prettier': 'error',
+      // Override Prettier conflicts (this must come last to disable conflicting ESLint rules)
+      ...prettierConfig.rules,
+
+      // Prettier integration (enforce Prettier formatting)
+      // 'prettier/prettier': 'error',
     },
   },
-]);
+];

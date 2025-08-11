@@ -37,10 +37,7 @@ import {
   Search as SearchIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material';
-import {
-  useClearLogsMutation,
-  useGetLogsQuery,
-} from '../../../store/api/logsApi';
+import { useClearLogsMutation, useGetLogsQuery } from '../../../store/api/logsApi';
 
 const LogsViewer = () => {
   const [selectedLevel, setSelectedLevel] = useState('all');
@@ -165,11 +162,7 @@ const LogsViewer = () => {
   };
 
   const handleClearLogs = async () => {
-    if (
-      window.confirm(
-        'Are you sure you want to clear all logs? This action cannot be undone.'
-      )
-    ) {
+    if (window.confirm('Are you sure you want to clear all logs? This action cannot be undone.')) {
       try {
         await clearLogs().unwrap();
         refetch();
@@ -252,10 +245,7 @@ const LogsViewer = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     {getLogIcon(level)}
                     <Box>
-                      <Typography
-                        sx={{ fontSize: '1.1rem', lineHeight: 1 }}
-                        variant='h6'
-                      >
+                      <Typography sx={{ fontSize: '1.1rem', lineHeight: 1 }} variant='h6'>
                         {count}
                       </Typography>
                       <Typography
@@ -283,11 +273,7 @@ const LogsViewer = () => {
           >
             <FormControl size='small' sx={{ minWidth: 140 }}>
               <InputLabel>Log Level</InputLabel>
-              <Select
-                label='Log Level'
-                value={selectedLevel}
-                onChange={handleLevelChange}
-              >
+              <Select label='Log Level' value={selectedLevel} onChange={handleLevelChange}>
                 {logLevels.map(level => (
                   <MenuItem key={level.value} value={level.value}>
                     {level.label}
@@ -319,18 +305,9 @@ const LogsViewer = () => {
             />
           </Stack>
 
-          <Stack
-            alignItems='center'
-            direction='row'
-            flexWrap='wrap'
-            spacing={1}
-          >
+          <Stack alignItems='center' direction='row' flexWrap='wrap' spacing={1}>
             <Tooltip title='Refresh Logs'>
-              <IconButton
-                disabled={isLoading}
-                size='small'
-                onClick={() => refetch()}
-              >
+              <IconButton disabled={isLoading} size='small' onClick={() => refetch()}>
                 <RefreshIcon />
               </IconButton>
             </Tooltip>
@@ -378,11 +355,7 @@ const LogsViewer = () => {
             ) : null}
 
             {totalCount > 0 && (
-              <Typography
-                color='text.secondary'
-                sx={{ ml: 'auto' }}
-                variant='body2'
-              >
+              <Typography color='text.secondary' sx={{ ml: 'auto' }} variant='body2'>
                 {totalCount} total logs
               </Typography>
             )}
@@ -395,15 +368,9 @@ const LogsViewer = () => {
         <Table stickyHeader size='small'>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ minWidth: 150, fontWeight: 'bold' }}>
-                Timestamp
-              </TableCell>
-              <TableCell sx={{ minWidth: 100, fontWeight: 'bold' }}>
-                Level
-              </TableCell>
-              <TableCell sx={{ minWidth: 120, fontWeight: 'bold' }}>
-                Module
-              </TableCell>
+              <TableCell sx={{ minWidth: 150, fontWeight: 'bold' }}>Timestamp</TableCell>
+              <TableCell sx={{ minWidth: 100, fontWeight: 'bold' }}>Level</TableCell>
+              <TableCell sx={{ minWidth: 120, fontWeight: 'bold' }}>Module</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Message</TableCell>
             </TableRow>
           </TableHead>
@@ -468,9 +435,7 @@ const LogsViewer = () => {
                           fontSize: '0.8rem',
                           wordBreak: 'break-word',
                           fontFamily:
-                            log.level?.toLowerCase() === 'error'
-                              ? 'monospace'
-                              : 'inherit',
+                            log.level?.toLowerCase() === 'error' ? 'monospace' : 'inherit',
                           maxWidth: 600,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',

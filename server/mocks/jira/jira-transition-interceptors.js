@@ -3,33 +3,29 @@
  * Extended Jira API endpoints for transitions and metadata
  */
 
-import { 
-  createErrorResponse,
-  createScope, 
-  delay,
-} from '../core/nock-mock-service.js';
+import { createErrorResponse, createScope, delay } from '../core/nock-mock-service.js';
 import { mockData } from './jira-mock-data.js';
 import { extractIssueKeyFromUri } from './jira-mock-helpers.js';
 import logger from '../../logger.js';
 
 // Helper function to get status by transition ID
-const getStatusByTransitionId = (transitionId) => {
+const getStatusByTransitionId = transitionId => {
   const [openStatus, inProgressStatus, doneStatus] = mockData.statuses;
-  
+
   switch (transitionId) {
-  case '11':
-    return openStatus;
-  case '21':
-    return inProgressStatus;
-  case '31':
-    return doneStatus;
-  default:
-    return null;
+    case '11':
+      return openStatus;
+    case '21':
+      return inProgressStatus;
+    case '31':
+      return doneStatus;
+    default:
+      return null;
   }
 };
 
 // Get transitions interceptor
-const setupGetTransitionsInterceptor = (baseURL) => {
+const setupGetTransitionsInterceptor = baseURL => {
   return createScope(baseURL)
     .get(/\/rest\/api\/2\/issue\/([A-Z]+-\d+)\/transitions/)
     .reply(200, {
@@ -68,35 +64,35 @@ const setupGetTransitionsInterceptor = (baseURL) => {
 };
 
 // Execute transition interceptor
-const setupExecuteTransitionInterceptor = (baseURL) => {
+const setupExecuteTransitionInterceptor = baseURL => {
   return createScope(baseURL)
     .post(/\/rest\/api\/2\/issue\/([A-Z]+-\d+)\/transitions/)
     .reply(async (uri, requestBody) => {
       await delay(100);
-      
+
       const issueKey = extractIssueKeyFromUri(uri);
       const issue = mockData.issues.get(issueKey);
-      
+
       if (!issue) {
         return [404, createErrorResponse(404, `Issue ${issueKey} not found`)];
       }
 
       const transitionId = requestBody.transition?.id;
       const newStatus = getStatusByTransitionId(transitionId);
-      
+
       if (newStatus) {
         issue.fields.status = newStatus;
         issue.fields.updated = new Date().toISOString();
         logger.info(`Mock Jira: Transitioned issue ${issueKey} to ${newStatus.name}`);
       }
-      
+
       return [204, {}];
     })
     .persist();
 };
 
 // Transition interceptors
-export const setupTransitionInterceptors = (baseURL) => {
+export const setupTransitionInterceptors = baseURL => {
   const interceptors = [];
 
   interceptors.push(setupGetTransitionsInterceptor(baseURL));
@@ -106,7 +102,7 @@ export const setupTransitionInterceptors = (baseURL) => {
 };
 
 // Create metadata interceptors
-export const setupCreateMetaInterceptors = (baseURL) => {
+export const setupCreateMetaInterceptors = baseURL => {
   const interceptors = [];
 
   // Get create metadata

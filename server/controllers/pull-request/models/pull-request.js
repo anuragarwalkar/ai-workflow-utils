@@ -18,13 +18,7 @@ class PullRequest {
    * Validate required fields
    */
   static validate(data) {
-    const required = [
-      'title',
-      'description',
-      'fromBranch',
-      'projectKey',
-      'repoSlug',
-    ];
+    const required = ['title', 'description', 'fromBranch', 'projectKey', 'repoSlug'];
     const missing = required.filter(field => !data[field]);
 
     if (missing.length > 0) {

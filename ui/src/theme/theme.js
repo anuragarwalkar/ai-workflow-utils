@@ -3,9 +3,7 @@ import { createTheme } from '@mui/material/styles';
 // Theme mode detection utility
 export const getSystemTheme = () => {
   if (typeof window !== 'undefined') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
   return 'light';
 };
@@ -118,20 +116,14 @@ export const createAppTheme = (mode = 'auto') => {
             marginBottom: '1.5rem',
             '& .MuiOutlinedInput-root': {
               borderRadius: '12px',
-              backgroundColor: isDark
-                ? 'rgba(45, 55, 72, 0.9)'
-                : 'rgba(255, 255, 255, 0.9)',
+              backgroundColor: isDark ? 'rgba(45, 55, 72, 0.9)' : 'rgba(255, 255, 255, 0.9)',
               backdropFilter: 'blur(10px)',
               transition: 'all 0.3s ease',
               '&:hover': {
-                backgroundColor: isDark
-                  ? 'rgba(45, 55, 72, 0.95)'
-                  : 'rgba(255, 255, 255, 0.95)',
+                backgroundColor: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
               },
               '&.Mui-focused': {
-                backgroundColor: isDark
-                  ? 'rgba(45, 55, 72, 1)'
-                  : 'rgba(255, 255, 255, 1)',
+                backgroundColor: isDark ? 'rgba(45, 55, 72, 1)' : 'rgba(255, 255, 255, 1)',
                 boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.2)',
               },
             },
@@ -142,16 +134,12 @@ export const createAppTheme = (mode = 'auto') => {
         styleOverrides: {
           root: {
             borderRadius: '20px',
-            boxShadow: isDark
-              ? '0 10px 40px rgba(0, 0, 0, 0.3)'
-              : '0 10px 40px rgba(0, 0, 0, 0.1)',
+            boxShadow: isDark ? '0 10px 40px rgba(0, 0, 0, 0.3)' : '0 10px 40px rgba(0, 0, 0, 0.1)',
             backdropFilter: 'blur(10px)',
             border: isDark
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(255, 255, 255, 0.2)',
-            backgroundColor: isDark
-              ? 'rgba(45, 55, 72, 0.95)'
-              : 'rgba(255, 255, 255, 0.95)',
+            backgroundColor: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
           },
         },
       },
@@ -168,16 +156,12 @@ export const createAppTheme = (mode = 'auto') => {
         styleOverrides: {
           root: {
             borderRadius: '16px',
-            boxShadow: isDark
-              ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-              : '0 8px 32px rgba(0, 0, 0, 0.1)',
+            boxShadow: isDark ? '0 8px 32px rgba(0, 0, 0, 0.3)' : '0 8px 32px rgba(0, 0, 0, 0.1)',
             backdropFilter: 'blur(10px)',
             border: isDark
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(255, 255, 255, 0.2)',
-            backgroundColor: isDark
-              ? 'rgba(45, 55, 72, 0.95)'
-              : 'rgba(255, 255, 255, 0.95)',
+            backgroundColor: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             '&:hover': {
               transform: 'translateY(-4px)',

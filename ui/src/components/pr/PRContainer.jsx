@@ -61,8 +61,7 @@ const PRContainer = () => {
         ) : (
           <Box sx={{ p: 3, textAlign: 'center' }}>
             <Typography color='text.secondary'>
-              Please create a PR first to configure project key and repository
-              slug
+              Please create a PR first to configure project key and repository slug
             </Typography>
           </Box>
         ))}

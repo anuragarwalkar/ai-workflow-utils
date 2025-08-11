@@ -1,11 +1,6 @@
 import React from 'react';
 import { Avatar, Box, Chip, Typography } from '@mui/material';
-import {
-  BugReport,
-  SubdirectoryArrowRight,
-  Task,
-  TrendingUp,
-} from '@mui/icons-material';
+import { BugReport, SubdirectoryArrowRight, Task, TrendingUp } from '@mui/icons-material';
 import { useAppTheme } from '../../../../theme/useAppTheme';
 
 const JiraSidebar = ({ jiraData }) => {
@@ -46,13 +41,9 @@ const JiraSidebar = ({ jiraData }) => {
     <Box
       sx={{
         width: '320px',
-        background: isDark
-          ? 'rgba(20, 20, 40, 0.95)'
-          : 'rgba(248, 250, 252, 0.95)',
+        background: isDark ? 'rgba(20, 20, 40, 0.95)' : 'rgba(248, 250, 252, 0.95)',
         backdropFilter: 'blur(20px)',
-        borderLeft: isDark
-          ? '1px solid rgba(255, 255, 255, 0.1)'
-          : '1px solid rgba(0, 0, 0, 0.1)',
+        borderLeft: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
         display: 'flex',
         flexDirection: 'column',
         padding: '24px 20px',
@@ -77,9 +68,7 @@ const JiraSidebar = ({ jiraData }) => {
           <Box>
             <Typography
               sx={{
-                color: isDark
-                  ? 'rgba(255, 255, 255, 0.6)'
-                  : 'rgba(45, 55, 72, 0.6)',
+                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(45, 55, 72, 0.6)',
                 display: 'block',
                 fontSize: '0.75rem',
                 mb: 0.5,
@@ -108,9 +97,7 @@ const JiraSidebar = ({ jiraData }) => {
           <Box>
             <Typography
               sx={{
-                color: isDark
-                  ? 'rgba(255, 255, 255, 0.6)'
-                  : 'rgba(45, 55, 72, 0.6)',
+                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(45, 55, 72, 0.6)',
                 display: 'block',
                 fontSize: '0.75rem',
                 mb: 0.5,
@@ -144,9 +131,7 @@ const JiraSidebar = ({ jiraData }) => {
           <Box>
             <Typography
               sx={{
-                color: isDark
-                  ? 'rgba(255, 255, 255, 0.6)'
-                  : 'rgba(45, 55, 72, 0.6)',
+                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(45, 55, 72, 0.6)',
                 display: 'block',
                 fontSize: '0.75rem',
                 mb: 0.5,
@@ -166,30 +151,27 @@ const JiraSidebar = ({ jiraData }) => {
           </Box>
 
           {/* Component */}
-          {jiraData.fields?.components &&
-          jiraData.fields.components.length > 0 ? (
+          {jiraData.fields?.components && jiraData.fields.components.length > 0 ? (
             <Box>
               <Typography
                 sx={{
-                    color: isDark
-                      ? 'rgba(255, 255, 255, 0.6)'
-                      : 'rgba(45, 55, 72, 0.6)',
-                    display: 'block',
-                    fontSize: '0.75rem',
-                    mb: 0.5,
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.5,
-                  }}
-                  variant='caption'
+                  color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(45, 55, 72, 0.6)',
+                  display: 'block',
+                  fontSize: '0.75rem',
+                  mb: 0.5,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}
+                variant='caption'
               >
                 Component/s:
               </Typography>
               <Typography
                 sx={{
-                    color: isDark ? 'white' : '#2d3748',
-                    fontWeight: 500,
-                  }}
-                  variant='body2'
+                  color: isDark ? 'white' : '#2d3748',
+                  fontWeight: 500,
+                }}
+                variant='body2'
               >
                 {jiraData.fields.components.map(c => c.name).join(', ')}
               </Typography>
@@ -202,9 +184,7 @@ const JiraSidebar = ({ jiraData }) => {
               <Typography
                 variant='caption'
                 sx={{
-                  color: isDark
-                    ? 'rgba(255, 255, 255, 0.6)'
-                    : 'rgba(45, 55, 72, 0.6)',
+                  color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(45, 55, 72, 0.6)',
                   display: 'block',
                   fontSize: '0.75rem',
                   mb: 0.5,
@@ -254,9 +234,7 @@ const JiraSidebar = ({ jiraData }) => {
           <Box>
             <Typography
               sx={{
-                color: isDark
-                  ? 'rgba(255, 255, 255, 0.6)'
-                  : 'rgba(45, 55, 72, 0.6)',
+                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(45, 55, 72, 0.6)',
                 display: 'block',
                 fontSize: '0.75rem',
                 mb: 0.5,
@@ -273,8 +251,7 @@ const JiraSidebar = ({ jiraData }) => {
                   width: 24,
                   height: 24,
                   fontSize: '0.7rem',
-                  background:
-                    'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                  background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 }}
               >
                 {jiraData.fields?.assignee?.displayName?.charAt(0) || 'U'}
@@ -295,9 +272,7 @@ const JiraSidebar = ({ jiraData }) => {
           <Box>
             <Typography
               sx={{
-                color: isDark
-                  ? 'rgba(255, 255, 255, 0.6)'
-                  : 'rgba(45, 55, 72, 0.6)',
+                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(45, 55, 72, 0.6)',
                 display: 'block',
                 fontSize: '0.75rem',
                 mb: 0.5,
@@ -314,8 +289,7 @@ const JiraSidebar = ({ jiraData }) => {
                   width: 24,
                   height: 24,
                   fontSize: '0.7rem',
-                  background:
-                    'linear-gradient(45deg, #4ecdc4 30%, #44a08d 90%)',
+                  background: 'linear-gradient(45deg, #4ecdc4 30%, #44a08d 90%)',
                 }}
               >
                 {jiraData.fields?.reporter?.displayName?.charAt(0) || 'U'}
@@ -353,9 +327,7 @@ const JiraSidebar = ({ jiraData }) => {
           <Box>
             <Typography
               sx={{
-                color: isDark
-                  ? 'rgba(255, 255, 255, 0.6)'
-                  : 'rgba(45, 55, 72, 0.6)',
+                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(45, 55, 72, 0.6)',
                 display: 'block',
                 fontSize: '0.75rem',
                 mb: 0.5,
@@ -382,9 +354,7 @@ const JiraSidebar = ({ jiraData }) => {
           <Box>
             <Typography
               sx={{
-                color: isDark
-                  ? 'rgba(255, 255, 255, 0.6)'
-                  : 'rgba(45, 55, 72, 0.6)',
+                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(45, 55, 72, 0.6)',
                 display: 'block',
                 fontSize: '0.75rem',
                 mb: 0.5,

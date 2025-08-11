@@ -158,11 +158,9 @@ const ChatOverlay = () => {
             width: '80px', // Made bigger horizontally
             height: '60px', // Slightly taller
             borderRadius: '30px', // More oval shape
-            animation:
-              'chatPulse 2s ease-in-out infinite, chatFloat 3s ease-in-out infinite',
+            animation: 'chatPulse 2s ease-in-out infinite, chatFloat 3s ease-in-out infinite',
             '&:hover': {
-              animation:
-                'chatBounce 0.6s ease-in-out infinite, chatGlow 1s ease-in-out infinite',
+              animation: 'chatBounce 0.6s ease-in-out infinite, chatGlow 1s ease-in-out infinite',
               transform: 'scale(1.1)',
               transition: 'transform 0.3s ease',
             },
@@ -201,8 +199,7 @@ const ChatOverlay = () => {
                 boxShadow: '0 0 5px rgba(25, 118, 210, 0.5)',
               },
               '50%': {
-                boxShadow:
-                  '0 0 20px rgba(25, 118, 210, 0.8), 0 0 30px rgba(25, 118, 210, 0.6)',
+                boxShadow: '0 0 20px rgba(25, 118, 210, 0.8), 0 0 30px rgba(25, 118, 210, 0.6)',
               },
             },
           }}
@@ -356,8 +353,7 @@ const ChatOverlay = () => {
                   key={index}
                   sx={{
                     flexDirection: 'column',
-                    alignItems:
-                      message.role === 'user' ? 'flex-end' : 'flex-start',
+                    alignItems: message.role === 'user' ? 'flex-end' : 'flex-start',
                     p: 0.5,
                   }}
                 >
@@ -366,18 +362,12 @@ const ChatOverlay = () => {
                     sx={{
                       p: 1,
                       maxWidth: '85%',
-                      bgcolor:
-                        message.role === 'user' ? 'primary.main' : 'white',
-                      color:
-                        message.role === 'user'
-                          ? 'primary.contrastText'
-                          : 'text.primary',
+                      bgcolor: message.role === 'user' ? 'primary.main' : 'white',
+                      color: message.role === 'user' ? 'primary.contrastText' : 'text.primary',
                       borderRadius: 2,
                     }}
                   >
-                    <Typography variant='body2'>
-                      {formatMessage(message.content)}
-                    </Typography>
+                    <Typography variant='body2'>{formatMessage(message.content)}</Typography>
                     {message.provider ? (
                       <Typography
                         sx={{
@@ -414,9 +404,7 @@ const ChatOverlay = () => {
                       position: 'relative',
                     }}
                   >
-                    <Typography variant='body2'>
-                      {formatMessage(streamingContent)}
-                    </Typography>
+                    <Typography variant='body2'>{formatMessage(streamingContent)}</Typography>
                     <Box
                       sx={{
                         display: 'inline-flex',
@@ -457,11 +445,7 @@ const ChatOverlay = () => {
 
           {/* Error Display */}
           {error ? (
-            <Alert
-              severity='error'
-              sx={{ mx: 1, mb: 1 }}
-              onClose={() => dispatch(clearError())}
-            >
+            <Alert severity='error' sx={{ mx: 1, mb: 1 }} onClose={() => dispatch(clearError())}>
               {error}
             </Alert>
           ) : null}

@@ -28,9 +28,7 @@ const RichTextViewer = ({ content, variant = 'paper', sx = {} }) => {
   const paperSx = {
     background: isDark ? 'rgba(45,55,72,0.95)' : 'rgba(255,255,255,0.95)',
     backdropFilter: 'blur(20px)',
-    border: isDark
-      ? '1px solid rgba(255,255,255,0.1)'
-      : '1px solid rgba(0,0,0,0.1)',
+    border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
     borderRadius: 3,
     ...sx,
   };

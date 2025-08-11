@@ -3,24 +3,24 @@
  * Nock interceptor setup functions for different Jira API endpoints
  */
 
-import { 
+import {
   createErrorResponse,
-  createScope, 
+  createScope,
   delay,
-  validateRequiredFields, 
+  validateRequiredFields,
 } from '../core/nock-mock-service.js';
 import { mockData } from './jira-mock-data.js';
-import { 
-  createMockComment, 
-  createMockIssue, 
-  extractIssueKeyFromUri, 
-  getIssueFromKey, 
+import {
+  createMockComment,
+  createMockIssue,
+  extractIssueKeyFromUri,
+  getIssueFromKey,
   searchIssues,
 } from './jira-mock-helpers.js';
 import logger from '../../logger.js';
 
 // Project interceptors
-export const setupProjectInterceptors = (baseURL) => {
+export const setupProjectInterceptors = baseURL => {
   const interceptors = [];
 
   // Get all projects
@@ -33,10 +33,10 @@ export const setupProjectInterceptors = (baseURL) => {
   // Get specific project
   const projectInterceptor = createScope(baseURL)
     .get(/\/rest\/api\/2\/project\/([A-Z]+)/)
-    .reply((uri) => {
+    .reply(uri => {
       const projectKey = uri.split('/').pop();
       const project = mockData.projects.get(projectKey);
-      
+
       if (project) {
         return [200, project];
       }
@@ -49,40 +49,44 @@ export const setupProjectInterceptors = (baseURL) => {
 };
 
 // Issue creation interceptor
-const setupCreateIssueInterceptor = (baseURL) => {
+const setupCreateIssueInterceptor = baseURL => {
   return createScope(baseURL)
     .post('/rest/api/2/issue')
     .reply(async (_uri, requestBody) => {
       await delay(100); // Simulate API delay
-      
-      const validation = validateRequiredFields(
-        requestBody.fields, 
-        ['summary', 'project', 'issuetype'],
-      );
+
+      const validation = validateRequiredFields(requestBody.fields, [
+        'summary',
+        'project',
+        'issuetype',
+      ]);
       if (!validation.isValid) {
         return [400, createErrorResponse(400, validation.message)];
       }
 
       const issue = createMockIssue(requestBody.fields);
       logger.info(`Mock Jira: Created issue ${issue.key}`);
-      
-      return [201, {
-        id: issue.id,
-        key: issue.key,
-        self: issue.self,
-      }];
+
+      return [
+        201,
+        {
+          id: issue.id,
+          key: issue.key,
+          self: issue.self,
+        },
+      ];
     })
     .persist();
 };
 
 // Issue retrieval interceptor
-const setupGetIssueInterceptor = (baseURL) => {
+const setupGetIssueInterceptor = baseURL => {
   return createScope(baseURL)
     .get(/\/rest\/api\/2\/issue\/([A-Z]+-\d+)/)
-    .reply((uri) => {
+    .reply(uri => {
       const issueKey = uri.split('/').pop();
       const issue = mockData.issues.get(issueKey);
-      
+
       if (issue) {
         return [200, issue];
       }
@@ -92,15 +96,15 @@ const setupGetIssueInterceptor = (baseURL) => {
 };
 
 // Issue update interceptor
-const setupUpdateIssueInterceptor = (baseURL) => {
+const setupUpdateIssueInterceptor = baseURL => {
   return createScope(baseURL)
     .put(/\/rest\/api\/2\/issue\/([A-Z]+-\d+)/)
     .reply(async (uri, requestBody) => {
       await delay(100);
-      
+
       const issueKey = uri.split('/').pop();
       const issue = mockData.issues.get(issueKey);
-      
+
       if (!issue) {
         return [404, createErrorResponse(404, `Issue ${issueKey} not found`)];
       }
@@ -118,11 +122,11 @@ const setupUpdateIssueInterceptor = (baseURL) => {
 };
 
 // Search interceptor
-const setupSearchInterceptor = (baseURL) => {
+const setupSearchInterceptor = baseURL => {
   return createScope(baseURL)
     .get('/rest/api/2/search')
     .query(true)
-    .reply((uri) => {
+    .reply(uri => {
       const url = new URL(uri, baseURL);
       const jql = url.searchParams.get('jql') || '';
       const startAt = parseInt(url.searchParams.get('startAt') || '0', 10);
@@ -135,7 +139,7 @@ const setupSearchInterceptor = (baseURL) => {
 };
 
 // Main issue interceptors setup
-export const setupIssueInterceptors = (baseURL) => {
+export const setupIssueInterceptors = baseURL => {
   const interceptors = [];
 
   interceptors.push(setupCreateIssueInterceptor(baseURL));
@@ -147,7 +151,7 @@ export const setupIssueInterceptors = (baseURL) => {
 };
 
 // Comment interceptors
-export const setupCommentInterceptors = (baseURL) => {
+export const setupCommentInterceptors = baseURL => {
   const interceptors = [];
 
   // Add comment
@@ -155,9 +159,9 @@ export const setupCommentInterceptors = (baseURL) => {
     .post(/\/rest\/api\/2\/issue\/([A-Z]+-\d+)\/comment/)
     .reply(async (uri, requestBody) => {
       await delay(50);
-      
+
       const issueKey = extractIssueKeyFromUri(uri);
-      
+
       try {
         getIssueFromKey(issueKey); // Verify issue exists
       } catch (error) {
@@ -171,7 +175,7 @@ export const setupCommentInterceptors = (baseURL) => {
 
       const comment = createMockComment(issueKey, requestBody);
       logger.info(`Mock Jira: Added comment to issue ${issueKey}`);
-      
+
       return [201, comment];
     })
     .persist();
@@ -180,16 +184,19 @@ export const setupCommentInterceptors = (baseURL) => {
   // Get comments
   const getCommentsInterceptor = createScope(baseURL)
     .get(/\/rest\/api\/2\/issue\/([A-Z]+-\d+)\/comment/)
-    .reply((uri) => {
+    .reply(uri => {
       const issueKey = extractIssueKeyFromUri(uri);
       const comments = mockData.comments.get(issueKey) || [];
-      
-      return [200, {
-        startAt: 0,
-        maxResults: comments.length,
-        total: comments.length,
-        comments,
-      }];
+
+      return [
+        200,
+        {
+          startAt: 0,
+          maxResults: comments.length,
+          total: comments.length,
+          comments,
+        },
+      ];
     })
     .persist();
   interceptors.push(getCommentsInterceptor);
@@ -198,7 +205,7 @@ export const setupCommentInterceptors = (baseURL) => {
 };
 
 // Metadata interceptors
-export const setupMetadataInterceptors = (baseURL) => {
+export const setupMetadataInterceptors = baseURL => {
   const interceptors = [];
 
   // Get issue types

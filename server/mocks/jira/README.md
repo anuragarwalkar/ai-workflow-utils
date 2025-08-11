@@ -1,6 +1,8 @@
 # Jira Mocking Service
 
-A comprehensive mocking service for Jira API operations that follows functional programming principles. This service allows you to test Jira functionality without making actual API calls by setting an environment variable.
+A comprehensive mocking service for Jira API operations that follows functional
+programming principles. This service allows you to test Jira functionality
+without making actual API calls by setting an environment variable.
 
 ## Features
 
@@ -25,30 +27,35 @@ JIRA_MOCK_MODE=false
 
 ### Basic Operations
 
-With nock-based mocking, HTTP requests are automatically intercepted when the service is enabled:
+With nock-based mocking, HTTP requests are automatically intercepted when the
+service is enabled:
 
 ```javascript
-import { setupJiraInterceptors, enableService, isServiceActive } from './jira-nock-service.js';
-import axios from 'axios';
+import {
+  setupJiraInterceptors,
+  enableService,
+  isServiceActive,
+} from "./jira-nock-service.js";
+import axios from "axios";
 
 // Enable Jira mock interceptors
 setupJiraInterceptors();
-enableService('jira');
+enableService("jira");
 
 // Check if service is active
-const isActive = isServiceActive('jira');
+const isActive = isServiceActive("jira");
 
 // Make regular HTTP requests - they will be intercepted by nock
-const baseUrl = 'https://mock-jira.atlassian.net/rest/api/2';
+const baseUrl = "https://mock-jira.atlassian.net/rest/api/2";
 
 // Create an issue (will be intercepted)
 const createResponse = await axios.post(`${baseUrl}/issue`, {
   fields: {
-    summary: 'Test Issue',
-    description: 'This is a test issue',
-    issuetype: { id: '10001' },
-    project: { key: 'MOCK' }
-  }
+    summary: "Test Issue",
+    description: "This is a test issue",
+    issuetype: { id: "10001" },
+    project: { key: "MOCK" },
+  },
 });
 
 // Get an issue (will be intercepted)
@@ -56,19 +63,19 @@ const getResponse = await axios.get(`${baseUrl}/issue/MOCK-1001`);
 
 // Search issues (will be intercepted)
 const searchResponse = await axios.post(`${baseUrl}/search`, {
-  jql: 'project = MOCK AND status = "To Do"'
+  jql: 'project = MOCK AND status = "To Do"',
 });
 
 // Update an issue (will be intercepted)
 await axios.put(`${baseUrl}/issue/MOCK-1001`, {
   fields: {
-    summary: 'Updated Test Issue'
-  }
+    summary: "Updated Test Issue",
+  },
 });
 
 // Add a comment (will be intercepted)
 await axios.post(`${baseUrl}/issue/MOCK-1001/comment`, {
-  body: 'This is a test comment'
+  body: "This is a test comment",
 });
 ```
 
@@ -80,8 +87,8 @@ import {
   enableService,
   disableService,
   isServiceActive,
-  clearInterceptors
-} from './jira-nock-service.js';
+  clearInterceptors,
+} from "./jira-nock-service.js";
 
 // Use functions directly
 if (isMockMode()) {
@@ -91,11 +98,14 @@ if (isMockMode()) {
 
 ## Architecture
 
-The nock-based mocking service is split into modular files following functional programming principles:
+The nock-based mocking service is split into modular files following functional
+programming principles:
 
 - **jira-nock-service.js**: Main export combining all functions and interceptors
-- **jira-mock-interceptors.js**: Core HTTP request interceptors for CRUD operations
-- **jira-transition-interceptors.js**: Interceptors for transitions and metadata endpoints
+- **jira-mock-interceptors.js**: Core HTTP request interceptors for CRUD
+  operations
+- **jira-transition-interceptors.js**: Interceptors for transitions and metadata
+  endpoints
 - **jira-mock-helpers.js**: Helper functions for mock data manipulation
 - **jira-mock-data.js**: Immutable mock data structures and state management
 - **issue-helpers.js**: Issue-related helper functions
@@ -105,16 +115,19 @@ The nock-based mocking service is split into modular files following functional 
 ## Mock Data Structure
 
 ### Issues
+
 - Auto-generated issue keys (MOCK-1001, MOCK-1002, etc.)
 - Realistic field structures matching Jira API
 - Support for all standard fields: summary, description, status, priority, etc.
 
 ### Comments
+
 - Threaded comment support
 - Author information
 - Created/updated timestamps
 
 ### Metadata
+
 - Project metadata with issue types
 - Field configurations for create operations
 - Status transitions
@@ -169,8 +182,12 @@ State is managed using functional programming principles:
 ```javascript
 // Pure state functions
 const getMockState = () => ({ ...mockState });
-const updateMockState = (updates) => { /* immutable update */ };
-const resetMockState = () => { /* reset to initial state */ };
+const updateMockState = updates => {
+  /* immutable update */
+};
+const resetMockState = () => {
+  /* reset to initial state */
+};
 ```
 
 ## Testing Benefits
@@ -197,4 +214,5 @@ const resetMockState = () => { /* reset to initial state */ };
 - **No Classes**: Uses functional approach instead of OOP
 - **Separation of Concerns**: Each module has a specific responsibility
 
-This mocking service provides a robust foundation for testing Jira integrations while maintaining code quality and following modern JavaScript best practices.
+This mocking service provides a robust foundation for testing Jira integrations
+while maintaining code quality and following modern JavaScript best practices.

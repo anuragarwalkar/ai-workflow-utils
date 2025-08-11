@@ -4,10 +4,7 @@
 
 import fs from 'fs';
 import FormData from 'form-data';
-import {
-  fromRequest,
-  validateAttachment,
-} from '../models/jira-attachment.js';
+import { fromRequest, validateAttachment } from '../models/jira-attachment.js';
 import { uploadAttachment } from './jira-api-service.js';
 import { AttachmentProcessor } from '../processors/attachment-processor.js';
 import { ErrorHandler } from '../utils/error-handler.js';
@@ -45,10 +42,7 @@ export const uploadFile = async (file, issueKey, originalFileName) => {
     const formData = await createFormData(attachment);
 
     // Upload to Jira
-    const uploadResponse = await uploadAttachment(
-      issueKey,
-      formData,
-    );
+    const uploadResponse = await uploadAttachment(issueKey, formData);
 
     logger.info('File uploaded successfully to Jira', {
       issueKey,
@@ -82,7 +76,7 @@ export const uploadFile = async (file, issueKey, originalFileName) => {
  * Process file if conversion is needed
  * @param {JiraAttachment} attachment - Attachment object
  */
-export const processFileIfNeeded = async (attachment) => {
+export const processFileIfNeeded = async attachment => {
   try {
     if (attachment.needsConversion()) {
       logger.info('Converting file', {
@@ -90,11 +84,10 @@ export const processFileIfNeeded = async (attachment) => {
         conversion: 'mov to mp4',
       });
 
-      const { filePath, fileName } =
-        await AttachmentProcessor.convertMovToMp4(
-          attachment.getUploadPath(),
-          attachment.getUploadFileName(),
-        );
+      const { filePath, fileName } = await AttachmentProcessor.convertMovToMp4(
+        attachment.getUploadPath(),
+        attachment.getUploadFileName()
+      );
 
       attachment.setProcessedFile(filePath, fileName);
 
@@ -108,9 +101,7 @@ export const processFileIfNeeded = async (attachment) => {
       fileName: attachment.getUploadFileName(),
       error: error.message,
     });
-    throw ErrorHandler.createServiceError(
-      `File processing failed: ${error.message}`,
-    );
+    throw ErrorHandler.createServiceError(`File processing failed: ${error.message}`);
   }
 };
 
@@ -119,7 +110,7 @@ export const processFileIfNeeded = async (attachment) => {
  * @param {JiraAttachment} attachment - Attachment object
  * @returns {Promise<FormData>} FormData object
  */
-export const createFormData = async (attachment) => {
+export const createFormData = async attachment => {
   try {
     const filePath = attachment.getUploadPath();
     const fileName = attachment.getUploadFileName();
@@ -138,9 +129,7 @@ export const createFormData = async (attachment) => {
       filePath: attachment.getUploadPath(),
       error: error.message,
     });
-    throw ErrorHandler.createServiceError(
-      `Failed to prepare file for upload: ${error.message}`,
-    );
+    throw ErrorHandler.createServiceError(`Failed to prepare file for upload: ${error.message}`);
   }
 };
 
@@ -213,7 +202,7 @@ export const uploadMultipleFiles = async (files, issueKey) => {
  * @param {string} issueKey - Jira issue key
  * @returns {Object} Upload statistics
  */
-export const getUploadStats = (issueKey) => {
+export const getUploadStats = issueKey => {
   // This would typically query a database or cache
   // For now, return a placeholder structure
   return {
@@ -239,7 +228,7 @@ export const handleAttachments = async (issueKey, attachments) => {
     }
 
     const results = await uploadMultipleFiles(attachments, issueKey);
-    
+
     logger.info('Attachment processing completed', {
       issueKey,
       totalProcessed: results.totalProcessed,

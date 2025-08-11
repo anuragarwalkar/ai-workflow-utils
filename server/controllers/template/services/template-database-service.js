@@ -8,10 +8,7 @@ import {
   updateTemplate as updateTemplateModel,
   validateTemplate,
 } from '../models/template.js';
-import {
-  fromDb as settingsFromDb,
-  validateSettings,
-} from '../models/template-settings.js';
+import { fromDb as settingsFromDb, validateSettings } from '../models/template-settings.js';
 import logger from '../../../logger.js';
 
 export async function init() {

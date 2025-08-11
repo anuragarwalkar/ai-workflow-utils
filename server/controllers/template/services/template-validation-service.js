@@ -1,12 +1,5 @@
-import {
-  canBeDeleted,
-  canBeModified,
-  toDbFormat,
-  validateTemplate,
-} from '../models/template.js';
-import {
-  validateSettings,
-} from '../models/template-settings.js';
+import { canBeDeleted, canBeModified, toDbFormat, validateTemplate } from '../models/template.js';
+import { validateSettings } from '../models/template-settings.js';
 import logger from '../../../logger.js';
 
 export function validateTemplateCreation(data) {
@@ -132,7 +125,9 @@ export function validateTemplateIdParameter(id) {
       throw new Error('Invalid template ID parameter');
     }
     if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
-      throw new Error('Template ID must contain only alphanumeric characters, dashes, and underscores');
+      throw new Error(
+        'Template ID must contain only alphanumeric characters, dashes, and underscores'
+      );
     }
     if (id.length < 3) {
       throw new Error('Template ID must be at least 3 characters long');

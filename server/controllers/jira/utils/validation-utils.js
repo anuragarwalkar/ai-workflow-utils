@@ -10,46 +10,30 @@ import path from 'path';
  * @param {Object} data - Issue data
  * @returns {Object} Validation result
  */
-export const validateIssueData = (data) => {
+export const validateIssueData = data => {
   const errors = [];
   const { summary, description, issueType, priority, projectType } = data;
 
   // Required fields
-  if (
-    !summary ||
-    typeof summary !== 'string' ||
-    summary.trim().length === 0
-  ) {
+  if (!summary || typeof summary !== 'string' || summary.trim().length === 0) {
     errors.push('Summary is required and must be a non-empty string');
   }
 
-  if (
-    !description ||
-    typeof description !== 'string' ||
-    description.trim().length === 0
-  ) {
+  if (!description || typeof description !== 'string' || description.trim().length === 0) {
     errors.push('Description is required and must be a non-empty string');
   }
 
   if (!issueType || !Object.values(ISSUE_TYPES).includes(issueType)) {
-    errors.push(
-      `Issue type must be one of: ${Object.values(ISSUE_TYPES).join(', ')}`,
-    );
+    errors.push(`Issue type must be one of: ${Object.values(ISSUE_TYPES).join(', ')}`);
   }
 
-  if (
-    !projectType ||
-    typeof projectType !== 'string' ||
-    projectType.trim().length === 0
-  ) {
+  if (!projectType || typeof projectType !== 'string' || projectType.trim().length === 0) {
     errors.push('Project type is required and must be a non-empty string');
   }
 
   // Optional but validated fields
   if (priority && !Object.values(PRIORITY_LEVELS).includes(priority)) {
-    errors.push(
-      `Priority must be one of: ${Object.values(PRIORITY_LEVELS).join(', ')}`,
-    );
+    errors.push(`Priority must be one of: ${Object.values(PRIORITY_LEVELS).join(', ')}`);
   }
 
   return {
@@ -72,25 +56,19 @@ export const validateFileUpload = (file, issueKey) => {
   } else {
     // Check file size
     if (file.size > FILE_UPLOAD.MAX_SIZE) {
-      errors.push(
-        `File size must be less than ${FILE_UPLOAD.MAX_SIZE / (1024 * 1024)}MB`,
-      );
+      errors.push(`File size must be less than ${FILE_UPLOAD.MAX_SIZE / (1024 * 1024)}MB`);
     }
 
     // Check file extension
     const ext = path.extname(file.originalname).toLowerCase();
     if (!FILE_UPLOAD.ALLOWED_EXTENSIONS.includes(ext)) {
       errors.push(
-        `File extension ${ext} is not allowed. Allowed: ${FILE_UPLOAD.ALLOWED_EXTENSIONS.join(', ')}`,
+        `File extension ${ext} is not allowed. Allowed: ${FILE_UPLOAD.ALLOWED_EXTENSIONS.join(', ')}`
       );
     }
   }
 
-  if (
-    !issueKey ||
-    typeof issueKey !== 'string' ||
-    !/^[A-Z]+-\d+$/.test(issueKey)
-  ) {
+  if (!issueKey || typeof issueKey !== 'string' || !/^[A-Z]+-\d+$/.test(issueKey)) {
     errors.push('Valid issue key is required (format: PROJECT-123)');
   }
 
@@ -105,7 +83,7 @@ export const validateFileUpload = (file, issueKey) => {
  * @param {Array} customFields - Custom fields array
  * @returns {Object} Validation result
  */
-export const validateCustomFields = (customFields) => {
+export const validateCustomFields = customFields => {
   const errors = [];
 
   if (customFields && !Array.isArray(customFields)) {
@@ -135,7 +113,7 @@ export const validateCustomFields = (customFields) => {
  * @param {Object} data - Preview request data
  * @returns {Object} Validation result
  */
-export const validatePreviewData = (data) => {
+export const validatePreviewData = data => {
   const errors = [];
   const { prompt, images, issueType } = data;
 
@@ -148,9 +126,7 @@ export const validatePreviewData = (data) => {
   }
 
   if (issueType && !Object.values(ISSUE_TYPES).includes(issueType)) {
-    errors.push(
-      `Issue type must be one of: ${Object.values(ISSUE_TYPES).join(', ')}`,
-    );
+    errors.push(`Issue type must be one of: ${Object.values(ISSUE_TYPES).join(', ')}`);
   }
 
   return {
@@ -164,7 +140,7 @@ export const validatePreviewData = (data) => {
  * @param {Array} issueKeys - Array of issue keys
  * @returns {Object} Validation result
  */
-export const validateIssueKeys = (issueKeys) => {
+export const validateIssueKeys = issueKeys => {
   const errors = [];
 
   if (!Array.isArray(issueKeys)) {
@@ -178,12 +154,12 @@ export const validateIssueKeys = (issueKeys) => {
   }
 
   const invalidKeys = issueKeys.filter(
-    key => !key || typeof key !== 'string' || !/^[A-Z]+-\d+$/.test(key),
+    key => !key || typeof key !== 'string' || !/^[A-Z]+-\d+$/.test(key)
   );
 
   if (invalidKeys.length > 0) {
     errors.push(
-      `Invalid issue key format: ${invalidKeys.join(', ')}. Expected format: PROJECT-123`,
+      `Invalid issue key format: ${invalidKeys.join(', ')}. Expected format: PROJECT-123`
     );
   }
 

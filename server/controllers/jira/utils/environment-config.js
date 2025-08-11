@@ -20,9 +20,7 @@ export const get = () => {
     if (!config.jiraUrl) missing.push('JIRA_URL');
     if (!config.jiraToken) missing.push('JIRA_TOKEN');
 
-    throw new Error(
-      `Missing required environment variables: ${missing.join(', ')}`,
-    );
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
 
   return config;

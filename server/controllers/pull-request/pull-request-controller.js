@@ -22,7 +22,7 @@ class PRController {
       if (!projectKey || !repoSlug) {
         return ErrorHandler.handleValidationError(
           'Project key and repository slug are required',
-          res,
+          res
         );
       }
 
@@ -43,15 +43,11 @@ class PRController {
       if (!projectKey || !repoSlug || !pullRequestId) {
         return ErrorHandler.handleValidationError(
           'Project key, repository slug, and pull request ID are required',
-          res,
+          res
         );
       }
 
-      const data = await BitbucketService.getPullRequestDiff(
-        projectKey,
-        repoSlug,
-        pullRequestId,
-      );
+      const data = await BitbucketService.getPullRequestDiff(projectKey, repoSlug, pullRequestId);
       res.json(data);
     } catch (error) {
       ErrorHandler.handleApiError(error, 'fetch pull request diff', res);
@@ -73,7 +69,7 @@ class PRController {
       } = req.body;
 
       logger.info(
-        `Starting AI review for PR ${pullRequestId} using LangChain with custom templates (streaming: ${streaming})`,
+        `Starting AI review for PR ${pullRequestId} using LangChain with custom templates (streaming: ${streaming})`
       );
 
       // Set up streaming if requested
@@ -87,7 +83,7 @@ class PRController {
       const result = await PRReviewService.reviewPullRequest(
         { diffData, prDetails },
         streaming,
-        res, // pass response object for streaming
+        res // pass response object for streaming
       );
 
       if (streaming) {
@@ -169,25 +165,23 @@ class PRController {
       });
 
       logger.info(
-        `Creating pull request with title: "${customTitle}" from branch: "${branchName}"`,
+        `Creating pull request with title: "${customTitle}" from branch: "${branchName}"`
       );
 
       // Create PR via Bitbucket service
       const data = await BitbucketService.createPullRequest(
         projectKey,
         repoSlug,
-        pullRequest.toBitbucketPayload(),
+        pullRequest.toBitbucketPayload()
       );
 
-      logger.info(
-        `Pull request created successfully from branch: "${branchName}"`,
-      );
+      logger.info(`Pull request created successfully from branch: "${branchName}"`);
 
       res.status(201).json(
         pullRequest.toResponsePayload({
           pullRequestId: data.id,
           pullRequestUrl: data.links?.self?.[0]?.href,
-        }),
+        })
       );
     } catch (error) {
       logger.error('Error creating pull request:', error);
@@ -204,7 +198,6 @@ class PRController {
       });
     }
   }
-
 
   /**
    * Stream PR preview generation

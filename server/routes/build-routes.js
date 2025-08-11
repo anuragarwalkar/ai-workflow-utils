@@ -42,10 +42,7 @@ export default io => {
       });
 
       // Path to the release script
-      const scriptPath = path.join(
-        projectRoot,
-        'server/scripts/release_build.sh',
-      );
+      const scriptPath = path.join(projectRoot, 'server/scripts/release_build.sh');
 
       // Prepare script arguments
       const scriptArgs = [
@@ -122,7 +119,7 @@ export default io => {
       buildProcess.stdin.on('error', error => {
         logger.error(`Build stdin error: ${error.message}`);
       });
-    }),
+    })
   );
 
   // Get build status

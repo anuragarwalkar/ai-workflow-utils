@@ -16,7 +16,7 @@ export const withErrorHandling = (fn, context) => {
         stack: error.stack,
         args: args.slice(0, 2), // Log first 2 args for debugging
       });
-      
+
       // Re-throw for Express error handling middleware
       throw error;
     }
@@ -40,7 +40,7 @@ export const withExpressErrorHandling = (fn, context) => {
         url: req.url,
         body: req.body,
       });
-      
+
       if (!res.headersSent) {
         res.status(500).json({
           success: false,
@@ -67,11 +67,11 @@ export const withSafeExecution = (fn, context) => {
         error: error.message,
         args: args.slice(0, 2),
       });
-      
-      return { 
-        success: false, 
-        data: null, 
-        error: error.message || 'Unknown error occurred', 
+
+      return {
+        success: false,
+        data: null,
+        error: error.message || 'Unknown error occurred',
       };
     }
   };

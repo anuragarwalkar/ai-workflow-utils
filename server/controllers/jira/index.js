@@ -5,7 +5,7 @@ export * from './handlers/custom-field-handlers.js';
 // Services
 export { JiraSummaryService } from './services/jira-summary-service.js';
 export { JiraCustomFieldService } from './services/jira-custom-field-service.js';
-export { 
+export {
   streamPreviewContent,
   generateContent,
   enhanceDescription as enhanceJiraDescription,
@@ -16,7 +16,6 @@ export {
   analyzeCommentSentiment,
   getAvailableIssueTypes,
 } from './services/jira-content-service.js';
-
 
 // Models
 export { JiraIssue } from './models/jira-issue.js';

@@ -62,9 +62,7 @@ const LoadingState = () => (
 
 // Helper component for error state
 const ErrorState = ({ error }) => (
-  <Alert severity='error'>
-    Error loading custom fields: {error?.message || 'Unknown error'}
-  </Alert>
+  <Alert severity='error'>Error loading custom fields: {error?.message || 'Unknown error'}</Alert>
 );
 
 // Helper component for instructions accordion
@@ -81,40 +79,26 @@ const InstructionsAccordion = () => (
         <ul>
           <li>Go to Jira Settings → Issues → Custom Fields</li>
           <li>Find your custom field in the list</li>
-          <li>
-            Look for the field ID in the URL or field details (format:
-            customfield_XXXXX)
-          </li>
+          <li>Look for the field ID in the URL or field details (format: customfield_XXXXX)</li>
         </ul>
 
-        <Typography
-          sx={{ fontWeight: 'bold', mb: 2, mt: 3 }}
-          variant='subtitle1'
-        >
+        <Typography sx={{ fontWeight: 'bold', mb: 2, mt: 3 }} variant='subtitle1'>
           Method 2: Browser Inspect
         </Typography>
         <ul>
           <li>Open a Jira issue that contains the custom field</li>
+          <li>Right-click on a custom field and select &ldquo;Inspect Element&rdquo;</li>
           <li>
-            Right-click on a custom field and select &ldquo;Inspect
-            Element&rdquo;
-          </li>
-          <li>
-            Look for HTML attributes like `id` or `name` containing
-            &ldquo;customfield_&rdquo;
+            Look for HTML attributes like `id` or `name` containing &ldquo;customfield_&rdquo;
           </li>
           <li>The ID format is: customfield_XXXXX (where XXXXX is a number)</li>
         </ul>
 
-        <Typography
-          sx={{ fontWeight: 'bold', mb: 2, mt: 3 }}
-          variant='subtitle1'
-        >
+        <Typography sx={{ fontWeight: 'bold', mb: 2, mt: 3 }} variant='subtitle1'>
           Method 3: Use the fields list below
         </Typography>
         <Typography color='text.secondary' variant='body2'>
-          Browse through all available custom fields in your Jira instance
-          below.
+          Browse through all available custom fields in your Jira instance below.
         </Typography>
       </Box>
     </AccordionDetails>
@@ -158,13 +142,8 @@ const FieldValues = ({ valuesData, valuesLoading, fieldId }) => {
 
   return (
     <Box>
-      <Typography
-        color='text.secondary'
-        sx={{ mb: 1, display: 'block' }}
-        variant='caption'
-      >
-        Found {fieldValues.length} values from {issues.length} issues (showing
-        all raw JSON):
+      <Typography color='text.secondary' sx={{ mb: 1, display: 'block' }} variant='caption'>
+        Found {fieldValues.length} values from {issues.length} issues (showing all raw JSON):
       </Typography>
       {fieldValues.map((item, index) => (
         <Box
@@ -200,21 +179,12 @@ const FieldValues = ({ valuesData, valuesLoading, fieldId }) => {
 };
 
 // Helper component for field card content
-const FieldCardContent = ({
-  field,
-  showValues,
-  projectKey,
-  valuesData,
-  valuesLoading,
-}) => (
+const FieldCardContent = ({ field, showValues, projectKey, valuesData, valuesLoading }) => (
   <Box sx={{ flexGrow: 1 }}>
     <Typography sx={{ fontWeight: 'bold', mb: 1 }} variant='h6'>
       {field.name || 'Unnamed Field'}
     </Typography>
-    <Typography
-      sx={{ fontFamily: 'monospace', fontSize: '0.875rem', mb: 1 }}
-      variant='body2'
-    >
+    <Typography sx={{ fontFamily: 'monospace', fontSize: '0.875rem', mb: 1 }} variant='body2'>
       {field.id}
     </Typography>
     <Box sx={{ mt: 1 }}>{renderFieldType(field.type)}</Box>
@@ -225,11 +195,7 @@ const FieldCardContent = ({
         <Typography sx={{ fontWeight: 'bold', mb: 1 }} variant='subtitle2'>
           Sample Values from {projectKey}:
         </Typography>
-        <FieldValues
-          fieldId={field.id}
-          valuesData={valuesData}
-          valuesLoading={valuesLoading}
-        />
+        <FieldValues fieldId={field.id} valuesData={valuesData} valuesLoading={valuesLoading} />
       </Box>
     )}
   </Box>
@@ -263,15 +229,14 @@ const FieldCardActions = ({ field, projectKey, showValues, setShowValues }) => (
 const FieldCard = ({ field, projectKey }) => {
   const [showValues, setShowValues] = useState(false);
 
-  const { data: valuesData, isLoading: valuesLoading } =
-    useFetchCustomFieldValuesQuery(
-      {
-        fieldId: field.id,
-        projectKey,
-        maxResults: 10,
-      },
-      { skip: !showValues || !projectKey }
-    );
+  const { data: valuesData, isLoading: valuesLoading } = useFetchCustomFieldValuesQuery(
+    {
+      fieldId: field.id,
+      projectKey,
+      maxResults: 10,
+    },
+    { skip: !showValues || !projectKey }
+  );
 
   return (
     <Card sx={{ mb: 2 }}>
@@ -303,12 +268,7 @@ const FieldCard = ({ field, projectKey }) => {
 };
 
 // Helper component for search and field list
-const FieldListSection = ({
-  searchTerm,
-  setSearchTerm,
-  filteredFields,
-  projectKey,
-}) => (
+const FieldListSection = ({ searchTerm, setSearchTerm, filteredFields, projectKey }) => (
   <>
     <TextField
       fullWidth
@@ -362,12 +322,9 @@ const CustomFieldGuide = ({ _projectKey, _issueType = 'Task' }) => {
 
   // Get project key from Redux state with fallback priority
   const selectedProject = useSelector(state => state.pr?.selectedProject);
-  const jiraProjectType = useSelector(
-    state => state.jira?.createJira?.projectType
-  );
+  const jiraProjectType = useSelector(state => state.jira?.createJira?.projectType);
 
-  const defaultProjectKey =
-    _projectKey || selectedProject?.projectKey || jiraProjectType || '';
+  const defaultProjectKey = _projectKey || selectedProject?.projectKey || jiraProjectType || '';
 
   const [projectKey, setProjectKey] = useState(defaultProjectKey);
 

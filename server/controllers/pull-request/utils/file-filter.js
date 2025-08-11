@@ -194,9 +194,7 @@ class FileFilter {
 
     // Handle wildcard patterns
     if (pattern.includes('*')) {
-      const regexPattern = pattern
-        .replace(/\./g, '\\.')
-        .replace(/\*/g, '.*');
+      const regexPattern = pattern.replace(/\./g, '\\.').replace(/\*/g, '.*');
       const regex = new RegExp(`^${regexPattern}$`);
       return regex.test(path) || path.includes(pattern.replace('*', ''));
     }
@@ -219,7 +217,9 @@ class FileFilter {
     const ignoredCount = filePaths.length - filtered.length;
 
     if (ignoredCount > 0) {
-      logger.info(`FileFilter: Filtered out ${ignoredCount} ignored files from ${filePaths.length} total files`);
+      logger.info(
+        `FileFilter: Filtered out ${ignoredCount} ignored files from ${filePaths.length} total files`
+      );
     }
 
     return filtered;

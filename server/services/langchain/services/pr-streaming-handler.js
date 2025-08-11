@@ -18,10 +18,8 @@ class PRStreamingHandler {
 
     try {
       // Create a simple chain like the working services
-      const prompt = ChatPromptTemplate.fromMessages([
-        ['human', '{input}'],
-      ]);
-      
+      const prompt = ChatPromptTemplate.fromMessages([['human', '{input}']]);
+
       const outputParser = new StringOutputParser();
       const chain = prompt.pipe(provider.model).pipe(outputParser);
 
@@ -53,7 +51,7 @@ class PRStreamingHandler {
             parsedTitle,
             parsedDescription,
             res,
-            content,
+            content
           );
           parsedTitle = parseResult.parsedTitle;
           parsedDescription = parseResult.parsedDescription;
@@ -61,13 +59,13 @@ class PRStreamingHandler {
       }
 
       logger.info(
-        `Successfully streamed PR content using ${provider.name}. Received ${chunkCount} chunks, total content length: ${fullContent.length}`,
+        `Successfully streamed PR content using ${provider.name}. Received ${chunkCount} chunks, total content length: ${fullContent.length}`
       );
 
       // Validate that content was actually generated
       if (!fullContent || fullContent.trim() === '') {
         throw new Error(
-          `Provider ${provider.name} returned empty content after streaming (${chunkCount} chunks received)`,
+          `Provider ${provider.name} returned empty content after streaming (${chunkCount} chunks received)`
         );
       }
 
@@ -86,13 +84,7 @@ class PRStreamingHandler {
   /**
    * Handle individual stream chunks and send updates
    */
-  static handleStreamChunk(
-    fullContent,
-    currentTitle,
-    currentDescription,
-    res,
-    chunkContent,
-  ) {
+  static handleStreamChunk(fullContent, currentTitle, currentDescription, res, chunkContent) {
     // Parse content in real-time to extract title and description
     const parsed = PRContentParser.parseStreamingContent(fullContent);
 
@@ -108,9 +100,7 @@ class PRStreamingHandler {
 
       // Send description chunks if found
       if (parsed.description && parsed.description !== currentDescription) {
-        const descriptionChunk = parsed.description.slice(
-          currentDescription.length,
-        );
+        const descriptionChunk = parsed.description.slice(currentDescription.length);
         if (descriptionChunk) {
           StreamingService.sendDescriptionChunk(res, descriptionChunk);
         }
@@ -132,20 +122,14 @@ class PRStreamingHandler {
   static async tryProvidersForStreaming(providers, formattedPrompt, res) {
     for (const provider of providers) {
       try {
-        const result = await this.streamWithProvider(
-          provider,
-          formattedPrompt,
-          res,
-        );
+        const result = await this.streamWithProvider(provider, formattedPrompt, res);
         return result;
       } catch (error) {
-        logger.warn(
-          `Provider ${provider.name} failed for PR streaming: ${error.message}`,
-        );
+        logger.warn(`Provider ${provider.name} failed for PR streaming: ${error.message}`);
 
         if (provider === providers[providers.length - 1]) {
           throw new Error(
-            `All providers failed for PR streaming. Last error from ${provider.name}: ${error.message}`,
+            `All providers failed for PR streaming. Last error from ${provider.name}: ${error.message}`
           );
         }
         continue;
@@ -156,14 +140,7 @@ class PRStreamingHandler {
   /**
    * Send final parsed results via SSE
    */
-  static sendFinalResults(
-    res,
-    title,
-    description,
-    aiGenerated,
-    ticketNumber,
-    branchName,
-  ) {
+  static sendFinalResults(res, title, description, aiGenerated, ticketNumber, branchName) {
     // Only send streaming updates if res is provided
     if (res) {
       // Send complete title

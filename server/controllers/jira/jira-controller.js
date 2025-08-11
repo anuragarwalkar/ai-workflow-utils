@@ -10,7 +10,7 @@ import logger from '../../logger.js';
  * @param {string[]} issueKeys - Array of Jira issue keys
  * @returns {Promise<Object>} Map of issue keys to summaries
  */
-export const fetchJiraSummaries = async (issueKeys) => {
+export const fetchJiraSummaries = async issueKeys => {
   try {
     logger.info('Fetching Jira summaries', { issueKeys });
     return await JiraSummaryService.fetchJiraSummaries(issueKeys);
@@ -25,7 +25,7 @@ export const fetchJiraSummaries = async (issueKeys) => {
  * @param {string} issueKey - Jira issue key
  * @returns {Promise<Object>} Jira issue details
  */
-export const getIssueDetails = async (issueKey) => {
+export const getIssueDetails = async issueKey => {
   try {
     logger.info('Getting Jira issue details', { issueKey });
     return await JiraApiService.fetchIssue(issueKey);
@@ -47,10 +47,7 @@ export const handleAttachments = async (issueKey, attachments) => {
       issueKey,
       attachmentCount: attachments?.length,
     });
-    return await JiraAttachmentService.handleAttachments(
-      issueKey,
-      attachments,
-    );
+    return await JiraAttachmentService.handleAttachments(issueKey, attachments);
   } catch (error) {
     ErrorHandler.handleApiError(error, 'handleAttachments');
     throw error;
@@ -74,11 +71,7 @@ export const previewBugReport = async (req, res) => {
     });
 
     // Call the streaming preview service
-    await JiraContentService.streamPreviewContent(
-      { prompt, issueType },
-      images,
-      res,
-    );
+    await JiraContentService.streamPreviewContent({ prompt, issueType }, images, res);
   } catch (error) {
     ErrorHandler.handleApiError(error, 'previewBugReport', res);
   }
@@ -119,9 +112,7 @@ export const uploadImage = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
-    const result = await JiraAttachmentService.handleAttachments('temp', [
-      req.file,
-    ]);
+    const result = await JiraAttachmentService.handleAttachments('temp', [req.file]);
     res.json(result);
   } catch (error) {
     ErrorHandler.handleApiError(error, 'uploadImage');
@@ -169,10 +160,7 @@ export const enhanceDescription = async (req, res) => {
       descriptionLength: description.length,
     });
 
-    const enhancedDescription = await JiraContentService.enhanceDescription(
-      description,
-      issueType,
-    );
+    const enhancedDescription = await JiraContentService.enhanceDescription(description, issueType);
 
     res.json({
       success: true,
@@ -208,11 +196,7 @@ export const generateCommentReply = async (req, res) => {
       tone,
     });
 
-    const reply = await JiraContentService.generateCommentReply(
-      comment,
-      context,
-      tone,
-    );
+    const reply = await JiraContentService.generateCommentReply(comment, context, tone);
 
     res.json({
       success: true,
@@ -249,10 +233,7 @@ export const formatComment = async (req, res) => {
       format,
     });
 
-    const formattedComment = await JiraContentService.formatComment(
-      comment,
-      format,
-    );
+    const formattedComment = await JiraContentService.formatComment(comment, format);
 
     res.json({
       success: true,

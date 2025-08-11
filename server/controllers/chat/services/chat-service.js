@@ -14,33 +14,21 @@ import logger from '../../../logger.js';
  * @param {Object} params.options - Additional options
  * @returns {Promise<ChatResponse>} Chat response object
  */
-export async function generateChatResponse({
-  message,
-  conversationHistory = [],
-  options = {},
-}) {
+export async function generateChatResponse({ message, conversationHistory = [], options = {} }) {
   try {
     logger.info('ChatService: Generating response');
 
     // Generate session ID if not provided
     const sessionId =
-      options.sessionId ||
-      `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      options.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // If conversation history is provided, add it to memory
     if (conversationHistory.length > 0) {
-      await addConversationHistoryToMemory(
-        sessionId,
-        conversationHistory,
-      );
+      await addConversationHistoryToMemory(sessionId, conversationHistory);
     }
 
     // Generate response using ChatLangChainService
-    const result = await ChatLangChainService.generateChatResponse(
-      sessionId,
-      message,
-      options,
-    );
+    const result = await ChatLangChainService.generateChatResponse(sessionId, message, options);
 
     // Create and return ChatResponse object
     return new ChatResponse({
@@ -82,35 +70,32 @@ export async function addConversationHistoryToMemory(_sessionId, _conversationHi
  * @param {Object} params.options - Additional options
  * @param {Object} res - Express response object for streaming
  */
-export async function generateStreamingResponse({
-  message,
-  conversationHistory = [],
-  options = {},
-}, res) {
+export async function generateStreamingResponse(
+  { message, conversationHistory = [], options = {} },
+  res
+) {
   try {
     logger.info('ChatService: Generating streaming response');
 
     // Generate session ID if not provided
     const sessionId =
-      options.sessionId ||
-      `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      options.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // If conversation history is provided, add it to memory
     if (conversationHistory.length > 0) {
-      await addConversationHistoryToMemory(
-        sessionId,
-        conversationHistory,
-      );
+      await addConversationHistoryToMemory(sessionId, conversationHistory);
     }
 
     // Import streaming processor functions
-    const { sendChunk, sendComplete, sendStatus } = await import('../processors/streaming-processor.js');
+    const { sendChunk, sendComplete, sendStatus } = await import(
+      '../processors/streaming-processor.js'
+    );
 
     // Send initial status
     sendStatus(res, 'Starting chat response...', 'Initializing');
 
     // Create onToken callback for streaming
-    const onToken = (content) => {
+    const onToken = content => {
       sendChunk(res, content);
     };
 
@@ -119,12 +104,11 @@ export async function generateStreamingResponse({
       sessionId,
       message,
       onToken,
-      options,
+      options
     );
 
     // Send completion message
     sendComplete(res, result.content, result.provider);
-
   } catch (error) {
     logger.error('ChatService: Error generating streaming response:', error);
     throw error;
@@ -194,4 +178,3 @@ export async function testChatFunctionality(testMessage, provider, options = {})
     throw error;
   }
 }
-

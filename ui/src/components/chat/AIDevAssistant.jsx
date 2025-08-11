@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Avatar,
   Box,
@@ -186,8 +186,7 @@ const AIDevAssistant = () => {
     {
       icon: CodeIcon,
       label: 'Code Review',
-      prompt:
-        'Help me review this code for best practices and potential improvements',
+      prompt: 'Help me review this code for best practices and potential improvements',
     },
     {
       icon: BugIcon,
@@ -232,8 +231,7 @@ const AIDevAssistant = () => {
   }
 
   return (
-    <Slide mountOnEnter unmountOnExit direction='up'
-in={isOpen}>
+    <Slide mountOnEnter unmountOnExit direction='up' in={isOpen}>
       <Paper
         elevation={24}
         sx={{
@@ -283,10 +281,7 @@ in={isOpen}>
               <AIIcon />
             </Avatar>
             <Box>
-              <Typography
-                sx={{ fontWeight: 700, fontSize: '1rem' }}
-                variant='h6'
-              >
+              <Typography sx={{ fontWeight: 700, fontSize: '1rem' }} variant='h6'>
                 AI Dev Assistant
               </Typography>
               <Typography sx={{ opacity: 0.9 }} variant='caption'>
@@ -295,16 +290,10 @@ in={isOpen}>
             </Box>
           </Box>
           <Box>
-            <IconButton
-              sx={{ color: 'white', mr: 1 }}
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
+            <IconButton sx={{ color: 'white', mr: 1 }} onClick={() => setIsExpanded(!isExpanded)}>
               {isExpanded ? <FullscreenExitIcon /> : <FullscreenIcon />}
             </IconButton>
-            <IconButton
-              sx={{ color: 'white' }}
-              onClick={() => setIsOpen(false)}
-            >
+            <IconButton sx={{ color: 'white' }} onClick={() => setIsOpen(false)}>
               <CloseIcon />
             </IconButton>
           </Box>
@@ -333,15 +322,13 @@ in={isOpen}>
         >
           {conversation.length === 0 && !streamingContent && (
             <Box sx={{ textAlign: 'center', py: 4 }}>
-              <MagicIcon
-                sx={{ fontSize: 48, color: theme.palette.primary.main, mb: 2 }}
-              />
+              <MagicIcon sx={{ fontSize: 48, color: theme.palette.primary.main, mb: 2 }} />
               <Typography gutterBottom variant='h6'>
                 Welcome to AI Dev Assistant
               </Typography>
               <Typography color='textSecondary' sx={{ mb: 3 }} variant='body2'>
-                I'm here to help with code review, debugging, architecture
-                advice, and development questions.
+                I'm here to help with code review, debugging, architecture advice, and development
+                questions.
               </Typography>
 
               {/* Quick Actions */}
@@ -379,8 +366,7 @@ in={isOpen}>
                 sx={{
                   mb: 2,
                   display: 'flex',
-                  justifyContent:
-                    msg.role === 'user' ? 'flex-end' : 'flex-start',
+                  justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
                 }}
               >
                 <Paper
@@ -410,13 +396,11 @@ in={isOpen}>
                     sx={{
                       whiteSpace: 'pre-wrap',
                       '& code': {
-                        fontFamily:
-                          'Monaco, Consolas, "Lucida Console", monospace',
+                        fontFamily: 'Monaco, Consolas, "Lucida Console", monospace',
                         fontSize: '0.85em',
                       },
                       '& pre': {
-                        fontFamily:
-                          'Monaco, Consolas, "Lucida Console", monospace',
+                        fontFamily: 'Monaco, Consolas, "Lucida Console", monospace',
                         fontSize: '0.85em',
                         overflow: 'auto',
                       },
@@ -443,8 +427,7 @@ in={isOpen}>
 
           {/* Streaming Content */}
           {streamingContent ? (
-            (
-<Box
+            <Box
               sx={{
                 mb: 2,
                 display: 'flex',
@@ -462,7 +445,9 @@ in={isOpen}>
                 }}
               >
                 <Typography
-                  variant='body2'
+                  dangerouslySetInnerHTML={{
+                    __html: formatContent(streamingContent),
+                  }}
                   sx={{
                     whiteSpace: 'pre-wrap',
                     '&::after': {
@@ -475,13 +460,11 @@ in={isOpen}>
                       '51%, 100%': { opacity: 0 },
                     },
                   }}
-                  dangerouslySetInnerHTML={{
-                    __html: formatContent(streamingContent),
-                  }}
+                  variant='body2'
                 />
               </Paper>
             </Box>
-) : null}
+          ) : null}
 
           <div ref={messagesEndRef} />
         </Box>

@@ -12,8 +12,7 @@ const MotionPaper = motion(Paper);
 const JiraDescriptionSimple = ({ jiraData }) => {
   const { isDark } = useAppTheme();
 
-  const description =
-    jiraData?.fields?.description || 'No description available';
+  const description = jiraData?.fields?.description || 'No description available';
 
   const MarkdownComponents = {
     code({ inline, className, children, ...props }) {
@@ -36,9 +35,7 @@ const JiraDescriptionSimple = ({ jiraData }) => {
         <code
           className={className}
           style={{
-            background: isDark
-              ? 'rgba(255, 255, 255, 0.1)'
-              : 'rgba(0, 0, 0, 0.1)',
+            background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
             padding: '2px 6px',
             borderRadius: '4px',
             fontFamily: 'Monaco, Consolas, monospace',
@@ -102,10 +99,7 @@ const JiraDescriptionSimple = ({ jiraData }) => {
       </Typography>
     ),
     strong: ({ children }) => (
-      <Box
-        component='strong'
-        sx={{ color: isDark ? 'white' : 'black', fontWeight: 700 }}
-      >
+      <Box component='strong' sx={{ color: isDark ? 'white' : 'black', fontWeight: 700 }}>
         {children}
       </Box>
     ),
@@ -173,23 +167,16 @@ const JiraDescriptionSimple = ({ jiraData }) => {
       elevation={0}
       initial={{ opacity: 0, y: 20 }}
       sx={{
-        background: isDark
-          ? 'rgba(45, 55, 72, 0.95)'
-          : 'rgba(255, 255, 255, 0.95)',
+        background: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(20px)',
-        border: isDark
-          ? '1px solid rgba(255, 255, 255, 0.1)'
-          : '1px solid rgba(0, 0, 0, 0.1)',
+        border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
         borderRadius: 3,
         overflow: 'hidden',
       }}
       transition={{ duration: 0.5 }}
     >
       <Box sx={{ p: 3 }}>
-        <ReactMarkdown
-          components={MarkdownComponents}
-          remarkPlugins={[remarkGfm]}
-        >
+        <ReactMarkdown components={MarkdownComponents} remarkPlugins={[remarkGfm]}>
           {description}
         </ReactMarkdown>
       </Box>

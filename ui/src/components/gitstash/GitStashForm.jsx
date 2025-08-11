@@ -29,11 +29,7 @@ import {
   Search as SearchIcon,
   Storage as StorageIcon,
 } from '@mui/icons-material';
-import {
-  setDirectPRId,
-  setError,
-  setSelectedProject,
-} from '../../store/slices/prSlice';
+import { setDirectPRId, setError, setSelectedProject } from '../../store/slices/prSlice';
 
 const STORAGE_KEY = 'gitstash_project_config';
 
@@ -167,11 +163,7 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
 
       const parsed = parseGitStashUrl(urlData.url);
       if (!parsed.isValid) {
-        dispatch(
-          setError(
-            'Invalid GitStash URL format. Please check the URL and try again.'
-          )
-        );
+        dispatch(setError('Invalid GitStash URL format. Please check the URL and try again.'));
         return;
       }
 
@@ -222,11 +214,7 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
 
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-      <Typography
-        component='h2'
-        sx={{ mb: 3, textAlign: 'center' }}
-        variant='h5'
-      >
+      <Typography component='h2' sx={{ mb: 3, textAlign: 'center' }} variant='h5'>
         Select GitStash Repository
       </Typography>
 
@@ -296,19 +284,15 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                       >
                         <Button
                           disabled={
-                            isLoading ||
-                            !formData.projectKey.trim() ||
-                            !formData.repoSlug.trim()
+                            isLoading || !formData.projectKey.trim() || !formData.repoSlug.trim()
                           }
                           size='large'
                           startIcon={<SearchIcon />}
                           sx={{
                             minWidth: 200,
-                            background:
-                              'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                            background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
                             '&:hover': {
-                              background:
-                                'linear-gradient(135deg, #0d7377 0%, #2dd4bf 100%)',
+                              background: 'linear-gradient(135deg, #0d7377 0%, #2dd4bf 100%)',
                             },
                           }}
                           type='submit'
@@ -361,13 +345,16 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                               label={`Repo: ${urlData.parsedData.repoSlug}`}
                               size='small'
                             />
-                            {urlData.parsedData.prNumber ? <Chip
+                            {urlData.parsedData.prNumber ? (
+                              <Chip
                                 label={`PR: #${urlData.parsedData.prNumber}`}
                                 size='small'
                                 color='success'
-                              /> : null}
+                              />
+                            ) : null}
                           </Box>
-                          {urlData.parsedData.prNumber ? <FormControlLabel
+                          {urlData.parsedData.prNumber ? (
+                            <FormControlLabel
                               control={
                                 <Switch
                                   checked={urlData.directToPR}
@@ -377,7 +364,8 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                               }
                               label='Go directly to this PR review'
                               sx={{ mt: 1 }}
-                            /> : null}
+                            />
+                          ) : null}
                         </Alert>
                       </Grid>
                     ) : null}
@@ -385,12 +373,9 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                     {urlData.url && !urlData.parsedData?.isValid ? (
                       <Grid item xs={12}>
                         <Alert severity='warning'>
-                          Invalid URL format. Please ensure the URL follows the
-                          GitStash format:
+                          Invalid URL format. Please ensure the URL follows the GitStash format:
                           <br />
-                          <code>
-                            https://domain/projects/PROJECT_KEY/repos/REPO_SLUG
-                          </code>
+                          <code>https://domain/projects/PROJECT_KEY/repos/REPO_SLUG</code>
                           <br />
                           or
                           <br />
@@ -413,8 +398,7 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                           disabled={isLoading || !urlData.parsedData?.isValid}
                           size='large'
                           startIcon={
-                            urlData.parsedData?.prNumber &&
-                            urlData.directToPR ? (
+                            urlData.parsedData?.prNumber && urlData.directToPR ? (
                               <AutoAwesomeIcon />
                             ) : (
                               <SearchIcon />
@@ -422,11 +406,9 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                           }
                           sx={{
                             minWidth: 200,
-                            background:
-                              'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                            background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
                             '&:hover': {
-                              background:
-                                'linear-gradient(135deg, #0d7377 0%, #2dd4bf 100%)',
+                              background: 'linear-gradient(135deg, #0d7377 0%, #2dd4bf 100%)',
                             },
                           }}
                           type='submit'
@@ -486,10 +468,7 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
               <Typography sx={{ mb: 1, fontWeight: 600 }} variant='subtitle2'>
                 Example:
               </Typography>
-              <Paper
-                sx={{ p: 2, backgroundColor: 'grey.50' }}
-                variant='outlined'
-              >
+              <Paper sx={{ p: 2, backgroundColor: 'grey.50' }} variant='outlined'>
                 <Box
                   sx={{
                     fontFamily: 'monospace',
@@ -500,19 +479,11 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                     gap: 0.5,
                   }}
                 >
-                  <Typography
-                    component='span'
-                    sx={{ fontFamily: 'monospace' }}
-                    variant='body2'
-                  >
+                  <Typography component='span' sx={{ fontFamily: 'monospace' }} variant='body2'>
                     URL: https://gitstash.company.com/projects/
                   </Typography>
                   <Chip color='primary' label='PROJ' size='small' />
-                  <Typography
-                    component='span'
-                    sx={{ fontFamily: 'monospace' }}
-                    variant='body2'
-                  >
+                  <Typography component='span' sx={{ fontFamily: 'monospace' }} variant='body2'>
                     /repos/
                   </Typography>
                   <Chip color='secondary' label='my-repository' size='small' />

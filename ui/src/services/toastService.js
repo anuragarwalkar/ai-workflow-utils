@@ -88,10 +88,7 @@ class ToastService {
    * @param {Object} response - The response object from RTK Query
    * @param {string} defaultMessage - Default message to show
    */
-  static handleApiSuccess(
-    response,
-    defaultMessage = 'Operation completed successfully'
-  ) {
+  static handleApiSuccess(response, defaultMessage = 'Operation completed successfully') {
     let message = defaultMessage;
 
     if (response?.message) {

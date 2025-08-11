@@ -20,8 +20,7 @@ class TemplateErrorHandler {
     res.status(errorResponse.status).json({
       success: false,
       error: errorResponse.message,
-      details:
-        process.env.NODE_ENV === 'development' ? error.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 
@@ -91,11 +90,7 @@ class TemplateErrorHandler {
    * @returns {boolean} True if not found error
    */
   static isNotFoundError(message) {
-    const notFoundKeywords = [
-      'not found',
-      'does not exist',
-      'No active template',
-    ];
+    const notFoundKeywords = ['not found', 'does not exist', 'No active template'];
 
     return notFoundKeywords.some(keyword => message.includes(keyword));
   }
@@ -116,7 +111,7 @@ class TemplateErrorHandler {
     ];
 
     return permissionKeywords.some(keyword =>
-      message.toLowerCase().includes(keyword.toLowerCase()),
+      message.toLowerCase().includes(keyword.toLowerCase())
     );
   }
 
@@ -144,7 +139,7 @@ class TemplateErrorHandler {
     return this.createError(
       `Validation failed for field '${field}': ${reason}`,
       'VALIDATION_ERROR',
-      { field, reason },
+      { field, reason }
     );
   }
 
@@ -158,7 +153,7 @@ class TemplateErrorHandler {
     return this.createError(
       `${resource} with identifier '${identifier}' not found`,
       'NOT_FOUND_ERROR',
-      { resource, identifier },
+      { resource, identifier }
     );
   }
 
@@ -172,7 +167,7 @@ class TemplateErrorHandler {
     return this.createError(
       `Operation '${operation}' not allowed on ${resource}`,
       'PERMISSION_ERROR',
-      { operation, resource },
+      { operation, resource }
     );
   }
 
@@ -273,11 +268,7 @@ class TemplateErrorHandler {
     this.validateLength(key, value, rule, errors);
 
     // Pattern validation
-    if (
-      rule.pattern &&
-      typeof value === 'string' &&
-      !rule.pattern.test(value)
-    ) {
+    if (rule.pattern && typeof value === 'string' && !rule.pattern.test(value)) {
       errors.push(`Field '${key}' format is invalid`);
     }
 
@@ -314,15 +305,11 @@ class TemplateErrorHandler {
     if (typeof value !== 'string') return;
 
     if (rule.maxLength && value.length > rule.maxLength) {
-      errors.push(
-        `Field '${key}' must be ${rule.maxLength} characters or less`,
-      );
+      errors.push(`Field '${key}' must be ${rule.maxLength} characters or less`);
     }
 
     if (rule.minLength && value.length < rule.minLength) {
-      errors.push(
-        `Field '${key}' must be at least ${rule.minLength} characters`,
-      );
+      errors.push(`Field '${key}' must be at least ${rule.minLength} characters`);
     }
   }
 }

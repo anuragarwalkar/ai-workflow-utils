@@ -15,15 +15,12 @@ const prRateLimit = createRateLimit(15 * 60 * 1000, 30); // 30 requests per 15 m
 router.use(prRateLimit);
 
 // Route to get pull requests for a project/repo
-router.get(
-  '/:projectKey/:repoSlug/pull-requests',
-  asyncHandler(getPullRequests),
-);
+router.get('/:projectKey/:repoSlug/pull-requests', asyncHandler(getPullRequests));
 
 // Route to get diff for a specific pull request
 router.get(
   '/:projectKey/:repoSlug/pull-requests/:pullRequestId/diff',
-  asyncHandler(getPullRequestDiff),
+  asyncHandler(getPullRequestDiff)
 );
 
 // Route to review a pull request using AI

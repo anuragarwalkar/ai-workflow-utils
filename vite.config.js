@@ -20,8 +20,7 @@ export default defineConfig({
       manifest: {
         name: 'AI Workflow Utils',
         short_name: 'AIWorkflow',
-        description:
-          'AI Automation platform for software development workflows',
+        description: 'AI Automation platform for software development workflows',
         theme_color: '#667eea',
         background_color: '#f5576c',
         display: 'standalone',

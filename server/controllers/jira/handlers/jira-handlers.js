@@ -1,13 +1,7 @@
 import logger from '../../../logger.js';
-import {
-  withErrorHandling,
-  withExpressErrorHandling,
-} from '../../../utils/error-handling.js';
+import { withErrorHandling, withExpressErrorHandling } from '../../../utils/error-handling.js';
 import { withLogging } from '../../../utils/logging.js';
-import {
-  ValidationSchemas,
-  withValidation,
-} from '../../../utils/validation.js';
+import { ValidationSchemas, withValidation } from '../../../utils/validation.js';
 import { JiraSummaryService } from '../services/jira-summary-service.js';
 import { createIssue, fetchIssue } from '../services/jira-api-service.js';
 import {
@@ -105,9 +99,9 @@ const formatCommentCore = async (comment, format) => {
 export const fetchJiraSummaries = withErrorHandling(
   withLogging(
     withValidation(fetchJiraSummariesCore, ValidationSchemas.JIRA_ISSUE_KEYS),
-    'fetchJiraSummaries',
+    'fetchJiraSummaries'
   ),
-  'fetchJiraSummaries',
+  'fetchJiraSummaries'
 );
 
 /**
@@ -116,9 +110,9 @@ export const fetchJiraSummaries = withErrorHandling(
 export const getIssueDetails = withErrorHandling(
   withLogging(
     withValidation(getIssueDetailsCore, ValidationSchemas.JIRA_ISSUE_KEY),
-    'getIssueDetails',
+    'getIssueDetails'
   ),
-  'getIssueDetails',
+  'getIssueDetails'
 );
 
 /**
@@ -130,9 +124,9 @@ export const handleAttachments = withErrorHandling(
       issueKey: { type: 'string', required: true },
       attachments: { type: 'array', required: true },
     }),
-    'handleAttachments',
+    'handleAttachments'
   ),
-  'handleAttachments',
+  'handleAttachments'
 );
 
 /**
@@ -145,9 +139,9 @@ export const createJiraIssue = withErrorHandling(
       description: { type: 'string', required: false },
       issueType: { type: 'string', required: true },
     }),
-    'createJiraIssue',
+    'createJiraIssue'
   ),
-  'createJiraIssue',
+  'createJiraIssue'
 );
 
 /**
@@ -159,9 +153,9 @@ export const enhanceDescription = withErrorHandling(
       description: { type: 'string', required: true, minLength: 1 },
       issueType: { type: 'string', required: false },
     }),
-    'enhanceDescription',
+    'enhanceDescription'
   ),
-  'enhanceDescription',
+  'enhanceDescription'
 );
 
 /**
@@ -174,9 +168,9 @@ export const generateCommentReply = withErrorHandling(
       context: { type: 'string', required: false },
       tone: { type: 'string', required: false },
     }),
-    'generateCommentReply',
+    'generateCommentReply'
   ),
-  'generateCommentReply',
+  'generateCommentReply'
 );
 
 /**
@@ -188,9 +182,9 @@ export const formatComment = withErrorHandling(
       comment: { type: 'string', required: true, minLength: 1 },
       format: { type: 'string', required: false },
     }),
-    'formatComment',
+    'formatComment'
   ),
-  'formatComment',
+  'formatComment'
 );
 
 // ============================================================================
@@ -218,19 +212,16 @@ export const previewBugReport = withExpressErrorHandling(async (req, res) => {
 /**
  * Express handler for creating Jira issue
  */
-export const createJiraIssueHandler = withExpressErrorHandling(
-  async (req, res) => {
-    logger.info('Creating Jira issue', { body: req.body });
+export const createJiraIssueHandler = withExpressErrorHandling(async (req, res) => {
+  logger.info('Creating Jira issue', { body: req.body });
 
-    const result = await createJiraIssue(req.body);
+  const result = await createJiraIssue(req.body);
 
-    res.status(200).json({
-      message: 'Jira issue created successfully',
-      jiraIssue: result,
-    });
-  },
-  'createJiraIssueHandler',
-);
+  res.status(200).json({
+    message: 'Jira issue created successfully',
+    jiraIssue: result,
+  });
+}, 'createJiraIssueHandler');
 
 /**
  * Express handler for uploading image
@@ -260,120 +251,105 @@ export const getJiraIssue = withExpressErrorHandling(async (req, res) => {
 /**
  * Express handler for enhancing description using AI
  */
-export const enhanceDescriptionHandler = withExpressErrorHandling(
-  async (req, res) => {
-    const { description, issueType = 'Task' } = req.body;
+export const enhanceDescriptionHandler = withExpressErrorHandling(async (req, res) => {
+  const { description, issueType = 'Task' } = req.body;
 
-    if (!description) {
-      return res.status(400).json({
-        success: false,
-        error: 'Description is required',
-      });
-    }
-
-    logger.info('Enhancing Jira description with AI', {
-      issueType,
-      descriptionLength: description.length,
+  if (!description) {
+    return res.status(400).json({
+      success: false,
+      error: 'Description is required',
     });
+  }
 
-    const enhancedDescription = await enhanceDescription(
-      description,
-      issueType,
-    );
+  logger.info('Enhancing Jira description with AI', {
+    issueType,
+    descriptionLength: description.length,
+  });
 
-    res.json({
-      success: true,
-      data: {
-        original: description,
-        enhanced: enhancedDescription,
-      },
-    });
-  },
-  'enhanceDescriptionHandler',
-);
+  const enhancedDescription = await enhanceDescription(description, issueType);
+
+  res.json({
+    success: true,
+    data: {
+      original: description,
+      enhanced: enhancedDescription,
+    },
+  });
+}, 'enhanceDescriptionHandler');
 
 /**
  * Express handler for generating AI comment reply
  */
-export const generateCommentReplyHandler = withExpressErrorHandling(
-  async (req, res) => {
-    const { comment, context, tone = 'professional' } = req.body;
+export const generateCommentReplyHandler = withExpressErrorHandling(async (req, res) => {
+  const { comment, context, tone = 'professional' } = req.body;
 
-    if (!comment) {
-      return res.status(400).json({
-        success: false,
-        error: 'Comment is required',
-      });
-    }
+  if (!comment) {
+    return res.status(400).json({
+      success: false,
+      error: 'Comment is required',
+    });
+  }
 
-    logger.info('Generating AI comment reply', {
-      commentLength: comment.length,
+  logger.info('Generating AI comment reply', {
+    commentLength: comment.length,
+    tone,
+  });
+
+  const reply = await generateCommentReply(comment, context, tone);
+
+  res.json({
+    success: true,
+    data: {
+      originalComment: comment,
+      suggestedReply: reply,
       tone,
-    });
-
-    const reply = await generateCommentReply(comment, context, tone);
-
-    res.json({
-      success: true,
-      data: {
-        originalComment: comment,
-        suggestedReply: reply,
-        tone,
-      },
-    });
-  },
-  'generateCommentReplyHandler',
-);
+    },
+  });
+}, 'generateCommentReplyHandler');
 
 /**
  * Express handler for formatting comment using AI
  */
-export const formatCommentHandler = withExpressErrorHandling(
-  async (req, res) => {
-    const { comment, format = 'jira' } = req.body;
+export const formatCommentHandler = withExpressErrorHandling(async (req, res) => {
+  const { comment, format = 'jira' } = req.body;
 
-    if (!comment) {
-      return res.status(400).json({
-        success: false,
-        error: 'Comment is required',
-      });
-    }
+  if (!comment) {
+    return res.status(400).json({
+      success: false,
+      error: 'Comment is required',
+    });
+  }
 
-    logger.info('Formatting comment with AI', {
-      commentLength: comment.length,
+  logger.info('Formatting comment with AI', {
+    commentLength: comment.length,
+    format,
+  });
+
+  const formattedComment = await formatComment(comment, format);
+
+  res.json({
+    success: true,
+    data: {
+      original: comment,
+      formatted: formattedComment,
       format,
-    });
-
-    const formattedComment = await formatComment(comment, format);
-
-    res.json({
-      success: true,
-      data: {
-        original: comment,
-        formatted: formattedComment,
-        format,
-      },
-    });
-  },
-  'formatCommentHandler',
-);
+    },
+  });
+}, 'formatCommentHandler');
 
 /**
  * Express handler for fetching summaries (for route usage)
  */
-export const fetchJiraSummariesHandler = withExpressErrorHandling(
-  async (req, res) => {
-    const { issueKeys } = req.body;
+export const fetchJiraSummariesHandler = withExpressErrorHandling(async (req, res) => {
+  const { issueKeys } = req.body;
 
-    if (!Array.isArray(issueKeys) || issueKeys.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'issueKeys must be a non-empty array',
-      });
-    }
+  if (!Array.isArray(issueKeys) || issueKeys.length === 0) {
+    return res.status(400).json({
+      success: false,
+      error: 'issueKeys must be a non-empty array',
+    });
+  }
 
-    const summaries = await fetchJiraSummaries(issueKeys);
-    res.json(summaries);
-  },
-  'fetchJiraSummariesHandler',
-);
+  const summaries = await fetchJiraSummaries(issueKeys);
+  res.json(summaries);
+}, 'fetchJiraSummariesHandler');

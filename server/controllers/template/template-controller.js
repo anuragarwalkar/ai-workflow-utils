@@ -58,11 +58,7 @@ export async function getTemplatesByType(req, res) {
     const processedTemplates = processApiResponse(templates);
     res.json({ success: true, data: processedTemplates });
   } catch (error) {
-    TemplateErrorHandler.handleApiError(
-      error,
-      'Getting templates by type',
-      res,
-    );
+    TemplateErrorHandler.handleApiError(error, 'Getting templates by type', res);
   }
 }
 
@@ -198,7 +194,7 @@ export async function exportTemplates(req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename="templates-export-${new Date().toISOString().split('T')[0]}.json"`,
+      `attachment; filename="templates-export-${new Date().toISOString().split('T')[0]}.json"`
     );
     res.json(exportData);
   } catch (error) {
@@ -279,9 +275,9 @@ export async function createTemplate(req, res) {
         maxLength: TEMPLATE_CONSTANTS.MAX_CONTENT_LENGTH,
       },
     });
-     
+
     validateTemplateCreation(templateData);
-    // eslint-disable-next-line max-lines
+
     const template = await createTemplate(templateData);
     res.status(TEMPLATE_CONSTANTS.HTTP_STATUS.CREATED).json({
       success: true,

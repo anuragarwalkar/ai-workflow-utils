@@ -20,20 +20,16 @@ class PRContentGenerationService {
       const result = await prLangChainService.streamPRContent(
         { commitMessages },
         'PR_COMBINED',
-        res,
+        res
       );
 
-      const processedContent = this.processStreamResult(
-        result,
-        commits,
-        ticketNumber,
-      );
+      const processedContent = this.processStreamResult(result, commits, ticketNumber);
 
       // Apply prefix to the final title before sending
       const finalTitle = this.applyCommitTypePrefix(
         processedContent.prTitle,
         commits,
-        ticketNumber,
+        ticketNumber
       );
 
       // Send final complete results using prLangChainService
@@ -43,29 +39,21 @@ class PRContentGenerationService {
         processedContent.prDescription,
         processedContent.aiGenerated,
         ticketNumber,
-        branchName,
+        branchName
       );
 
       logger.info(
-        `Successfully generated AI-powered PR content using PR_COMBINED template (${result.provider})`,
+        `Successfully generated AI-powered PR content using PR_COMBINED template (${result.provider})`
       );
 
       return processedContent;
     } catch (aiError) {
       logger.warn(`AI generation failed, using fallback: ${aiError.message}`);
 
-      const fallbackContent = this.generateFallbackPRContent(
-        commits,
-        ticketNumber,
-        branchName,
-      );
+      const fallbackContent = this.generateFallbackPRContent(commits, ticketNumber, branchName);
 
       // Apply prefix to the final title before sending
-      const finalTitle = this.applyCommitTypePrefix(
-        fallbackContent.prTitle,
-        commits,
-        ticketNumber,
-      );
+      const finalTitle = this.applyCommitTypePrefix(fallbackContent.prTitle, commits, ticketNumber);
 
       // Send fallback results using prLangChainService
       prLangChainService.sendFinalResults(
@@ -74,7 +62,7 @@ class PRContentGenerationService {
         fallbackContent.prDescription,
         false,
         ticketNumber,
-        branchName,
+        branchName
       );
 
       return fallbackContent;
@@ -100,7 +88,7 @@ class PRContentGenerationService {
       return this.buildPRFromParsed(
         { parsedTitle: parsed.title, parsedDescription: parsed.description },
         commits,
-        ticketNumber,
+        ticketNumber
       );
     }
 
@@ -115,9 +103,7 @@ class PRContentGenerationService {
 
     // Try to parse structured output (title and description)
     const titleMatch = trimmedContent.match(/(?:title|TITLE)[:\s]*([^\n]+)/i);
-    const descMatch = trimmedContent.match(
-      /(?:description|DESCRIPTION)[:\s]*([\s\S]+)/i,
-    );
+    const descMatch = trimmedContent.match(/(?:description|DESCRIPTION)[:\s]*([\s\S]+)/i);
 
     if (titleMatch && descMatch) {
       return {
@@ -162,7 +148,8 @@ class PRContentGenerationService {
   static generateEmptyContent() {
     return {
       prTitle: 'Update implementation',
-      prDescription: '## Summary\nThis PR contains changes based on commit history.\n\n## Changes Made\n- Implementation updates',
+      prDescription:
+        '## Summary\nThis PR contains changes based on commit history.\n\n## Changes Made\n- Implementation updates',
       aiGenerated: false,
     };
   }
@@ -173,9 +160,7 @@ class PRContentGenerationService {
   static generateFallbackPRContent(commits, ticketNumber, branchName) {
     const prTitle = 'Update implementation';
 
-    const ticketRef = ticketNumber
-      ? `for ticket ${ticketNumber}`
-      : `from branch ${branchName}`;
+    const ticketRef = ticketNumber ? `for ticket ${ticketNumber}` : `from branch ${branchName}`;
     const prDescription = `## Summary\nThis PR contains changes ${ticketRef}.\n\n## Changes Made\n- Implementation updates based on commit history`;
 
     return { prTitle, prDescription, aiGenerated: false };
@@ -186,9 +171,7 @@ class PRContentGenerationService {
    */
   static applyCommitTypePrefix(title, commits, ticketNumber) {
     const commitType = PRContentService.analyzeCommitType(commits);
-    const ticketPrefix = ticketNumber
-      ? `${commitType}(${ticketNumber}): `
-      : `${commitType}: `;
+    const ticketPrefix = ticketNumber ? `${commitType}(${ticketNumber}): ` : `${commitType}: `;
     return `${ticketPrefix}${title}`;
   }
 
@@ -196,9 +179,7 @@ class PRContentGenerationService {
    * Helper method to generate and send fallback content
    */
   static generateFallbackContent(ticketNumber, branchName, res, commits = []) {
-    const baseTitle = ticketNumber
-      ? `${ticketNumber}`
-      : `Update from ${branchName}`;
+    const baseTitle = ticketNumber ? `${ticketNumber}` : `Update from ${branchName}`;
 
     const fallbackDescription = ticketNumber
       ? `This PR contains changes for ticket ${ticketNumber} from branch ${branchName}.`

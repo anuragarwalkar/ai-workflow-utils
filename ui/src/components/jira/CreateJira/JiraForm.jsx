@@ -58,144 +58,6 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-// CustomFieldsSection component
-const CustomFieldsSection = ({
-  customFields,
-  onAddCustomField,
-  onRemoveCustomField,
-  onUpdateCustomField,
-  onOpenGuide,
-}) => (
-  <Box>
-    <Stack direction="row" alignItems="center" spacing={1} mb={1}>
-      <Typography variant="h6">Custom Fields</Typography>
-      <Tooltip title="Learn more about custom fields">
-        <IconButton size="small" onClick={onOpenGuide}>
-          <InfoIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
-    </Stack>
-    {customFields.map((field, idx) => (
-      <Stack direction="row" spacing={1} alignItems="center" key={field.id} mb={1}>
-        <TextField
-          label="Field Name"
-          value={field.name}
-          onChange={e => onUpdateCustomField(field.id, { name: e.target.value })}
-          size="small"
-        />
-        <TextField
-          label="Field Value"
-          value={field.value}
-          onChange={e => onUpdateCustomField(field.id, { value: e.target.value })}
-          size="small"
-        />
-        <IconButton
-          aria-label="Remove custom field"
-          onClick={() => onRemoveCustomField(field.id)}
-          size="small"
-        >
-          <DeleteIcon fontSize="small" />
-        </IconButton>
-      </Stack>
-    ))}
-    <Button
-      startIcon={<AddIcon />}
-      onClick={onAddCustomField}
-      size="small"
-      variant="outlined"
-    >
-      Add Custom Field
-    </Button>
-  </Box>
-);
-
-// UploadSection component
-const UploadSection = ({
-  imageFile,
-  onImageChange,
-  onRemoveImage,
-}) => (
-  <Box>
-    <Stack direction="row" alignItems="center" spacing={2} mb={2}>
-      <Button
-        component="label"
-        variant="outlined"
-        startIcon={<CloudUpload />}
-      >
-        Upload Image
-        <VisuallyHiddenInput
-          type="file"
-          accept="image/*"
-          onChange={onImageChange}
-        />
-      </Button>
-      {imageFile && (
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <Typography variant="body2">{imageFile.name}</Typography>
-          <IconButton aria-label="Remove image" onClick={onRemoveImage} size="small">
-            <DeleteIcon fontSize="small" />
-          </IconButton>
-        </Stack>
-      )}
-    </Stack>
-  </Box>
-);
-
-// ConfigurationSection component
-const ConfigurationSection = ({
-  issueType,
-  onIssueTypeChange,
-  priority,
-  onPriorityChange,
-  projectType,
-  onProjectTypeChange,
-}) => (
-  <Box mb={2}>
-    <Stack direction="row" spacing={2}>
-      <FormControl fullWidth>
-        <InputLabel id="project-type-label">Project Type</InputLabel>
-        <Select
-          labelId="project-type-label"
-          value={projectType}
-          label="Project Type"
-          onChange={onProjectTypeChange}
-        >
-          <MenuItem value="software">Software</MenuItem>
-          <MenuItem value="business">Business</MenuItem>
-          <MenuItem value="service_desk">Service Desk</MenuItem>
-        </Select>
-      </FormControl>
-      <FormControl fullWidth>
-        <InputLabel id="issue-type-label">Issue Type</InputLabel>
-        <Select
-          labelId="issue-type-label"
-          value={issueType}
-          label="Issue Type"
-          onChange={onIssueTypeChange}
-        >
-          <MenuItem value="bug">Bug</MenuItem>
-          <MenuItem value="task">Task</MenuItem>
-          <MenuItem value="story">Story</MenuItem>
-        </Select>
-      </FormControl>
-      <FormControl fullWidth>
-        <InputLabel id="priority-label">Priority</InputLabel>
-        <Select
-          labelId="priority-label"
-          value={priority}
-          label="Priority"
-          onChange={onPriorityChange}
-        >
-          <MenuItem value="highest">Highest</MenuItem>
-          <MenuItem value="high">High</MenuItem>
-          <MenuItem value="medium">Medium</MenuItem>
-          <MenuItem value="low">Low</MenuItem>
-          <MenuItem value="lowest">Lowest</MenuItem>
-        </Select>
-      </FormControl>
-    </Stack>
-  </Box>
-);
 const JiraForm = () => {
   const dispatch = useDispatch();
   const {
@@ -239,10 +101,7 @@ const JiraForm = () => {
         dispatch(setProjectType(savedData.projectType));
       }
       // Load custom fields for the current issue type
-      if (
-        savedData.customFieldsByType &&
-        savedData.customFieldsByType[issueType]
-      ) {
+      if (savedData.customFieldsByType && savedData.customFieldsByType[issueType]) {
         dispatch(setCustomFields(savedData.customFieldsByType[issueType]));
       } else {
         dispatch(setCustomFields([]));
@@ -253,11 +112,7 @@ const JiraForm = () => {
   // Handle issue type changes - load custom fields for the selected issue type
   useEffect(() => {
     const savedData = loadFromLocalStorage();
-    if (
-      savedData &&
-      savedData.customFieldsByType &&
-      savedData.customFieldsByType[issueType]
-    ) {
+    if (savedData && savedData.customFieldsByType && savedData.customFieldsByType[issueType]) {
       dispatch(setCustomFields(savedData.customFieldsByType[issueType]));
     }
     // Don't clear custom fields if no saved data - let user keep working with current fields
@@ -443,34 +298,28 @@ const JiraForm = () => {
               placement='right-start'
               title={
                 <Box sx={{ maxWidth: 400 }}>
-                  <Typography
-                    sx={{ mb: 1, fontWeight: 'bold' }}
-                    variant='body2'
-                  >
+                  <Typography sx={{ mb: 1, fontWeight: 'bold' }} variant='body2'>
                     Why Custom Fields Are Important:
                   </Typography>
                   <Typography sx={{ mb: 1 }} variant='body2'>
-                    • <strong>Compliance:</strong> Many organizations require
-                    specific custom fields to be populated for tracking,
-                    reporting, and workflow automation
+                    • <strong>Compliance:</strong> Many organizations require specific custom fields
+                    to be populated for tracking, reporting, and workflow automation
                   </Typography>
                   <Typography sx={{ mb: 1 }} variant='body2'>
-                    • <strong>Workflow Triggers:</strong> Custom fields often
-                    trigger automated actions like notifications, approvals, or
-                    status transitions
+                    • <strong>Workflow Triggers:</strong> Custom fields often trigger automated
+                    actions like notifications, approvals, or status transitions
                   </Typography>
                   <Typography sx={{ mb: 1 }} variant='body2'>
-                    • <strong>Data Integrity:</strong> Ensures all required
-                    project-specific information is captured consistently
+                    • <strong>Data Integrity:</strong> Ensures all required project-specific
+                    information is captured consistently
                   </Typography>
                   <Typography sx={{ mb: 1 }} variant='body2'>
-                    • <strong>Reporting:</strong> Custom fields enable accurate
-                    filtering, grouping, and reporting across your organization
+                    • <strong>Reporting:</strong> Custom fields enable accurate filtering, grouping,
+                    and reporting across your organization
                   </Typography>
                   <Typography variant='body2'>
-                    <strong>Note:</strong> Required custom fields vary by
-                    project, issue type, and your organization's Jira
-                    configuration.
+                    <strong>Note:</strong> Required custom fields vary by project, issue type, and
+                    your organization's Jira configuration.
                   </Typography>
                 </Box>
               }
@@ -482,17 +331,17 @@ const JiraForm = () => {
           </Box>
 
           <Typography color='text.secondary' sx={{ mb: 1 }} variant='body2'>
-            <strong>What are Custom Fields?</strong> Organization-specific
-            fields required for {issueType.toLowerCase()} issues that ensure
-            proper tracking, compliance, and workflow automation.
+            <strong>What are Custom Fields?</strong> Organization-specific fields required for{' '}
+            {issueType.toLowerCase()} issues that ensure proper tracking, compliance, and workflow
+            automation.
           </Typography>
 
           <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
-            These custom fields are specific to {issueType} issues and will be
-            saved separately for each issue type.
+            These custom fields are specific to {issueType} issues and will be saved separately for
+            each issue type.
             <br />
-            <strong>Value formats:</strong> Simple text: &quot;11222&quot; |
-            Object: {`{"id": "21304"}`} | Array: {`["value1", "value2"]`}
+            <strong>Value formats:</strong> Simple text: &quot;11222&quot; | Object:{' '}
+            {`{"id": "21304"}`} | Array: {`["value1", "value2"]`}
             {projectType?.trim() ? (
               <>
                 <br />
@@ -538,9 +387,7 @@ const JiraForm = () => {
                 style={{ marginBottom: 0 }}
                 sx={{ flex: 1 }}
                 value={field.key}
-                onChange={e =>
-                  handleUpdateCustomField(index, 'key', e.target.value)
-                }
+                onChange={e => handleUpdateCustomField(index, 'key', e.target.value)}
               />
               <TextField
                 label='Field Value'
@@ -549,15 +396,9 @@ const JiraForm = () => {
                 style={{ marginBottom: 0 }}
                 sx={{ flex: 1 }}
                 value={field.value}
-                onChange={e =>
-                  handleUpdateCustomField(index, 'value', e.target.value)
-                }
+                onChange={e => handleUpdateCustomField(index, 'value', e.target.value)}
               />
-              <IconButton
-                color='error'
-                size='small'
-                onClick={() => handleRemoveCustomField(index)}
-              >
+              <IconButton color='error' size='small' onClick={() => handleRemoveCustomField(index)}>
                 <DeleteIcon />
               </IconButton>
             </Box>
@@ -573,18 +414,9 @@ const JiraForm = () => {
         </Box>
 
         <Box>
-          <Button
-            component='label'
-            startIcon={<CloudUpload />}
-            sx={{ mb: 1 }}
-            variant='outlined'
-          >
+          <Button component='label' startIcon={<CloudUpload />} sx={{ mb: 1 }} variant='outlined'>
             Upload Image
-            <VisuallyHiddenInput
-              accept='image/*'
-              type='file'
-              onChange={handleImageChange}
-            />
+            <VisuallyHiddenInput accept='image/*' type='file' onChange={handleImageChange} />
           </Button>
           {imageFile ? (
             <Typography color='text.secondary' component='div' variant='body2'>
@@ -623,25 +455,20 @@ const JiraForm = () => {
         open={isCustomFieldGuideOpen}
         onClose={() => setIsCustomFieldGuideOpen(false)}
       >
-        <DialogTitle>
-          Custom Fields Guide for {projectType || 'Project'}
-        </DialogTitle>
+        <DialogTitle>Custom Fields Guide for {projectType || 'Project'}</DialogTitle>
         <DialogContent>
           {projectType?.trim() ? (
             <CustomFieldGuide issueType={issueType} projectKey={projectType} />
           ) : (
             <Alert severity='warning'>
               <Typography>
-                Please enter a Project Key first to view custom fields for that
-                project.
+                Please enter a Project Key first to view custom fields for that project.
               </Typography>
             </Alert>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsCustomFieldGuideOpen(false)}>
-            Close
-          </Button>
+          <Button onClick={() => setIsCustomFieldGuideOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>

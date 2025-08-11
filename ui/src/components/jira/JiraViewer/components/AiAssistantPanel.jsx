@@ -302,58 +302,56 @@ Would you like me to provide more specific guidance on any of these aspects?`;
           </Typography>
 
           <Box sx={{ mb: 3 }}>
-            {['Content', 'Analysis', 'Communication', 'Development'].map(
-              category => (
-                <Accordion
-                  key={category}
-                  sx={{
-                    mb: 1,
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    border: '1px solid rgba(0, 0, 0, 0.05)',
-                    '&:before': { display: 'none' },
-                    borderRadius: 2,
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-                  }}
-                >
-                  <AccordionSummary expandIcon={<ExpandMore />}>
-                    <Typography sx={{ fontWeight: 600 }} variant='subtitle1'>
-                      {category}
-                    </Typography>
-                  </AccordionSummary>
-                  <AccordionDetails sx={{ p: 0 }}>
-                    <List>
-                      {aiFeatures
-                        .filter(feature => feature.category === category)
-                        .map(feature => (
-                          <ListItem
-                            button
-                            key={feature.id}
-                            sx={{
-                              borderRadius: 1,
-                              mb: 0.5,
-                              '&:hover': {
-                                background: 'rgba(102, 126, 234, 0.1)',
-                              },
+            {['Content', 'Analysis', 'Communication', 'Development'].map(category => (
+              <Accordion
+                key={category}
+                sx={{
+                  mb: 1,
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  border: '1px solid rgba(0, 0, 0, 0.05)',
+                  '&:before': { display: 'none' },
+                  borderRadius: 2,
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                }}
+              >
+                <AccordionSummary expandIcon={<ExpandMore />}>
+                  <Typography sx={{ fontWeight: 600 }} variant='subtitle1'>
+                    {category}
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 0 }}>
+                  <List>
+                    {aiFeatures
+                      .filter(feature => feature.category === category)
+                      .map(feature => (
+                        <ListItem
+                          button
+                          key={feature.id}
+                          sx={{
+                            borderRadius: 1,
+                            mb: 0.5,
+                            '&:hover': {
+                              background: 'rgba(102, 126, 234, 0.1)',
+                            },
+                          }}
+                          onClick={() => handleFeatureSelect(feature)}
+                        >
+                          <ListItemIcon>{feature.icon}</ListItemIcon>
+                          <ListItemText
+                            primary={feature.title}
+                            primaryTypographyProps={{
+                              variant: 'body2',
+                              fontWeight: 500,
                             }}
-                            onClick={() => handleFeatureSelect(feature)}
-                          >
-                            <ListItemIcon>{feature.icon}</ListItemIcon>
-                            <ListItemText
-                              primary={feature.title}
-                              primaryTypographyProps={{
-                                variant: 'body2',
-                                fontWeight: 500,
-                              }}
-                              secondary={feature.description}
-                              secondaryTypographyProps={{ variant: 'caption' }}
-                            />
-                          </ListItem>
-                        ))}
-                    </List>
-                  </AccordionDetails>
-                </Accordion>
-              )
-            )}
+                            secondary={feature.description}
+                            secondaryTypographyProps={{ variant: 'caption' }}
+                          />
+                        </ListItem>
+                      ))}
+                  </List>
+                </AccordionDetails>
+              </Accordion>
+            ))}
           </Box>
 
           {/* AI Response Area */}
@@ -367,9 +365,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
               >
                 <Divider sx={{ my: 2 }} />
 
-                <Box
-                  sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}
-                >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                   <AutoAwesome color='primary' />
                   <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
                     {activeFeature?.title || 'AI Analysis'}
@@ -399,9 +395,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                       }}
                     >
                       <CircularProgress size={20} />
-                      <Typography variant='body2'>
-                        AI is analyzing...
-                      </Typography>
+                      <Typography variant='body2'>AI is analyzing...</Typography>
                     </Box>
                   ) : (
                     <Typography
@@ -435,9 +429,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                   p: 1.5,
                   borderRadius: 2,
                   background:
-                    chat.type === 'user'
-                      ? 'rgba(102, 126, 234, 0.2)'
-                      : 'rgba(255, 255, 255, 0.8)',
+                    chat.type === 'user' ? 'rgba(102, 126, 234, 0.2)' : 'rgba(255, 255, 255, 0.8)',
                   border: '1px solid rgba(0, 0, 0, 0.05)',
                   ml: chat.type === 'user' ? 2 : 0,
                   mr: chat.type === 'ai' ? 2 : 0,
@@ -488,8 +480,7 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                 background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 color: 'white',
                 '&:hover': {
-                  background:
-                    'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
+                  background: 'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
                 },
               }}
               onClick={handleChatSubmit}
@@ -508,25 +499,19 @@ Would you like me to provide more specific guidance on any of these aspects?`;
                 label='Analyze Impact'
                 size='small'
                 sx={{ cursor: 'pointer' }}
-                onClick={() =>
-                  setUserInput('What is the potential impact of this issue?')
-                }
+                onClick={() => setUserInput('What is the potential impact of this issue?')}
               />
               <Chip
                 label='Suggest Testing'
                 size='small'
                 sx={{ cursor: 'pointer' }}
-                onClick={() =>
-                  setUserInput('What testing approach would you recommend?')
-                }
+                onClick={() => setUserInput('What testing approach would you recommend?')}
               />
               <Chip
                 label='Timeline Estimate'
                 size='small'
                 sx={{ cursor: 'pointer' }}
-                onClick={() =>
-                  setUserInput('How long might this take to resolve?')
-                }
+                onClick={() => setUserInput('How long might this take to resolve?')}
               />
             </Box>
           </Box>

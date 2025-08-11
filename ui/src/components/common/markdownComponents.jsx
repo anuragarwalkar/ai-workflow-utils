@@ -103,10 +103,7 @@ const createBasicComponents = isDark => ({
 
 const createTextComponents = isDark => ({
   strong: ({ children }) => (
-    <Box
-      component='strong'
-      sx={{ color: isDark ? 'white' : 'black', fontWeight: 700 }}
-    >
+    <Box component='strong' sx={{ color: isDark ? 'white' : 'black', fontWeight: 700 }}>
       {children}
     </Box>
   ),

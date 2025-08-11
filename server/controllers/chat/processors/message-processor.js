@@ -32,12 +32,12 @@ export function formatForProvider(message, conversationHistory, provider) {
   const processedHistory = processConversationHistory(conversationHistory);
   const sanitizedMessage = sanitizeContent(message);
   switch (provider) {
-  case 'OpenAI Compatible':
-    return formatForOpenAI(sanitizedMessage, processedHistory);
-  case 'Ollama':
-    return formatForOllama(sanitizedMessage, processedHistory);
-  default:
-    throw new Error(`Unsupported provider: ${provider}`);
+    case 'OpenAI Compatible':
+      return formatForOpenAI(sanitizedMessage, processedHistory);
+    case 'Ollama':
+      return formatForOllama(sanitizedMessage, processedHistory);
+    default:
+      throw new Error(`Unsupported provider: ${provider}`);
   }
 }
 
@@ -49,12 +49,12 @@ export function formatForProvider(message, conversationHistory, provider) {
  */
 export function extractContent(response, provider) {
   switch (provider) {
-  case 'OpenAI Compatible':
-    return response.data?.choices?.[0]?.message?.content || '';
-  case 'Ollama':
-    return response.data?.response || '';
-  default:
-    return '';
+    case 'OpenAI Compatible':
+      return response.data?.choices?.[0]?.message?.content || '';
+    case 'Ollama':
+      return response.data?.response || '';
+    default:
+      return '';
   }
 }
 

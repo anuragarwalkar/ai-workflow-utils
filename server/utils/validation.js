@@ -2,11 +2,11 @@
  * Type validation rules mapping
  */
 const TYPE_VALIDATORS = {
-  array: (value) => Array.isArray(value),
-  string: (value) => typeof value === 'string',
-  object: (value) => typeof value === 'object',
-  number: (value) => typeof value === 'number',
-  boolean: (value) => typeof value === 'boolean',
+  array: value => Array.isArray(value),
+  string: value => typeof value === 'string',
+  object: value => typeof value === 'object',
+  number: value => typeof value === 'number',
+  boolean: value => typeof value === 'boolean',
 };
 
 /**
@@ -36,11 +36,11 @@ const validateConstraints = (key, value, rules) => {
   if (rules.minLength && value.length < rules.minLength) {
     throw new Error(`${key} must have at least ${rules.minLength} items`);
   }
-  
+
   if (rules.maxLength && value.length > rules.maxLength) {
     throw new Error(`${key} must have at most ${rules.maxLength} items`);
   }
-  
+
   if (rules.pattern && typeof value === 'string' && !rules.pattern.test(value)) {
     throw new Error(`${key} does not match required pattern`);
   }
@@ -121,7 +121,7 @@ export const withValidation = (fn, schema) => {
   return async (...args) => {
     const [firstArg] = args;
     const schemaKeys = Object.keys(schema);
-    
+
     // For functions that take a single primitive argument (like issueKey)
     if (schemaKeys.length === 1) {
       const [[key, rules]] = Object.entries(schema);
@@ -144,7 +144,7 @@ export const withValidation = (fn, schema) => {
         throw new Error(`${key} is required`);
       }
     }
-    
+
     return await fn(...args);
   };
 };
@@ -187,7 +187,7 @@ const validateFieldForExpress = ({ key, value, rules, res, prefix = '' }) => {
  * @param {Object} schema - Validation schema
  * @returns {Function} Express middleware function
  */
-export const validateRequestBody = (schema) => {
+export const validateRequestBody = schema => {
   return (req, res, next) => {
     try {
       for (const [key, rules] of Object.entries(schema)) {
@@ -208,12 +208,20 @@ export const validateRequestBody = (schema) => {
  * @param {Object} schema - Validation schema
  * @returns {Function} Express middleware function
  */
-export const validateRequestParams = (schema) => {
+export const validateRequestParams = schema => {
   return (req, res, next) => {
     try {
       for (const [key, rules] of Object.entries(schema)) {
         const value = req.params[key];
-        if (!validateFieldForExpress({ key, value, rules, res, prefix: 'Parameter' })) {
+        if (
+          !validateFieldForExpress({
+            key,
+            value,
+            rules,
+            res,
+            prefix: 'Parameter',
+          })
+        ) {
           return;
         }
       }
@@ -247,7 +255,7 @@ export const ValidationSchemas = {
       maxLength: 50,
     },
   },
-  
+
   JIRA_ISSUE_KEY: {
     issueKey: {
       type: 'string',
@@ -255,7 +263,7 @@ export const ValidationSchemas = {
       pattern: ValidationPatterns.JIRA_ISSUE_KEY,
     },
   },
-  
+
   EMAIL_GENERATION: {
     tableData: {
       type: 'array',
@@ -267,7 +275,7 @@ export const ValidationSchemas = {
       required: false,
     },
   },
-  
+
   PR_GENERATION: {
     commits: {
       type: 'array',

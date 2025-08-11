@@ -37,7 +37,7 @@ const performIssueCreation = async (payload, url, headers) => {
  * @param {Error} error - Error object
  * @throws {Error} Service error
  */
-const handleIssueCreationError = (error) => {
+const handleIssueCreationError = error => {
   logger.error('Failed to create Jira issue', {
     error: error.message,
     status: error.response?.status,
@@ -45,7 +45,7 @@ const handleIssueCreationError = (error) => {
   });
   throw ErrorHandler.createServiceError(
     `Failed to create Jira issue: ${error.response?.data?.errorMessages?.join(', ') || error.message}`,
-    error.response?.status || 500,
+    error.response?.status || 500
   );
 };
 
@@ -54,7 +54,7 @@ const handleIssueCreationError = (error) => {
  * @param {Object} payload - Jira issue payload
  * @returns {Promise<Object>} Created issue data
  */
-export const createIssue = async (payload) => {
+export const createIssue = async payload => {
   try {
     const baseUrl = EnvironmentConfig.getBaseUrl();
     const headers = EnvironmentConfig.getAuthHeaders();
@@ -73,7 +73,7 @@ export const createIssue = async (payload) => {
  * @param {string} issueId - Issue ID or key
  * @returns {Promise<Object>} Issue data
  */
-export const fetchIssue = async (issueId) => {
+export const fetchIssue = async issueId => {
   try {
     const baseUrl = EnvironmentConfig.getBaseUrl();
     const headers = EnvironmentConfig.getAuthHeaders();
@@ -97,7 +97,7 @@ export const fetchIssue = async (issueId) => {
     });
     throw ErrorHandler.createServiceError(
       `Failed to fetch Jira issue: ${error.message}`,
-      error.response?.status || 500,
+      error.response?.status || 500
     );
   }
 };
@@ -138,7 +138,7 @@ export const uploadAttachment = async (issueKey, formData) => {
     });
     throw ErrorHandler.createServiceError(
       `Failed to upload attachment: ${error.message}`,
-      error.response?.status || 500,
+      error.response?.status || 500
     );
   }
 };
@@ -181,7 +181,7 @@ export const searchIssues = async (jql, fields = ['summary'], maxResults = 50) =
     });
     throw ErrorHandler.createServiceError(
       `Failed to search Jira issues: ${error.message}`,
-      error.response?.status || 500,
+      error.response?.status || 500
     );
   }
 };
@@ -191,18 +191,14 @@ export const searchIssues = async (jql, fields = ['summary'], maxResults = 50) =
  * @param {Array<string>} issueKeys - Array of issue keys
  * @returns {Promise<Object>} Map of issue key to summary
  */
-export const fetchIssueSummaries = async (issueKeys) => {
+export const fetchIssueSummaries = async issueKeys => {
   try {
     if (!issueKeys || issueKeys.length === 0) {
       return {};
     }
 
     const jql = `issueKey in (${issueKeys.join(',')})`;
-    const searchResult = await searchIssues(
-      jql,
-      ['summary'],
-      issueKeys.length,
-    );
+    const searchResult = await searchIssues(jql, ['summary'], issueKeys.length);
 
     const summariesMap = {};
     if (searchResult.issues) {

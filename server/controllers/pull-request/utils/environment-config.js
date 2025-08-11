@@ -20,7 +20,7 @@ class EnvironmentConfig {
     const { bitbucketUrl, authToken } = this.get();
     if (!bitbucketUrl || !authToken) {
       throw new Error(
-        'Required environment variables are missing: BIT_BUCKET_URL, BITBUCKET_AUTHORIZATION_TOKEN',
+        'Required environment variables are missing: BIT_BUCKET_URL, BITBUCKET_AUTHORIZATION_TOKEN'
       );
     }
   }

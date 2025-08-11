@@ -10,7 +10,7 @@ import logger from '../../../logger.js';
  * @param {string} inputPath - Input file path
  * @returns {Promise<{filePath: string, fileName: string}>} Converted file info
  */
-export const convertMovToMp4 = async (inputPath) => {
+export const convertMovToMp4 = async inputPath => {
   try {
     // For now, just return the original file
     // In a real implementation, you would use ffmpeg or similar
@@ -36,7 +36,7 @@ export const convertMovToMp4 = async (inputPath) => {
  * @param {Object} file - File object
  * @returns {boolean} True if valid
  */
-export const validateFile = (file) => {
+export const validateFile = file => {
   if (!file) {
     return false;
   }
@@ -55,7 +55,7 @@ export const validateFile = (file) => {
  * @param {string} mimeType - MIME type
  * @returns {string} File type
  */
-export const getFileType = (mimeType) => {
+export const getFileType = mimeType => {
   if (!mimeType) return 'unknown';
 
   if (mimeType.startsWith('image/')) return 'image';

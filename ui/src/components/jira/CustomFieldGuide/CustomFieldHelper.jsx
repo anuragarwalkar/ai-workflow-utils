@@ -23,15 +23,11 @@ import {
 } from '@mui/icons-material';
 import { useFetchProjectCustomFieldsQuery } from '../../../store/api/jiraApi';
 
-const CustomFieldHelper = ({
-  projectType,
-  issueType = 'Task',
-  onFieldSelect,
-}) => {
+const CustomFieldHelper = ({ projectType, issueType = 'Task', onFieldSelect }) => {
   const [showGuide, setShowGuide] = useState(false);
-  
-  const { 
-    data: projectFieldsData, 
+
+  const {
+    data: projectFieldsData,
     isLoading,
     error,
   } = useFetchProjectCustomFieldsQuery(
@@ -55,14 +51,9 @@ const CustomFieldHelper = ({
       date: 'success',
       unknown: 'default',
     };
-    
+
     return (
-      <Chip
-        color={typeColors[type] || 'default'}
-        label={type}
-        size='small'
-        variant='outlined'
-      />
+      <Chip color={typeColors[type] || 'default'} label={type} size='small' variant='outlined' />
     );
   };
 
@@ -89,12 +80,7 @@ const CustomFieldHelper = ({
       <Alert severity='warning'>
         <AlertTitle>Custom Fields Not Available</AlertTitle>
         Could not fetch custom fields for project {projectType}.
-        <Button 
-          onClick={() => setShowGuide(true)}
-          size='small' 
-          sx={{ mt: 1 }}
-          variant='outlined'
-        >
+        <Button onClick={() => setShowGuide(true)} size='small' sx={{ mt: 1 }} variant='outlined'>
           Show Guide
         </Button>
       </Alert>
@@ -105,10 +91,14 @@ const CustomFieldHelper = ({
     return (
       <Card sx={{ mb: 2 }}>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography variant='h6'>
-              Custom Fields Helper
-            </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Typography variant='h6'>Custom Fields Helper</Typography>
             <Tooltip title='Show guide on how to find custom field IDs'>
               <IconButton onClick={() => setShowGuide(true)} size='small'>
                 <HelpIcon />
@@ -127,21 +117,26 @@ const CustomFieldHelper = ({
     <>
       <Card sx={{ mb: 2 }}>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-            <Typography variant='h6'>
-              Available Custom Fields ({fieldsList.length})
-            </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              mb: 2,
+            }}
+          >
+            <Typography variant='h6'>Available Custom Fields ({fieldsList.length})</Typography>
             <Tooltip title='Show guide on how to find custom field IDs'>
               <IconButton onClick={() => setShowGuide(true)} size='small'>
                 <HelpIcon />
               </IconButton>
             </Tooltip>
           </Box>
-          
+
           <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
             Custom fields for project &quot;{projectType}&quot; ({issueType}):
           </Typography>
-          
+
           <Grid container spacing={2}>
             {fieldsList.map(field => (
               <Grid item key={field.id} lg={6} xs={12}>
@@ -151,8 +146,8 @@ const CustomFieldHelper = ({
                       <Typography sx={{ fontWeight: 'bold' }} variant='subtitle2'>
                         {field.name}
                       </Typography>
-                      <Typography 
-                        color='primary' 
+                      <Typography
+                        color='primary'
                         sx={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
                         variant='body2'
                       >
@@ -167,19 +162,13 @@ const CustomFieldHelper = ({
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                       <Tooltip title='Copy Field ID'>
-                        <IconButton 
-                          onClick={() => copyToClipboard(field.id)}
-                          size='small'
-                        >
+                        <IconButton onClick={() => copyToClipboard(field.id)} size='small'>
                           <ContentCopyIcon fontSize='small' />
                         </IconButton>
                       </Tooltip>
                       {onFieldSelect && (
                         <Tooltip title='Use this field'>
-                          <IconButton 
-                            onClick={() => onFieldSelect(field)}
-                            size='small'
-                          >
+                          <IconButton onClick={() => onFieldSelect(field)} size='small'>
                             <InfoIcon fontSize='small' />
                           </IconButton>
                         </Tooltip>

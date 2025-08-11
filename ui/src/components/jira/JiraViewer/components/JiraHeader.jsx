@@ -98,9 +98,7 @@ const JiraHeader = ({ jiraData }) => {
       initial={{ opacity: 0, y: 20 }}
       sx={{
         p: 4,
-        background: isDark
-          ? 'rgba(45, 55, 72, 0.95)'
-          : 'rgba(255, 255, 255, 0.95)',
+        background: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(20px)',
         border: isDark
           ? '1px solid rgba(255, 255, 255, 0.1)'
@@ -212,11 +210,7 @@ const JiraHeader = ({ jiraData }) => {
           >
             <Flag color={getPriorityColor(priority)} />
             <Box>
-              <Typography
-                color='text.secondary'
-                display='block'
-                variant='caption'
-              >
+              <Typography color='text.secondary' display='block' variant='caption'>
                 Priority
               </Typography>
               <Chip
@@ -239,18 +233,11 @@ const JiraHeader = ({ jiraData }) => {
           >
             <Person color='action' />
             <Box>
-              <Typography
-                color='text.secondary'
-                display='block'
-                variant='caption'
-              >
+              <Typography color='text.secondary' display='block' variant='caption'>
                 Assignee
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Avatar
-                  src={assignee?.avatarUrls?.['24x24']}
-                  sx={{ width: 24, height: 24 }}
-                >
+                <Avatar src={assignee?.avatarUrls?.['24x24']} sx={{ width: 24, height: 24 }}>
                   {assignee?.displayName?.[0] || 'U'}
                 </Avatar>
                 <Typography sx={{ fontWeight: 500 }} variant='body2'>
@@ -271,18 +258,11 @@ const JiraHeader = ({ jiraData }) => {
           >
             <Person color='action' />
             <Box>
-              <Typography
-                color='text.secondary'
-                display='block'
-                variant='caption'
-              >
+              <Typography color='text.secondary' display='block' variant='caption'>
                 Reporter
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Avatar
-                  src={reporter?.avatarUrls?.['24x24']}
-                  sx={{ width: 24, height: 24 }}
-                >
+                <Avatar src={reporter?.avatarUrls?.['24x24']} sx={{ width: 24, height: 24 }}>
                   {reporter?.displayName?.[0] || 'U'}
                 </Avatar>
                 <Typography sx={{ fontWeight: 500 }} variant='body2'>
@@ -303,11 +283,7 @@ const JiraHeader = ({ jiraData }) => {
           >
             <CalendarToday color='action' />
             <Box>
-              <Typography
-                color='text.secondary'
-                display='block'
-                variant='caption'
-              >
+              <Typography color='text.secondary' display='block' variant='caption'>
                 Created
               </Typography>
               <Typography sx={{ fontWeight: 500 }} variant='body2'>
@@ -327,11 +303,7 @@ const JiraHeader = ({ jiraData }) => {
           >
             <Update color='action' />
             <Box>
-              <Typography
-                color='text.secondary'
-                display='block'
-                variant='caption'
-              >
+              <Typography color='text.secondary' display='block' variant='caption'>
                 Updated
               </Typography>
               <Typography sx={{ fontWeight: 500 }} variant='body2'>
@@ -344,12 +316,7 @@ const JiraHeader = ({ jiraData }) => {
         {/* Labels */}
         {fields.labels && fields.labels.length > 0 ? (
           <Box sx={{ mt: 3 }}>
-            <Typography
-              color='text.secondary'
-              display='block'
-              sx={{ mb: 1 }}
-              variant='caption'
-            >
+            <Typography color='text.secondary' display='block' sx={{ mb: 1 }} variant='caption'>
               Labels
             </Typography>
             <Stack direction='row' flexWrap='wrap' spacing={1}>

@@ -43,7 +43,7 @@ export class ErrorHandler {
         error: errorInfo.message,
         context,
         errorType: errorInfo.type,
-      })}\n\n`,
+      })}\n\n`
     );
   }
 
@@ -105,11 +105,7 @@ export class ErrorHandler {
     }
 
     // Provider-specific errors
-    if (
-      message.includes('API Error') ||
-      message.includes('OpenAI') ||
-      message.includes('Ollama')
-    ) {
+    if (message.includes('API Error') || message.includes('OpenAI') || message.includes('Ollama')) {
       return {
         statusCode: 502,
         message: 'AI service error. Please try again.',

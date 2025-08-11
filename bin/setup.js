@@ -13,12 +13,12 @@ const __dirname = path.dirname(__filename);
 class EnvironmentSetup {
   constructor() {
     this.packageDir = path.dirname(__dirname);
-    
+
     // Home directory configuration paths
     this.configDir = path.join(os.homedir(), '.ai-workflow-utils');
     this.serverEnvPath = path.join(this.configDir, 'config.env');
     this.configMetaPath = path.join(this.configDir, 'config.json');
-    
+
     // Package directory paths for examples
     this.serverEnvExamplePath = path.join(this.packageDir, '.env.example');
 
@@ -36,8 +36,7 @@ class EnvironmentSetup {
           required: false,
           description: 'Jira integration for creating and managing tickets',
           url: {
-            description:
-              'Your Jira instance URL (e.g., https://your-company.atlassian.net)',
+            description: 'Your Jira instance URL (e.g., https://your-company.atlassian.net)',
             required: true,
             envKey: 'JIRA_URL',
           },
@@ -55,7 +54,8 @@ class EnvironmentSetup {
           required: false,
           description: 'OpenAI/Anthropic compatible AI API configuration',
           baseUrl: {
-            description: 'AI API base URL (default: https://api.anthropic.com), Else - setup local AI server with ollama',
+            description:
+              'AI API base URL (default: https://api.anthropic.com), Else - setup local AI server with ollama',
             required: false,
             default: 'https://api.anthropic.com',
             envKey: 'OPENAI_COMPATIBLE_BASE_URL',
@@ -79,7 +79,8 @@ class EnvironmentSetup {
           required: false,
           description: 'Bitbucket integration for PR creation and review',
           url: {
-            description: 'Your Bitbucket server URL (optional, To create, view & review PR using AI)',
+            description:
+              'Your Bitbucket server URL (optional, To create, view & review PR using AI)',
             required: false,
             envKey: 'BIT_BUCKET_URL',
           },
@@ -131,16 +132,14 @@ class EnvironmentSetup {
   }
 
   async question(prompt) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       this.rl.question(prompt, resolve);
     });
   }
 
   async setupEnvironment() {
     console.log('🚀 Welcome to AI Workflow Utils Setup!');
-    console.log(
-      'This setup will help you configure the application for first use.\n',
-    );
+    console.log('This setup will help you configure the application for first use.\n');
 
     // Ensure config directory exists
     if (!fs.existsSync(this.configDir)) {
@@ -156,13 +155,8 @@ class EnvironmentSetup {
       console.log(`   📁 ${this.configDir}`);
       console.log('   - config.env (server configuration)');
 
-      const overwrite = await this.question(
-        '\nDo you want to reconfigure? (y/N): ',
-      );
-      if (
-        overwrite.toLowerCase() !== 'y' &&
-        overwrite.toLowerCase() !== 'yes'
-      ) {
+      const overwrite = await this.question('\nDo you want to reconfigure? (y/N): ');
+      if (overwrite.toLowerCase() !== 'y' && overwrite.toLowerCase() !== 'yes') {
         console.log('✅ Using existing configuration. Starting application...');
         this.rl.close();
         return false; // Don't run setup, use existing config
@@ -171,18 +165,14 @@ class EnvironmentSetup {
 
     // Load existing values from .env files or .env.example
     const existingServerEnv =
-      this.loadExistingEnv(this.serverEnvPath) ||
-      this.loadExistingEnv(this.serverEnvExamplePath);
+      this.loadExistingEnv(this.serverEnvPath) || this.loadExistingEnv(this.serverEnvExamplePath);
 
-    console.log('\n📋 Let\'s configure your environment variables...\n');
+    console.log("\n📋 Let's configure your environment variables...\n");
 
     // Setup server environment
     console.log('🖥️  Server Configuration:');
     console.log('='.repeat(50));
-    const serverEnv = await this.configureEnvironment(
-      'server',
-      existingServerEnv,
-    );
+    const serverEnv = await this.configureEnvironment('server', existingServerEnv);
 
     // Write environment files
     await this.writeEnvFile(this.serverEnvPath, serverEnv);
@@ -204,10 +194,10 @@ class EnvironmentSetup {
 
     // Separate required and optional configuration sections
     const requiredSections = Object.entries(config).filter(
-      ([_, conf]) => conf.required && conf.description,
+      ([_, conf]) => conf.required && conf.description
     );
     const optionalSections = Object.entries(config).filter(
-      ([_, conf]) => !conf.required && conf.description,
+      ([_, conf]) => !conf.required && conf.description
     );
 
     // Handle required sections first
@@ -215,10 +205,8 @@ class EnvironmentSetup {
       console.log('\n🔴 Required Configuration Sections:');
       for (const [sectionKey, sectionConf] of requiredSections) {
         console.log(`\n📋 ${sectionConf.description}`);
-        const setupSection = await this.question(
-          `Do you want to setup ${sectionKey}? (Y/n): `,
-        );
-        
+        const setupSection = await this.question(`Do you want to setup ${sectionKey}? (Y/n): `);
+
         if (setupSection.toLowerCase() !== 'n' && setupSection.toLowerCase() !== 'no') {
           await this.configureSectionVariables(sectionKey, sectionConf, existingEnv, envVars);
         }
@@ -230,10 +218,8 @@ class EnvironmentSetup {
       console.log('\n🟡 Optional Configuration Sections:');
       for (const [sectionKey, sectionConf] of optionalSections) {
         console.log(`\n📋 ${sectionConf.description || `${sectionKey} configuration`}`);
-        const setupSection = await this.question(
-          `Do you want to setup ${sectionKey}? (y/N): `,
-        );
-        
+        const setupSection = await this.question(`Do you want to setup ${sectionKey}? (y/N): `);
+
         if (setupSection.toLowerCase() === 'y' || setupSection.toLowerCase() === 'yes') {
           await this.configureSectionVariables(sectionKey, sectionConf, existingEnv, envVars);
         } else {
@@ -245,7 +231,7 @@ class EnvironmentSetup {
 
     // Handle standalone variables (not in sections)
     const standaloneVars = Object.entries(config).filter(
-      ([_, conf]) => !conf.description || (!conf.required && !conf.description),
+      ([_, conf]) => !conf.description || (!conf.required && !conf.description)
     );
 
     if (standaloneVars.length > 0) {
@@ -263,16 +249,16 @@ class EnvironmentSetup {
 
   async configureSectionVariables(sectionKey, sectionConf, existingEnv, envVars) {
     console.log(`\n🔧 Configuring ${sectionKey}:`);
-    
+
     for (const [varKey, varConf] of Object.entries(sectionConf)) {
       // Skip meta properties
       if (varKey === 'required' || varKey === 'description') continue;
-      
+
       if (varConf.envKey) {
         const value = await this.promptForVariable(
-          `${sectionKey}.${varKey}`, 
-          varConf, 
-          existingEnv[varConf.envKey],
+          `${sectionKey}.${varKey}`,
+          varConf,
+          existingEnv[varConf.envKey]
         );
         if (value) envVars[varConf.envKey] = value;
       }
@@ -283,7 +269,7 @@ class EnvironmentSetup {
     for (const [varKey, varConf] of Object.entries(sectionConf)) {
       // Skip meta properties
       if (varKey === 'required' || varKey === 'description') continue;
-      
+
       if (varConf.default && varConf.envKey) {
         envVars[varConf.envKey] = varConf.default;
       }
@@ -327,7 +313,7 @@ class EnvironmentSetup {
       const content = fs.readFileSync(filePath, 'utf8');
       const env = {};
 
-      content.split('\n').forEach((line) => {
+      content.split('\n').forEach(line => {
         const trimmed = line.trim();
         if (trimmed && !trimmed.startsWith('#')) {
           const [key, ...valueParts] = trimmed.split('=');
@@ -380,7 +366,7 @@ class EnvironmentSetup {
         // This is a required section, check all its required variables
         for (const [varKey, varConf] of Object.entries(sectionConf)) {
           if (varKey === 'required' || varKey === 'description') continue;
-          
+
           if (varConf.required && varConf.envKey) {
             const envValue = serverEnv[varConf.envKey];
             if (!envValue || envValue.includes('your_')) {
@@ -393,7 +379,7 @@ class EnvironmentSetup {
 
     if (missingVars.length > 0) {
       console.log('⚠️  Missing required configuration:');
-      missingVars.forEach((key) => console.log(`   - ${key}`));
+      missingVars.forEach(key => console.log(`   - ${key}`));
       return false;
     }
 
@@ -406,15 +392,15 @@ class EnvironmentSetup {
     console.log('='.repeat(50));
     console.log(`Configuration directory: ${this.configDir}`);
     console.log(`Server config file: ${this.serverEnvPath}`);
-    
+
     const serverExists = fs.existsSync(this.serverEnvPath);
-    
+
     console.log('\nStatus:');
     console.log(`  Server config: ${serverExists ? '✅ Exists' : '❌ Missing'}`);
     console.log('  UI config: Handled directly in the UI application');
-    
+
     if (!serverExists) {
-      console.log('\n💡 Run \'ai-workflow-setup\' to create missing configuration file.');
+      console.log("\n💡 Run 'ai-workflow-setup' to create missing configuration file.");
     }
   }
 }
@@ -427,16 +413,16 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const setup = new EnvironmentSetup();
   setup
     .setupEnvironment()
-    .then((completed) => {
+    .then(completed => {
       if (completed) {
         return setup.checkEnvironmentHealth();
       }
       return true;
     })
-    .then((healthy) => {
+    .then(healthy => {
       process.exit(healthy ? 0 : 1);
     })
-    .catch((error) => {
+    .catch(error => {
       console.error('❌ Setup failed:', error.message);
       process.exit(1);
     });

@@ -57,10 +57,7 @@ const buildSlice = createSlice({
       state.buildLogs.push(logEntry);
 
       // Update build status based on log type
-      if (
-        action.payload.type === 'success' ||
-        action.payload.type === 'error'
-      ) {
+      if (action.payload.type === 'success' || action.payload.type === 'error') {
         state.isBuilding = false;
         state.buildStatus = action.payload.type;
       }

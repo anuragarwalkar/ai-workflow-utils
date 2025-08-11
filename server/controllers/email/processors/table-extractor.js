@@ -65,10 +65,7 @@ class TableExtractor {
    */
   static _findBuildHeading(document, buildNumber) {
     // Escape special regex characters in build number
-    const safeBuild = buildNumber
-      .replace(/\./g, '\\.')
-      .replace(/\(/g, '\\(')
-      .replace(/\)/g, '\\)');
+    const safeBuild = buildNumber.replace(/\./g, '\\.').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
 
     const heading = document.querySelector(`h2[id*="${safeBuild}"]`);
 
@@ -91,10 +88,7 @@ class TableExtractor {
 
     // Look for table in following siblings until next heading
     while (currentElement && !/^H[1-6]$/i.test(currentElement.tagName)) {
-      if (
-        currentElement.matches('.table-wrap') &&
-        currentElement.querySelector('table')
-      ) {
+      if (currentElement.matches('.table-wrap') && currentElement.querySelector('table')) {
         table = currentElement.querySelector('table');
         break;
       }
@@ -152,8 +146,7 @@ class TableExtractor {
 
     // Check if all rows are arrays and have at least one non-empty cell
     return tableData.every(
-      row =>
-        Array.isArray(row) && row.some(cell => cell && cell.trim().length > 0),
+      row => Array.isArray(row) && row.some(cell => cell && cell.trim().length > 0)
     );
   }
 }

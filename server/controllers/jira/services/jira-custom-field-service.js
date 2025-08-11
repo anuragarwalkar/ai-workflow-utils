@@ -13,7 +13,7 @@ import logger from '../../../logger.js';
  * @param {Object} field - Raw field data
  * @returns {Object} Formatted field data
  */
-const formatCustomField = (field) => ({
+const formatCustomField = field => ({
   id: field.id,
   name: field.name,
   description: field.description || '',
@@ -35,14 +35,14 @@ const fetchCustomFieldValues = async (projectKey, fieldId) => {
   try {
     const jiraUrl = EnvironmentConfig.getBaseUrl();
     const headers = EnvironmentConfig.getAuthHeaders();
-    
+
     if (!jiraUrl || !headers) {
       throw new Error('Jira configuration missing');
     }
 
     const jql = `project=${projectKey}`;
     const fields = fieldId;
-    
+
     const url = `${jiraUrl}/rest/api/2/search`;
     const params = {
       jql,
@@ -59,12 +59,11 @@ const fetchCustomFieldValues = async (projectKey, fieldId) => {
     return {
       ...response?.data,
     };
-
   } catch (error) {
     logger.error(`Error fetching custom field values: ${error.message}`);
     throw ErrorHandler.createServiceError(
       `Failed to fetch custom field values: ${error.message}`,
-      error.response?.status || 500,
+      error.response?.status || 500
     );
   }
 };
@@ -101,18 +100,18 @@ const processIndividualCustomField = (fieldId, field) => ({
  * @param {Object} fields - Raw fields object
  * @returns {Object} Processed custom fields
  */
-const processProjectCustomFields = (fields) => {
+const processProjectCustomFields = fields => {
   const customFields = {};
-  
-  Object.keys(fields).forEach((fieldId) => {
+
+  Object.keys(fields).forEach(fieldId => {
     if (!fieldId.startsWith('customfield_')) {
       return;
     }
-    
+
     const field = fields[fieldId];
     customFields[fieldId] = processIndividualCustomField(fieldId, field);
   });
-  
+
   return customFields;
 };
 
@@ -131,9 +130,7 @@ export const fetchAllCustomFields = async () => {
     const response = await axios.get(url, { headers });
 
     // Filter to only custom fields (they start with 'customfield_')
-    const customFields = response.data.filter((field) => 
-      field.id.startsWith('customfield_'),
-    );
+    const customFields = response.data.filter(field => field.id.startsWith('customfield_'));
 
     logger.info('Custom fields fetched successfully', {
       totalFields: response.data.length,
@@ -149,7 +146,7 @@ export const fetchAllCustomFields = async () => {
     });
     throw ErrorHandler.createServiceError(
       `Failed to fetch custom fields: ${error.response?.data?.errorMessages?.join(', ') || error.message}`,
-      error.response?.status || 500,
+      error.response?.status || 500
     );
   }
 };
@@ -170,14 +167,14 @@ const getCreateMetadata = async (projectKey, issueType) => {
     expand: 'projects.issuetypes.fields',
   };
 
-  logger.info('Fetching project custom fields', { 
-    projectKey, 
+  logger.info('Fetching project custom fields', {
+    projectKey,
     issueType,
     url,
     params,
   });
 
-  const response = await axios.get(url, { 
+  const response = await axios.get(url, {
     headers,
     params,
   });
@@ -201,15 +198,14 @@ const processCreateMetadata = (data, projectKey, issueType) => {
 
   const [project] = projects;
   const issueTypes = project.issuetypes || [];
-  
+
   if (issueTypes.length === 0) {
     logger.warn('No issue types found for project', { projectKey, issueType });
     return { fields: {}, issueTypes: [] };
   }
 
-  const targetIssueType = issueTypes.find((it) => 
-    it.name.toLowerCase() === issueType.toLowerCase(),
-  ) || issueTypes[0];
+  const targetIssueType =
+    issueTypes.find(it => it.name.toLowerCase() === issueType.toLowerCase()) || issueTypes[0];
 
   const fields = targetIssueType.fields || {};
   const customFields = processProjectCustomFields(fields);
@@ -218,7 +214,7 @@ const processCreateMetadata = (data, projectKey, issueType) => {
     projectKey,
     issueType: targetIssueType.name,
     fields: customFields,
-    issueTypes: issueTypes.map((it) => it.name),
+    issueTypes: issueTypes.map(it => it.name),
   };
 };
 
@@ -250,7 +246,7 @@ export const fetchProjectCustomFields = async (projectKey, issueType) => {
     });
     throw ErrorHandler.createServiceError(
       `Failed to fetch project custom fields: ${error.response?.data?.errorMessages?.join(', ') || error.message}`,
-      error.response?.status || 500,
+      error.response?.status || 500
     );
   }
 };
@@ -260,7 +256,7 @@ export const fetchProjectCustomFields = async (projectKey, issueType) => {
  * @param {Object} field - Raw field data
  * @returns {Object} Formatted detailed field data
  */
-const formatDetailedCustomField = (field) => ({
+const formatDetailedCustomField = field => ({
   id: field.id,
   name: field.name,
   description: getSafeValue(field.description, ''),
@@ -280,7 +276,7 @@ const formatDetailedCustomField = (field) => ({
  * @param {string} customFieldId - Custom field ID (e.g., 'customfield_10006')
  * @returns {Promise<Object>} Detailed custom field information
  */
-export const getCustomFieldDetails = async (customFieldId) => {
+export const getCustomFieldDetails = async customFieldId => {
   try {
     const baseUrl = EnvironmentConfig.getBaseUrl();
     const headers = EnvironmentConfig.getAuthHeaders();
@@ -290,7 +286,7 @@ export const getCustomFieldDetails = async (customFieldId) => {
 
     const response = await axios.get(url, { headers });
     const field = response.data;
-    
+
     logger.info('Custom field details fetched successfully', {
       customFieldId,
       name: field.name,
@@ -306,7 +302,7 @@ export const getCustomFieldDetails = async (customFieldId) => {
     });
     throw ErrorHandler.createServiceError(
       `Failed to fetch custom field details: ${error.message}`,
-      error.response?.status || 500,
+      error.response?.status || 500
     );
   }
 };

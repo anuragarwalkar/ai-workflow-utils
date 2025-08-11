@@ -34,13 +34,13 @@ const getDefaultIssueResponse = () => ({
  * @param {object} issueData - Issue data to validate
  * @returns {object} Validation result
  */
-export const validateIssueData = (issueData) => {
+export const validateIssueData = issueData => {
   const errors = [];
-  
+
   if (!issueData.fields?.summary) {
     errors.push('Summary is required');
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,
@@ -52,7 +52,7 @@ export const validateIssueData = (issueData) => {
  * @param {string} errorType - Type of error
  * @returns {object} Error response
  */
-export const createErrorResponse = (errorType) => {
+export const createErrorResponse = errorType => {
   const errorData = mockErrorResponses[errorType] || mockErrorResponses.serverError;
   return {
     success: false,
@@ -97,7 +97,7 @@ export const buildMockIssue = (issueData, issueKey, issueId) => {
  * @param {string} issueKey - Issue key
  * @returns {object} Mock issue
  */
-export const getPredefinedMockIssue = (issueKey) => ({
+export const getPredefinedMockIssue = issueKey => ({
   key: issueKey,
 });
 

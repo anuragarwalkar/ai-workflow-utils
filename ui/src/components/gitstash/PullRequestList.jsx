@@ -28,9 +28,7 @@ import { setError, setSelectedPullRequest } from '../../store/slices/prSlice';
 
 const PullRequestList = ({ onNext, onPrevious }) => {
   const dispatch = useDispatch();
-  const { selectedProject, selectedPullRequest, directPRId } = useSelector(
-    state => state.pr
-  );
+  const { selectedProject, selectedPullRequest, directPRId } = useSelector(state => state.pr);
 
   const {
     data: pullRequests,
@@ -49,11 +47,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
 
   useEffect(() => {
     if (error) {
-      dispatch(
-        setError(
-          `Failed to fetch pull requests: ${error.data?.error || error.message}`
-        )
-      );
+      dispatch(setError(`Failed to fetch pull requests: ${error.data?.error || error.message}`));
     }
   }, [error, dispatch]);
 
@@ -122,8 +116,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
     return (
       <Box sx={{ textAlign: 'center' }}>
         <Alert severity='error' sx={{ mb: 3 }}>
-          Failed to fetch pull requests. Please check your project key and
-          repository slug.
+          Failed to fetch pull requests. Please check your project key and repository slug.
         </Alert>
         <Button sx={{ mr: 2 }} variant='outlined' onClick={refetch}>
           Retry
@@ -137,21 +130,16 @@ const PullRequestList = ({ onNext, onPrevious }) => {
 
   return (
     <Box>
-      <Typography
-        component='h2'
-        sx={{ mb: 3, textAlign: 'center' }}
-        variant='h5'
-      >
-        Pull Requests for {selectedProject.projectKey}/
-        {selectedProject.repoSlug}
+      <Typography component='h2' sx={{ mb: 3, textAlign: 'center' }} variant='h5'>
+        Pull Requests for {selectedProject.projectKey}/{selectedProject.repoSlug}
       </Typography>
 
       {pullRequests?.values?.length > 0 && (
         <Card elevation={1} sx={{ mb: 3 }}>
           <CardContent>
             <Typography color='text.secondary' variant='body2'>
-              Found {pullRequests?.values?.length || 0} pull request(s).
-              Select one to review its changes.
+              Found {pullRequests?.values?.length || 0} pull request(s). Select one to review its
+              changes.
             </Typography>
           </CardContent>
         </Card>
@@ -219,10 +207,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                     selected={selectedPullRequest?.id === pr.id}
                     sx={{
                       border: selectedPullRequest?.id === pr.id ? 2 : 1,
-                      borderColor:
-                        selectedPullRequest?.id === pr.id
-                          ? 'primary.main'
-                          : 'divider',
+                      borderColor: selectedPullRequest?.id === pr.id ? 'primary.main' : 'divider',
                       borderRadius: 1,
                       mb: 1,
                       '&:hover': {
@@ -277,11 +262,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                             }}
                           >
                             <ScheduleIcon color='action' fontSize='small' />
-                            <Typography
-                              color='text.secondary'
-                              component='span'
-                              variant='caption'
-                            >
+                            <Typography color='text.secondary' component='span' variant='caption'>
                               Created: {formatDate(pr.createdDate)}
                             </Typography>
                           </Box>
@@ -294,44 +275,24 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                               flexWrap: 'wrap',
                             }}
                           >
-                            <Typography
-                              color='text.secondary'
-                              component='span'
-                              variant='caption'
-                            >
+                            <Typography color='text.secondary' component='span' variant='caption'>
                               From: {pr.fromRef?.displayId || 'Unknown'}
                             </Typography>
-                            <Typography
-                              color='text.secondary'
-                              component='span'
-                              variant='caption'
-                            >
+                            <Typography color='text.secondary' component='span' variant='caption'>
                               To: {pr.toRef?.displayId || 'Unknown'}
                             </Typography>
                             {pr.reviewers?.length > 0 && (
-                              <Typography
-                                color='text.secondary'
-                                component='span'
-                                variant='caption'
-                              >
+                              <Typography color='text.secondary' component='span' variant='caption'>
                                 Reviewers: {pr.reviewers.length}
                               </Typography>
                             )}
                             {pr.properties?.commentCount > 0 && (
-                              <Typography
-                                color='text.secondary'
-                                component='span'
-                                variant='caption'
-                              >
+                              <Typography color='text.secondary' component='span' variant='caption'>
                                 Comments: {pr.properties.commentCount}
                               </Typography>
                             )}
                             {pr.properties?.openTaskCount > 0 && (
-                              <Typography
-                                color='text.secondary'
-                                component='span'
-                                variant='caption'
-                              >
+                              <Typography color='text.secondary' component='span' variant='caption'>
                                 Tasks: {pr.properties.openTaskCount}
                               </Typography>
                             )}
@@ -358,11 +319,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
           </List>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-            <Button
-              startIcon={<ArrowBackIcon />}
-              variant='outlined'
-              onClick={onPrevious}
-            >
+            <Button startIcon={<ArrowBackIcon />} variant='outlined' onClick={onPrevious}>
               Previous
             </Button>
             <Button
@@ -374,8 +331,7 @@ const PullRequestList = ({ onNext, onPrevious }) => {
                   : undefined,
                 '&:hover': selectedPullRequest
                   ? {
-                      background:
-                        'linear-gradient(135deg, #0d7377 0%, #2dd4bf 100%)',
+                      background: 'linear-gradient(135deg, #0d7377 0%, #2dd4bf 100%)',
                     }
                   : undefined,
               }}

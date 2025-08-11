@@ -30,9 +30,7 @@ class BitbucketDiffProcessor {
     content += '```diff\n';
 
     if (hunk.segments && Array.isArray(hunk.segments)) {
-      content += hunk.segments
-        .map(segment => this.processSegment(segment))
-        .join('');
+      content += hunk.segments.map(segment => this.processSegment(segment)).join('');
     }
 
     content += '```\n\n';
@@ -45,8 +43,7 @@ class BitbucketDiffProcessor {
 
     if (diffData && diffData.diffs && Array.isArray(diffData.diffs)) {
       diffData.diffs.forEach((file, index) => {
-        const fileName =
-          file.source?.toString || file.destination?.toString || 'Unknown file';
+        const fileName = file.source?.toString || file.destination?.toString || 'Unknown file';
         codeChanges += `### File ${index + 1}: ${fileName}\n`;
 
         if (file.hunks && Array.isArray(file.hunks)) {

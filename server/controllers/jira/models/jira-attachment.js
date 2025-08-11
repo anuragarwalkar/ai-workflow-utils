@@ -4,10 +4,7 @@
  */
 
 import { withValidation } from '../../../utils/validation.js';
-import {
-  withErrorHandling,
-  withSafeExecution,
-} from '../../../utils/error-handling.js';
+import { withErrorHandling, withSafeExecution } from '../../../utils/error-handling.js';
 import { withLogging, withPerformanceLogging } from '../../../utils/logging.js';
 import { ValidationUtils } from '../utils/validation-utils.js';
 import path from 'path';
@@ -22,7 +19,7 @@ import fs from 'fs';
  * @param {Object} data - Request data including file and issueKey
  * @returns {Object} Attachment data structure
  */
-const createAttachmentCore = (data) => ({
+const createAttachmentCore = data => ({
   file: data.file,
   issueKey: data.issueKey,
   fileName: data.fileName || data.file?.originalname,
@@ -36,11 +33,8 @@ const createAttachmentCore = (data) => ({
  * @param {Object} data - Raw attachment data
  * @throws {Error} If validation fails
  */
-const validateAttachmentCore = (data) => {
-  const validation = ValidationUtils.validateFileUpload(
-    data.file,
-    data.issueKey,
-  );
+const validateAttachmentCore = data => {
+  const validation = ValidationUtils.validateFileUpload(data.file, data.issueKey);
   if (!validation.isValid) {
     throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
   }
@@ -64,21 +58,21 @@ const setProcessedFileCore = (attachment, filePath, fileName) => ({
  * @param {Object} attachment - Attachment object
  * @returns {string} File path
  */
-const getUploadPathCore = (attachment) => attachment.processedPath || attachment.originalPath;
+const getUploadPathCore = attachment => attachment.processedPath || attachment.originalPath;
 
 /**
  * Get the file name to use for upload
  * @param {Object} attachment - Attachment object
  * @returns {string} File name
  */
-const getUploadFileNameCore = (attachment) => attachment.processedFileName || attachment.fileName;
+const getUploadFileNameCore = attachment => attachment.processedFileName || attachment.fileName;
 
 /**
  * Get file extension
  * @param {Object} attachment - Attachment object
  * @returns {string} File extension
  */
-const getFileExtensionCore = (attachment) => {
+const getFileExtensionCore = attachment => {
   const fileName = getUploadFileNameCore(attachment);
   return path.extname(fileName).toLowerCase();
 };
@@ -88,28 +82,28 @@ const getFileExtensionCore = (attachment) => {
  * @param {Object} attachment - Attachment object
  * @returns {boolean} True if conversion needed
  */
-const needsConversionCore = (attachment) => getFileExtensionCore(attachment) === '.mov';
+const needsConversionCore = attachment => getFileExtensionCore(attachment) === '.mov';
 
 /**
  * Get file size in bytes
  * @param {Object} attachment - Attachment object
  * @returns {number} File size
  */
-const getFileSizeCore = (attachment) => attachment.file?.size || 0;
+const getFileSizeCore = attachment => attachment.file?.size || 0;
 
 /**
  * Get file MIME type
  * @param {Object} attachment - Attachment object
  * @returns {string} MIME type
  */
-const getMimeTypeCore = (attachment) => attachment.file?.mimetype || 'application/octet-stream';
+const getMimeTypeCore = attachment => attachment.file?.mimetype || 'application/octet-stream';
 
 /**
  * Convert to plain object
  * @param {Object} attachment - Attachment object
  * @returns {Object} Plain object representation
  */
-const toObjectCore = (attachment) => ({
+const toObjectCore = attachment => ({
   issueKey: attachment.issueKey,
   fileName: getUploadFileNameCore(attachment),
   originalFileName: attachment.fileName,
@@ -124,7 +118,7 @@ const toObjectCore = (attachment) => ({
  * @param {Object} attachment - Attachment object
  * @returns {Object} Display object
  */
-const toDisplayCore = (attachment) => ({
+const toDisplayCore = attachment => ({
   issueKey: attachment.issueKey,
   fileName: getUploadFileNameCore(attachment),
   fileSize: `${(getFileSizeCore(attachment) / 1024 / 1024).toFixed(2)} MB`,
@@ -135,16 +129,13 @@ const toDisplayCore = (attachment) => ({
  * Clean up temporary files
  * @param {Object} attachment - Attachment object
  */
-const cleanupCore = (attachment) => {
+const cleanupCore = attachment => {
   // Clean up original file if it exists
   if (attachment.originalPath && fs.existsSync(attachment.originalPath)) {
     try {
       fs.unlinkSync(attachment.originalPath);
     } catch (error) {
-      console.warn(
-        `Failed to clean up original file ${attachment.originalPath}:`,
-        error.message,
-      );
+      console.warn(`Failed to clean up original file ${attachment.originalPath}:`, error.message);
     }
   }
 
@@ -157,10 +148,7 @@ const cleanupCore = (attachment) => {
     try {
       fs.unlinkSync(attachment.processedPath);
     } catch (error) {
-      console.warn(
-        `Failed to clean up processed file ${attachment.processedPath}:`,
-        error.message,
-      );
+      console.warn(`Failed to clean up processed file ${attachment.processedPath}:`, error.message);
     }
   }
 };
@@ -190,9 +178,9 @@ const PROCESSED_FILE_VALIDATION_SCHEMA = {
 export const createAttachment = withErrorHandling(
   withLogging(
     withValidation(createAttachmentCore, ATTACHMENT_VALIDATION_SCHEMA),
-    'createAttachment',
+    'createAttachment'
   ),
-  'createAttachment',
+  'createAttachment'
 );
 
 /**
@@ -200,7 +188,7 @@ export const createAttachment = withErrorHandling(
  */
 export const validateAttachment = withErrorHandling(
   withValidation(validateAttachmentCore, ATTACHMENT_VALIDATION_SCHEMA),
-  'validateAttachment',
+  'validateAttachment'
 );
 
 /**
@@ -208,14 +196,13 @@ export const validateAttachment = withErrorHandling(
  */
 export const setProcessedFile = withSafeExecution(
   withValidation(
-    (attachment, filePath, fileName) =>
-      setProcessedFileCore(attachment, filePath, fileName),
+    (attachment, filePath, fileName) => setProcessedFileCore(attachment, filePath, fileName),
     {
       attachment: { type: 'object', required: true },
       ...PROCESSED_FILE_VALIDATION_SCHEMA,
-    },
+    }
   ),
-  'setProcessedFile',
+  'setProcessedFile'
 );
 
 /**
@@ -225,7 +212,7 @@ export const getUploadPath = withSafeExecution(
   withValidation(getUploadPathCore, {
     attachment: { type: 'object', required: true },
   }),
-  'getUploadPath',
+  'getUploadPath'
 );
 
 /**
@@ -235,7 +222,7 @@ export const getUploadFileName = withSafeExecution(
   withValidation(getUploadFileNameCore, {
     attachment: { type: 'object', required: true },
   }),
-  'getUploadFileName',
+  'getUploadFileName'
 );
 
 /**
@@ -245,7 +232,7 @@ export const getFileExtension = withSafeExecution(
   withValidation(getFileExtensionCore, {
     attachment: { type: 'object', required: true },
   }),
-  'getFileExtension',
+  'getFileExtension'
 );
 
 /**
@@ -255,7 +242,7 @@ export const needsConversion = withSafeExecution(
   withValidation(needsConversionCore, {
     attachment: { type: 'object', required: true },
   }),
-  'needsConversion',
+  'needsConversion'
 );
 
 /**
@@ -265,7 +252,7 @@ export const getFileSize = withSafeExecution(
   withValidation(getFileSizeCore, {
     attachment: { type: 'object', required: true },
   }),
-  'getFileSize',
+  'getFileSize'
 );
 
 /**
@@ -275,7 +262,7 @@ export const getMimeType = withSafeExecution(
   withValidation(getMimeTypeCore, {
     attachment: { type: 'object', required: true },
   }),
-  'getMimeType',
+  'getMimeType'
 );
 
 /**
@@ -285,7 +272,7 @@ export const toObject = withSafeExecution(
   withValidation(toObjectCore, {
     attachment: { type: 'object', required: true },
   }),
-  'toObject',
+  'toObject'
 );
 
 /**
@@ -295,7 +282,7 @@ export const toDisplay = withSafeExecution(
   withValidation(toDisplayCore, {
     attachment: { type: 'object', required: true },
   }),
-  'toDisplay',
+  'toDisplay'
 );
 
 /**
@@ -306,20 +293,20 @@ export const cleanup = withSafeExecution(
     withValidation(cleanupCore, {
       attachment: { type: 'object', required: true },
     }),
-    'cleanup',
+    'cleanup'
   ),
-  'cleanup',
+  'cleanup'
 );
 
 /**
  * Create attachment from request data (main factory function)
  */
 export const fromRequest = withErrorHandling(
-  withLogging((data) => {
+  withLogging(data => {
     validateAttachmentCore(data);
     return createAttachmentCore(data);
   }, 'fromRequest'),
-  'fromRequest',
+  'fromRequest'
 );
 
 // ============================================================================
@@ -332,13 +319,13 @@ export const fromRequest = withErrorHandling(
  * @returns {Array} Array of attachment objects
  */
 export const createMultipleAttachments = withSafeExecution(
-  withLogging((dataArray) => {
+  withLogging(dataArray => {
     if (!Array.isArray(dataArray)) {
       throw new Error('Data must be an array');
     }
-    return dataArray.map((data) => createAttachmentCore(data));
+    return dataArray.map(data => createAttachmentCore(data));
   }, 'createMultipleAttachments'),
-  'createMultipleAttachments',
+  'createMultipleAttachments'
 );
 
 /**
@@ -347,7 +334,7 @@ export const createMultipleAttachments = withSafeExecution(
  * @returns {Object} Validation result with details
  */
 export const validateMultipleAttachments = withSafeExecution(
-  withLogging((dataArray) => {
+  withLogging(dataArray => {
     if (!Array.isArray(dataArray)) {
       throw new Error('Data must be an array');
     }
@@ -359,8 +346,8 @@ export const validateMultipleAttachments = withSafeExecution(
         return { index, valid: false, errors: [error.message] };
       }
     });
-    const validCount = results.filter((r) => r.valid).length;
-    const invalidResults = results.filter((r) => !r.valid);
+    const validCount = results.filter(r => r.valid).length;
+    const invalidResults = results.filter(r => !r.valid);
     return {
       totalCount: dataArray.length,
       validCount,
@@ -369,5 +356,5 @@ export const validateMultipleAttachments = withSafeExecution(
       invalidItems: invalidResults,
     };
   }, 'validateMultipleAttachments'),
-  'validateMultipleAttachments',
+  'validateMultipleAttachments'
 );

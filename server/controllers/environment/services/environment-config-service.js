@@ -30,12 +30,9 @@ export class EnvironmentConfigService {
    */
   static async updateSettings(updates) {
     // Validate the updates
-    const validationResult =
-      await environmentDbService.validateSettings(updates);
+    const validationResult = await environmentDbService.validateSettings(updates);
     if (!validationResult.valid) {
-      throw new Error(
-        `Invalid configuration: ${validationResult.errors.join(', ')}`,
-      );
+      throw new Error(`Invalid configuration: ${validationResult.errors.join(', ')}`);
     }
 
     // Update settings in database

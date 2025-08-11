@@ -1,5 +1,5 @@
 import express from 'express';
-import { 
+import {
   checkProviderHealth,
   clearConversationMemoryHandler,
   getChatConfig,
@@ -34,9 +34,6 @@ router.get('/stats', getChatStatsHandler);
 
 // Conversation management endpoints
 router.get('/conversation/:sessionId', getConversationHistoryHandler);
-router.delete(
-  '/conversation/:sessionId',
-  clearConversationMemoryHandler,
-);
+router.delete('/conversation/:sessionId', clearConversationMemoryHandler);
 
 export default router;

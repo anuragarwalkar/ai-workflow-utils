@@ -34,31 +34,25 @@ export class BaseLangChainService {
           temperature: 0.4,
         }),
         supportsVision: this.modelSupportsVision(
-          process.env.OPENAI_MODEL || 'gpt-4-vision-preview',
+          process.env.OPENAI_MODEL || 'gpt-4-vision-preview'
         ),
         priority: 1,
       });
     }
 
     // 2. OpenAI-Compatible APIs (Anthropic Claude, local models, etc.)
-    if (
-      process.env.OPENAI_COMPATIBLE_BASE_URL &&
-      process.env.OPENAI_COMPATIBLE_API_KEY
-    ) {
+    if (process.env.OPENAI_COMPATIBLE_BASE_URL && process.env.OPENAI_COMPATIBLE_API_KEY) {
       this.providers.push({
         name: 'OpenAI Compatible',
         model: new ChatOpenAI({
           apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
-          model:
-            process.env.OPENAI_COMPATIBLE_MODEL || 'claude-3-sonnet-20240229',
+          model: process.env.OPENAI_COMPATIBLE_MODEL || 'claude-3-sonnet-20240229',
           temperature: 0.4,
           configuration: {
             baseURL: process.env.OPENAI_COMPATIBLE_BASE_URL,
           },
         }),
-        supportsVision: this.modelSupportsVision(
-          process.env.OPENAI_COMPATIBLE_MODEL,
-        ),
+        supportsVision: this.modelSupportsVision(process.env.OPENAI_COMPATIBLE_MODEL),
         priority: 2,
       });
     }
@@ -95,7 +89,7 @@ export class BaseLangChainService {
     this.providers.sort((a, b) => a.priority - b.priority);
 
     logger.info(
-      `Initialized ${this.providers.length} AI providers: ${this.providers.map(p => p.name).join(', ')}`,
+      `Initialized ${this.providers.length} AI providers: ${this.providers.map(p => p.name).join(', ')}`
     );
   }
 
@@ -152,7 +146,7 @@ export class BaseLangChainService {
       logger.error(`Error creating prompt template for ${issueType}:`, error);
       // Fallback to a basic template
       return PromptTemplate.fromTemplate(
-        `{prompt} - Generate a detailed ${issueType} description based on the provided information.`,
+        `{prompt} - Generate a detailed ${issueType} description based on the provided information.`
       );
     }
   }
@@ -200,7 +194,7 @@ export class BaseLangChainService {
     promptTemplateFormatter,
     images,
     promptTemplateIdentifier,
-    streaming = false,
+    streaming = false
   ) {
     const hasImages = images && images.length > 0;
 
@@ -208,10 +202,7 @@ export class BaseLangChainService {
       throw new Error('No AI providers are configured');
     }
 
-    const promptTemplate = await this.createPromptTemplate(
-      promptTemplateIdentifier,
-      hasImages,
-    );
+    const promptTemplate = await this.createPromptTemplate(promptTemplateIdentifier, hasImages);
     const formattedPrompt = await promptTemplate.format({
       ...promptTemplateFormatter,
     });
@@ -229,8 +220,7 @@ export class BaseLangChainService {
         } else {
           messageContent = formattedPrompt;
           if (hasImages && !provider.supportsVision) {
-            messageContent +=
-              ' (note: images were provided but this model doesn\'t support vision)';
+            messageContent += " (note: images were provided but this model doesn't support vision)";
           }
         }
 
@@ -249,7 +239,7 @@ export class BaseLangChainService {
 
         if (provider === this.providers[this.providers.length - 1]) {
           throw new Error(
-            `All providers failed. Last error from ${provider.name}: ${error.message}`,
+            `All providers failed. Last error from ${provider.name}: ${error.message}`
           );
         }
 

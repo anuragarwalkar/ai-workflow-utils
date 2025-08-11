@@ -16,10 +16,7 @@ import { Download } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useSendEmailMutation } from '../../store/api/emailApi';
-import {
-  setEmailData,
-  setLastSentVersion,
-} from '../../store/slices/emailSlice';
+import { setEmailData, setLastSentVersion } from '../../store/slices/emailSlice';
 
 const SendEmailContainer = () => {
   const dispatch = useDispatch();
@@ -63,10 +60,7 @@ const SendEmailContainer = () => {
           try {
             setWikiBasicAuth(atob(lastVersionData.wikiBasicAuth));
           } catch (decodeError) {
-            console.error(
-              'Error decoding wikiBasicAuth from localStorage:',
-              decodeError
-            );
+            console.error('Error decoding wikiBasicAuth from localStorage:', decodeError);
             // If decoding fails, treat as plain text (for backward compatibility)
             setWikiBasicAuth(lastVersionData.wikiBasicAuth);
           }
@@ -167,11 +161,7 @@ ${emailPreview}`;
           <Typography gutterBottom component='h1' variant='h4'>
             Send Email
           </Typography>
-          <Button
-            sx={{ minWidth: 120 }}
-            variant='outlined'
-            onClick={handleBackToHome}
-          >
+          <Button sx={{ minWidth: 120 }} variant='outlined' onClick={handleBackToHome}>
             Back to Home
           </Button>
         </Box>
@@ -258,22 +248,13 @@ ${emailPreview}`;
                 onChange={e => setDryRun(e.target.checked)}
               />
             }
-            label={
-              dryRun
-                ? 'Dry Run (Only preview and donwload template)'
-                : 'Send Actual Email'
-            }
+            label={dryRun ? 'Dry Run (Only preview and donwload template)' : 'Send Actual Email'}
             sx={{ mt: 3, mb: 3 }}
           />
 
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             <Button
-              disabled={
-                isLoading ||
-                !version.trim() ||
-                !wikiUrl.trim() ||
-                !wikiBasicAuth.trim()
-              }
+              disabled={isLoading || !version.trim() || !wikiUrl.trim() || !wikiBasicAuth.trim()}
               size='large'
               sx={{ minWidth: 200 }}
               variant='contained'
@@ -311,10 +292,7 @@ ${emailPreview}`;
 
         {error ? (
           <Alert severity='error' sx={{ mb: 3 }}>
-            Error:{' '}
-            {error.data?.message ||
-              error.message ||
-              'Failed to process email request'}
+            Error: {error.data?.message || error.message || 'Failed to process email request'}
           </Alert>
         ) : null}
 

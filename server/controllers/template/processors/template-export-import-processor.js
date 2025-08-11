@@ -1,5 +1,5 @@
 import logger from '../../../logger.js';
-import { toApiFormat } from '../models/template.js'; 
+import { toApiFormat } from '../models/template.js';
 
 export function processExport(templates, settings) {
   try {
@@ -25,9 +25,7 @@ export function processExport(templates, settings) {
       },
       metadata: {
         totalTemplates: templates.filter(t => !t.isDefault).length,
-        issueTypes: [
-          ...new Set(templates.filter(t => !t.isDefault).map(t => t.issueType)),
-        ],
+        issueTypes: [...new Set(templates.filter(t => !t.isDefault).map(t => t.issueType))],
       },
     };
     logger.info(`Processed export data with ${exportData.templates.length} templates`);
@@ -90,7 +88,11 @@ export function processContentAnalysis(content) {
     let match;
     while ((match = variablePattern.exec(content)) !== null) {
       const variable = match[1].trim();
-      matches.push({ variable, position: match.index, length: match[0].length });
+      matches.push({
+        variable,
+        position: match.index,
+        length: match[0].length,
+      });
       if (!variables.includes(variable)) {
         variables.push(variable);
       }
@@ -141,23 +143,23 @@ export function processSearch(templates, filters = {}) {
     let filteredTemplates = [...templates];
     if (filters.issueType) {
       filteredTemplates = filteredTemplates.filter(
-        template => template.issueType === filters.issueType,
+        template => template.issueType === filters.issueType
       );
     }
     if (filters.name) {
       const nameFilter = filters.name.toLowerCase();
       filteredTemplates = filteredTemplates.filter(template =>
-        template.name.toLowerCase().includes(nameFilter),
+        template.name.toLowerCase().includes(nameFilter)
       );
     }
     if (filters.isActive !== undefined) {
       filteredTemplates = filteredTemplates.filter(
-        template => template.isActive === filters.isActive,
+        template => template.isActive === filters.isActive
       );
     }
     if (filters.isDefault !== undefined) {
       filteredTemplates = filteredTemplates.filter(
-        template => template.isDefault === filters.isDefault,
+        template => template.isDefault === filters.isDefault
       );
     }
     if (filters.sortBy) {
@@ -170,7 +172,9 @@ export function processSearch(templates, filters = {}) {
         return aValue > bValue ? 1 : -1;
       });
     }
-    logger.debug(`Processed search: ${filteredTemplates.length} results from ${templates.length} templates`);
+    logger.debug(
+      `Processed search: ${filteredTemplates.length} results from ${templates.length} templates`
+    );
     return filteredTemplates;
   } catch (error) {
     logger.error('Error processing template search:', error);

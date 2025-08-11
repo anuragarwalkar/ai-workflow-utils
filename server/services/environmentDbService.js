@@ -26,16 +26,12 @@ class EnvironmentDbService {
   async loadDefaultConfig() {
     try {
       const defaultConfigPath = path.join(process.cwd(), './data/config.json');
-      const configSchema = JSON.parse(
-        fs.readFileSync(defaultConfigPath, 'utf8'),
-      );
+      const configSchema = JSON.parse(fs.readFileSync(defaultConfigPath, 'utf8'));
 
       // Extract default values from schema
       const defaultSettings = {};
       for (const [_, sectionConfig] of Object.entries(configSchema.sections)) {
-        for (const [fieldKey, fieldConfig] of Object.entries(
-          sectionConfig.fields,
-        )) {
+        for (const [fieldKey, fieldConfig] of Object.entries(sectionConfig.fields)) {
           if (fieldConfig.default) {
             defaultSettings[fieldKey] = fieldConfig.default;
           }
@@ -44,9 +40,7 @@ class EnvironmentDbService {
 
       // Set default provider selections
       const defaultProviders = {};
-      for (const [providerType, providerConfig] of Object.entries(
-        configSchema.providers,
-      )) {
+      for (const [providerType, providerConfig] of Object.entries(configSchema.providers)) {
         defaultProviders[`${providerType}_provider`] = providerConfig.default;
       }
 
@@ -86,9 +80,7 @@ class EnvironmentDbService {
         const defaultData = await this.loadDefaultConfig();
         this.db.data = defaultData;
         await this.db.write();
-        logger.info(
-          'Environment database initialized with default configuration',
-        );
+        logger.info('Environment database initialized with default configuration');
       }
 
       return true;
@@ -160,9 +152,7 @@ class EnvironmentDbService {
       const providers = {};
 
       // Build provider status from schema and current settings
-      for (const [providerType, providerConfig] of Object.entries(
-        schema.providers || {},
-      )) {
+      for (const [providerType, providerConfig] of Object.entries(schema.providers || {})) {
         providers[providerType] = {
           ...providerConfig,
           currentSelection: this.getCurrentSelection(providerType, settings),
@@ -178,10 +168,7 @@ class EnvironmentDbService {
 
   getCurrentSelection(providerType, settings) {
     const providerKey = `${providerType}_provider`;
-    return (
-      settings[providerKey] ||
-      this.db.data.schema.providers[providerType]?.default
-    );
+    return settings[providerKey] || this.db.data.schema.providers[providerType]?.default;
   }
 
   async getProviderStatus() {
@@ -193,23 +180,18 @@ class EnvironmentDbService {
       const status = {};
 
       // Check configuration status for each section
-      for (const [sectionName, sectionConfig] of Object.entries(
-        schema.sections || {},
-      )) {
+      for (const [sectionName, sectionConfig] of Object.entries(schema.sections || {})) {
         const requiredFields = Object.entries(sectionConfig.fields)
-          .filter(
-            ([_, fieldConfig]) => fieldConfig.required || fieldConfig.sensitive,
-          )
+          .filter(([_, fieldConfig]) => fieldConfig.required || fieldConfig.sensitive)
           .map(([fieldKey, _]) => fieldKey);
 
         const configuredFields = requiredFields.filter(
-          fieldKey => settings[fieldKey] && settings[fieldKey].trim() !== '',
+          fieldKey => settings[fieldKey] && settings[fieldKey].trim() !== ''
         );
 
         status[sectionName] = {
           name: sectionConfig.title,
-          configured:
-            requiredFields.length === 0 || configuredFields.length > 0,
+          configured: requiredFields.length === 0 || configuredFields.length > 0,
           status: 'unknown',
         };
       }
@@ -229,19 +211,13 @@ class EnvironmentDbService {
 
       const structured = {};
 
-      for (const [sectionName, sectionConfig] of Object.entries(
-        schema.sections || {},
-      )) {
+      for (const [sectionName, sectionConfig] of Object.entries(schema.sections || {})) {
         structured[sectionName] = {};
 
-        for (const [fieldKey, fieldConfig] of Object.entries(
-          sectionConfig.fields,
-        )) {
+        for (const [fieldKey, fieldConfig] of Object.entries(sectionConfig.fields)) {
           const value = settings[fieldKey] || '';
           structured[sectionName][fieldKey] = {
-            value: fieldConfig.sensitive
-              ? this.maskSensitiveValue(value)
-              : value,
+            value: fieldConfig.sensitive ? this.maskSensitiveValue(value) : value,
             label: fieldConfig.label,
             description: fieldConfig.description,
             type: fieldConfig.type,
@@ -266,11 +242,7 @@ class EnvironmentDbService {
     if (value.length <= 8) {
       return '*'.repeat(8);
     }
-    return (
-      value.substring(0, 4) +
-      '*'.repeat(value.length - 8) +
-      value.substring(value.length - 4)
-    );
+    return value.substring(0, 4) + '*'.repeat(value.length - 8) + value.substring(value.length - 4);
   }
 
   async validateSettings(settings) {

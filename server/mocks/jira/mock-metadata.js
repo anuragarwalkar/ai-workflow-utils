@@ -30,7 +30,7 @@ export const mockErrorResponses = {
   badRequest: {
     status: 400,
     data: {
-      errorMessages: ['Field \'summary\' is required.'],
+      errorMessages: ["Field 'summary' is required."],
       errors: {
         summary: 'Summary is required',
       },
@@ -58,19 +58,22 @@ export const mockProjectMetadata = {
       id: '10001',
       name: 'Bug',
       subtask: false,
-      iconUrl: 'https://mock-jira.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10303&avatarType=issuetype',
+      iconUrl:
+        'https://mock-jira.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10303&avatarType=issuetype',
     },
     {
       id: '10002',
       name: 'Story',
       subtask: false,
-      iconUrl: 'https://mock-jira.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10315&avatarType=issuetype',
+      iconUrl:
+        'https://mock-jira.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10315&avatarType=issuetype',
     },
     {
       id: '10003',
       name: 'Task',
       subtask: false,
-      iconUrl: 'https://mock-jira.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10318&avatarType=issuetype',
+      iconUrl:
+        'https://mock-jira.atlassian.net/secure/viewavatar?size=xsmall&avatarId=10318&avatarType=issuetype',
     },
   ],
   components: [
@@ -109,7 +112,8 @@ export const mockUsers = {
     displayName: 'Mock Reporter',
     emailAddress: 'reporter@example.com',
     avatarUrls: {
-      '48x48': 'https://mock-jira.atlassian.net/secure/useravatar?size=large&ownerId=mock-reporter-id',
+      '48x48':
+        'https://mock-jira.atlassian.net/secure/useravatar?size=large&ownerId=mock-reporter-id',
     },
   },
   'mock-assignee-id': {
@@ -117,7 +121,8 @@ export const mockUsers = {
     displayName: 'Mock Assignee',
     emailAddress: 'assignee@example.com',
     avatarUrls: {
-      '48x48': 'https://mock-jira.atlassian.net/secure/useravatar?size=large&ownerId=mock-assignee-id',
+      '48x48':
+        'https://mock-jira.atlassian.net/secure/useravatar?size=large&ownerId=mock-assignee-id',
     },
   },
 };

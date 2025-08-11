@@ -26,10 +26,7 @@ class EmailContentService {
       });
 
       // Use HTML formatter to generate the complete email body
-      const emailBody = HtmlFormatter.generateCompleteEmailBody(
-        tableData,
-        metadata,
-      );
+      const emailBody = HtmlFormatter.generateCompleteEmailBody(tableData, metadata);
 
       if (!emailBody || emailBody.trim().length === 0) {
         throw new Error('Generated email body is empty');
@@ -113,10 +110,7 @@ class EmailContentService {
       const parsedPrompt = await this._parseEmailPrompt(prompt);
 
       // Generate email content using LangChain
-      const emailContent = await this._generateEmailContent(
-        parsedPrompt,
-        attachedImages,
-      );
+      const emailContent = await this._generateEmailContent(parsedPrompt, attachedImages);
 
       // Extract recipient information
       const recipient = this._extractRecipient(prompt);
@@ -157,8 +151,7 @@ class EmailContentService {
       return {
         success: true,
         messageId: `mock_${Date.now()}`,
-        message:
-          'Email sent successfully (simulated - Gmail integration pending)',
+        message: 'Email sent successfully (simulated - Gmail integration pending)',
       };
     } catch (error) {
       logger.error('Failed to send email', {
@@ -195,7 +188,7 @@ class EmailContentService {
       const filtered = mockContacts.filter(
         contact =>
           contact.name.toLowerCase().includes(query.toLowerCase()) ||
-          contact.email.toLowerCase().includes(query.toLowerCase()),
+          contact.email.toLowerCase().includes(query.toLowerCase())
       );
 
       return filtered;
@@ -232,7 +225,7 @@ class EmailContentService {
         { getPrompt: () => parsePrompt },
         [],
         'EMAIL_PARSING',
-        false,
+        false
       );
       return JSON.parse(result.content);
     } catch (error) {
@@ -278,7 +271,7 @@ class EmailContentService {
         { getPrompt: () => contentPrompt },
         attachedImages.map(img => img.data), // Pass image data
         'EMAIL_CONTENT_GENERATION',
-        false,
+        false
       );
 
       const parsed = JSON.parse(result.content);
@@ -298,11 +291,7 @@ class EmailContentService {
         subject: 'Professional Email Communication',
         body: `<p>Hello,</p><p>${parsedPrompt.key_points?.join(' ')}</p><p>Best regards,<br>[Your Name]</p>`,
         confidence: 70,
-        suggestions: [
-          'Add specific details',
-          'Include call to action',
-          'Personalize greeting',
-        ],
+        suggestions: ['Add specific details', 'Include call to action', 'Personalize greeting'],
       };
     }
   }

@@ -20,8 +20,8 @@ const ApiSettings = () => {
       </Typography>
 
       <Alert severity='info' sx={{ mb: 3 }}>
-        API keys are stored in your home directory configuration file. Changes
-        here will update your local settings.
+        API keys are stored in your home directory configuration file. Changes here will update your
+        local settings.
       </Alert>
 
       <Card sx={{ mb: 3 }}>
@@ -69,10 +69,7 @@ const ApiSettings = () => {
             control={<Switch defaultChecked />}
             label='Auto-detect template variables'
           />
-          <FormControlLabel
-            control={<Switch />}
-            label='Enable template caching'
-          />
+          <FormControlLabel control={<Switch />} label='Enable template caching' />
 
           <Divider sx={{ my: 2 }} />
 

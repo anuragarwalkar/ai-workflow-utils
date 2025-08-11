@@ -18,21 +18,18 @@ export class PRLangChainService extends BaseLangChainService {
   async generateTemplateBasedContent(
     promptTemplateFormatter,
     templateIdentifier,
-    streaming = false,
+    streaming = false
   ) {
     if (this.providers.length === 0) {
       throw new Error('No AI providers are configured');
     }
 
     logger.info(
-      `PR LangChain generateTemplateBasedContent called with template: ${templateIdentifier}`,
+      `PR LangChain generateTemplateBasedContent called with template: ${templateIdentifier}`
     );
 
     // Get the base template and format it
-    const promptTemplate = await this.createPromptTemplate(
-      templateIdentifier,
-      false,
-    );
+    const promptTemplate = await this.createPromptTemplate(templateIdentifier, false);
     const formattedPrompt = await promptTemplate.format({
       ...promptTemplateFormatter,
     });
@@ -47,9 +44,7 @@ export class PRLangChainService extends BaseLangChainService {
   async tryProvidersForContent(formattedPrompt, streaming) {
     for (const provider of this.providers) {
       try {
-        logger.info(
-          `Trying provider for PR template-based output: ${provider.name}`,
-        );
+        logger.info(`Trying provider for PR template-based output: ${provider.name}`);
 
         const message = new HumanMessage({ content: formattedPrompt });
 
@@ -59,14 +54,12 @@ export class PRLangChainService extends BaseLangChainService {
           return { content: stream, provider: provider.name };
         } else {
           const response = await provider.model.invoke([message]);
-          logger.info(
-            `Successfully generated PR template-based content using ${provider.name}`,
-          );
+          logger.info(`Successfully generated PR template-based content using ${provider.name}`);
 
           // Check if response is empty
           if (!response.content || response.content.trim() === '') {
             logger.warn(
-              `Provider ${provider.name} returned empty content for template-based output`,
+              `Provider ${provider.name} returned empty content for template-based output`
             );
             continue;
           }
@@ -78,12 +71,12 @@ export class PRLangChainService extends BaseLangChainService {
         }
       } catch (error) {
         logger.warn(
-          `Provider ${provider.name} failed for PR template-based output: ${error.message}`,
+          `Provider ${provider.name} failed for PR template-based output: ${error.message}`
         );
 
         if (provider === this.providers[this.providers.length - 1]) {
           throw new Error(
-            `All providers failed for PR template-based output. Last error from ${provider.name}: ${error.message}`,
+            `All providers failed for PR template-based output. Last error from ${provider.name}: ${error.message}`
           );
         }
 
@@ -100,22 +93,15 @@ export class PRLangChainService extends BaseLangChainService {
       throw new Error('No AI providers are configured');
     }
 
-    logger.info(
-      `PR LangChain streamPRContent called with template: ${templateIdentifier}`,
-    );
-
-
+    logger.info(`PR LangChain streamPRContent called with template: ${templateIdentifier}`);
 
     // Get the base template and format it
-    const promptTemplate = await this.createPromptTemplate(
-      templateIdentifier,
-      false,
-    );
-    
+    const promptTemplate = await this.createPromptTemplate(templateIdentifier, false);
+
     const formattedPrompt = await promptTemplate.format({
       ...promptTemplateFormatter,
     });
-    
+
     // Try each provider in order of priority
     return this.tryProvidersForStreaming(formattedPrompt, res);
   }
@@ -124,11 +110,7 @@ export class PRLangChainService extends BaseLangChainService {
    * Try providers for streaming content generation
    */
   async tryProvidersForStreaming(formattedPrompt, res) {
-    return PRStreamingHandler.tryProvidersForStreaming(
-      this.providers,
-      formattedPrompt,
-      res,
-    );
+    return PRStreamingHandler.tryProvidersForStreaming(this.providers, formattedPrompt, res);
   }
 
   /**
@@ -141,19 +123,13 @@ export class PRLangChainService extends BaseLangChainService {
   /**
    * Handle individual stream chunks and send updates
    */
-  handleStreamChunk(
-    fullContent,
-    currentTitle,
-    currentDescription,
-    res,
-    chunkContent,
-  ) {
+  handleStreamChunk(fullContent, currentTitle, currentDescription, res, chunkContent) {
     return PRStreamingHandler.handleStreamChunk(
       fullContent,
       currentTitle,
       currentDescription,
       res,
-      chunkContent,
+      chunkContent
     );
   }
 
@@ -195,36 +171,26 @@ export class PRLangChainService extends BaseLangChainService {
   /**
    * Send final parsed results via SSE
    */
-  sendFinalResults(
-    res,
-    title,
-    description,
-    aiGenerated,
-    ticketNumber,
-    branchName,
-  ) {
+  sendFinalResults(res, title, description, aiGenerated, ticketNumber, branchName) {
     return PRStreamingHandler.sendFinalResults(
       res,
       title,
       description,
       aiGenerated,
       ticketNumber,
-      branchName,
+      branchName
     );
   }
 
   /**
    * Generate PR description with commit messages using templates only
    */
-  async generatePRDescription(
-    commitMessages,
-    templateIdentifier = 'PR_DESCRIPTION',
-  ) {
+  async generatePRDescription(commitMessages, templateIdentifier = 'PR_DESCRIPTION') {
     try {
       const result = await this.generateTemplateBasedContent(
         { commitMessages },
         templateIdentifier,
-        false,
+        false
       );
 
       return {
@@ -245,7 +211,7 @@ export class PRLangChainService extends BaseLangChainService {
       const result = await this.generateTemplateBasedContent(
         { commitMessages },
         templateIdentifier,
-        false,
+        false
       );
 
       return {
@@ -261,15 +227,12 @@ export class PRLangChainService extends BaseLangChainService {
   /**
    * Generate combined PR content (title + description) using templates only
    */
-  async generateCombinedPRContent(
-    commitMessages,
-    templateIdentifier = 'PR_COMBINED',
-  ) {
+  async generateCombinedPRContent(commitMessages, templateIdentifier = 'PR_COMBINED') {
     try {
       const result = await this.generateTemplateBasedContent(
         { commitMessages },
         templateIdentifier,
-        false,
+        false
       );
 
       return {

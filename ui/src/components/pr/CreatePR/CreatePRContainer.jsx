@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Paper,
-  Typography,
-} from '@mui/material';
+import { Box, Button, CircularProgress, Paper, Typography } from '@mui/material';
 import PRForm from './PRForm';
 import PreviewSection from './PreviewSection';
 import { useCreatePullRequestMutation } from '../../../store/api/prApi';
@@ -195,7 +189,7 @@ const CreatePRContainer = () => {
       const successMessage = response.pullRequestUrl
         ? `${response.message} - View: ${response.pullRequestUrl}`
         : response.message || 'Pull request created successfully';
-      
+
       ToastService.success(successMessage);
 
       // Reset form
@@ -236,11 +230,7 @@ const CreatePRContainer = () => {
         </Box>
 
         {showPreview && preview ? (
-          <PreviewSection
-            isLoading={isLoading}
-            preview={preview}
-            onConfirm={handleCreate}
-          />
+          <PreviewSection isLoading={isLoading} preview={preview} onConfirm={handleCreate} />
         ) : null}
       </Paper>
     </Box>

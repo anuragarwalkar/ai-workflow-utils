@@ -1,10 +1,13 @@
 # Template Controller Module
 
-This module provides comprehensive template management functionality for the AI Workflow Utils application. It follows a modular architecture with clear separation of concerns.
+This module provides comprehensive template management functionality for the AI
+Workflow Utils application. It follows a modular architecture with clear
+separation of concerns.
 
 ## Architecture
 
 ### Directory Structure
+
 ```
 server/controllers/template/
 ├── template-controller.js          # Main orchestrator (delegates to services)
@@ -26,26 +29,37 @@ server/controllers/template/
 ### Module Responsibilities
 
 #### Controllers
-- **template-controller.js**: Orchestrates operations, handles HTTP requests/responses, delegates to services
+
+- **template-controller.js**: Orchestrates operations, handles HTTP
+  requests/responses, delegates to services
 
 #### Services
-- **template-database-service.js**: Contains database interaction logic, manages template CRUD operations
-- **template-validation-service.js**: Handles input validation, business rule validation
+
+- **template-database-service.js**: Contains database interaction logic, manages
+  template CRUD operations
+- **template-validation-service.js**: Handles input validation, business rule
+  validation
 
 #### Processors
-- **template-export-import-processor.js**: Transforms data for import/export, processes search/filtering
+
+- **template-export-import-processor.js**: Transforms data for import/export,
+  processes search/filtering
 
 #### Models
+
 - **template.js**: Template data structure, validation, and payload generation
 - **template-settings.js**: Settings data structure and validation
 
 #### Utils
-- **constants.js**: Module-specific constants, error messages, validation patterns
+
+- **constants.js**: Module-specific constants, error messages, validation
+  patterns
 - **template-error-handler.js**: Centralized error handling, API error responses
 
 ## API Endpoints
 
 ### Template Management
+
 - `GET /api/templates` - Get all templates
 - `GET /api/templates/type/:issueType` - Get templates by issue type
 - `GET /api/templates/active/:issueType` - Get active template for issue type
@@ -55,51 +69,59 @@ server/controllers/template/
 - `POST /api/templates/duplicate/:id` - Duplicate template
 
 ### Template Configuration
+
 - `PUT /api/templates/active/:issueType/:templateId` - Set active template
 - `GET /api/templates/settings` - Get template settings
 - `PUT /api/templates/settings` - Update template settings
 - `POST /api/templates/reset` - Reset to default templates
 
 ### Import/Export
+
 - `GET /api/templates/export` - Export user templates
 - `POST /api/templates/import` - Import templates
 
 ### Additional Features
+
 - `GET /api/templates/search` - Search templates with filters
 
 ## Usage Examples
 
 ### Import the Full Controller
+
 ```javascript
-import { TemplateController } from './controllers/template/index.js';
+import { TemplateController } from "./controllers/template/index.js";
 ```
 
 ### Import Specific Services
+
 ```javascript
-import { 
-  TemplateDatabaseService, 
-  TemplateValidationService 
-} from './controllers/template/index.js';
+import {
+  TemplateDatabaseService,
+  TemplateValidationService,
+} from "./controllers/template/index.js";
 ```
 
 ### Import Individual Processors
+
 ```javascript
-import { TemplateExportImportProcessor } from './controllers/template/index.js';
+import { TemplateExportImportProcessor } from "./controllers/template/index.js";
 ```
 
 ### Import Models and Utils
+
 ```javascript
-import { 
-  Template, 
+import {
+  Template,
   TemplateSettings,
   TemplateErrorHandler,
-  TEMPLATE_CONSTANTS 
-} from './controllers/template/index.js';
+  TEMPLATE_CONSTANTS,
+} from "./controllers/template/index.js";
 ```
 
 ## Data Models
 
 ### Template Model
+
 ```javascript
 {
   id: string,           // UUID
@@ -115,6 +137,7 @@ import {
 ```
 
 ### Template Settings Model
+
 ```javascript
 {
   version: string,                    // Settings version
@@ -139,11 +162,13 @@ The module uses centralized error handling with appropriate HTTP status codes:
 ## Validation
 
 ### Template Validation
+
 - Name: Required, max 100 characters
 - Issue Type: Required, alphanumeric with underscores and hyphens
 - Content: Required, max 10000 characters
 
 ### Settings Validation
+
 - maxTemplatesPerType: 1-50
 - backupRetentionDays: 1-365
 - defaultIssueTypes: Must be array
@@ -151,22 +176,26 @@ The module uses centralized error handling with appropriate HTTP status codes:
 ## Features
 
 ### Template Management
+
 - Create, read, update, delete templates
 - Duplicate existing templates
 - Set active templates per issue type
 - Protect default templates from modification/deletion
 
 ### Import/Export
+
 - Export user-created templates to JSON
 - Import templates from JSON with validation
 - Preserve template metadata during import/export
 
 ### Search and Filtering
+
 - Filter by issue type, name, active status
 - Sort by various fields (name, createdAt, etc.)
 - Search with partial name matching
 
 ### Settings Management
+
 - Configure default issue types
 - Set limits and preferences
 - Backup configuration
@@ -174,6 +203,7 @@ The module uses centralized error handling with appropriate HTTP status codes:
 ## Constants
 
 All module constants are defined in `utils/constants.js`:
+
 - Validation limits and patterns
 - Default values
 - Error and success messages
@@ -183,6 +213,7 @@ All module constants are defined in `utils/constants.js`:
 ## Development Guidelines
 
 ### Adding New Features
+
 1. Determine appropriate module (service, processor, model, util)
 2. Follow existing patterns and naming conventions
 3. Add comprehensive error handling
@@ -190,6 +221,7 @@ All module constants are defined in `utils/constants.js`:
 5. Document changes in this README
 
 ### Testing Considerations
+
 - Models: Test validation and data transformation
 - Services: Test business logic and database operations
 - Processors: Test data transformation and filtering
@@ -197,6 +229,7 @@ All module constants are defined in `utils/constants.js`:
 - Error Handler: Test error categorization and responses
 
 ### Performance Notes
+
 - Database operations are centralized in services
 - Validation is performed before database operations
 - Large datasets are processed in chunks where applicable

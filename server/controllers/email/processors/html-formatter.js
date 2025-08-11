@@ -15,11 +15,7 @@ class HtmlFormatter {
         throw new Error('Invalid table data for formatting');
       }
 
-      const columnsToRemove = [
-        'Value Stream',
-        'Value Stream Version',
-        'Remarks (Optional)',
-      ];
+      const columnsToRemove = ['Value Stream', 'Value Stream Version', 'Remarks (Optional)'];
       const groupByFields = ['Value Stream', 'Value Stream Version'];
 
       // Split headers and rows
@@ -42,12 +38,7 @@ class HtmlFormatter {
       let html = '';
       for (const key in grouped) {
         const group = grouped[key];
-        html += this._generateGroupHtml(
-          group,
-          groupByFields,
-          filteredHeaders,
-          keepIndexes,
-        );
+        html += this._generateGroupHtml(group, groupByFields, filteredHeaders, keepIndexes);
       }
 
       logger.info('Table formatted successfully', {
@@ -108,19 +99,13 @@ class HtmlFormatter {
    * @param {Array} keepIndexes - Column indexes to keep
    * @returns {string} HTML for the group
    */
-  static _generateGroupHtml(
-    group,
-    groupByFields,
-    filteredHeaders,
-    keepIndexes,
-  ) {
-    const groupTitle = groupByFields
-      .map(f => `${f}: ${group.groupValues[f]}`)
-      .join(' | ');
+  static _generateGroupHtml(group, groupByFields, filteredHeaders, keepIndexes) {
+    const groupTitle = groupByFields.map(f => `${f}: ${group.groupValues[f]}`).join(' | ');
 
     let html = `<div style="background-color:#eef3f7;padding:10px;font-weight:bold;text-align:left;border-left:4px solid #801C81;margin-top:30px;font-family:Arial,sans-serif;font-size:14px;">${groupTitle}</div>`;
 
-    html += '<table style="width:100%;border-collapse:collapse;margin-top:10px;font-family:Arial,sans-serif;font-size:14px;">';
+    html +=
+      '<table style="width:100%;border-collapse:collapse;margin-top:10px;font-family:Arial,sans-serif;font-size:14px;">';
 
     // Generate table header
     html += '<thead><tr>';
@@ -152,8 +137,7 @@ class HtmlFormatter {
    */
   static _generateTableCell(header, value) {
     const lower = header.toLowerCase();
-    const tdStyle =
-      'border:1px solid #ccc;padding:10px;text-align:left;vertical-align:middle;';
+    const tdStyle = 'border:1px solid #ccc;padding:10px;text-align:left;vertical-align:middle;';
 
     if (lower.includes('jira') && value) {
       return `<td style="${tdStyle}"><a href="https://jira/app/${value}" style="color:#0645AD;text-decoration:none;">${value}</a></td>`;

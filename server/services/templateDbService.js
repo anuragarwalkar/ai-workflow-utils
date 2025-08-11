@@ -25,22 +25,15 @@ class TemplateDbService {
 
   async loadDefaultTemplates() {
     try {
-      const defaultTemplatesPath = path.join(
-        process.cwd(),
-        './data/defaultTemplates.json',
-      );
-      const defaultTemplatesData = JSON.parse(
-        fs.readFileSync(defaultTemplatesPath, 'utf8'),
-      );
+      const defaultTemplatesPath = path.join(process.cwd(), './data/defaultTemplates.json');
+      const defaultTemplatesData = JSON.parse(fs.readFileSync(defaultTemplatesPath, 'utf8'));
 
       // Add timestamps to templates
-      const templatesWithTimestamps = defaultTemplatesData.templates.map(
-        template => ({
-          ...template,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }),
-      );
+      const templatesWithTimestamps = defaultTemplatesData.templates.map(template => ({
+        ...template,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
 
       return {
         templates: templatesWithTimestamps,
@@ -72,9 +65,7 @@ class TemplateDbService {
         const defaultData = await this.loadDefaultTemplates();
         this.db.data = defaultData;
         await this.db.write();
-        logger.info(
-          'Template database initialized with default templates from file',
-        );
+        logger.info('Template database initialized with default templates from file');
       }
 
       return true;
@@ -97,9 +88,7 @@ class TemplateDbService {
   async getTemplatesByType(issueType) {
     try {
       await this.db.read();
-      return this.db.data.templates.filter(
-        t => t.issueType === issueType || t.issueType === 'All',
-      );
+      return this.db.data.templates.filter(t => t.issueType === issueType || t.issueType === 'All');
     } catch (error) {
       logger.error('Failed to get templates by type:', error);
       throw error;
@@ -115,9 +104,7 @@ class TemplateDbService {
       }
 
       // Fallback to first template of that type
-      return this.db.data.templates.find(
-        t => t.issueType === issueType && t.isActive,
-      );
+      return this.db.data.templates.find(t => t.issueType === issueType && t.isActive);
     } catch (error) {
       logger.error('Failed to get active template:', error);
       throw error;
@@ -194,11 +181,10 @@ class TemplateDbService {
       const { issueType } = template;
       if (this.db.data.settings.activeTemplates[issueType] === id) {
         const alternativeTemplate = this.db.data.templates.find(
-          t => t.issueType === issueType && t.id !== id,
+          t => t.issueType === issueType && t.id !== id
         );
         if (alternativeTemplate) {
-          this.db.data.settings.activeTemplates[issueType] =
-            alternativeTemplate.id;
+          this.db.data.settings.activeTemplates[issueType] = alternativeTemplate.id;
         } else {
           // Remove the active template mapping if no alternatives exist
           delete this.db.data.settings.activeTemplates[issueType];
@@ -226,9 +212,7 @@ class TemplateDbService {
       }
 
       if (template.issueType !== issueType && template.issueType !== 'All') {
-        throw new Error(
-          `Template ${templateId} is not compatible with issue type ${issueType}`,
-        );
+        throw new Error(`Template ${templateId} is not compatible with issue type ${issueType}`);
       }
 
       this.db.data.settings.activeTemplates[issueType] = templateId;

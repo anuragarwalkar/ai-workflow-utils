@@ -139,4 +139,5 @@ The implementation is complete and ready for testing. Users can now:
 3. Experience different AI personas based on context
 4. Enjoy a modern, streaming-based chat experience
 
-Both interfaces use the LangChain-powered backend with appropriate templates for their specific use cases!
+Both interfaces use the LangChain-powered backend with appropriate templates for
+their specific use cases!

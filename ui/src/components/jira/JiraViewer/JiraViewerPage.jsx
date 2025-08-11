@@ -2,15 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useAppTheme } from '../../../theme/useAppTheme';
-import {
-  Alert,
-  Box,
-  Button,
-  Fab,
-  Tooltip,
-  Typography,
-  Zoom,
-} from '@mui/material';
+import { Alert, Box, Button, Fab, Tooltip, Typography, Zoom } from '@mui/material';
 import {
   ArrowBack,
   Attachment,
@@ -149,9 +141,7 @@ const JiraViewerPage = () => {
           severity='error'
           sx={{
             maxWidth: 600,
-            backgroundColor: isDark
-              ? 'rgba(211, 47, 47, 0.1)'
-              : 'rgba(211, 47, 47, 0.05)',
+            backgroundColor: isDark ? 'rgba(211, 47, 47, 0.1)' : 'rgba(211, 47, 47, 0.05)',
             color: isDark ? 'white' : '#2d3748',
           }}
         >
@@ -161,8 +151,7 @@ const JiraViewerPage = () => {
           <Typography variant='body2'>
             {error.status === 404
               ? `Issue "${id}" not found. It may have been moved or deleted.`
-              : error.data?.message ||
-                'Please check your connection and try again.'}
+              : error.data?.message || 'Please check your connection and try again.'}
           </Typography>
         </Alert>
       </Box>
@@ -310,9 +299,7 @@ const JiraViewerPage = () => {
                             ? 'rgba(255, 255, 255, 0.7)'
                             : 'rgba(45, 55, 72, 0.7)',
                       borderBottom:
-                        activeTab === tab.id
-                          ? '2px solid #667eea'
-                          : '2px solid transparent',
+                        activeTab === tab.id ? '2px solid #667eea' : '2px solid transparent',
                       borderRadius: 0,
                       px: 3,
                       py: 2,
@@ -321,9 +308,7 @@ const JiraViewerPage = () => {
                       fontWeight: activeTab === tab.id ? 600 : 400,
                       background: 'transparent',
                       '&:hover': {
-                        background: isDark
-                          ? 'rgba(255, 255, 255, 0.05)'
-                          : 'rgba(0, 0, 0, 0.05)',
+                        background: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
                         color: '#667eea',
                       },
                       transition: 'all 0.2s ease',
@@ -346,12 +331,8 @@ const JiraViewerPage = () => {
                     transition: 'opacity 0.2s ease',
                   }}
                 >
-                  {activeTab === 'attachments' && (
-                    <JiraAttachments jiraData={jiraData} />
-                  )}
-                  {activeTab === 'timeline' && (
-                    <JiraTimelineSimple jiraData={jiraData} />
-                  )}
+                  {activeTab === 'attachments' && <JiraAttachments jiraData={jiraData} />}
+                  {activeTab === 'timeline' && <JiraTimelineSimple jiraData={jiraData} />}
                 </Box>
               </AnimatePresence>
             </Box>
@@ -371,10 +352,7 @@ const JiraViewerPage = () => {
                 borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
               }}
             >
-              <AiAssistantPanel
-                jiraData={jiraData}
-                onClose={() => setShowAiPanel(false)}
-              />
+              <AiAssistantPanel jiraData={jiraData} onClose={() => setShowAiPanel(false)} />
             </Box>
           ) : null}
         </AnimatePresence>
@@ -402,8 +380,7 @@ const JiraViewerPage = () => {
                 background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
                 boxShadow: '0 8px 32px rgba(102, 126, 234, 0.4)',
                 '&:hover': {
-                  background:
-                    'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
+                  background: 'linear-gradient(45deg, #764ba2 30%, #667eea 90%)',
                   transform: 'scale(1.1)',
                   boxShadow: '0 12px 40px rgba(118, 75, 162, 0.5)',
                 },

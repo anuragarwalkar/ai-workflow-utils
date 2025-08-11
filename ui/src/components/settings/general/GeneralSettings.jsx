@@ -55,9 +55,7 @@ const GeneralSettings = () => {
                 label={effectiveThemeMode === 'dark' ? 'Dark' : 'Light'}
                 size='small'
               />
-              {themeMode === 'auto' && (
-                <Chip label='Auto' size='small' variant='outlined' />
-              )}
+              {themeMode === 'auto' && <Chip label='Auto' size='small' variant='outlined' />}
             </Box>
           </Box>
 
@@ -76,11 +74,7 @@ const GeneralSettings = () => {
             control={<Switch defaultChecked />}
             label='Show success messages'
           />
-          <FormControlLabel
-            disabled
-            control={<Switch />}
-            label='Show debug information'
-          />
+          <FormControlLabel disabled control={<Switch />} label='Show debug information' />
 
           <Divider sx={{ my: 2 }} />
 

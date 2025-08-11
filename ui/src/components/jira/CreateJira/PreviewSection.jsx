@@ -18,10 +18,7 @@ import {
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { setDescription, setSummary } from '../../../store/slices/jiraSlice';
-import {
-  useCreateJiraMutation,
-  useUploadAttachmentMutation,
-} from '../../../store/api/jiraApi';
+import { useCreateJiraMutation, useUploadAttachmentMutation } from '../../../store/api/jiraApi';
 import { showNotification } from '../../../store/slices/uiSlice';
 import { saveToLocalStorage } from './utils';
 import RichTextViewer from '../../common/RichTextViewer';
@@ -48,8 +45,7 @@ const PreviewSection = () => {
   } = useSelector(state => state.jira.createJira);
 
   const [createJira, { isLoading: isCreateLoading }] = useCreateJiraMutation();
-  const [uploadAttachment, { isLoading: isUploadLoading }] =
-    useUploadAttachmentMutation();
+  const [uploadAttachment, { isLoading: isUploadLoading }] = useUploadAttachmentMutation();
 
   const handleSummaryChange = event => {
     dispatch(setSummary(event.target.value));
@@ -302,13 +298,8 @@ const PreviewSection = () => {
         </Button>
 
         {(!projectType || projectType.trim() === '') && (
-          <Typography
-            color='warning.main'
-            sx={{ textAlign: 'center' }}
-            variant='body2'
-          >
-            ⚠️ Please enter a Project Type in the form above to enable Jira
-            issue creation
+          <Typography color='warning.main' sx={{ textAlign: 'center' }} variant='body2'>
+            ⚠️ Please enter a Project Type in the form above to enable Jira issue creation
           </Typography>
         )}
       </Stack>

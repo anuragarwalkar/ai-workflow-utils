@@ -3,7 +3,7 @@
  * Example of how to register and use multiple mock services
  */
 
-import { 
+import {
   cleanAll,
   disableAll,
   disableService,
@@ -26,11 +26,11 @@ import logger from '../../logger.js';
  */
 export const initializeMockServices = () => {
   logger.info('Initializing mock services...');
-  
+
   // Register all available mock services
   registerService('jira', jiraMockService);
   registerService('email', emailMockService);
-  
+
   logger.info('Mock services registered successfully');
 };
 
@@ -41,7 +41,7 @@ export const initializeMockServices = () => {
 export const enableMockingForEnvironment = (config = {}) => {
   const mockMode = process.env.MOCK_MODE === 'true';
   const specificServices = process.env.MOCK_SERVICES?.split(',') || [];
-  
+
   if (mockMode) {
     logger.info('Global mock mode enabled');
     setGlobalMockMode(true);
@@ -63,12 +63,12 @@ export const enableMockingForEnvironment = (config = {}) => {
  */
 export const enableMockingForFeature = (services, config = {}) => {
   logger.info(`Enabling mocking for feature: ${services.join(', ')}`);
-  
+
   services.forEach(serviceName => {
     const serviceConfig = config[serviceName] || {};
     enableService(serviceName, serviceConfig);
   });
-  
+
   return {
     disable: () => {
       services.forEach(serviceName => {
@@ -76,7 +76,7 @@ export const enableMockingForFeature = (services, config = {}) => {
       });
     },
     getActiveServices: () => getActiveServices(),
-    isActive: (serviceName) => isServiceActive(serviceName),
+    isActive: serviceName => isServiceActive(serviceName),
   };
 };
 
@@ -110,14 +110,10 @@ export const testUtils = {
    * Check if all expected services are active
    * @param {Array<string>} expectedServices - Expected active services
    */
-  verifyMockState: (expectedServices) => {
+  verifyMockState: expectedServices => {
     const activeServices = getActiveServices();
-    const missingServices = expectedServices.filter(service => 
-      !activeServices.includes(service),
-    );
-    const extraServices = activeServices.filter(service => 
-      !expectedServices.includes(service),
-    );
+    const missingServices = expectedServices.filter(service => !activeServices.includes(service));
+    const extraServices = activeServices.filter(service => !expectedServices.includes(service));
 
     return {
       isValid: missingServices.length === 0 && extraServices.length === 0,
@@ -144,7 +140,7 @@ export const devUtils = {
         // Email-specific dev config
       },
     };
-    
+
     enableAll(devConfig);
     logger.info('All mock services enabled for development');
   },
@@ -153,7 +149,7 @@ export const devUtils = {
    * Toggle a specific service on/off
    * @param {string} serviceName - Service to toggle
    */
-  toggleService: (serviceName) => {
+  toggleService: serviceName => {
     if (isServiceActive(serviceName)) {
       disableService(serviceName);
       logger.info(`Disabled mock service: ${serviceName}`);

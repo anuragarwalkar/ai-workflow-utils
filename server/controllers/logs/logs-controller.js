@@ -44,7 +44,7 @@ class LogsController {
       res.setHeader('Content-Type', 'text/plain');
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="logs-${new Date().toISOString().split('T')[0]}.txt"`,
+        `attachment; filename="logs-${new Date().toISOString().split('T')[0]}.txt"`
       );
       res.send(logsContent);
     } catch (error) {

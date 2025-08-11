@@ -116,9 +116,7 @@ const DiffLine = ({ line, type, lineNumber }) => {
           </Typography>
         ) : null}
       </Box>
-      <Box sx={{ flex: 1, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-        {line}
-      </Box>
+      <Box sx={{ flex: 1, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{line}</Box>
     </Box>
   );
 };
@@ -146,8 +144,7 @@ const FileChanges = ({ file, expanded, onToggle }) => {
   };
 
   const status = getFileStatus();
-  const fileName =
-    file.destination?.toString || file.source?.toString || 'Unknown file';
+  const fileName = file.destination?.toString || file.source?.toString || 'Unknown file';
 
   return (
     <Accordion
@@ -162,9 +159,7 @@ const FileChanges = ({ file, expanded, onToggle }) => {
           '&:hover': { backgroundColor: theme.palette.grey[100] },
         }}
       >
-        <Box
-          sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}
-        >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
           <Typography
             sx={{
               fontFamily: 'monospace',
@@ -178,17 +173,8 @@ const FileChanges = ({ file, expanded, onToggle }) => {
           >
             {fileName}
           </Typography>
-          <Chip
-            color={getStatusColor(status)}
-            label={status}
-            size='small'
-            variant='outlined'
-          />
-          <Chip
-            label={`${file.hunks?.length || 0} hunks`}
-            size='small'
-            variant='outlined'
-          />
+          <Chip color={getStatusColor(status)} label={status} size='small' variant='outlined' />
+          <Chip label={`${file.hunks?.length || 0} hunks`} size='small' variant='outlined' />
         </Box>
       </AccordionSummary>
       <AccordionDetails sx={{ p: 0 }}>
@@ -232,30 +218,25 @@ const FileChanges = ({ file, expanded, onToggle }) => {
 
 const PullRequestDiff = ({ onPrevious, onReset }) => {
   const dispatch = useDispatch();
-  const {
-    selectedProject,
-    selectedPullRequest,
-    diffData,
-    reviewData,
-    directPRId,
-  } = useSelector(state => state.pr);
+  const { selectedProject, selectedPullRequest, diffData, reviewData, directPRId } = useSelector(
+    state => state.pr
+  );
   const [expandedFiles, setExpandedFiles] = useState({});
 
   // Fetch PR list if we have a direct PR ID but no selected PR details
-  const { data: pullRequests, isLoading: isPRListLoading } =
-    useGetPullRequestsQuery(
-      {
-        projectKey: selectedProject.projectKey,
-        repoSlug: selectedProject.repoSlug,
-      },
-      {
-        skip:
-          !directPRId ||
-          !selectedProject.projectKey ||
-          !selectedProject.repoSlug ||
-          (selectedPullRequest && selectedPullRequest.title),
-      }
-    );
+  const { data: pullRequests, isLoading: isPRListLoading } = useGetPullRequestsQuery(
+    {
+      projectKey: selectedProject.projectKey,
+      repoSlug: selectedProject.repoSlug,
+    },
+    {
+      skip:
+        !directPRId ||
+        !selectedProject.projectKey ||
+        !selectedProject.repoSlug ||
+        (selectedPullRequest && selectedPullRequest.title),
+    }
+  );
 
   // Set the selected PR from the list if we have a direct PR ID
   useEffect(() => {
@@ -290,8 +271,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
     }
   );
 
-  const [reviewPullRequest, { isLoading: isReviewing }] =
-    useReviewPullRequestMutation();
+  const [reviewPullRequest, { isLoading: isReviewing }] = useReviewPullRequestMutation();
 
   // Streaming PR review hook
   const {
@@ -314,11 +294,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
 
   useEffect(() => {
     if (diffError) {
-      dispatch(
-        setError(
-          `Failed to fetch diff: ${diffError.data?.error || diffError.message}`
-        )
-      );
+      dispatch(setError(`Failed to fetch diff: ${diffError.data?.error || diffError.message}`));
     }
   }, [diffError, dispatch]);
 
@@ -375,11 +351,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         dispatch(setReviewData(result));
       }
     } catch (error) {
-      dispatch(
-        setError(
-          `Failed to generate review: ${error.data?.error || error.message}`
-        )
-      );
+      dispatch(setError(`Failed to generate review: ${error.data?.error || error.message}`));
     }
   };
 
@@ -420,9 +392,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
       >
         <CircularProgress size={60} />
         <Typography sx={{ ml: 2 }} variant='h6'>
-          {isPRListLoading
-            ? 'Loading pull request details...'
-            : 'Loading diff...'}
+          {isPRListLoading ? 'Loading pull request details...' : 'Loading diff...'}
         </Typography>
       </Box>
     );
@@ -457,8 +427,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         }}
       >
         <Typography component='h2' variant='h5'>
-          Review:{' '}
-          {selectedPullRequest?.title || `PR #${directPRId || 'Unknown'}`}
+          Review: {selectedPullRequest?.title || `PR #${directPRId || 'Unknown'}`}
         </Typography>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <FormControlLabel
@@ -488,17 +457,9 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
             variant='contained'
             onClick={handleReview}
           >
-            {isStreaming
-              ? 'Streaming...'
-              : isReviewing
-                ? 'Reviewing...'
-                : 'AI Review'}
+            {isStreaming ? 'Streaming...' : isReviewing ? 'Reviewing...' : 'AI Review'}
           </Button>
-          <Button
-            startIcon={<RefreshIcon />}
-            variant='outlined'
-            onClick={refetchDiff}
-          >
+          <Button startIcon={<RefreshIcon />} variant='outlined' onClick={refetchDiff}>
             Refresh
           </Button>
         </Box>
@@ -507,11 +468,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
       <Grid container spacing={3} sx={{ width: '100%' }}>
         <Grid
           item
-          md={
-            reviewData || isStreaming || streamingContent || streamingError
-              ? 6
-              : 12
-          }
+          md={reviewData || isStreaming || streamingContent || streamingError ? 6 : 12}
           xs={12}
           sx={{ width: '100%' }}
         >
@@ -565,23 +522,15 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
                   }}
                 >
                   <CardContent>
-                    <Typography
-                      color='text.secondary'
-                      sx={{ mb: 2 }}
-                      variant='h6'
-                    >
+                    <Typography color='text.secondary' sx={{ mb: 2 }} variant='h6'>
                       📄 No Changes Found
                     </Typography>
-                    <Typography
-                      color='text.secondary'
-                      sx={{ mb: 2 }}
-                      variant='body2'
-                    >
+                    <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
                       This pull request doesn't contain any file changes.
                     </Typography>
                     <Typography color='text.secondary' variant='caption'>
-                      This might be a documentation-only PR or the changes
-                      haven't been committed yet.
+                      This might be a documentation-only PR or the changes haven't been committed
+                      yet.
                     </Typography>
                   </CardContent>
                 </Card>
@@ -605,34 +554,17 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
           <Grid item md={6} xs={12} sx={{ width: '100%' }}>
             <Card elevation={1} sx={{ mb: 3, width: '100%' }}>
               <CardContent sx={{ width: '100%', '&:last-child': { pb: 2 } }}>
-                <Box
-                  sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}
-                >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                   <AutoAwesomeIcon color='secondary' />
                   <Typography variant='h6'>AI Review</Typography>
                   {isStreaming ? (
-                    <Chip
-                      color='primary'
-                      label='Streaming...'
-                      size='small'
-                      variant='outlined'
-                    />
+                    <Chip color='primary' label='Streaming...' size='small' variant='outlined' />
                   ) : null}
                   {reviewData && !isStreaming ? (
-                    <Chip
-                      label='Generated'
-                      size='small'
-                      color='secondary'
-                      variant='outlined'
-                    />
+                    <Chip label='Generated' size='small' color='secondary' variant='outlined' />
                   ) : null}
                   {reviewComplete ? (
-                    <Chip
-                      label='Completed'
-                      size='small'
-                      color='success'
-                      variant='outlined'
-                    />
+                    <Chip label='Completed' size='small' color='success' variant='outlined' />
                   ) : null}
                 </Box>
 
@@ -679,17 +611,14 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
                   }}
                 />
 
-                {reviewComplete?.reviewedAt ||
-                (reviewData?.reviewedAt && !isStreaming) ? (
+                {reviewComplete?.reviewedAt || (reviewData?.reviewedAt && !isStreaming) ? (
                   <Typography
                     variant='caption'
                     color='text.secondary'
                     sx={{ mt: 1, display: 'block' }}
                   >
                     Generated on{' '}
-                    {new Date(
-                      reviewComplete?.reviewedAt || reviewData.reviewedAt
-                    ).toLocaleString()}
+                    {new Date(reviewComplete?.reviewedAt || reviewData.reviewedAt).toLocaleString()}
                     {(reviewComplete?.aiProvider || reviewData?.aiProvider) &&
                       ` using ${reviewComplete?.aiProvider || reviewData.aiProvider}`}
                   </Typography>
@@ -703,11 +632,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
       <Divider sx={{ my: 3 }} />
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          variant='outlined'
-          onClick={onPrevious}
-        >
+        <Button startIcon={<ArrowBackIcon />} variant='outlined' onClick={onPrevious}>
           Back to PRs
         </Button>
         <Button variant='outlined' onClick={onReset}>

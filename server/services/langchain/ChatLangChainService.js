@@ -31,9 +31,7 @@ class ChatLangChainService extends BaseLangChainService {
       const template = await templateDbService.getActiveTemplate(templateType);
 
       if (template && template.content) {
-        logger.info(
-          `Using chat template: ${template.name} for ${templateType}`,
-        );
+        logger.info(`Using chat template: ${template.name} for ${templateType}`);
         return template.content;
       } else {
         logger.warn(`No template found for ${templateType}, using default`);
@@ -52,7 +50,7 @@ class ChatLangChainService extends BaseLangChainService {
   getBestChatModel() {
     if (this.providers.length === 0) {
       throw new Error(
-        'No AI providers are configured. Please check your environment configuration.',
+        'No AI providers are configured. Please check your environment configuration.'
       );
     }
 
@@ -67,9 +65,7 @@ class ChatLangChainService extends BaseLangChainService {
    */
   getProviderByName(providerName) {
     return (
-      this.providers.find(p =>
-        p.name.toLowerCase().includes(providerName.toLowerCase()),
-      ) || null
+      this.providers.find(p => p.name.toLowerCase().includes(providerName.toLowerCase())) || null
     );
   }
 
@@ -124,10 +120,7 @@ class ChatLangChainService extends BaseLangChainService {
    * @param {string} systemPrompt - System prompt for the conversation
    * @returns {RunnableSequence} Simple chat chain
    */
-  createSimpleChatChain(
-    provider,
-    systemPrompt = 'You are a helpful AI assistant for developers.',
-  ) {
+  createSimpleChatChain(provider, systemPrompt = 'You are a helpful AI assistant for developers.') {
     const prompt = ChatPromptTemplate.fromMessages([
       ['system', systemPrompt],
       ['human', '{input}'],
@@ -173,7 +166,7 @@ class ChatLangChainService extends BaseLangChainService {
       });
 
       logger.info(
-        `Successfully generated chat response for session ${sessionId} using ${provider.name}`,
+        `Successfully generated chat response for session ${sessionId} using ${provider.name}`
       );
 
       return {
@@ -185,10 +178,7 @@ class ChatLangChainService extends BaseLangChainService {
         success: true,
       };
     } catch (error) {
-      logger.error(
-        `Chat response generation failed for session ${sessionId}:`,
-        error,
-      );
+      logger.error(`Chat response generation failed for session ${sessionId}:`, error);
       throw error;
     }
   }
@@ -203,16 +193,9 @@ class ChatLangChainService extends BaseLangChainService {
    * @param {string} options.systemPrompt - Override system prompt
    * @returns {Promise<Object>} Final response with metadata
    */
-  async generateStreamingChatResponse(
-    sessionId,
-    message,
-    onToken,
-    options = {},
-  ) {
+  async generateStreamingChatResponse(sessionId, message, onToken, options = {}) {
     try {
-      logger.info(
-        `Generating streaming chat response for session ${sessionId}`,
-      );
+      logger.info(`Generating streaming chat response for session ${sessionId}`);
 
       // Get the best available provider
       const provider = this.getBestChatModel();
@@ -258,7 +241,7 @@ class ChatLangChainService extends BaseLangChainService {
       }
 
       logger.info(
-        `Successfully generated streaming chat response for session ${sessionId} using ${provider.name}`,
+        `Successfully generated streaming chat response for session ${sessionId} using ${provider.name}`
       );
 
       return {
@@ -270,10 +253,7 @@ class ChatLangChainService extends BaseLangChainService {
         success: true,
       };
     } catch (error) {
-      logger.error(
-        `Streaming chat response generation failed for session ${sessionId}:`,
-        error,
-      );
+      logger.error(`Streaming chat response generation failed for session ${sessionId}:`, error);
       throw error;
     }
   }
@@ -309,10 +289,7 @@ class ChatLangChainService extends BaseLangChainService {
         timestamp: msg.timestamp || new Date().toISOString(),
       }));
     } catch (error) {
-      logger.error(
-        `Failed to get conversation history for session ${sessionId}:`,
-        error,
-      );
+      logger.error(`Failed to get conversation history for session ${sessionId}:`, error);
       return [];
     }
   }
@@ -348,7 +325,7 @@ class ChatLangChainService extends BaseLangChainService {
   async testChatFunctionality(
     testMessage = 'Hello, can you help me?',
     providerName = null,
-    options = {},
+    options = {}
   ) {
     const testSessionId = `test_${Date.now()}`;
 
@@ -358,20 +335,14 @@ class ChatLangChainService extends BaseLangChainService {
       if (providerName) {
         provider = this.getProviderByName(providerName);
         if (!provider) {
-          throw new Error(
-            `Provider '${providerName}' not found or not configured`,
-          );
+          throw new Error(`Provider '${providerName}' not found or not configured`);
         }
       } else {
         provider = this.getBestChatModel();
       }
 
       const startTime = Date.now();
-      const response = await this.generateChatResponse(
-        testSessionId,
-        testMessage,
-        options,
-      );
+      const response = await this.generateChatResponse(testSessionId, testMessage, options);
       const responseTime = Date.now() - startTime;
 
       // Clean up test session

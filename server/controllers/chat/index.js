@@ -1,5 +1,5 @@
 // Main Chat Controller (functional version)
-export { 
+export {
   sendChatMessage,
   sendChatMessageStreaming,
   getChatConfig,

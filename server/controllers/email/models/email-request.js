@@ -29,10 +29,7 @@ class EmailRequest {
     }
 
     // Validate version format (basic check)
-    if (
-      typeof emailRequest.version !== 'string' ||
-      emailRequest.version.trim().length === 0
-    ) {
+    if (typeof emailRequest.version !== 'string' || emailRequest.version.trim().length === 0) {
       throw new Error('Version must be a non-empty string');
     }
 
