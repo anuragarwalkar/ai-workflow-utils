@@ -33,7 +33,6 @@ export async function generateOpenAIResponse(messageData) {
           Authorization: `Bearer ${config.apiKey}`,
           'Content-Type': 'application/json',
         },
-        timeout: 60000, // 60 second timeout
       },
     );
 
@@ -67,7 +66,6 @@ export async function generateOpenAIStreamingResponse(messageData) {
           'Content-Type': 'application/json',
         },
         responseType: 'stream',
-        timeout: 60000,
       },
     );
     return response;

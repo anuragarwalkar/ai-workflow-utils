@@ -3,7 +3,6 @@ export * from './handlers/jira-handlers.js';
 export * from './handlers/custom-field-handlers.js';
 
 // Services
-export { JiraApiService } from './services/jira-api-service.js';
 export { JiraSummaryService } from './services/jira-summary-service.js';
 export { JiraCustomFieldService } from './services/jira-custom-field-service.js';
 export { 

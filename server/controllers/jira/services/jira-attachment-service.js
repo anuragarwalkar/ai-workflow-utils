@@ -8,7 +8,7 @@ import {
   fromRequest,
   validateAttachment,
 } from '../models/jira-attachment.js';
-import { JiraApiService } from './jira-api-service.js';
+import { uploadAttachment } from './jira-api-service.js';
 import { AttachmentProcessor } from '../processors/attachment-processor.js';
 import { ErrorHandler } from '../utils/error-handler.js';
 import logger from '../../../logger.js';
@@ -45,7 +45,7 @@ export const uploadFile = async (file, issueKey, originalFileName) => {
     const formData = await createFormData(attachment);
 
     // Upload to Jira
-    const uploadResponse = await JiraApiService.uploadAttachment(
+    const uploadResponse = await uploadAttachment(
       issueKey,
       formData,
     );

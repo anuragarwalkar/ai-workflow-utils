@@ -32,7 +32,6 @@ export class BaseLangChainService {
           openAIApiKey: process.env.OPENAI_API_KEY,
           modelName: process.env.OPENAI_MODEL || 'gpt-4-vision-preview',
           temperature: 0.4,
-          timeout: 60000,
         }),
         supportsVision: this.modelSupportsVision(
           process.env.OPENAI_MODEL || 'gpt-4-vision-preview',
@@ -53,7 +52,6 @@ export class BaseLangChainService {
           model:
             process.env.OPENAI_COMPATIBLE_MODEL || 'claude-3-sonnet-20240229',
           temperature: 0.4,
-          timeout: 60000,
           configuration: {
             baseURL: process.env.OPENAI_COMPATIBLE_BASE_URL,
           },

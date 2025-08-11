@@ -10,6 +10,7 @@ import PRForm from './PRForm';
 import PreviewSection from './PreviewSection';
 import { useCreatePullRequestMutation } from '../../../store/api/prApi';
 import { API_BASE_URL } from '../../../config/environment';
+import ToastService from '../../../services/toastService';
 
 const STORAGE_KEY = 'gitstash_project_config';
 
@@ -182,7 +183,7 @@ const CreatePRContainer = () => {
 
   const handleCreate = async editedPreview => {
     try {
-      await createPR({
+      const response = await createPR({
         branchName: formData.branchName,
         projectKey: formData.projectKey,
         repoSlug: formData.repoSlug,
@@ -190,7 +191,14 @@ const CreatePRContainer = () => {
         customDescription: editedPreview.prDescription,
       }).unwrap();
 
-      // Handle success (show notification, reset form, etc.)
+      // Handle success - show toast with PR URL if available
+      const successMessage = response.pullRequestUrl
+        ? `${response.message} - View: ${response.pullRequestUrl}`
+        : response.message || 'Pull request created successfully';
+      
+      ToastService.success(successMessage);
+
+      // Reset form
       setFormData(prev => ({
         ...prev,
         branchName: '',
@@ -198,8 +206,7 @@ const CreatePRContainer = () => {
       setShowPreview(false);
       setPreview(null);
     } catch (error) {
-      console.error('Failed to create PR:', error);
-      // Handle error (show notification, etc.)
+      ToastService.handleApiError(error, 'Failed to create pull request');
     }
   };
 

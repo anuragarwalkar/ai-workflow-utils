@@ -1,6 +1,7 @@
 /**
  * Jira API service for external API interactions
  * Supports both real API calls and mock mode for testing
+ * Uses nock-based mocking system for HTTP request interception
  */
 
 import axios from 'axios';
@@ -9,42 +10,15 @@ import { ErrorHandler } from '../utils/error-handler.js';
 import { JIRA_ENDPOINTS } from '../utils/constants.js';
 import logger from '../../../logger.js';
 import { JiraIssue } from '../models/jira-issue.js';
-import { createIssue as createIssueFromService, isMockMode } from '../../../mocks/jira/jira-mocking-service-core.js';
 
 /**
- * Create issue using mock service
+ * Handle Jira issue creation request
  * @param {Object} payload - Jira issue payload
- * @returns {Promise<Object>} Mock created issue data
- */
-const createIssueMock = async (payload) => {
-  logger.info('Creating Jira issue in mock mode');
-  const jiraPayload = new JiraIssue(payload);
-  const mockResult = await createIssueFromService({
-    fields: jiraPayload.toJiraPayload().fields,
-  });
-  
-  if (!mockResult.success) {
-    throw ErrorHandler.createServiceError(
-      `Mock Jira creation failed: ${mockResult.error?.errorMessages?.join(', ') || 'Unknown error'}`,
-      mockResult.status || 500,
-    );
-  }
-  
-  return mockResult.data;
-};
-
-/**
- * Create issue using real API
- * @param {Object} payload - Jira issue payload
+ * @param {string} url - API URL
+ * @param {Object} headers - Request headers
  * @returns {Promise<Object>} Created issue data
  */
-const createIssueReal = async (payload) => {
-  const baseUrl = EnvironmentConfig.getBaseUrl();
-  const headers = EnvironmentConfig.getAuthHeaders();
-  const url = `${baseUrl}${JIRA_ENDPOINTS.ISSUE}`;
-
-  logger.info('Creating Jira issue', { url });
-
+const performIssueCreation = async (payload, url, headers) => {
   const jiraPayload = new JiraIssue(payload);
   const response = await axios.post(url, jiraPayload.toJiraPayload(), {
     headers,
@@ -59,11 +33,11 @@ const createIssueReal = async (payload) => {
 };
 
 /**
- * Handle create issue error
+ * Handle Jira issue creation error
  * @param {Error} error - Error object
  * @throws {Error} Service error
  */
-const handleCreateIssueError = (error) => {
+const handleIssueCreationError = (error) => {
   logger.error('Failed to create Jira issue', {
     error: error.message,
     status: error.response?.status,
@@ -82,15 +56,15 @@ const handleCreateIssueError = (error) => {
  */
 export const createIssue = async (payload) => {
   try {
-    // Check if mock mode is enabled
-    if (isMockMode()) {
-      return await createIssueMock(payload);
-    }
+    const baseUrl = EnvironmentConfig.getBaseUrl();
+    const headers = EnvironmentConfig.getAuthHeaders();
+    const url = `${baseUrl}${JIRA_ENDPOINTS.ISSUE}`;
 
-    // Real API call
-    return await createIssueReal(payload);
+    logger.info('Creating Jira issue', { url });
+
+    return await performIssueCreation(payload, url, headers);
   } catch (error) {
-    handleCreateIssueError(error);
+    handleIssueCreationError(error);
   }
 };
 
@@ -270,15 +244,3 @@ export const testConnection = async () => {
     return false;
   }
 };
-
-// Export all functions as default for backward compatibility
-export const JiraApiService = {
-  createIssue,
-  fetchIssue,
-  uploadAttachment,
-  searchIssues,
-  fetchIssueSummaries,
-  testConnection,
-};
-
-export default JiraApiService;

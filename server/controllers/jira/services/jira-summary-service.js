@@ -2,7 +2,7 @@
  * Jira summary service for summary fetching operations
  */
 
-import { JiraApiService } from './jira-api-service.js';
+import { fetchIssueSummaries, searchIssues } from './jira-api-service.js';
 import { ValidationUtils } from '../utils/validation-utils.js';
 import { ErrorHandler } from '../utils/error-handler.js';
 import logger from '../../../logger.js';
@@ -43,7 +43,7 @@ export const fetchSummaries = async (issueKeys) => {
     });
 
     // Fetch summaries from Jira API
-    const summariesMap = await JiraApiService.fetchIssueSummaries(uniqueKeys);
+    const summariesMap = await fetchIssueSummaries(uniqueKeys);
 
     logger.info('Jira summaries fetched successfully', {
       requestedCount: uniqueKeys.length,
@@ -182,7 +182,7 @@ export const getProjectSummaries = async (projectKey, limit = 100) => {
     }
 
     const jql = `project = ${projectKey} ORDER BY created DESC`;
-    const searchResult = await JiraApiService.searchIssues(
+    const searchResult = await searchIssues(
       jql,
       ['summary'],
       limit,
@@ -230,7 +230,7 @@ export const searchBySummary = async (searchText, projectKey = null, limit = 50)
     }
     jql += ' ORDER BY updated DESC';
 
-    const searchResult = await JiraApiService.searchIssues(
+    const searchResult = await searchIssues(
       jql,
       ['summary', 'status', 'assignee'],
       limit,

@@ -19,6 +19,7 @@ import { clearBuildLogs } from '../../store/slices/buildSlice';
 import { setCurrentView } from '../../store/slices/appSlice';
 import { useCreatePullRequestMutation } from '../../store/api/prApi';
 import socketService from '../../services/socketService';
+import ToastService from '../../services/toastService';
 
 const BuildProgress = ({ onReset, onBack }) => {
   const dispatch = useDispatch();
@@ -90,13 +91,19 @@ const BuildProgress = ({ onReset, onBack }) => {
 
       setPrStatus('success');
       setPrData(result);
-      console.log('Pull request created successfully:', result);
+      
+      // Show success toast with PR URL if available
+      const successMessage = result.pullRequestUrl
+        ? `${result.message} - View: ${result.pullRequestUrl}`
+        : result.message || 'Pull request created successfully';
+      
+      ToastService.success(successMessage);
     } catch (error) {
       setPrStatus('error');
       setPrError(
         error.data?.error || error.message || 'Failed to create pull request'
       );
-      console.error('Failed to create pull request:', error);
+      ToastService.handleApiError(error, 'Failed to create pull request');
     }
   };
 

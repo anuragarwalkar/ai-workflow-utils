@@ -279,7 +279,7 @@ export async function createTemplate(req, res) {
         maxLength: TEMPLATE_CONSTANTS.MAX_CONTENT_LENGTH,
       },
     });
-    // eslint-disable-next-line max-lines
+     
     validateTemplateCreation(templateData);
     // eslint-disable-next-line max-lines
     const template = await createTemplate(templateData);

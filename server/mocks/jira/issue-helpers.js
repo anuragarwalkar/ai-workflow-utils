@@ -3,8 +3,31 @@
  * Contains issue-related mock functions
  */
 
-import { mockCreateIssueResponse, mockIssueGetResponse } from './mock-data.js';
+import { mockData } from './jira-mock-data.js';
 import { mockErrorResponses } from './mock-metadata.js';
+
+/**
+ * Get default issue response data
+ * @returns {Object} Default issue response structure
+ */
+const getDefaultIssueResponse = () => ({
+  id: '10001',
+  key: 'MOCK-1',
+  fields: {
+    summary: 'Default Mock Issue',
+    description: 'A mock issue for testing purposes',
+    issuetype: mockData.issueTypes[0],
+    priority: mockData.priorities[1], // High priority
+    project: {
+      id: '10000',
+      key: 'MOCK',
+      name: 'Mock Project',
+    },
+    status: mockData.statuses[0],
+    created: new Date().toISOString(),
+    updated: new Date().toISOString(),
+  },
+});
 
 /**
  * Validate issue data
@@ -45,26 +68,29 @@ export const createErrorResponse = (errorType) => {
  * @param {string} issueId - Generated issue ID
  * @returns {object} Mock issue
  */
-export const buildMockIssue = (issueData, issueKey, issueId) => ({
-  ...mockCreateIssueResponse,
-  id: issueId,
-  key: issueKey,
-  self: `https://mock-jira.atlassian.net/rest/api/2/issue/${issueId}`,
-  fields: {
-    ...mockCreateIssueResponse.fields,
-    summary: issueData.fields.summary,
-    description: issueData.fields.description || 'Mock issue description',
-    issuetype: issueData.fields.issuetype || mockCreateIssueResponse.fields.issuetype,
-    priority: issueData.fields.priority || mockCreateIssueResponse.fields.priority,
-    project: issueData.fields.project || mockCreateIssueResponse.fields.project,
-    assignee: issueData.fields.assignee || null,
-    labels: issueData.fields.labels || [],
-    components: issueData.fields.components || [],
-    fixVersions: issueData.fields.fixVersions || [],
-    created: new Date().toISOString(),
-    updated: new Date().toISOString(),
-  },
-});
+export const buildMockIssue = (issueData, issueKey, issueId) => {
+  const defaultResponse = getDefaultIssueResponse();
+  return {
+    ...defaultResponse,
+    id: issueId,
+    key: issueKey,
+    self: `https://mock-jira.atlassian.net/rest/api/2/issue/${issueId}`,
+    fields: {
+      ...defaultResponse.fields,
+      summary: issueData.fields.summary,
+      description: issueData.fields.description || 'Mock issue description',
+      issuetype: issueData.fields.issuetype || defaultResponse.fields.issuetype,
+      priority: issueData.fields.priority || defaultResponse.fields.priority,
+      project: issueData.fields.project || defaultResponse.fields.project,
+      assignee: issueData.fields.assignee || null,
+      labels: issueData.fields.labels || [],
+      components: issueData.fields.components || [],
+      fixVersions: issueData.fields.fixVersions || [],
+      created: new Date().toISOString(),
+      updated: new Date().toISOString(),
+    },
+  };
+};
 
 /**
  * Get predefined mock issue
@@ -72,7 +98,6 @@ export const buildMockIssue = (issueData, issueKey, issueId) => ({
  * @returns {object} Mock issue
  */
 export const getPredefinedMockIssue = (issueKey) => ({
-  ...mockIssueGetResponse,
   key: issueKey,
 });
 

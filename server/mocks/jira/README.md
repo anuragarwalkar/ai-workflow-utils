@@ -25,56 +25,63 @@ JIRA_MOCK_MODE=false
 
 ### Basic Operations
 
+With nock-based mocking, HTTP requests are automatically intercepted when the service is enabled:
+
 ```javascript
-import { jiraMockingService } from './jira-mocking-service.js';
+import { setupJiraInterceptors, enableService, isServiceActive } from './jira-nock-service.js';
+import axios from 'axios';
 
-// Check if mock mode is enabled
-const isMock = jiraMockingService.isMockMode();
+// Enable Jira mock interceptors
+setupJiraInterceptors();
+enableService('jira');
 
-// Create an issue
-const issue = await jiraMockingService.createIssue({
+// Check if service is active
+const isActive = isServiceActive('jira');
+
+// Make regular HTTP requests - they will be intercepted by nock
+const baseUrl = 'https://mock-jira.atlassian.net/rest/api/2';
+
+// Create an issue (will be intercepted)
+const createResponse = await axios.post(`${baseUrl}/issue`, {
   fields: {
     summary: 'Test Issue',
     description: 'This is a test issue',
     issuetype: { id: '10001' },
-    project: { key: 'TEST' }
+    project: { key: 'MOCK' }
   }
 });
 
-// Get an issue
-const retrievedIssue = await jiraMockingService.getIssue('MOCK-1001');
+// Get an issue (will be intercepted)
+const getResponse = await axios.get(`${baseUrl}/issue/MOCK-1001`);
 
-// Search issues
-const searchResults = await jiraMockingService.searchIssues(
-  'project = TEST AND status = "To Do"'
-);
+// Search issues (will be intercepted)
+const searchResponse = await axios.post(`${baseUrl}/search`, {
+  jql: 'project = MOCK AND status = "To Do"'
+});
 
-// Update an issue
-await jiraMockingService.updateIssue('MOCK-1001', {
+// Update an issue (will be intercepted)
+await axios.put(`${baseUrl}/issue/MOCK-1001`, {
   fields: {
     summary: 'Updated Test Issue'
   }
 });
 
-// Add a comment
-await jiraMockingService.addComment('MOCK-1001', {
+// Add a comment (will be intercepted)
+await axios.post(`${baseUrl}/issue/MOCK-1001/comment`, {
   body: 'This is a test comment'
 });
 ```
 
-### Individual Function Imports
+### Service Management
 
 ```javascript
 import {
-  createIssue,
-  getIssue,
-  searchIssues,
-  updateIssue,
-  deleteIssue,
-  addComment,
-  getComments,
-  isMockMode
-} from './jira-mocking-service.js';
+  setupJiraInterceptors,
+  enableService,
+  disableService,
+  isServiceActive,
+  clearInterceptors
+} from './jira-nock-service.js';
 
 // Use functions directly
 if (isMockMode()) {
@@ -84,15 +91,16 @@ if (isMockMode()) {
 
 ## Architecture
 
-The mocking service is split into modular files following functional programming principles:
+The nock-based mocking service is split into modular files following functional programming principles:
 
-- **jira-mocking-service.js**: Main export combining all functions
-- **jira-mocking-service-core.js**: Core CRUD operations
-- **jira-mocking-service-extended.js**: Metadata and transition operations
+- **jira-nock-service.js**: Main export combining all functions and interceptors
+- **jira-mock-interceptors.js**: Core HTTP request interceptors for CRUD operations
+- **jira-transition-interceptors.js**: Interceptors for transitions and metadata endpoints
+- **jira-mock-helpers.js**: Helper functions for mock data manipulation
+- **jira-mock-data.js**: Immutable mock data structures and state management
 - **issue-helpers.js**: Issue-related helper functions
 - **metadata-helpers.js**: Metadata-related helper functions
-- **mock-data.js**: Predefined mock response data
-- **mock-metadata.js**: Predefined mock metadata
+- **mock-metadata.js**: Predefined mock metadata responses
 
 ## Mock Data Structure
 
@@ -113,13 +121,28 @@ The mocking service is split into modular files following functional programming
 
 ## Integration with Services
 
-The mocking service is integrated into the Jira API service layer:
+The nock-based mocking service integrates seamlessly with existing HTTP clients:
 
 ```javascript
-// In jira-api-service.js
+// In jira-api-service.js - no changes needed!
 export const createIssue = async (payload) => {
   try {
-    if (jiraMockingService.isMockMode()) {
+    // Just make the HTTP request - nock will intercept if enabled
+    const baseUrl = EnvironmentConfig.getBaseUrl();
+    const headers = EnvironmentConfig.getAuthHeaders();
+    const response = await axios.post(`${baseUrl}/issue`, payload, { headers });
+    return response.data;
+  } catch (error) {
+    // Handle errors normally
+  }
+};
+
+// Enable mocking in test setup or specific endpoints
+import { setupJiraInterceptors, enableService } from '../mocks/jira/jira-nock-service.js';
+
+// Setup once, then all HTTP requests are intercepted
+setupJiraInterceptors();
+enableService('jira');
       return await createIssueMock(payload);
     }
     return await createIssueReal(payload);

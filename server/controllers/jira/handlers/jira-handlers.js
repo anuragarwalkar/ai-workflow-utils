@@ -1,10 +1,16 @@
 import logger from '../../../logger.js';
-import { withErrorHandling, withExpressErrorHandling } from '../../../utils/error-handling.js';
+import {
+  withErrorHandling,
+  withExpressErrorHandling,
+} from '../../../utils/error-handling.js';
 import { withLogging } from '../../../utils/logging.js';
-import { ValidationSchemas, withValidation } from '../../../utils/validation.js';
+import {
+  ValidationSchemas,
+  withValidation,
+} from '../../../utils/validation.js';
 import { JiraSummaryService } from '../services/jira-summary-service.js';
-import { JiraApiService } from '../services/jira-api-service.js';
-import { 
+import { createIssue, fetchIssue } from '../services/jira-api-service.js';
+import {
   enhanceDescription as enhanceJiraDescription,
   formatComment as formatJiraComment,
   generateCommentReply as generateJiraCommentReply,
@@ -21,7 +27,7 @@ import { handleAttachments as handleAttachmentsService } from '../services/jira-
  * @param {string[]} issueKeys - Array of Jira issue keys
  * @returns {Promise<Object>} Map of issue keys to summaries
  */
-const fetchJiraSummariesCore = async (issueKeys) => {
+const fetchJiraSummariesCore = async issueKeys => {
   return await JiraSummaryService.fetchJiraSummaries(issueKeys);
 };
 
@@ -30,8 +36,8 @@ const fetchJiraSummariesCore = async (issueKeys) => {
  * @param {string} issueKey - Jira issue key
  * @returns {Promise<Object>} Jira issue details
  */
-const getIssueDetailsCore = async (issueKey) => {
-  return await JiraApiService.fetchIssue(issueKey);
+const getIssueDetailsCore = async issueKey => {
+  return await fetchIssue(issueKey);
 };
 
 /**
@@ -49,8 +55,8 @@ const handleAttachmentsCore = async (issueKey, attachments) => {
  * @param {Object} issueData - Issue creation data
  * @returns {Promise<Object>} Created issue result
  */
-const createJiraIssueCore = async (issueData) => {
-  return await JiraApiService.createIssue(issueData);
+const createJiraIssueCore = async issueData => {
+  return await createIssue(issueData);
 };
 
 /**
@@ -73,7 +79,9 @@ const enhanceDescriptionCore = async (description, issueType) => {
  */
 const generateCommentReplyCore = async (comment, context, tone) => {
   const result = await generateJiraCommentReply(comment, context, tone);
-  return result.success ? result.data : 'Thank you for your comment. I will review and follow up accordingly.';
+  return result.success
+    ? result.data
+    : 'Thank you for your comment. I will review and follow up accordingly.';
 };
 
 /**
@@ -192,27 +200,20 @@ export const formatComment = withErrorHandling(
 /**
  * Express handler for previewing bug report
  */
-export const previewBugReport = withExpressErrorHandling(
-  async (req, res) => {
-    const { prompt, images = [], issueType } = req.body;
+export const previewBugReport = withExpressErrorHandling(async (req, res) => {
+  const { prompt, images = [], issueType } = req.body;
 
-    logger.info('Previewing bug report', {
-      hasPrompt: !!prompt,
-      imageCount: images.length,
-      issueType,
-    });
+  logger.info('Previewing bug report', {
+    hasPrompt: !!prompt,
+    imageCount: images.length,
+    issueType,
+  });
 
-    // Call the streaming preview service
-    await streamJiraPreviewContent(
-      { prompt, issueType },
-      images,
-      res,
-    );
+  // Call the streaming preview service
+  await streamJiraPreviewContent({ prompt, issueType }, images, res);
 
-    res.end();
-  },
-  'previewBugReport',
-);
+  res.end();
+}, 'previewBugReport');
 
 /**
  * Express handler for creating Jira issue
@@ -220,7 +221,7 @@ export const previewBugReport = withExpressErrorHandling(
 export const createJiraIssueHandler = withExpressErrorHandling(
   async (req, res) => {
     logger.info('Creating Jira issue', { body: req.body });
-    
+
     const result = await createJiraIssue(req.body);
 
     res.status(200).json({
@@ -234,33 +235,27 @@ export const createJiraIssueHandler = withExpressErrorHandling(
 /**
  * Express handler for uploading image
  */
-export const uploadImage = withExpressErrorHandling(
-  async (req, res) => {
-    logger.info('Uploading image', { file: req.file });
-    
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-    
-    const result = await handleAttachments('temp', [req.file]);
-    res.json(result);
-  },
-  'uploadImage',
-);
+export const uploadImage = withExpressErrorHandling(async (req, res) => {
+  logger.info('Uploading image', { file: req.file });
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const result = await handleAttachments('temp', [req.file]);
+  res.json(result);
+}, 'uploadImage');
 
 /**
  * Express handler for getting Jira issue
  */
-export const getJiraIssue = withExpressErrorHandling(
-  async (req, res) => {
-    const { id } = req.params;
-    logger.info('Getting Jira issue', { issueId: id });
-    
-    const issue = await getIssueDetails(id);
-    res.json(issue);
-  },
-  'getJiraIssue',
-);
+export const getJiraIssue = withExpressErrorHandling(async (req, res) => {
+  const { id } = req.params;
+  logger.info('Getting Jira issue', { issueId: id });
+
+  const issue = await getIssueDetails(id);
+  res.json(issue);
+}, 'getJiraIssue');
 
 /**
  * Express handler for enhancing description using AI
@@ -281,7 +276,10 @@ export const enhanceDescriptionHandler = withExpressErrorHandling(
       descriptionLength: description.length,
     });
 
-    const enhancedDescription = await enhanceDescription(description, issueType);
+    const enhancedDescription = await enhanceDescription(
+      description,
+      issueType,
+    );
 
     res.json({
       success: true,
@@ -366,14 +364,14 @@ export const formatCommentHandler = withExpressErrorHandling(
 export const fetchJiraSummariesHandler = withExpressErrorHandling(
   async (req, res) => {
     const { issueKeys } = req.body;
-    
+
     if (!Array.isArray(issueKeys) || issueKeys.length === 0) {
       return res.status(400).json({
         success: false,
         error: 'issueKeys must be a non-empty array',
       });
     }
-    
+
     const summaries = await fetchJiraSummaries(issueKeys);
     res.json(summaries);
   },

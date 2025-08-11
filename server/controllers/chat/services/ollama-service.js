@@ -26,9 +26,6 @@ export async function generateOllamaResponse(messageData) {
     const response = await axios.post(
       `${config.baseUrl}/api/generate`,
       requestPayload,
-      {
-        timeout: 120000, // 2 minute timeout for local models
-      },
     );
 
     logger.info('Ollama API response received');
@@ -57,7 +54,6 @@ export async function generateOllamaStreamingResponse(messageData) {
       requestPayload,
       {
         responseType: 'stream',
-        timeout: 120000,
       },
     );
     return response;
