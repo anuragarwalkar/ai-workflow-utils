@@ -87,6 +87,7 @@
     "@emotion/styled": "^11.14.1",
     "@langchain/core": "^0.3.66",
     "@langchain/google-genai": "^0.1.0",
+    "@langchain/mcp-adapters": "^0.6.0",
     "@langchain/ollama": "^0.2.3",
     "@langchain/openai": "^0.6.2",
     "@monaco-editor/react": "^4.7.0",
@@ -117,6 +118,7 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "unidiff": "^1.0.4",
+    "uuid": "^11.1.0",
     "winston": "^3.17.0"
   },
   "devDependencies": {

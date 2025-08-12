@@ -19,6 +19,7 @@ import prRoutes from './routes/pull-request-routes.js';
 import templateRoutes from './routes/template-routes.js';
 import environmentSettingsRoutes from './routes/environment-routes.js';
 import logsRoutes from './routes/logs-routes.js';
+import mcpRoutes from './routes/mcp-routes.js';
 import langChainServiceFactory from './services/langchain/LangChainServiceFactory.js';
 
 // Load default .env file first (for fallback values)
@@ -104,6 +105,7 @@ app.use('/api/pr', prRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/environment-settings', environmentSettingsRoutes);
 app.use('/api/logs', logsRoutes);
+app.use('/api/mcp', mcpRoutes);
 
 // Serve static files from React build
 const staticPath = path.join(projectRoot, 'ui/dist');
