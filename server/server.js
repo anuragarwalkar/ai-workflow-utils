@@ -123,12 +123,20 @@ app.use((req, res, next) => {
     return next();
   }
 
+  // Don't serve index.html for static assets (files with extensions)
+  // This prevents serving HTML when browser requests .js, .css, .png, etc.
+  const hasFileExtension = /\.[a-zA-Z0-9]+$/.test(req.path);
+  if (hasFileExtension) {
+    return next(); // Let express.static handle it or return 404
+  }
+
+  // Only serve index.html for navigation requests (routes without file extensions)
   res.sendFile('index.html', { root: staticPath }, err => {
     if (err) {
       logger.error('❌ Error sending index.html:', err.message, err.path, err.status);
       res.status(500).json({ error: 'Internal server error' });
     } else {
-      logger.info(`✅ index.html served for: ${req.path}`);
+      logger.info(`✅ index.html served for navigation route: ${req.path}`);
     }
   });
 });
@@ -158,6 +166,7 @@ let isShuttingDown = false;
 const gracefulShutdown = signal => {
   if (isShuttingDown) {
     logger.warn(`${signal} received again, forcing exit`);
+    // eslint-disable-next-line no-process-exit
     process.exit(1);
   }
 
@@ -167,6 +176,7 @@ const gracefulShutdown = signal => {
   // Set a timeout to force exit if graceful shutdown takes too long
   const forceExitTimeout = setTimeout(() => {
     logger.error('Graceful shutdown timeout, forcing exit');
+    // eslint-disable-next-line no-process-exit
     process.exit(1);
   }, 10000); // 10 seconds timeout
 
@@ -189,18 +199,21 @@ const gracefulShutdown = signal => {
           }
           clearTimeout(forceExitTimeout);
           logger.info('Process terminated gracefully');
+          // eslint-disable-next-line no-process-exit
           process.exit(0);
         });
       } else {
         logger.info('HTTP server was not running');
         clearTimeout(forceExitTimeout);
         logger.info('Process terminated gracefully');
+        // eslint-disable-next-line no-process-exit
         process.exit(0);
       }
     });
   } catch (error) {
     logger.error('Error during shutdown:', error);
     clearTimeout(forceExitTimeout);
+    // eslint-disable-next-line no-process-exit
     process.exit(1);
   }
 };
