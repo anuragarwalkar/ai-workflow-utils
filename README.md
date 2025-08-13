@@ -94,6 +94,18 @@ Beautiful, adaptive interface that automatically adjusts to your preferences:
   long sessions
 - **🔄 Smooth Transitions**: Elegant animations when switching between themes
 
+### **🔗 Feature #6: MCP Client Configuration**
+
+Advanced Model Context Protocol (MCP) client management for seamless AI tool integration:
+
+- **🛠️ Comprehensive Client Management**: Create, configure, and manage multiple MCP clients
+- **🌐 Flexible Connection Types**: Support for both remote URL-based and local command-based MCP servers
+- **🔐 Secure Authentication**: Token-based authentication with secure credential storage
+- **⚡ Real-time Testing**: Test MCP client connections instantly to ensure proper configuration
+- **📝 Client Documentation**: Add descriptions and metadata for organized client management
+- **🔄 Enable/Disable Toggle**: Easily activate or deactivate clients without deletion
+- **🏗️ LangChain Integration**: Seamless integration with LangChain MCP adapters for AI workflows
+
 ---
 
 Here’s a cleaned-up and renumbered version of your “Quick Start Guide” section
@@ -180,6 +192,7 @@ All configuration is managed through the web-based settings page:
 - Set up Jira integration (URL, API token)
 - Configure repository provider (Bitbucket)
 - Set up issue tracking (Jira, etc.)
+- Configure MCP clients for Model Context Protocol integration
 
 All changes are saved to `~/.ai-workflow-utils/environment.json` and persist
 across upgrades.
@@ -402,7 +415,8 @@ server/
 │   │   └── README.md     # Module documentation
 │   ├── pull-request/     # PR creation & review
 │   ├── email/            # Email generation
-│   └── chat/             # AI chat integration
+│   ├── chat/             # AI chat integration
+│   └── mcp/              # Model Context Protocol client management
 ├── mocks/                # Mock services (excluded from npm package)
 │   └── jira/             # Comprehensive Jira mocking
 └── services/             # Shared services
@@ -762,6 +776,40 @@ Content-Type: multipart/form-data
 
 file: [binary-data]
 issueKey: "PROJ-123"
+```
+
+**MCP Client Management:**
+
+```bash
+# Get all MCP clients
+GET /api/mcp/clients
+
+# Create new MCP client
+POST /api/mcp/clients
+Content-Type: application/json
+
+{
+  "name": "My MCP Server",
+  "url": "http://localhost:8080/mcp",
+  "token": "optional-auth-token",
+  "description": "Local MCP server for custom tools",
+  "enabled": true
+}
+
+# Update MCP client
+PUT /api/mcp/clients/:id
+Content-Type: application/json
+
+{
+  "name": "Updated MCP Server",
+  "enabled": false
+}
+
+# Delete MCP client
+DELETE /api/mcp/clients/:id
+
+# Test MCP client connection
+POST /api/mcp/clients/:id/test
 ```
 
 </details>
