@@ -25,6 +25,7 @@ import {
 } from '@mui/icons-material';
 import { useGetPullRequestsQuery } from '../../store/api/prApi';
 import { setError, setSelectedPullRequest } from '../../store/slices/prSlice';
+import { formatDate, getAuthorName, getStatusColor } from '../../utils/pullRequestUtils';
 
 const PullRequestList = ({ onNext, onPrevious }) => {
   const dispatch = useDispatch();
@@ -68,29 +69,6 @@ const PullRequestList = ({ onNext, onPrevious }) => {
   const handleNext = () => {
     if (selectedPullRequest) {
       onNext();
-    }
-  };
-
-  const formatDate = timestamp => {
-    return new Date(timestamp).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const getStatusColor = state => {
-    switch (state) {
-      case 'OPEN':
-        return 'success';
-      case 'MERGED':
-        return 'primary';
-      case 'DECLINED':
-        return 'error';
-      default:
-        return 'default';
     }
   };
 

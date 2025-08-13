@@ -3,8 +3,12 @@ import { ChatOllama } from '@langchain/ollama';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { HumanMessage } from '@langchain/core/messages';
 import { PromptTemplate } from '@langchain/core/prompts';
+import { MultiServerMCPClient } from '@langchain/mcp-adapters';
+import { createReactAgent } from 'langchain/agents';
+import { pull } from 'langchain/hub';
 import logger from '../../logger.js';
 import templateDbService from '../templateDbService.js';
+import mcpService from '../mcpService.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -15,12 +19,14 @@ dotenv.config();
 export class BaseLangChainService {
   constructor() {
     this.providers = [];
+    this.mcpClient = null;
+    this.mcpAgent = null;
   }
 
   /**
    * Initialize AI providers based on environment configuration
    */
-  initializeProviders() {
+  async initializeProviders() {
     // Reset providers to avoid duplicates on reinitialization
     this.providers = [];
 
@@ -91,6 +97,142 @@ export class BaseLangChainService {
     logger.info(
       `Initialized ${this.providers.length} AI providers: ${this.providers.map(p => p.name).join(', ')}`
     );
+
+    // Initialize MCP clients after providers are set up
+    await this.initializeMCPClients();
+  }
+
+  /**
+   * Initialize MCP clients and create React agent
+   */
+  async initializeMCPClients() {
+    try {
+      const mcpClients = await mcpService.getEnabledClients();
+      
+      if (mcpClients.length === 0) {
+        logger.info('No enabled MCP clients found');
+        return;
+      }
+
+      const mcpClientConfig = this.createMCPClientConfig(mcpClients);
+      this.mcpClient = new MultiServerMCPClient(mcpClientConfig);
+
+      // Try to initialize the MCP client
+      await this.connectMCPClient();
+
+      // Load MCP tools and create React agent
+      await this.createMCPAgent();
+
+      logger.info(`Initialized ${mcpClients.length} MCP clients: ${mcpClients.map(c => c.name).join(', ')}`);
+    } catch (error) {
+      logger.error('Failed to initialize MCP clients:', error);
+    }
+  }
+
+  /**
+   * Create MCP client configuration for single or multiple clients
+   */
+  createMCPClientConfig(mcpClients) {
+    if (mcpClients.length === 1) {
+      return BaseLangChainService.createSingleClientConfig(mcpClients[0]);
+    } else {
+      return BaseLangChainService.createMultipleClientsConfig(mcpClients);
+    }
+  }
+
+  /**
+   * Create configuration for single MCP client
+   */
+  static createSingleClientConfig(client) {
+    const serverConfig = {};
+    
+    if (client.url) {
+      serverConfig.url = client.url;
+    } else if (client.command) {
+      serverConfig.command = client.command;
+      serverConfig.args = client.args || [];
+    }
+
+    if (client.token) {
+      serverConfig.token = client.token;
+    }
+
+    return {
+      mcpServers: {
+        [client.name.toLowerCase().replace(/[^a-z0-9]/g, '_')]: serverConfig
+      }
+    };
+  }
+
+  /**
+   * Create configuration for multiple MCP clients
+   */
+  static createMultipleClientsConfig(mcpClients) {
+    const mcpServers = {};
+    
+    mcpClients.forEach(client => {
+      const serverConfig = {};
+      
+      if (client.url) {
+        serverConfig.url = client.url;
+        serverConfig.automaticSSEFallback = false;
+      } else if (client.command) {
+        serverConfig.command = client.command;
+        serverConfig.args = client.args || [];
+      }
+
+      if (client.token) {
+        serverConfig.token = client.token;
+      }
+
+      // Use client name as the server key (sanitize for valid object key)
+      const serverKey = client.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      mcpServers[serverKey] = serverConfig;
+    });
+
+    return { mcpServers };
+  }
+
+  /**
+   * Connect to MCP client
+   */
+  async connectMCPClient() {
+    if (typeof this.mcpClient.connect === 'function') {
+      await this.mcpClient.connect();
+    } else if (typeof this.mcpClient.initialize === 'function') {
+      await this.mcpClient.initialize();
+    }
+  }
+
+  /**
+   * Create MCP agent with tools
+   */
+  async createMCPAgent() {
+    if (this.providers.length > 0) {
+      try {
+        logger.info('Attempting to load MCP tools...');
+        logger.info('MCP client type:', typeof this.mcpClient);
+        logger.info('MCP client methods:', Object.getOwnPropertyNames(this.mcpClient).filter(name => typeof this.mcpClient[name] === 'function'));
+        
+        // Use direct getTools() method like in the working index.js
+        const mcpTools = await this.mcpClient.getTools();
+        logger.info('MCP tools loaded successfully:', mcpTools.length);
+        
+        // Create React agent with MCP tools
+        const prompt = await pull("hwchase17/react");
+        this.mcpAgent = await createReactAgent({
+          llm: this.providers[0].model, // Use primary provider
+          tools: mcpTools,
+          prompt
+        });
+        
+        logger.info('MCP React agent created successfully with tools');
+      } catch (agentError) {
+        logger.warn('Failed to create React agent, MCP tools will be available directly:', agentError.message);
+        logger.debug('Full error:', agentError);
+        // MCP client is still available for direct use
+      }
+    }
   }
 
   /**
@@ -168,7 +310,8 @@ export class BaseLangChainService {
         base64Data = data;
         const mediaTypeMatch = header.match(/data:([^;]+)/);
         if (mediaTypeMatch) {
-          mediaType = mediaTypeMatch[1];
+          // eslint-disable-next-line no-undef
+          [_, mediaType] = mediaTypeMatch;
         }
       } else {
         if (image.startsWith('/9j/') || image.startsWith('iVBORw0KGgo')) {
@@ -188,13 +331,15 @@ export class BaseLangChainService {
   }
 
   /**
-   * Basic content generation method - can be overridden by subclasses
+   * Enhanced content generation method with MCP agent support
    */
+  // eslint-disable-next-line max-params
   async generateContent(
     promptTemplateFormatter,
     images,
     promptTemplateIdentifier,
-    streaming = false
+    streaming = false,
+    useMCPAgent = false
   ) {
     const hasImages = images && images.length > 0;
 
@@ -207,6 +352,38 @@ export class BaseLangChainService {
       ...promptTemplateFormatter,
     });
 
+    // If MCP agent is available and requested, use it
+    if (useMCPAgent && this.mcpAgent) {
+      // eslint-disable-next-line max-lines
+      try {
+        logger.info('Using MCP agent for content generation');
+        
+        if (streaming) {
+          const stream = await this.mcpAgent.streamEvents({
+            input: formattedPrompt,
+            ...(hasImages && { images })
+          });
+          return { content: stream, provider: 'MCP Agent', usedMCP: true };
+        } else {
+          const response = await this.mcpAgent.invoke({
+            input: formattedPrompt,
+            ...(hasImages && { images })
+          });
+          return { content: response.output, provider: 'MCP Agent', usedMCP: true };
+        }
+      } catch (error) {
+        logger.warn(`MCP agent failed, falling back to regular providers: ${error.message}`);
+      }
+    }
+
+    return this.generateWithProviders(formattedPrompt, images, hasImages, streaming);
+  }
+
+  /**
+   * Generate content using available providers
+   */
+  // eslint-disable-next-line max-statements
+  async generateWithProviders(formattedPrompt, images, hasImages, streaming) {
     // Try each provider in order of priority
     for (const provider of this.providers) {
       try {
@@ -228,11 +405,11 @@ export class BaseLangChainService {
 
         if (streaming) {
           const stream = await provider.model.stream([message]);
-          return { content: stream, provider: provider.name };
+          return { content: stream, provider: provider.name, usedMCP: false };
         } else {
           const response = await provider.model.invoke([message]);
           logger.info(`Successfully generated content using ${provider.name}`);
-          return { content: response.content, provider: provider.name };
+          return { content: response.content, provider: provider.name, usedMCP: false };
         }
       } catch (error) {
         logger.warn(`Provider ${provider.name} failed: ${error.message}`);
@@ -249,13 +426,38 @@ export class BaseLangChainService {
   }
 
   /**
-   * Get available providers information
+   * Get available providers and MCP status
    */
   getAvailableProviders() {
-    return this.providers.map(p => ({
-      name: p.name,
-      supportsVision: p.supportsVision,
-      priority: p.priority,
-    }));
+    return {
+      providers: this.providers.map(p => ({
+        name: p.name,
+        supportsVision: p.supportsVision,
+        priority: p.priority,
+      })),
+      mcpAgent: {
+        // eslint-disable-next-line max-lines
+        available: !!this.mcpAgent,
+        clientsConnected: this.mcpClient ? true : false
+      }
+    };
+  }
+
+  /**
+   * Cleanup MCP connections
+   */
+  async cleanup() {
+    if (this.mcpClient) {
+      try {
+        if (typeof this.mcpClient.disconnect === 'function') {
+          await this.mcpClient.disconnect();
+        } else if (typeof this.mcpClient.close === 'function') {
+          await this.mcpClient.close();
+        }
+        logger.info('MCP client disconnected');
+      } catch (error) {
+        logger.error('Error disconnecting MCP client:', error);
+      }
+    }
   }
 }

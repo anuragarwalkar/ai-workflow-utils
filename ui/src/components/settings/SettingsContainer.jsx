@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { lazy, useEffect } from 'react';
 import { Alert, Box, Container, Paper, Tab, Tabs, Typography } from '@mui/material';
 import {
   Api as ApiIcon,
@@ -7,6 +7,7 @@ import {
   Settings as SettingsIcon,
   Description as TemplateIcon,
   Tune as TuneIcon,
+  Cable as MCPIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -24,6 +25,8 @@ import EnvironmentSettings from './environment/EnvironmentSettings';
 import AdvancedSettings from './advanced/AdvancedSettings';
 import LogsViewer from './advanced/LogsViewer';
 import { useAppTheme } from '../../theme/useAppTheme';
+
+const MCPClientsTab = lazy(() => import('./MCPClientsTab'));
 
 const SettingsContainer = () => {
   const dispatch = useDispatch();
@@ -71,6 +74,16 @@ const SettingsContainer = () => {
       label: 'Environment',
       icon: <ApiIcon />,
       component: <EnvironmentSettings />,
+    },
+    {
+      value: 'mcp',
+      label: 'MCP Clients',
+      icon: <MCPIcon />,
+      component: (
+        <React.Suspense fallback={<Typography>Loading MCP Clients...</Typography>}>
+          <MCPClientsTab />
+        </React.Suspense>
+      ),
     },
     {
       value: 'advanced',

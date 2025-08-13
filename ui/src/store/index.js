@@ -15,6 +15,7 @@ import { prApi } from './api/prApi';
 import { templateApi } from './api/templateApi';
 import { environmentSettingsApi } from './api/environmentSettingsApi';
 import { logsApi } from './api/logsApi';
+import { mcpApi } from './api/mcpApi';
 
 const store = configureStore({
   reducer: {
@@ -34,6 +35,7 @@ const store = configureStore({
     [templateApi.reducerPath]: templateApi.reducer,
     [environmentSettingsApi.reducerPath]: environmentSettingsApi.reducer,
     [logsApi.reducerPath]: logsApi.reducer,
+    [mcpApi.reducerPath]: mcpApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
@@ -49,7 +51,8 @@ const store = configureStore({
       prApi.middleware,
       templateApi.middleware,
       environmentSettingsApi.middleware,
-      logsApi.middleware
+      logsApi.middleware,
+      mcpApi.middleware
     ),
 });
 
