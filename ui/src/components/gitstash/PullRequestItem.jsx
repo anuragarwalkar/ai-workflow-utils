@@ -10,30 +10,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Person as PersonIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
-
-const formatDate = timestamp =>
-  new Date(timestamp).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-const getStatusColor = state => {
-  switch (state) {
-    case 'OPEN':
-      return 'success';
-    case 'MERGED':
-      return 'primary';
-    case 'DECLINED':
-      return 'error';
-    default:
-      return 'default';
-  }
-};
-
-const getAuthorName = pr => pr.author?.user?.displayName || pr.author?.displayName || 'Unknown';
+import { formatDate, getAuthorName, getStatusColor } from '../../utils/pullRequestUtils';
 
 const PullRequestHeader = ({ pr }) => (
   <Box
