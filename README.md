@@ -108,12 +108,6 @@ Advanced Model Context Protocol (MCP) client management for seamless AI tool int
 
 ---
 
-Here’s a cleaned-up and renumbered version of your “Quick Start Guide” section
-for the README. All step numbers are sequential, and optional sub-steps are
-clearly labeled. Copy-paste this to replace your existing section:
-
----
-
 ## 🚀 Quick Start Guide
 
 ### **Step 1: Recommended - Ollama Setup (For Local AI)**
