@@ -3,7 +3,7 @@ import { ChatOllama } from '@langchain/ollama';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { HumanMessage } from '@langchain/core/messages';
 import { PromptTemplate } from '@langchain/core/prompts';
-import { MultiServerMCPClient, loadMcpTools } from '@langchain/mcp-adapters';
+import { MultiServerMCPClient } from '@langchain/mcp-adapters';
 import { createReactAgent } from 'langchain/agents';
 import { pull } from 'langchain/hub';
 import logger from '../../logger.js';
@@ -114,89 +114,124 @@ export class BaseLangChainService {
         return;
       }
 
-      // Configure MCP servers with correct format
-      // Note: MultiServerMCPClient expects a flat server config, not nested by server name
-      let serverConfig = null;
-      
-      if (mcpClients.length === 1) {
-        // For single client, use flat structure
-        const client = mcpClients[0];
-        
-        if (client.url) {
-          serverConfig = {
-            url: client.url
-          };
-        } else if (client.command) {
-          serverConfig = {
-            command: client.command,
-            args: client.args || []
-          };
-        }
-
-        // Add token if provided
-        if (client.token) {
-          serverConfig.token = client.token;
-        }
-      } else {
-        // For multiple clients, we might need a different approach
-        logger.warn('Multiple MCP clients not yet supported in this version, using first client only');
-        const client = mcpClients[0];
-        
-        if (client.url) {
-          serverConfig = {
-            url: client.url
-          };
-        } else if (client.command) {
-          serverConfig = {
-            command: client.command,
-            args: client.args || []
-          };
-        }
-
-        if (client.token) {
-          serverConfig.token = client.token;
-        }
-      }
-
-      if (!serverConfig) {
-        logger.error('No valid MCP server configuration found');
-        return;
-      }
-
-      this.mcpClient = new MultiServerMCPClient({
-        servers: serverConfig
-      });
+      const mcpClientConfig = this.createMCPClientConfig(mcpClients);
+      this.mcpClient = new MultiServerMCPClient(mcpClientConfig);
 
       // Try to initialize the MCP client
-      if (typeof this.mcpClient.connect === 'function') {
-        await this.mcpClient.connect();
-      } else if (typeof this.mcpClient.initialize === 'function') {
-        await this.mcpClient.initialize();
-      }
+      await this.connectMCPClient();
 
       // Load MCP tools and create React agent
-      if (this.providers.length > 0) {
-        try {
-          const mcpTools = await loadMcpTools({ mcpClient: this.mcpClient });
-          
-          // Create React agent with MCP tools
-          const prompt = await pull("hwchase17/react");
-          this.mcpAgent = await createReactAgent({
-            llm: this.providers[0].model, // Use primary provider
-            tools: mcpTools,
-            prompt
-          });
-          
-          logger.info('MCP React agent created successfully with tools');
-        } catch (agentError) {
-          logger.warn('Failed to create React agent, MCP tools will be available directly:', agentError.message);
-          // MCP client is still available for direct use
-        }
-      }
+      await this.createMCPAgent();
 
       logger.info(`Initialized ${mcpClients.length} MCP clients: ${mcpClients.map(c => c.name).join(', ')}`);
     } catch (error) {
       logger.error('Failed to initialize MCP clients:', error);
+    }
+  }
+
+  /**
+   * Create MCP client configuration for single or multiple clients
+   */
+  createMCPClientConfig(mcpClients) {
+    if (mcpClients.length === 1) {
+      return BaseLangChainService.createSingleClientConfig(mcpClients[0]);
+    } else {
+      return BaseLangChainService.createMultipleClientsConfig(mcpClients);
+    }
+  }
+
+  /**
+   * Create configuration for single MCP client
+   */
+  static createSingleClientConfig(client) {
+    const serverConfig = {};
+    
+    if (client.url) {
+      serverConfig.url = client.url;
+    } else if (client.command) {
+      serverConfig.command = client.command;
+      serverConfig.args = client.args || [];
+    }
+
+    if (client.token) {
+      serverConfig.token = client.token;
+    }
+
+    return {
+      mcpServers: {
+        [client.name.toLowerCase().replace(/[^a-z0-9]/g, '_')]: serverConfig
+      }
+    };
+  }
+
+  /**
+   * Create configuration for multiple MCP clients
+   */
+  static createMultipleClientsConfig(mcpClients) {
+    const mcpServers = {};
+    
+    mcpClients.forEach(client => {
+      const serverConfig = {};
+      
+      if (client.url) {
+        serverConfig.url = client.url;
+        serverConfig.automaticSSEFallback = false;
+      } else if (client.command) {
+        serverConfig.command = client.command;
+        serverConfig.args = client.args || [];
+      }
+
+      if (client.token) {
+        serverConfig.token = client.token;
+      }
+
+      // Use client name as the server key (sanitize for valid object key)
+      const serverKey = client.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      mcpServers[serverKey] = serverConfig;
+    });
+
+    return { mcpServers };
+  }
+
+  /**
+   * Connect to MCP client
+   */
+  async connectMCPClient() {
+    if (typeof this.mcpClient.connect === 'function') {
+      await this.mcpClient.connect();
+    } else if (typeof this.mcpClient.initialize === 'function') {
+      await this.mcpClient.initialize();
+    }
+  }
+
+  /**
+   * Create MCP agent with tools
+   */
+  async createMCPAgent() {
+    if (this.providers.length > 0) {
+      try {
+        logger.info('Attempting to load MCP tools...');
+        logger.info('MCP client type:', typeof this.mcpClient);
+        logger.info('MCP client methods:', Object.getOwnPropertyNames(this.mcpClient).filter(name => typeof this.mcpClient[name] === 'function'));
+        
+        // Use direct getTools() method like in the working index.js
+        const mcpTools = await this.mcpClient.getTools();
+        logger.info('MCP tools loaded successfully:', mcpTools.length);
+        
+        // Create React agent with MCP tools
+        const prompt = await pull("hwchase17/react");
+        this.mcpAgent = await createReactAgent({
+          llm: this.providers[0].model, // Use primary provider
+          tools: mcpTools,
+          prompt
+        });
+        
+        logger.info('MCP React agent created successfully with tools');
+      } catch (agentError) {
+        logger.warn('Failed to create React agent, MCP tools will be available directly:', agentError.message);
+        logger.debug('Full error:', agentError);
+        // MCP client is still available for direct use
+      }
     }
   }
 
@@ -298,6 +333,7 @@ export class BaseLangChainService {
   /**
    * Enhanced content generation method with MCP agent support
    */
+  // eslint-disable-next-line max-params
   async generateContent(
     promptTemplateFormatter,
     images,
@@ -318,6 +354,7 @@ export class BaseLangChainService {
 
     // If MCP agent is available and requested, use it
     if (useMCPAgent && this.mcpAgent) {
+      // eslint-disable-next-line max-lines
       try {
         logger.info('Using MCP agent for content generation');
         
