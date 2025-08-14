@@ -121,7 +121,8 @@
     "socket.io-client": "^4.8.1",
     "unidiff": "^1.0.4",
     "uuid": "^11.1.0",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
