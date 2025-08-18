@@ -76,6 +76,17 @@
       "isActive": true,
       "templateType": "Chat",
       "canBeModified": true
+    },
+    {
+      "id": "api-client-nl",
+      "name": "API Client Natural Language Template",
+      "templateFor": "API_CLIENT_NL",
+      "content": "You are an expert API client assistant. Convert the following natural language description into a structured API request configuration.\n\n**Natural Language Request:** {naturalLanguagePrompt}\n\n**Your Task:**\nAnalyze the request and extract the following information to create a complete API request:\n\n1. **HTTP Method** (GET, POST, PUT, PATCH, DELETE)\n2. **Complete URL** (infer from context or use realistic placeholder)\n3. **Headers** (if mentioned or commonly needed)\n4. **Query Parameters** (if any)\n5. **Request Body** (for POST/PUT/PATCH requests)\n6. **Authentication** (if mentioned)\n\n**Common Patterns to Recognize:**\n- \"send a POST request to create...\" → POST method with body\n- \"get user data from...\" → GET method\n- \"update user with...\" → PUT/PATCH method with body\n- \"delete user...\" → DELETE method\n- \"with name X and email Y\" → body parameters\n- \"to endpoint/URL\" → extract or infer URL\n- \"with API key/token\" → authentication\n- \"from https://...\" → use provided URL\n- \"create a new user\" → POST to /users or /api/users endpoint\n- \"get all users\" → GET to /users or /api/users endpoint\n\n**URL Inference Rules:**\n- If no specific URL provided, use realistic RESTful patterns:\n  - Users: https://api.example.com/users\n  - Posts: https://api.example.com/posts\n  - Products: https://api.example.com/products\n  - Generic: https://api.example.com/[resource]\n\n**Body Format Guidelines:**\n- Use JSON format for structured data\n- Include all mentioned fields in the request\n- Use realistic field names (name, email, title, description, etc.)\n- Set bodyType to \"json\" for structured data\n\n{formatInstructions}\n\n**Requirements:**\n- Provide a complete, executable API request configuration\n- Use realistic URLs if none specified\n- Include appropriate headers for the request type\n- Structure the body data properly for the intended operation\n- Add a helpful description of what the API call does",
+      "variables": ["naturalLanguagePrompt", "formatInstructions"],
+      "isDefault": true,
+      "isActive": true,
+      "templateType": "API",
+      "canBeModified": true
     }
   ],
   "settings": {
@@ -87,7 +98,8 @@
       "PR_COMBINED": "pr-combined-template",
       "PR_REVIEW": "pr-review-template",
       "CHAT_DEV": "chat-dev-assistant",
-      "CHAT_GENERIC": "chat-generic-assistant"
+      "CHAT_GENERIC": "chat-generic-assistant",
+      "API_CLIENT_NL": "api-client-nl"
     }
   }
 }

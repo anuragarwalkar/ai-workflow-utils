@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  convertNaturalLanguageToApi,
   executeRequest,
   exportCollections,
   getCollections,
@@ -13,6 +14,9 @@ const router = express.Router();
 
 // Request execution
 router.post('/execute', executeRequest);
+
+// Natural language to API conversion
+router.post('/convert-nl', convertNaturalLanguageToApi);
 
 // Collections management
 router.get('/collections', getCollections);

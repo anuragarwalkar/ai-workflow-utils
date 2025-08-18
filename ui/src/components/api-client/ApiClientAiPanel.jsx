@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Box,
-  Fade,
   IconButton,
   Paper,
   Tooltip,
@@ -10,14 +9,14 @@ import {
 } from '@mui/material';
 import { 
   SmartToy as AiIcon,
-  ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
 } from '@mui/icons-material';
 import { useAppTheme } from '../../theme/useAppTheme';
+import NaturalLanguageApiGenerator from './NaturalLanguageApiGenerator';
 
-const ApiClientAiPanel = ({ glassMorphismStyle, isCollapsed, onToggleCollapse }) => {
+const ApiClientAiPanel = ({ glassMorphismStyle, isCollapsed, onToggleCollapse, onApiRequestGenerated }) => {
   const { isDark } = useAppTheme();
-  
+
   if (isCollapsed) {
     return (
       <Box
@@ -99,37 +98,32 @@ const ApiClientAiPanel = ({ glassMorphismStyle, isCollapsed, onToggleCollapse })
         sx={{
           flex: 1,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          opacity: 0.7,
+          flexDirection: 'column',
+          p: 2,
+          pt: 5,
         }}
       >
-        <Fade in timeout={1000}>
-          <Box textAlign="center">
-            <AiIcon sx={{ fontSize: 64, color: '#ff9a9e', mb: 2 }} />
-            <Typography 
-              color={isDark ? '#E0E0E0' : 'text.secondary'} 
-              variant="h6"
-            >
-              AI Assistant
-            </Typography>
-            <Typography 
-              color={isDark ? '#A0A0A0' : 'text.secondary'} 
-              sx={{ mt: 1 }} 
-              variant="body2"
-            >
-              Coming Soon...
-            </Typography>
-            <Typography 
-              color={isDark ? '#A0A0A0' : 'text.secondary'} 
-              sx={{ mt: 2, display: 'block' }} 
-              variant="caption"
-            >
-              Future AI features will help generate requests,
-              explain responses, and automate API testing
-            </Typography>
-          </Box>
-        </Fade>
+        <Box sx={{ mb: 3, textAlign: 'center' }}>
+          <AiIcon sx={{ fontSize: 48, color: '#ff9a9e', mb: 1 }} />
+          <Typography 
+            color={isDark ? '#E0E0E0' : 'text.primary'}
+            variant="h6"
+          >
+            AI Assistant
+          </Typography>
+          <Typography 
+            color={isDark ? '#A0A0A0' : 'text.secondary'}
+            sx={{ mt: 0.5 }}
+            variant="body2"
+          >
+            Natural Language to API
+          </Typography>
+        </Box>
+
+        <NaturalLanguageApiGenerator 
+          isDark={isDark}
+          onApiRequestGenerated={onApiRequestGenerated}
+        />
       </Box>
     </Paper>
   );

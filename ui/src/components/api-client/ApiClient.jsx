@@ -70,6 +70,64 @@ const ApiClient = () => {
     }
   }, []);
 
+  const handleApiRequestGenerated = useCallback((generatedRequest) => {
+    // Create a better name from the request data
+    const createRequestName = (request) => {
+      const method = request.method || 'GET';
+      const url = request.url || '';
+      
+      // Extract meaningful parts from URL for the name
+      if (url) {
+        try {
+          const urlObj = new URL(url);
+          const pathParts = urlObj.pathname.split('/').filter(part => part && part !== 'api');
+          
+          if (pathParts.length > 0) {
+            const resource = pathParts[pathParts.length - 1];
+            return `${method} ${resource}`;
+          }
+        } catch {
+          // If URL parsing fails, extract domain
+          const match = url.match(/https?:\/\/([^/]+)/);
+          if (match) {
+            return `${method} ${match[1]}`;
+          }
+        }
+      }
+      
+      // Fallback to description or generic name
+      if (request.description && request.description.length < 30) {
+        return request.description;
+      }
+      
+      return `${method} Request ${requests.length + 1}`;
+    };
+
+    // Create a new request with the generated data
+    const newRequest = {
+      id: Date.now(),
+      name: createRequestName(generatedRequest),
+      method: generatedRequest.method || 'GET',
+      url: generatedRequest.url || '',
+      headers: generatedRequest.headers || {},
+      params: generatedRequest.params || {},
+      body: generatedRequest.body ? JSON.stringify(generatedRequest.body, null, 2) : '',
+      bodyType: generatedRequest.bodyType || 'json',
+      auth: generatedRequest.auth || {
+        type: 'none',
+        token: '',
+        username: '',
+        password: '',
+        apiKey: '',
+        apiKeyHeader: 'X-API-Key',
+      }
+    };
+
+    // Add the request to the list and make it active
+    setRequests(prev => [...prev, newRequest]);
+    setActiveRequest(requests.length); // Set to the new request index
+  }, [requests.length]);
+
   const handleUpdateRequest = useCallback((updatedRequest) => {
     setRequests(prev => 
       prev.map((req, index) => 
@@ -175,6 +233,7 @@ const ApiClient = () => {
         <ApiClientAiPanel 
           glassMorphismStyle={glassMorphismStyle}
           isCollapsed={rightSidebarCollapsed}
+          onApiRequestGenerated={handleApiRequestGenerated}
           onToggleCollapse={() => setRightSidebarCollapsed(!rightSidebarCollapsed)}
         />
       </Box>

@@ -21,6 +21,7 @@ import {
 import {
   Add as AddIcon,
   SmartToy as AiIcon,
+  Api as ApiIcon,
   Close as CloseIcon,
   Code as CodeIcon,
   DarkMode as DarkModeIcon,
@@ -29,6 +30,126 @@ import {
 } from '@mui/icons-material';
 import { useAppTheme } from '../../theme/useAppTheme';
 import { CurlParser } from '../../utils/curlParser';
+
+// Utility function to truncate long tab names
+const truncateTabName = (name, maxLength = 20) => {
+  if (!name || name.length <= maxLength) {
+    return name;
+  }
+  return `${name.substring(0, maxLength)}...`;
+};
+
+// Futuristic Logo Component
+const FuturisticLogo = ({ isDark, onClick }) => {
+  return (
+    <Box
+      aria-label="Go to Home"
+      role="button"
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        cursor: 'pointer',
+        userSelect: 'none',
+        padding: '4px 8px',
+        borderRadius: '8px',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        background: isDark 
+          ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)' 
+          : 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+        border: `1px solid ${isDark ? 'rgba(102, 126, 234, 0.2)' : 'rgba(102, 126, 234, 0.1)'}`,
+        '&:hover': {
+          transform: 'translateY(-1px)',
+          background: isDark 
+            ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%)' 
+            : 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+          border: `1px solid ${isDark ? 'rgba(102, 126, 234, 0.3)' : 'rgba(102, 126, 234, 0.2)'}`,
+          boxShadow: isDark
+            ? '0 4px 20px rgba(102, 126, 234, 0.3)'
+            : '0 4px 20px rgba(102, 126, 234, 0.2)',
+        },
+        '&:active': {
+          transform: 'translateY(0px)',
+        },
+      }}
+      tabIndex={0}
+      onClick={onClick}
+    >
+      {/* Icon with animated glow effect */}
+      <Box
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '28px',
+          height: '28px',
+          borderRadius: '6px',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '6px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            filter: 'blur(4px)',
+            opacity: 0.4,
+            zIndex: -1,
+          },
+        }}
+      >
+        <ApiIcon 
+          sx={{ 
+            fontSize: 16, 
+            color: 'white',
+            filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.3))',
+          }} 
+        />
+      </Box>
+      
+      {/* Text with gradient and futuristic styling */}
+      <Typography
+        sx={{
+          fontWeight: 700,
+          fontSize: '18px',
+          background: isDark
+            ? 'linear-gradient(135deg, #667eea 0%, #764ba2 60%, #a8edea 100%)'
+            : 'linear-gradient(135deg, #667eea 0%, #764ba2 60%, #667eea 100%)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          letterSpacing: '0.5px',
+          textShadow: isDark ? '0 0 10px rgba(102, 126, 234, 0.5)' : 'none',
+          fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+        }}
+      >
+        API Client
+      </Typography>
+      
+      {/* Optional pulsing dot indicator */}
+      <Box
+        sx={{
+          width: '6px',
+          height: '6px',
+          borderRadius: '50%',
+          background: '#00ff88',
+          animation: 'pulse 2s ease-in-out infinite',
+          '@keyframes pulse': {
+            '0%, 100%': {
+              opacity: 0.4,
+              transform: 'scale(1)',
+            },
+            '50%': {
+              opacity: 1,
+              transform: 'scale(1.2)',
+              boxShadow: '0 0 10px #00ff88',
+            },
+          },
+        }}
+      />
+    </Box>
+  );
+};
 
 const ApiClientHeader = ({ 
   activeRequest, 
@@ -112,81 +233,50 @@ const ApiClientHeader = ({
       {/* Top row - Title and tabs */}
       <Box alignItems="center" display="flex" justifyContent="space-between" mb={1.5}>
         <Box alignItems="center" display="flex" gap={1.5}>
-          <Typography
-            aria-label="Go to Home"
-            role="button"
-            sx={{
-              fontWeight: 600,
-              fontSize: '18px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              cursor: 'pointer',
-              userSelect: 'none',
-            }}
-            tabIndex={0}
-            onClick={() => navigate('/')}
-          >
-            API Client
-          </Typography>
+          <FuturisticLogo 
+            isDark={isDark} 
+            onClick={() => navigate('/')} 
+          />
           
-          <Tabs
+                    <Tabs
+            allowScrollButtonsMobile
             scrollButtons="auto"
             sx={{
-              minHeight: '32px',
+              flex: 1,
               '& .MuiTabs-indicator': {
-                display: 'none', // Remove the default indicator
+                backgroundColor: theme.palette.primary.main,
               },
               '& .MuiTab-root': {
-                borderRadius: '6px',
-                mr: 0.5,
-                minHeight: '32px',
-                height: '32px',
-                textTransform: 'none',
-                fontSize: '13px',
-                fontWeight: 500,
-                position: 'relative',
-                paddingRight: '28px', // Space for close button
-                paddingLeft: '12px',
-                paddingTop: '6px',
-                paddingBottom: '6px',
+                minHeight: '36px',
+                padding: '6px 12px',
                 minWidth: '120px',
-                backgroundColor: 'transparent',
-                color: theme.palette.text.secondary,
-                border: `1px solid ${theme.palette.grey[300]}`,
-                '&.Mui-selected': {
-                  backgroundColor: theme.palette.background.paper,
-                  color: theme.palette.text.primary,
-                  borderColor: theme.palette.primary.main,
-                  boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.2)}`,
+                maxWidth: '200px',
+              },
+              '& .MuiTabs-flexContainer': {
+                gap: '4px',
+              },
+              '& .MuiTabs-scroller': {
+                '& .MuiTabs-scrollButtons': {
+                  width: '24px',
+                  '&.Mui-disabled': {
+                    opacity: 0.3,
+                  },
                 },
-                '&:hover': {
-                  backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                  borderColor: theme.palette.primary.main,
-                },
-                '&:hover .close-icon': {
+              },
+              '.close-icon': {
+                opacity: 0,
+                transition: 'opacity 0.2s',
+              },
+              '&:hover .close-icon, .MuiTab-root:hover .close-icon': {
+                opacity: 1,
+              },
+              '& .MuiTab-root:hover': {
+                '& .close-icon': {
                   opacity: 1,
                 },
-                ...(isDark && {
-                  backgroundColor: 'transparent',
-                  borderColor: 'rgba(255, 255, 255, 0.2)',
-                  color: '#A0A0A0',
-                  '&.Mui-selected': {
-                    backgroundColor: '#2D2D2D',
-                    color: '#E0E0E0',
-                    borderColor: theme.palette.primary.main,
-                  },
-                  '&:hover': {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                    borderColor: theme.palette.primary.main,
-                  },
-                }),
               },
-              '& .close-icon': {
-                position: 'absolute',
-                right: 6,
-                top: '50%',
+              '& .MuiTab-root:hover:not(.Mui-selected)': {
+                backgroundColor: alpha(theme.palette.action.hover, 0.1),
                 transform: 'translateY(-50%)',
                 opacity: 0,
                 transition: 'opacity 0.2s',
@@ -201,33 +291,51 @@ const ApiClientHeader = ({
               <Tab
                 key={req.id}
                 label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                    <Typography sx={{ fontSize: '13px', fontWeight: 500 }}>
-                      {req.name}
-                    </Typography>
-                    {requests.length > 1 && (
-                      <IconButton
-                        className="close-icon"
-                        size="small"
-                        sx={{
-                          ml: 'auto',
-                          p: 0.25,
-                          '&:hover': {
-                            backgroundColor: alpha(theme.palette.error.main, 0.15),
-                            color: theme.palette.error.main,
-                          },
+                  <Tooltip arrow placement="top" title={req.name}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                      <Typography 
+                        sx={{ 
+                          fontSize: '13px', 
+                          fontWeight: 500,
+                          maxWidth: '120px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
                         }}
-                        onClick={(e) => handleCloseTab(e, index)}
                       >
-                        <CloseIcon sx={{ fontSize: 12 }} />
-                      </IconButton>
-                    )}
-                  </Box>
+                        {truncateTabName(req.name)}
+                      </Typography>
+                      {requests.length > 1 && (
+                        <IconButton
+                          className="close-icon"
+                          size="small"
+                          sx={{
+                            ml: 'auto',
+                            p: 0.25,
+                            minWidth: 'auto',
+                            flexShrink: 0,
+                            '&:hover': {
+                              backgroundColor: alpha(theme.palette.error.main, 0.15),
+                              color: theme.palette.error.main,
+                            },
+                          }}
+                          onClick={(e) => handleCloseTab(e, index)}
+                        >
+                          <CloseIcon sx={{ fontSize: 12 }} />
+                        </IconButton>
+                      )}
+                    </Box>
+                  </Tooltip>
                 }
                 sx={{
                   background: index === activeRequest
                     ? alpha(theme.palette.primary.main, 0.1)
                     : 'transparent',
+                  minWidth: 'auto',
+                  maxWidth: '200px',
+                  '& .MuiTab-root': {
+                    padding: '6px 12px',
+                  }
                 }}
               />
             ))}

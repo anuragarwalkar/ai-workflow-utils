@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { ConversationChain } from 'langchain/chains';

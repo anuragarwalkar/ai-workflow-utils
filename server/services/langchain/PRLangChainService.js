@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { BaseLangChainService } from './BaseLangChainService.js';
 import { HumanMessage } from '@langchain/core/messages';
 import logger from '../../logger.js';
@@ -8,6 +9,7 @@ import PRContentParser from './services/pr-content-parser.js';
  * Pull Request-specific LangChain service for handling PR generation
  */
 export class PRLangChainService extends BaseLangChainService {
+  // eslint-disable-next-line no-useless-constructor
   constructor() {
     super();
   }
