@@ -32,12 +32,12 @@ export const createAppTheme = (mode = 'auto') => {
         light: '#f5f7fa',
       },
       background: {
-        default: isDark ? '#1a202c' : '#f7fafc',
-        paper: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+        default: isDark ? '#1E1E1E' : '#f7fafc',
+        paper: isDark ? '#1E1E1E' : 'rgba(255, 255, 255, 0.95)',
       },
       text: {
-        primary: isDark ? '#f7fafc' : '#2d3748',
-        secondary: isDark ? '#cbd5e0' : '#4a5568',
+        primary: isDark ? '#E0E0E0' : '#2d3748',
+        secondary: isDark ? '#A0A0A0' : '#4a5568',
       },
       success: {
         main: '#48bb78',
@@ -52,7 +52,7 @@ export const createAppTheme = (mode = 'auto') => {
         light: '#f6ad55',
       },
       // Custom colors for dark theme
-      divider: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
+      divider: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.12)',
     },
     typography: {
       fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',

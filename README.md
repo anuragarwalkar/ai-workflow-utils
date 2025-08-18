@@ -78,7 +78,19 @@ insights:
 - **📱 Responsive Design**: Access logs from any device with mobile-friendly
   interface
 
-### **🌙 Feature #5: Intelligent Dark Theme System**
+### 🧩 **Feature #5: Universal API Client (NEW!)**
+
+The new **API Client** module provides a flexible, general-purpose interface for making API requests to any service (Jira, Bitbucket, email, or custom endpoints).
+
+- **🔗 Universal API Requests**: Send requests to any configured endpoint
+- **⚡ CLI & Server Support**: Use via CLI or `/api/api-client` endpoint
+- **🛠️ Modular Architecture**: Easily extend for new APIs
+- **🔒 Secure & Configurable**: Manage endpoints in `~/.ai-workflow-utils/environment.json`
+- **📋 Error Handling & Logging**: Built-in reliability
+
+> **Coming Soon:** AI-powered automation, script generation, and smart workflow integration will be added in future releases.
+
+### **🌙 Feature #6: Intelligent Dark Theme System**
 
 Beautiful, adaptive interface that automatically adjusts to your preferences:
 

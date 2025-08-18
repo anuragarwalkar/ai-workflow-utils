@@ -4,6 +4,7 @@ import Layout from '../components/layout/Layout';
 import {
   AiDevAssistant,
   AiEmailComposer,
+  ApiClient,
   CreateJiraContainer,
   GitStashContainer,
   HomeButtons,
@@ -92,6 +93,10 @@ const AppRoutes = () => (
         </Layout>
       }
       path='/ai-dev-assistant'
+    />
+    <Route
+      element={<ApiClient />}
+      path='/api-client'
     />
     <Route
       element={

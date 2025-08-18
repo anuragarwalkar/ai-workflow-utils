@@ -1,3 +1,5 @@
+/* eslint-disable max-statements */
+/* eslint-disable max-lines */
 import {
   Avatar,
   Box,
@@ -18,6 +20,7 @@ import {
   Code as CodeIcon,
   Create as CreateIcon,
   Email as EmailIcon,
+  Http as HttpIcon,
   MergeType as MergeIcon,
   Reviews as ReviewsIcon,
   RocketLaunch as RocketLaunchIcon,
@@ -73,13 +76,16 @@ const ActionCards = () => {
 
   // New unreleased feature handlers
   const handleAiChat = () => {
-    console.log('AI Chat feature clicked');
     navigate('/ai-dev-assistant');
   };
 
   const handleWorkflowAutomation = () => {
     console.log('Workflow Automation feature clicked');
     // TODO: Implement Workflow Automation functionality
+  };
+
+  const handleApiClient = () => {
+    navigate('/api-client');
   };
 
   // Define all action cards
@@ -154,6 +160,18 @@ const ActionCards = () => {
       onClick: handleSendEmail,
       gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
       shadowColor: 'rgba(79, 172, 254, 0.3)',
+      isReleased: true,
+      isAlpha: true,
+    },
+    {
+      id: 'api-client',
+      title: 'API Client',
+      description: 'Futuristic API testing client with AI-ready interface',
+      icon: HttpIcon,
+      actionIcon: SendIcon,
+      onClick: handleApiClient,
+      gradient: 'linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)',
+      shadowColor: 'rgba(108, 92, 231, 0.3)',
       isReleased: true,
       isAlpha: true,
     },
