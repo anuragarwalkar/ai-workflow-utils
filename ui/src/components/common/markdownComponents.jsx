@@ -1,6 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { createTableComponents } from './tableComponents.jsx';
 
 const CodeComponent = ({ inline, className, children, isDark }) => {
   const match = /language-(\w+)/.exec(className || '');
@@ -204,4 +205,5 @@ export const createMarkdownComponents = isDark => ({
   ...createBasicComponents(isDark),
   ...createTextComponents(isDark),
   ...createListComponents(isDark),
+  ...createTableComponents(isDark),
 });

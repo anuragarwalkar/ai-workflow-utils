@@ -1,8 +1,8 @@
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable react/jsx-max-depth */
+/* eslint-disable max-lines */
 import { useEffect, useState } from 'react';
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Alert,
   Box,
   Button,
@@ -15,21 +15,15 @@ import {
   Grid,
   IconButton,
   LinearProgress,
-  Paper,
   Switch,
   Tooltip,
   Typography,
-  useTheme,
 } from '@mui/material';
 import {
-  Add as AddIcon,
   ArrowBack as ArrowBackIcon,
   AutoAwesome as AutoAwesomeIcon,
   Code as CodeIcon,
-  ExpandMore as ExpandMoreIcon,
-  FileCopy as FileCopyIcon,
   Refresh as RefreshIcon,
-  Remove as RemoveIcon,
   Speed as SpeedIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
@@ -48,174 +42,9 @@ import {
 } from '../../store/slices/prSlice';
 import { useStreamingPRReview } from '../../hooks/useStreamingPRReview';
 import RichTextViewer from '../common/RichTextViewer';
+import FileChanges from './FileChanges';
 
-const DiffLine = ({ line, type, lineNumber }) => {
-  const theme = useTheme();
-
-  const getLineStyle = segmentType => {
-    switch (segmentType) {
-      case 'ADDED':
-        return {
-          backgroundColor: `${theme.palette.success.light}20`,
-          borderLeft: `3px solid ${theme.palette.success.main}`,
-          color: theme.palette.success.dark,
-        };
-      case 'REMOVED':
-        return {
-          backgroundColor: `${theme.palette.error.light}20`,
-          borderLeft: `3px solid ${theme.palette.error.main}`,
-          color: theme.palette.error.dark,
-        };
-      case 'CONTEXT':
-        return {
-          backgroundColor: theme.palette.grey[50],
-          borderLeft: `3px solid ${theme.palette.grey[300]}`,
-          color: theme.palette.text.primary,
-        };
-      default:
-        return {};
-    }
-  };
-
-  const getLineIcon = segmentType => {
-    switch (segmentType) {
-      case 'ADDED':
-        return <AddIcon color='success' fontSize='small' />;
-      case 'REMOVED':
-        return <RemoveIcon color='error' fontSize='small' />;
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        fontFamily: 'monospace',
-        fontSize: '0.875rem',
-        padding: '2px 8px',
-        minHeight: '20px',
-        ...getLineStyle(type),
-      }}
-    >
-      <Box sx={{ minWidth: '20px', display: 'flex', alignItems: 'center' }}>
-        {getLineIcon(type)}
-      </Box>
-      <Box
-        sx={{
-          minWidth: '60px',
-          color: theme.palette.text.secondary,
-          marginRight: 2,
-        }}
-      >
-        {lineNumber ? (
-          <Typography sx={{ fontFamily: 'monospace' }} variant='caption'>
-            {lineNumber}
-          </Typography>
-        ) : null}
-      </Box>
-      <Box sx={{ flex: 1, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{line}</Box>
-    </Box>
-  );
-};
-
-const FileChanges = ({ file, expanded, onToggle }) => {
-  const theme = useTheme();
-
-  const getFileStatus = () => {
-    if (!file.source && file.destination) return 'ADDED';
-    if (file.source && !file.destination) return 'REMOVED';
-    return 'MODIFIED';
-  };
-
-  const getStatusColor = status => {
-    switch (status) {
-      case 'ADDED':
-        return 'success';
-      case 'REMOVED':
-        return 'error';
-      case 'MODIFIED':
-        return 'warning';
-      default:
-        return 'default';
-    }
-  };
-
-  const status = getFileStatus();
-  const fileName = file.destination?.toString || file.source?.toString || 'Unknown file';
-
-  return (
-    <Accordion
-      expanded={expanded}
-      sx={{ mb: 1, border: `1px solid ${theme.palette.divider}` }}
-      onChange={onToggle}
-    >
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon />}
-        sx={{
-          backgroundColor: theme.palette.grey[50],
-          '&:hover': { backgroundColor: theme.palette.grey[100] },
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-          <Typography
-            sx={{
-              fontFamily: 'monospace',
-              flex: 1,
-              wordBreak: 'break-all',
-              whiteSpace: 'normal',
-              lineHeight: 1.2,
-              minWidth: 0,
-            }}
-            variant='subtitle1'
-          >
-            {fileName}
-          </Typography>
-          <Chip color={getStatusColor(status)} label={status} size='small' variant='outlined' />
-          <Chip label={`${file.hunks?.length || 0} hunks`} size='small' variant='outlined' />
-        </Box>
-      </AccordionSummary>
-      <AccordionDetails sx={{ p: 0 }}>
-        {file.hunks?.map((hunk, hunkIndex) => (
-          <Box key={hunkIndex} sx={{ mb: 2 }}>
-            <Box
-              sx={{
-                backgroundColor: `${theme.palette.primary.light}20`,
-                p: 1,
-                borderBottom: `1px solid ${theme.palette.divider}`,
-              }}
-            >
-              <Typography
-                sx={{ color: 'primary.main', fontFamily: 'monospace' }}
-                variant='subtitle2'
-              >
-                {hunk.context ||
-                  `@@ -${hunk.sourceLine},${hunk.sourceSpan} +${hunk.destinationLine},${hunk.destinationSpan} @@`}
-              </Typography>
-            </Box>
-            <Box>
-              {hunk.segments?.map((segment, segmentIndex) => (
-                <Box key={segmentIndex}>
-                  {segment.lines?.map((line, lineIndex) => (
-                    <DiffLine
-                      key={`${segmentIndex}-${lineIndex}`}
-                      line={line.line}
-                      lineNumber={line.source || line.destination}
-                      type={segment.type}
-                    />
-                  ))}
-                </Box>
-              ))}
-            </Box>
-          </Box>
-        ))}
-      </AccordionDetails>
-    </Accordion>
-  );
-};
-
+// eslint-disable-next-line max-statements
 const PullRequestDiff = ({ onPrevious, onReset }) => {
   const dispatch = useDispatch();
   const { selectedProject, selectedPullRequest, diffData, reviewData, directPRId } = useSelector(
@@ -469,8 +298,8 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         <Grid
           item
           md={reviewData || isStreaming || streamingContent || streamingError ? 6 : 12}
-          xs={12}
           sx={{ width: '100%' }}
+          xs={12}
         >
           <Card elevation={1} sx={{ mb: 3 }}>
             <CardContent>
@@ -551,7 +380,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         </Grid>
 
         {reviewData || isStreaming || streamingContent || streamingError ? (
-          <Grid item md={6} xs={12} sx={{ width: '100%' }}>
+          <Grid item md={6} sx={{ width: '100%' }} xs={12}>
             <Card elevation={1} sx={{ mb: 3, width: '100%' }}>
               <CardContent sx={{ width: '100%', '&:last-child': { pb: 2 } }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -561,10 +390,10 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
                     <Chip color='primary' label='Streaming...' size='small' variant='outlined' />
                   ) : null}
                   {reviewData && !isStreaming ? (
-                    <Chip label='Generated' size='small' color='secondary' variant='outlined' />
+                    <Chip color='secondary' label='Generated' size='small' variant='outlined' />
                   ) : null}
                   {reviewComplete ? (
-                    <Chip label='Completed' size='small' color='success' variant='outlined' />
+                    <Chip color='success' label='Completed' size='small' variant='outlined' />
                   ) : null}
                 </Box>
 
@@ -572,9 +401,9 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
                   <Box sx={{ mb: 2 }}>
                     <LinearProgress variant='indeterminate' />
                     <Typography
-                      variant='caption'
                       color='text.secondary'
                       sx={{ mt: 1, display: 'block' }}
+                      variant='caption'
                     >
                       AI is analyzing your code changes...
                     </Typography>
@@ -596,7 +425,6 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
                           : '')
                       : reviewData?.review || 'No review available'
                   }
-                  variant='inline'
                   sx={{
                     backgroundColor: 'grey.50',
                     p: 2,
@@ -608,19 +436,23 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
                     minHeight: '200px', // Add minimum height to make content area visible
                     overflowWrap: 'break-word',
                     wordWrap: 'break-word',
+                    overflowX: 'auto', // Enable horizontal scrolling
+                    maxWidth: '100%', // Prevent content from breaking out of container
                   }}
+                  variant='inline'
                 />
 
                 {reviewComplete?.reviewedAt || (reviewData?.reviewedAt && !isStreaming) ? (
                   <Typography
-                    variant='caption'
                     color='text.secondary'
                     sx={{ mt: 1, display: 'block' }}
+                    variant='caption'
                   >
                     Generated on{' '}
                     {new Date(reviewComplete?.reviewedAt || reviewData.reviewedAt).toLocaleString()}
-                    {(reviewComplete?.aiProvider || reviewData?.aiProvider) &&
-                      ` using ${reviewComplete?.aiProvider || reviewData.aiProvider}`}
+                    {reviewComplete?.aiProvider || reviewData?.aiProvider
+                      ? ` using ${reviewComplete?.aiProvider || reviewData.aiProvider}`
+                      : null}
                   </Typography>
                 ) : null}
               </CardContent>
