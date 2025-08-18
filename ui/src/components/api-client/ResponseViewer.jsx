@@ -76,9 +76,13 @@ const ResponseViewer = ({ response, loading }) => {
   };
 
   return (
-    <Box sx={{ height: '100%', overflow: 'hidden' }}>
-  {/* Response Header */}
-  <Box sx={{ p: 1, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Response Header */}
+      <Box sx={{ 
+        p: 1, 
+        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        flexShrink: 0
+      }}>
         <Box alignItems="center" display="flex" gap={2} mb={1}>
           <Typography variant="h6">Response</Typography>
           <Chip
@@ -104,7 +108,12 @@ const ResponseViewer = ({ response, loading }) => {
       </Box>
 
       {/* Response Tabs */}
-  <Paper elevation={0} sx={{ ...glassMorphismStyle, m: 1, mb: 0.5 }}>
+      <Paper elevation={0} sx={{ 
+        ...glassMorphismStyle, 
+        m: 1, 
+        mb: 0.5,
+        flexShrink: 0
+      }}>
         <Tabs
           sx={{
             '& .MuiTab-root': {
@@ -129,18 +138,26 @@ const ResponseViewer = ({ response, loading }) => {
           ...glassMorphismStyle, 
           m: 1, 
           p: 1, 
-          height: 'calc(100% - 180px)', 
-          overflow: 'auto' 
+          flex: 1,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
         {activeTab === 0 && (
-          <ResponseBody contentType={response.contentType} data={response.data} />
+          <Box sx={{ flex: 1, overflow: 'auto' }}>
+            <ResponseBody contentType={response.contentType} data={response.data} />
+          </Box>
         )}
         {activeTab === 1 && (
-          <ResponseHeaders headers={response.headers} />
+          <Box sx={{ flex: 1, overflow: 'auto' }}>
+            <ResponseHeaders headers={response.headers} />
+          </Box>
         )}
         {activeTab === 2 && (
-          <RawResponse response={response} />
+          <Box sx={{ flex: 1, overflow: 'auto' }}>
+            <RawResponse response={response} />
+          </Box>
         )}
       </Paper>
     </Box>
@@ -169,6 +186,8 @@ const ResponseBody = ({ data, contentType }) => {
           wordBreak: 'break-word',
           margin: 0,
           padding: 0,
+          height: '100%',
+          overflow: 'auto',
         }}
       >
         {JSON.stringify(data, null, 2)}
@@ -186,6 +205,8 @@ const ResponseBody = ({ data, contentType }) => {
         wordBreak: 'break-word',
         margin: 0,
         padding: 0,
+        height: '100%',
+        overflow: 'auto',
       }}
     >
       {typeof data === 'string' ? data : JSON.stringify(data, null, 2)}
@@ -203,7 +224,7 @@ const ResponseHeaders = ({ headers }) => {
   }
 
   return (
-    <Box>
+    <Box sx={{ height: '100%', overflow: 'auto' }}>
       {Object.entries(headers).map(([key, value]) => (
         <Box key={key} sx={{ mb: 0.5, pb: 0.5, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <Typography sx={{ fontWeight: 600, color: 'primary.main' }} variant="body2">
@@ -229,6 +250,8 @@ const RawResponse = ({ response }) => {
         wordBreak: 'break-word',
         margin: 0,
         padding: 0,
+        height: '100%',
+        overflow: 'auto',
       }}
     >
       {JSON.stringify(response, null, 2)}
