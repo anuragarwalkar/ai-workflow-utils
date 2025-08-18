@@ -77,8 +77,8 @@ const ResponseViewer = ({ response, loading }) => {
 
   return (
     <Box sx={{ height: '100%', overflow: 'hidden' }}>
-      {/* Response Header */}
-      <Box sx={{ p: 2, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
+  {/* Response Header */}
+  <Box sx={{ p: 1, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
         <Box alignItems="center" display="flex" gap={2} mb={1}>
           <Typography variant="h6">Response</Typography>
           <Chip
@@ -104,7 +104,7 @@ const ResponseViewer = ({ response, loading }) => {
       </Box>
 
       {/* Response Tabs */}
-      <Paper elevation={0} sx={{ ...glassMorphismStyle, m: 2, mb: 1 }}>
+  <Paper elevation={0} sx={{ ...glassMorphismStyle, m: 1, mb: 0.5 }}>
         <Tabs
           sx={{
             '& .MuiTab-root': {
@@ -127,8 +127,8 @@ const ResponseViewer = ({ response, loading }) => {
         elevation={0} 
         sx={{ 
           ...glassMorphismStyle, 
-          m: 2, 
-          p: 2, 
+          m: 1, 
+          p: 1, 
           height: 'calc(100% - 180px)', 
           overflow: 'auto' 
         }}
@@ -205,7 +205,7 @@ const ResponseHeaders = ({ headers }) => {
   return (
     <Box>
       {Object.entries(headers).map(([key, value]) => (
-        <Box key={key} sx={{ mb: 1, pb: 1, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <Box key={key} sx={{ mb: 0.5, pb: 0.5, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <Typography sx={{ fontWeight: 600, color: 'primary.main' }} variant="body2">
             {key}
           </Typography>

@@ -105,18 +105,19 @@ const ApiClientHeader = ({
         }),
         borderRadius: 0,
         borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-        px: 3,
-        py: 2,
+        px: 2,
+        py: 1.5,
       }}
     >
       {/* Top row - Title and tabs */}
-      <Box alignItems="center" display="flex" justifyContent="space-between" mb={2}>
-        <Box alignItems="center" display="flex" gap={2}>
+      <Box alignItems="center" display="flex" justifyContent="space-between" mb={1.5}>
+        <Box alignItems="center" display="flex" gap={1.5}>
           <Typography
             aria-label="Go to Home"
             role="button"
             sx={{
-              fontWeight: 700,
+              fontWeight: 600,
+              fontSize: '18px',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
@@ -125,7 +126,6 @@ const ApiClientHeader = ({
               userSelect: 'none',
             }}
             tabIndex={0}
-            variant="h5"
             onClick={() => navigate('/')}
           >
             API Client
@@ -134,20 +134,58 @@ const ApiClientHeader = ({
           <Tabs
             scrollButtons="auto"
             sx={{
+              minHeight: '32px',
+              '& .MuiTabs-indicator': {
+                display: 'none', // Remove the default indicator
+              },
               '& .MuiTab-root': {
-                borderRadius: '12px 12px 0 0',
-                mr: 1,
-                minHeight: 40,
+                borderRadius: '6px',
+                mr: 0.5,
+                minHeight: '32px',
+                height: '32px',
                 textTransform: 'none',
+                fontSize: '13px',
+                fontWeight: 500,
                 position: 'relative',
-                paddingRight: '32px', // Space for close button
+                paddingRight: '28px', // Space for close button
+                paddingLeft: '12px',
+                paddingTop: '6px',
+                paddingBottom: '6px',
+                minWidth: '120px',
+                backgroundColor: 'transparent',
+                color: theme.palette.text.secondary,
+                border: `1px solid ${theme.palette.grey[300]}`,
+                '&.Mui-selected': {
+                  backgroundColor: theme.palette.background.paper,
+                  color: theme.palette.text.primary,
+                  borderColor: theme.palette.primary.main,
+                  boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.2)}`,
+                },
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.05),
+                  borderColor: theme.palette.primary.main,
+                },
                 '&:hover .close-icon': {
                   opacity: 1,
                 },
+                ...(isDark && {
+                  backgroundColor: 'transparent',
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  color: '#A0A0A0',
+                  '&.Mui-selected': {
+                    backgroundColor: '#2D2D2D',
+                    color: '#E0E0E0',
+                    borderColor: theme.palette.primary.main,
+                  },
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                    borderColor: theme.palette.primary.main,
+                  },
+                }),
               },
               '& .close-icon': {
                 position: 'absolute',
-                right: 8,
+                right: 6,
                 top: '50%',
                 transform: 'translateY(-50%)',
                 opacity: 0,
@@ -163,22 +201,25 @@ const ApiClientHeader = ({
               <Tab
                 key={req.id}
                 label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', pr: 2 }}>
-                    {req.name}
+                  <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                    <Typography sx={{ fontSize: '13px', fontWeight: 500 }}>
+                      {req.name}
+                    </Typography>
                     {requests.length > 1 && (
                       <IconButton
                         className="close-icon"
                         size="small"
                         sx={{
-                          ml: 1,
-                          p: 0.5,
+                          ml: 'auto',
+                          p: 0.25,
                           '&:hover': {
-                            backgroundColor: alpha(theme.palette.error.main, 0.1),
+                            backgroundColor: alpha(theme.palette.error.main, 0.15),
+                            color: theme.palette.error.main,
                           },
                         }}
                         onClick={(e) => handleCloseTab(e, index)}
                       >
-                        <CloseIcon sx={{ fontSize: 14 }} />
+                        <CloseIcon sx={{ fontSize: 12 }} />
                       </IconButton>
                     )}
                   </Box>
@@ -195,6 +236,8 @@ const ApiClientHeader = ({
           <IconButton
             size="small"
             sx={{
+              width: '28px',
+              height: '28px',
               background: alpha(theme.palette.primary.main, 0.1),
               color: theme.palette.primary.main,
               '&:hover': {
@@ -203,14 +246,17 @@ const ApiClientHeader = ({
             }}
             onClick={onAddRequest}
           >
-            <AddIcon />
+            <AddIcon sx={{ fontSize: 16 }} />
           </IconButton>
         </Box>
 
-        <Box alignItems="center" display="flex" gap={1}>
+        <Box alignItems="center" display="flex" gap={0.5}>
           <Tooltip title="AI Assistant">
             <IconButton
+              size="small"
               sx={{
+                width: '28px',
+                height: '28px',
                 background: alpha('#ff9a9e', 0.1),
                 color: '#ff9a9e',
                 '&:hover': {
@@ -218,13 +264,16 @@ const ApiClientHeader = ({
                 },
               }}
             >
-              <AiIcon />
+              <AiIcon sx={{ fontSize: 16 }} />
             </IconButton>
           </Tooltip>
           
           <Tooltip title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
             <IconButton 
+              size="small"
               sx={{
+                width: '28px',
+                height: '28px',
                 background: alpha(theme.palette.primary.main, 0.1),
                 color: theme.palette.primary.main,
                 '&:hover': {
@@ -233,46 +282,224 @@ const ApiClientHeader = ({
               }}
               onClick={toggleTheme}
             >
-              {isDark ? <LightModeIcon /> : <DarkModeIcon />}
+              {isDark ? <LightModeIcon sx={{ fontSize: 16 }} /> : <DarkModeIcon sx={{ fontSize: 16 }} />}
             </IconButton>
           </Tooltip>
         </Box>
       </Box>
 
       {/* Request input bar */}
-      <Box alignItems="stretch" display="flex" gap={2} sx={{ height: 48 }}>
-        <FormControl size="small" sx={{ minWidth: 120 }}>
+      <Box alignItems="stretch" display="flex" gap={0.5} sx={{ height: 36 }}>
+        <FormControl size="small" sx={{ minWidth: 90 }}>
           <Select
+            aria-label="HTTP method"
             sx={{
-              height: '48px',
+              height: '36px',
+              borderRadius: '6px',
+              fontSize: '13px',
+              fontWeight: 500,
               '& .MuiSelect-select': {
-                fontWeight: 600,
-                color: theme.palette.primary.main,
+                padding: '6px 24px 6px 8px',
                 display: 'flex',
                 alignItems: 'center',
+                minHeight: 'unset',
+                fontWeight: 500,
+                color: theme.palette.text.primary,
+              },
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: theme.palette.grey[300],
+                borderWidth: '1px',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: theme.palette.primary.main,
+                boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.2)}`,
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: theme.palette.primary.main,
+                borderWidth: '1px',
+                boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
+              },
+              '&.Mui-disabled': {
+                backgroundColor: theme.palette.grey[50],
+                opacity: 0.6,
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: theme.palette.grey[200],
+                },
+              },
+              '& .MuiSelect-icon': {
+                right: '6px',
+                color: theme.palette.grey[600],
+                fontSize: '18px',
+              },
+              '&:hover .MuiSelect-icon': {
+                color: theme.palette.primary.main,
               },
               ...(isDark && {
                 backgroundColor: '#2D2D2D',
                 color: '#E0E0E0',
-                borderColor: 'rgba(255, 255, 255, 0.1)',
                 '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                  borderColor: 'rgba(255, 255, 255, 0.2)',
                 },
                 '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'rgba(255, 255, 255, 0.2)',
+                  borderColor: theme.palette.primary.main,
+                  boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.2)}`,
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: theme.palette.primary.main,
+                  borderWidth: '1px',
+                  boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
+                },
+                '& .MuiSelect-icon': {
+                  color: '#A0A0A0',
+                },
+                '&:hover .MuiSelect-icon': {
+                  color: theme.palette.primary.main,
                 },
               }),
             }}
             value={currentRequest?.method || 'GET'}
             onChange={handleMethodChange}
           >
-            <MenuItem value="GET">GET</MenuItem>
-            <MenuItem value="POST">POST</MenuItem>
-            <MenuItem value="PUT">PUT</MenuItem>
-            <MenuItem value="PATCH">PATCH</MenuItem>
-            <MenuItem value="DELETE">DELETE</MenuItem>
-            <MenuItem value="HEAD">HEAD</MenuItem>
-            <MenuItem value="OPTIONS">OPTIONS</MenuItem>
+            <MenuItem 
+              sx={{
+                fontSize: '13px',
+                fontWeight: 500,
+                minHeight: '32px',
+                padding: '4px 12px',
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                },
+                '&.Mui-selected': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                  },
+                },
+              }}
+              value="GET"
+            >
+              GET
+            </MenuItem>
+            <MenuItem 
+              sx={{
+                fontSize: '13px',
+                fontWeight: 500,
+                minHeight: '32px',
+                padding: '4px 12px',
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                },
+                '&.Mui-selected': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                  },
+                },
+              }}
+              value="POST"
+            >
+              POST
+            </MenuItem>
+            <MenuItem 
+              sx={{
+                fontSize: '13px',
+                fontWeight: 500,
+                minHeight: '32px',
+                padding: '4px 12px',
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                },
+                '&.Mui-selected': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                  },
+                },
+              }}
+              value="PUT"
+            >
+              PUT
+            </MenuItem>
+            <MenuItem 
+              sx={{
+                fontSize: '13px',
+                fontWeight: 500,
+                minHeight: '32px',
+                padding: '4px 12px',
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                },
+                '&.Mui-selected': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                  },
+                },
+              }}
+              value="PATCH"
+            >
+              PATCH
+            </MenuItem>
+            <MenuItem 
+              sx={{
+                fontSize: '13px',
+                fontWeight: 500,
+                minHeight: '32px',
+                padding: '4px 12px',
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                },
+                '&.Mui-selected': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                  },
+                },
+              }}
+              value="DELETE"
+            >
+              DELETE
+            </MenuItem>
+            <MenuItem 
+              sx={{
+                fontSize: '13px',
+                fontWeight: 500,
+                minHeight: '32px',
+                padding: '4px 12px',
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                },
+                '&.Mui-selected': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                  },
+                },
+              }}
+              value="HEAD"
+            >
+              HEAD
+            </MenuItem>
+            <MenuItem 
+              sx={{
+                fontSize: '13px',
+                fontWeight: 500,
+                minHeight: '32px',
+                padding: '4px 12px',
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                },
+                '&.Mui-selected': {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.3),
+                  },
+                },
+              }}
+              value="OPTIONS"
+            >
+              OPTIONS
+            </MenuItem>
           </Select>
         </FormControl>
 
@@ -282,15 +509,41 @@ const ApiClientHeader = ({
           helperText={curlError}
           InputProps={{
             startAdornment: inputValue.trim().startsWith('curl ') && (
-              <CodeIcon sx={{ color: theme.palette.text.secondary, mr: 1 }} />
+              <CodeIcon sx={{ color: theme.palette.text.secondary, mr: 1, fontSize: 16 }} />
             ),
           }}
           placeholder="Enter URL or paste cURL command here..."
           size="small"
           sx={{
             flex: 1,
+            marginBottom: 0,
             '& .MuiOutlinedInput-root': {
-              height: '48px',
+              height: '36px',
+              borderRadius: '6px',
+              fontSize: '13px',
+              '& input': {
+                fontWeight: 500,
+              },
+              '& fieldset': {
+                borderColor: theme.palette.grey[300],
+                borderWidth: '1px',
+              },
+              '&:hover fieldset': {
+                borderColor: theme.palette.primary.main,
+                boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.2)}`,
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: theme.palette.primary.main,
+                borderWidth: '1px',
+                boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
+              },
+              '&.Mui-disabled': {
+                backgroundColor: theme.palette.grey[50],
+                opacity: 0.6,
+                '& fieldset': {
+                  borderColor: theme.palette.grey[200],
+                },
+              },
               ...(isDark && {
                 backgroundColor: '#2D2D2D',
                 color: '#E0E0E0',
@@ -298,22 +551,19 @@ const ApiClientHeader = ({
                   color: '#A0A0A0',
                   opacity: 1,
                 },
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'rgba(255, 255, 255, 0.1)',
-                },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
+                '& fieldset': {
                   borderColor: 'rgba(255, 255, 255, 0.2)',
                 },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                '&:hover fieldset': {
                   borderColor: theme.palette.primary.main,
+                  boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.2)}`,
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: theme.palette.primary.main,
+                  borderWidth: '1px',
+                  boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
                 },
               }),
-              '&:hover fieldset': {
-                borderColor: theme.palette.primary.main,
-              },
-              '&.Mui-focused fieldset': {
-                borderColor: theme.palette.primary.main,
-              },
             },
           }}
           value={inputValue}
@@ -322,24 +572,40 @@ const ApiClientHeader = ({
 
         <Button
           disabled={loading || !currentRequest?.url}
-          startIcon={loading ? null : <SendIcon />}
+          startIcon={loading ? null : <SendIcon sx={{ fontSize: 16 }} />}
           sx={{
-            minWidth: 120,
-            height: '48px',
-            borderRadius: 2,
+            borderRadius: '6px',
+            fontWeight: 500,
+            padding: '6px 12px',
+            minWidth: '70px',
             textTransform: 'none',
-            fontWeight: 600,
-            background: isDark 
-              ? 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)'
-              : 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+            // Primary filled style
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
+            border: `1px solid ${theme.palette.primary.main}`,
             '&:hover': {
-              background: isDark
-                ? 'linear-gradient(45deg, #5a67d8 30%, #6b46c1 90%)'
-                : 'linear-gradient(45deg, #5a67d8 30%, #6b46c1 90%)',
+              backgroundColor: theme.palette.primary.dark,
+              borderColor: theme.palette.primary.dark,
+              boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.2)}`,
             },
-            '&:disabled': {
-              background: isDark ? '#3A3A3A' : undefined,
-              color: isDark ? '#888' : undefined,
+            '&:focus': {
+              outline: 'none',
+              boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
+            },
+            '&:active': {
+              backgroundColor: theme.palette.primary.dark,
+              transform: 'translateY(1px)',
+            },
+            '&.Mui-disabled': {
+              backgroundColor: theme.palette.grey[300],
+              color: theme.palette.grey[500],
+              borderColor: theme.palette.grey[300],
+              opacity: 0.6,
+            },
+            // Icon spacing
+            '& .MuiButton-startIcon': {
+              marginLeft: 0,
+              marginRight: '4px',
             },
           }}
           variant="contained"

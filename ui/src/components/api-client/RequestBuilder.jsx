@@ -121,7 +121,7 @@ const RequestBuilder = ({
       </Paper>
 
       {/* Tab Content */}
-      <Box sx={{ flex: 1, p: 3, overflow: 'auto' }}>
+    <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
         {activeTab === 0 && (
           <ParamsEditor
             isDark={isDark}
@@ -197,7 +197,14 @@ const ParamsEditor = ({ params, onChange, isDark }) => {
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'}`,
+        borderRadius: 2,
+    p: 2,
+        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
+      }}
+    >
       <Box alignItems="center" display="flex" justifyContent="space-between" mb={2}>
         <Typography sx={{ color: isDark ? '#E0E0E0' : 'inherit' }} variant="h6">
           Query Parameters
@@ -223,13 +230,14 @@ const ParamsEditor = ({ params, onChange, isDark }) => {
       </Box>
       
       {entries.map(([key, value], index) => (
-        <Grid container key={index} spacing={2} sx={{ mb: 1 }}>
-          <Grid item xs={5}>
+    <Grid container key={index} spacing={1} sx={{ mb: 0.5, alignItems: 'center' }}>
+          <Grid item lg={5} sm={4} xs={5}>
             <TextField
               fullWidth
               placeholder="Parameter name"
               size="small"
               sx={{
+                marginBottom: 0,
                 ...(isDark && {
                   '& .MuiOutlinedInput-root': {
                     backgroundColor: '#2D2D2D',
@@ -248,12 +256,13 @@ const ParamsEditor = ({ params, onChange, isDark }) => {
               onChange={(e) => handleChange(index, 'key', e.target.value)}
             />
           </Grid>
-          <Grid item xs={5}>
+          <Grid item lg={5} sm={4} xs={5}>
             <TextField
               fullWidth
               placeholder="Parameter value"
               size="small"
               sx={{
+                marginBottom: 0,
                 ...(isDark && {
                   '& .MuiOutlinedInput-root': {
                     backgroundColor: '#2D2D2D',
@@ -272,7 +281,7 @@ const ParamsEditor = ({ params, onChange, isDark }) => {
               onChange={(e) => handleChange(index, 'value', e.target.value)}
             />
           </Grid>
-          <Grid item xs={2}>
+          <Grid item lg={2} sm={4} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} xs={2}>
             <IconButton 
               size="small" 
               sx={{
@@ -309,166 +318,187 @@ const AuthEditor = ({ auth, onChange, isDark }) => {
   };
 
   return (
-    <Box>
-      <Typography sx={{ mb: 2, color: isDark ? '#E0E0E0' : 'inherit' }} variant="h6">
+    <Box
+      sx={{
+        border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'}`,
+        borderRadius: 2,
+        p: 3,
+        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
+      }}
+    >
+  <Typography sx={{ mb: 2, color: isDark ? '#E0E0E0' : 'inherit' }} variant="h6">
         Authorization
       </Typography>
       
-      <FormControl fullWidth sx={{ mb: 3 }}>
-        <InputLabel sx={{ color: isDark ? '#E0E0E0' : 'inherit' }}>
-          Auth Type
-        </InputLabel>
-        <Select
-          label="Auth Type"
-          sx={{
-            ...(isDark && {
-              backgroundColor: '#2D2D2D',
-              color: '#E0E0E0',
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'rgba(255, 255, 255, 0.1)',
-              },
-              '& .MuiSvgIcon-root': {
-                color: '#E0E0E0',
-              },
-            }),
-          }}
-          value={auth.type || 'none'}
-          onChange={handleAuthTypeChange}
-        >
-          {authTypes.map((type) => (
-            <MenuItem key={type.value} value={type.value}>
-              {type.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      {auth.type === 'bearer' && (
-        <TextField
-          fullWidth
-          label="Token"
-          placeholder="Enter your bearer token"
-          sx={{
-            mb: 2,
-            ...(isDark && {
-              '& .MuiOutlinedInput-root': {
-                backgroundColor: '#2D2D2D',
-                color: '#E0E0E0',
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'rgba(255, 255, 255, 0.1)',
-                },
-              },
-              '& .MuiInputLabel-root': {
-                color: '#A0A0A0',
-              },
-            }),
-          }}
-          value={auth.token || ''}
-          onChange={(e) => handleFieldChange('token', e.target.value)}
-        />
-      )}
+  <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid item md={6} xs={12}>
+          <FormControl fullWidth>
+            <InputLabel sx={{ color: isDark ? '#E0E0E0' : 'inherit' }}>
+              Auth Type
+            </InputLabel>
+            <Select
+              label="Auth Type"
+              sx={{
+                ...(isDark && {
+                  backgroundColor: '#2D2D2D',
+                  color: '#E0E0E0',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                  '& .MuiSvgIcon-root': {
+                    color: '#E0E0E0',
+                  },
+                }),
+              }}
+              value={auth.type || 'none'}
+              onChange={handleAuthTypeChange}
+            >
+              {authTypes.map((type) => (
+                <MenuItem key={type.value} value={type.value}>
+                  {type.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        
+        <Grid item md={6} xs={12}>
+          {auth.type === 'bearer' && (
+            <TextField
+              fullWidth
+              label="Token"
+              placeholder="Enter your bearer token"
+              sx={{
+                ...(isDark && {
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: '#2D2D2D',
+                    color: '#E0E0E0',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(255, 255, 255, 0.1)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#A0A0A0',
+                  },
+                }),
+              }}
+              value={auth.token || ''}
+              onChange={(e) => handleFieldChange('token', e.target.value)}
+            />
+          )}
+          
+          {auth.type === 'apikey' && (
+            <TextField
+              fullWidth
+              label="API Key"
+              placeholder="Enter your API key"
+              sx={{
+                ...(isDark && {
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: '#2D2D2D',
+                    color: '#E0E0E0',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(255, 255, 255, 0.1)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#A0A0A0',
+                  },
+                }),
+              }}
+              value={auth.apiKey || ''}
+              onChange={(e) => handleFieldChange('apiKey', e.target.value)}
+            />
+          )}
+        </Grid>
+      </Grid>
 
       {auth.type === 'basic' && (
-        <>
-          <TextField
-            fullWidth
-            label="Username"
-            placeholder="Enter username"
-            sx={{
-              mb: 2,
-              ...(isDark && {
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#2D2D2D',
-                  color: '#E0E0E0',
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid item md={6} xs={12}>
+            <TextField
+              fullWidth
+              label="Username"
+              placeholder="Enter username"
+              sx={{
+                ...(isDark && {
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: '#2D2D2D',
+                    color: '#E0E0E0',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(255, 255, 255, 0.1)',
+                    },
                   },
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#A0A0A0',
-                },
-              }),
-            }}
-            value={auth.username || ''}
-            onChange={(e) => handleFieldChange('username', e.target.value)}
-          />
-          <TextField
-            fullWidth
-            label="Password"
-            placeholder="Enter password"
-            sx={{
-              mb: 2,
-              ...(isDark && {
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#2D2D2D',
-                  color: '#E0E0E0',
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                  '& .MuiInputLabel-root': {
+                    color: '#A0A0A0',
                   },
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#A0A0A0',
-                },
-              }),
-            }}
-            type="password"
-            value={auth.password || ''}
-            onChange={(e) => handleFieldChange('password', e.target.value)}
-          />
-        </>
+                }),
+              }}
+              value={auth.username || ''}
+              onChange={(e) => handleFieldChange('username', e.target.value)}
+            />
+          </Grid>
+          <Grid item md={6} xs={12}>
+            <TextField
+              fullWidth
+              label="Password"
+              placeholder="Enter password"
+              sx={{
+                ...(isDark && {
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: '#2D2D2D',
+                    color: '#E0E0E0',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(255, 255, 255, 0.1)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: '#A0A0A0',
+                  },
+                }),
+              }}
+              type="password"
+              value={auth.password || ''}
+              onChange={(e) => handleFieldChange('password', e.target.value)}
+            />
+          </Grid>
+        </Grid>
       )}
 
       {auth.type === 'apikey' && (
-        <>
-          <TextField
-            fullWidth
-            label="Header Name"
-            placeholder="X-API-Key"
-            sx={{
-              mb: 2,
-              ...(isDark && {
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#2D2D2D',
-                  color: '#E0E0E0',
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+        <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid item md={6} xs={12}>
+            <TextField
+              fullWidth
+              label="Header Name"
+              placeholder="X-API-Key"
+              sx={{
+                marginBottom: 0,
+                ...(isDark && {
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: '#2D2D2D',
+                    color: '#E0E0E0',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(255, 255, 255, 0.1)',
+                    },
                   },
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#A0A0A0',
-                },
-              }),
-            }}
-            value={auth.apiKeyHeader || 'X-API-Key'}
-            onChange={(e) => handleFieldChange('apiKeyHeader', e.target.value)}
-          />
-          <TextField
-            fullWidth
-            label="API Key"
-            placeholder="Enter your API key"
-            sx={{
-              mb: 2,
-              ...(isDark && {
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#2D2D2D',
-                  color: '#E0E0E0',
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                  '& .MuiInputLabel-root': {
+                    color: '#A0A0A0',
                   },
-                },
-                '& .MuiInputLabel-root': {
-                  color: '#A0A0A0',
-                },
-              }),
-            }}
-            value={auth.apiKey || ''}
-            onChange={(e) => handleFieldChange('apiKey', e.target.value)}
-          />
-        </>
+                }),
+              }}
+              value={auth.apiKeyHeader || 'X-API-Key'}
+              onChange={(e) => handleFieldChange('apiKeyHeader', e.target.value)}
+            />
+          </Grid>
+          <Grid item md={6} xs={12}>
+            {/* API Key field is already handled in the main grid above */}
+          </Grid>
+        </Grid>
       )}
 
       {auth.type !== 'none' && (
-        <Box sx={{ mt: 2, p: 2, backgroundColor: isDark ? '#2A2A2A' : '#f5f5f5', borderRadius: 1 }}>
+        <Box sx={{ mt: 3, p: 2, backgroundColor: isDark ? '#2A2A2A' : '#f5f5f5', borderRadius: 1 }}>
           <Typography sx={{ color: isDark ? '#A0A0A0' : 'text.secondary' }} variant="body2">
             This authorization will automatically add the appropriate headers to your request.
           </Typography>
@@ -549,7 +579,14 @@ const HeadersEditor = ({ headers, onChange, isDark }) => {
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'}`,
+        borderRadius: 2,
+        p: 3,
+        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
+      }}
+    >
       <Box alignItems="center" display="flex" justifyContent="space-between" mb={2}>
         <Typography sx={{ color: isDark ? '#E0E0E0' : 'inherit' }} variant="h6">
           Headers
@@ -635,29 +672,24 @@ const HeadersEditor = ({ headers, onChange, isDark }) => {
       ) : (
         <>
           {/* Header Titles */}
-          <Grid container spacing={2} sx={{ mb: 1 }}>
-            <Grid item xs={4}>
-              <Typography sx={{ fontWeight: 600, color: isDark ? '#A0A0A0' : 'text.secondary' }} variant="body2">
+          <Grid container spacing={1} sx={{ mb: 0.5 }}>
+            <Grid item lg={5} sm={4} xs={5}>
+              <Typography sx={{ fontWeight: 600, color: isDark ? '#A0A0A0' : 'text.secondary', mb: 0 }} variant="body2">
                 Key
               </Typography>
             </Grid>
-            <Grid item xs={6}>
-              <Typography sx={{ fontWeight: 600, color: isDark ? '#A0A0A0' : 'text.secondary' }} variant="body2">
+            <Grid item lg={5} sm={4} xs={5}>
+              <Typography sx={{ fontWeight: 600, color: isDark ? '#A0A0A0' : 'text.secondary', mb: 0 }} variant="body2">
                 Value
-              </Typography>
-            </Grid>
-            <Grid item xs={2}>
-              <Typography sx={{ fontWeight: 600, color: isDark ? '#A0A0A0' : 'text.secondary' }} variant="body2">
-                Action
               </Typography>
             </Grid>
           </Grid>
           
-          <Divider sx={{ mb: 2, borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : undefined }} />
+          <Divider sx={{ mb: 1, borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : undefined }} />
 
           {entries.map(([key, value], index) => (
-            <Grid container key={index} spacing={2} sx={{ mb: 1 }}>
-              <Grid item xs={4}>
+            <Grid container key={index} spacing={1} sx={{ mb: 0.5, alignItems: 'center' }}>
+              <Grid item lg={5} sm={4} xs={5}>
                 <Autocomplete
                   freeSolo
                   options={commonHeaders}
@@ -667,6 +699,9 @@ const HeadersEditor = ({ headers, onChange, isDark }) => {
                       placeholder="Header name"
                       size="small"
                       sx={{
+                        width: '100%',
+                        marginBottom: 0,
+                        minWidth: '200px',
                         ...(isDark && {
                           '& .MuiOutlinedInput-root': {
                             backgroundColor: '#2D2D2D',
@@ -688,12 +723,14 @@ const HeadersEditor = ({ headers, onChange, isDark }) => {
                   onChange={(_, newValue) => handleChange(index, 'key', newValue || '')}
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item lg={5} sm={4} xs={5}>
                 <TextField
                   fullWidth
                   placeholder="Header value"
                   size="small"
                   sx={{
+                    width: '100%',
+                    marginBottom: 0,
                     ...(isDark && {
                       '& .MuiOutlinedInput-root': {
                         backgroundColor: '#2D2D2D',
@@ -712,7 +749,7 @@ const HeadersEditor = ({ headers, onChange, isDark }) => {
                   onChange={(e) => handleChange(index, 'value', e.target.value)}
                 />
               </Grid>
-              <Grid item xs={2}>
+              <Grid item lg={2} sm={4} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} xs={2}>
                 <IconButton 
                   size="small" 
                   sx={{
