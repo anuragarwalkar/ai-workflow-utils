@@ -11,6 +11,7 @@ import configBridge from './services/configBridge.js';
 import { errorHandler, notFoundHandler, requestLogger } from './middleware/index.js';
 
 // Import routes
+import apiClientRoutes from './routes/api-client-routes.js';
 import jiraRoutes from './routes/jira-routes.js';
 import emailRoutes from './routes/email-routes.js';
 import buildRoutes from './routes/build-routes.js';
@@ -97,6 +98,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
+app.use('/api/api-client', apiClientRoutes);
 app.use('/api/jira', jiraRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/build', buildRoutes(io));

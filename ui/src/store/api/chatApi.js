@@ -1,3 +1,6 @@
+/* eslint-disable max-depth */
+/* eslint-disable max-statements */
+/* eslint-disable no-console */
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_BASE_URL } from '../../config/environment.js';
 

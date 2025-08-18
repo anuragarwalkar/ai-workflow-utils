@@ -43,11 +43,24 @@ export const AppThemeProvider = ({ children }) => {
   // Memoize context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => {
     const effectiveThemeMode = themeMode === 'auto' ? getSystemTheme() : themeMode;
+    
+    const toggleTheme = () => {
+      if (themeMode === 'dark') {
+        setThemeMode('light');
+      } else if (themeMode === 'light') {
+        setThemeMode('dark');
+      } else {
+        // If in auto mode, toggle to opposite of current system theme
+        setThemeMode(effectiveThemeMode === 'dark' ? 'light' : 'dark');
+      }
+    };
+    
     return {
       themeMode,
       setThemeMode,
       effectiveThemeMode,
       isDark: effectiveThemeMode === 'dark',
+      toggleTheme,
     };
   }, [themeMode]);
 

@@ -58,15 +58,17 @@ class PRController {
    * Review pull request using LangChain service with streaming support
    */
   static async reviewPullRequest(req, res) {
+    // Declare streaming outside try block to access in catch
+    const {
+      projectKey,
+      repoSlug,
+      pullRequestId,
+      diffData,
+      prDetails,
+      streaming = true,
+    } = req.body;
+
     try {
-      const {
-        projectKey,
-        repoSlug,
-        pullRequestId,
-        diffData,
-        prDetails,
-        streaming = true,
-      } = req.body;
 
       logger.info(
         `Starting AI review for PR ${pullRequestId} using LangChain with custom templates (streaming: ${streaming})`

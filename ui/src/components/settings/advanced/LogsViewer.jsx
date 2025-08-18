@@ -1,3 +1,8 @@
+/* eslint-disable max-statements */
+/* eslint-disable no-console */
+/* eslint-disable max-lines */
+/* eslint-disable react/jsx-max-depth */
+/* eslint-disable react/no-array-index-key */
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -38,6 +43,8 @@ import {
   Warning as WarningIcon,
 } from '@mui/icons-material';
 import { useClearLogsMutation, useGetLogsQuery } from '../../../store/api/logsApi';
+import { API_BASE_URL } from '../../../config/environment.js';
+
 
 const LogsViewer = () => {
   const [selectedLevel, setSelectedLevel] = useState('all');
@@ -138,7 +145,7 @@ const LogsViewer = () => {
 
   const handleDownloadLogs = async () => {
     try {
-      const response = await fetch('/api/logs/download', {
+       const response = await fetch(`${API_BASE_URL}/api/logs/download`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -339,18 +346,18 @@ const LogsViewer = () => {
 
             {selectedLevel !== 'all' || debouncedSearch ? (
               <Chip
+                color='primary'
                 label={`Filtered: ${
                   selectedLevel !== 'all' ? selectedLevel.toUpperCase() : ''
                 }${selectedLevel !== 'all' && debouncedSearch ? ' + ' : ''}${
                   debouncedSearch ? `"${debouncedSearch}"` : ''
                 }`}
+                size='small'
                 onDelete={() => {
                   setSelectedLevel('all');
                   setSearchTerm('');
                   setDebouncedSearch('');
                 }}
-                size='small'
-                color='primary'
               />
             ) : null}
 
@@ -479,7 +486,7 @@ const LogsViewer = () => {
           page={page}
           rowsPerPage={rowsPerPage}
           rowsPerPageOptions={[25, 50, 100]}
-          onPageChange={(event, newPage) => setPage(newPage)}
+          onPageChange={(_event, newPage) => setPage(newPage)}
           onRowsPerPageChange={event => {
             setRowsPerPage(parseInt(event.target.value, 10));
             setPage(0);

@@ -1,6 +1,5 @@
 import logger from '../../../logger.js';
 import { langChainServiceFactory, prLangChainService } from '../../../services/langchain/index.js';
-import StreamingService from './streaming-service.js';
 import DiffProcessorService from './diff-processor-service.js';
 
 /**
