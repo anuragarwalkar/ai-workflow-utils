@@ -88,7 +88,7 @@
     "@langchain/community": "^0.3.50",
     "@langchain/core": "^0.3.69",
     "@langchain/google-genai": "^0.1.0",
-    "@langchain/langgraph": "^0.4.4",
+    "@langchain/langgraph": "^0.4.5",
     "@langchain/mcp-adapters": "^0.6.0",
     "@langchain/ollama": "^0.2.3",
     "@langchain/openai": "^0.6.7",

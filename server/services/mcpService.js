@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 import { MultiServerMCPClient } from '@langchain/mcp-adapters';
 import { v4 as uuidv4 } from 'uuid';
 import logger from '../logger.js';

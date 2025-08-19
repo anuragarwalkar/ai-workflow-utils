@@ -29,6 +29,10 @@ const ApiClientSidebar = ({
   isCollapsed,
   setActiveTab,
   onEnvironmentChange,
+  onEnvironmentSave,
+  onEnvironmentDelete,
+  onEnvironmentExport,
+  onEnvironmentImport,
   onToggleCollapse
 }) => {
   const theme = useTheme();
@@ -163,7 +167,10 @@ const ApiClientSidebar = ({
             activeEnvironment={activeEnvironment}
             environments={environments}
             onEnvironmentChange={onEnvironmentChange}
-            onEnvironmentUpdate={() => {}}
+            onEnvironmentDelete={onEnvironmentDelete}
+            onEnvironmentExport={onEnvironmentExport}
+            onEnvironmentImport={onEnvironmentImport}
+            onEnvironmentSave={onEnvironmentSave}
           />
         )}
       </Box>

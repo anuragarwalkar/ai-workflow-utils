@@ -1,12 +1,14 @@
 /* eslint-disable max-statements */
 import React, { useCallback, useState } from 'react';
 import {
+  Alert,
   Box,
   Paper,
   alpha,
   useTheme,
 } from '@mui/material';
 import { useAppTheme } from '../../theme/useAppTheme';
+import { useEnvironments } from '../../hooks/useEnvironments';
 import ApiClientHeader from './ApiClientHeader';
 import ApiClientSidebar from './ApiClientSidebar';
 import ApiClientMainPanel from './ApiClientMainPanel';
@@ -16,6 +18,20 @@ import { API_BASE_URL } from '../../config/environment.js';
 const ApiClient = () => {
   const theme = useTheme();
   const { isDark } = useAppTheme();
+  
+  // Environment management
+  const {
+    environments,
+    activeEnvironment,
+    error: envError,
+    saveEnvironment,
+    deleteEnvironment,
+    setActiveEnvironment,
+    exportEnvironment,
+    importEnvironment,
+    clearError,
+  } = useEnvironments();
+  
   const [activeTab, setActiveTab] = useState(0);
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
@@ -43,8 +59,14 @@ const ApiClient = () => {
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [collections] = useState([]);
-  const [environments] = useState([]);
-  const [activeEnvironment, setActiveEnvironment] = useState(null);
+
+  const handleEnvironmentChange = async (environment) => {
+    try {
+      await setActiveEnvironment(environment.id);
+    } catch {
+      // Error handling is managed by the hook
+    }
+  };
 
   const handleSendRequest = useCallback(async (requestData) => {
     setLoading(true);
@@ -194,9 +216,17 @@ const ApiClient = () => {
         overflow: 'hidden',
       }}
     >
+      {envError ? (
+        <Alert severity="error" sx={{ mb: 1 }} onClose={clearError}>
+          {envError}
+        </Alert>
+      ) : null}
+      
       <ApiClientHeader
+        activeEnvironment={activeEnvironment}
         activeRequest={activeRequest}
         currentRequest={requests[activeRequest]}
+        environments={environments}
         glassMorphismStyle={glassMorphismStyle}
         loading={loading}
         requests={requests}
@@ -216,7 +246,11 @@ const ApiClient = () => {
           glassMorphismStyle={glassMorphismStyle}
           isCollapsed={leftSidebarCollapsed}
           setActiveTab={setActiveTab}
-          onEnvironmentChange={setActiveEnvironment}
+          onEnvironmentChange={handleEnvironmentChange}
+          onEnvironmentDelete={deleteEnvironment}
+          onEnvironmentExport={exportEnvironment}
+          onEnvironmentImport={importEnvironment}
+          onEnvironmentSave={saveEnvironment}
           onToggleCollapse={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
         />
 
