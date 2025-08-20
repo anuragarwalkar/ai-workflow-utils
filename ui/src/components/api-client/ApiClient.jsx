@@ -1,100 +1,28 @@
 import React from 'react';
-import { Alert, Box, alpha, useTheme } from '@mui/material';
+import { Box } from '@mui/material';
 import { useAppTheme } from '../../theme/useAppTheme';
-import { useApiClientViewModel } from './viewModels/useApiClientViewModel';
-import { useCollectionsViewModel } from './viewModels/useCollectionsViewModel';
-import { useEnvironmentViewModel } from './viewModels/useEnvironmentViewModel';
-import { useUiStateViewModel } from './viewModels/useUiStateViewModel';
-import ApiClientHeader from './ApiClientHeader';
-import ApiClientSidebar from './ApiClientSidebar';
-import ApiClientMainPanel from './ApiClientMainPanel';
-import ApiClientAiPanel from './ApiClientAiPanel';
+import { useApiClientComposition } from './hooks/useApiClientComposition';
+import ApiClientLayout from './components/ApiClientLayout';
+import ApiClientErrorBoundary from './components/ApiClientErrorBoundary';
 
 const ApiClient = () => {
-  const theme = useTheme();
   const { isDark } = useAppTheme();
-  
-  // ViewModels
-  const apiClient = useApiClientViewModel();
-  const collections = useCollectionsViewModel();
-  const environments = useEnvironmentViewModel();
-  const uiState = useUiStateViewModel();
-  
-  const glassMorphismStyle = {
-    background: isDark 
-      ? '#1E1E1E'
-      : alpha(theme.palette.background.paper, 0.9),
-    backdropFilter: 'blur(20px)',
-    border: `1px solid ${alpha(theme.palette.divider, isDark ? 0.1 : 0.1)}`,
-  };
+  const composition = useApiClientComposition();
 
   return (
-    <Box
-      sx={{
-        height: '100vh',
-        background: isDark
-          ? '#1E1E1E'
-          : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        overflow: 'hidden',
-      }}
-    >
-      {apiClient.error ? (
-        <Alert severity="error" sx={{ mb: 1 }} onClose={apiClient.clearError}>
-          {apiClient.error}
-        </Alert>
-      ) : null}
-      
-      <ApiClientHeader
-        activeEnvironment={environments.activeEnvironment}
-        activeRequest={apiClient.activeRequestIndex}
-        currentRequest={apiClient.currentRequest}
-        environments={environments.environments || []}
-        glassMorphismStyle={glassMorphismStyle}
-        loading={apiClient.isExecuting}
-        requests={apiClient.requests}
-        setActiveRequest={apiClient.setActiveRequest}
-        onAddRequest={apiClient.addRequest}
-        onCloseRequest={apiClient.removeRequest}
-        onSendRequest={apiClient.executeRequest}
-        onUpdateRequest={apiClient.updateRequest}
-      />
-
-      <Box display="flex" height="calc(100vh - 140px)">
-        <ApiClientSidebar
-          activeEnvironment={environments.activeEnvironment}
-          activeTab={uiState.activeTab}
-          collections={collections.collections || []}
-          environments={environments.environments || []}
-          glassMorphismStyle={glassMorphismStyle}
-          isCollapsed={uiState.leftSidebarCollapsed}
-          setActiveTab={uiState.setActiveTab}
-          onEnvironmentChange={environments.setActiveEnvironment}
-          onEnvironmentDelete={environments.deleteEnvironment}
-          onEnvironmentExport={environments.exportEnvironment}
-          onEnvironmentImport={environments.importEnvironment}
-          onEnvironmentSave={environments.updateEnvironment}
-          onRequestSelect={apiClient.addCollectionRequest}
-          onToggleCollapse={uiState.toggleLeftSidebar}
-        />
-
-        <ApiClientMainPanel
-          activeEnvironment={environments.activeEnvironment}
-          currentRequest={apiClient.currentRequest}
-          environments={environments.environments || []}
-          glassMorphismStyle={glassMorphismStyle}
-          loading={apiClient.isExecuting}
-          response={apiClient.currentResponse}
-          onUpdate={apiClient.updateRequest}
-        />
-
-        <ApiClientAiPanel 
-          glassMorphismStyle={glassMorphismStyle}
-          isCollapsed={uiState.rightSidebarCollapsed}
-          onApiRequestGenerated={apiClient.addGeneratedRequest}
-          onToggleCollapse={uiState.toggleRightSidebar}
-        />
+    <ApiClientErrorBoundary>
+      <Box
+        sx={{
+          height: '100vh',
+          background: isDark
+            ? '#1E1E1E'
+            : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+          overflow: 'hidden',
+        }}
+      >
+        <ApiClientLayout {...composition} />
       </Box>
-    </Box>
+    </ApiClientErrorBoundary>
   );
 };
 

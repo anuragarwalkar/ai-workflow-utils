@@ -1,3 +1,6 @@
+/* eslint-disable max-lines */
+/* eslint-disable max-statements */
+/* eslint-disable no-console */
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Avatar,
