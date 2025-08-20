@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* eslint-disable max-statements */
 import React, { useCallback, useState } from 'react';
 import {
@@ -9,6 +10,7 @@ import {
 } from '@mui/material';
 import { useAppTheme } from '../../theme/useAppTheme';
 import { useEnvironments } from '../../hooks/useEnvironments';
+import { useCollections } from '../../hooks/useCollections';
 import ApiClientHeader from './ApiClientHeader';
 import ApiClientSidebar from './ApiClientSidebar';
 import ApiClientMainPanel from './ApiClientMainPanel';
@@ -31,6 +33,11 @@ const ApiClient = () => {
     importEnvironment,
     clearError,
   } = useEnvironments();
+
+  // Collections management
+  const {
+    collections,
+  } = useCollections();
   
   const [activeTab, setActiveTab] = useState(0);
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
@@ -58,7 +65,6 @@ const ApiClient = () => {
   const [activeRequest, setActiveRequest] = useState(0);
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [collections] = useState([]);
 
   const handleEnvironmentChange = async (environment) => {
     try {
@@ -198,6 +204,32 @@ const ApiClient = () => {
     // If closing request after active, no change needed
   };
 
+  const handleRequestFromCollection = useCallback((collectionRequest) => {
+    // Convert collection request format to our internal request format
+    const newRequest = {
+      id: Date.now(),
+      name: collectionRequest.name || 'Collection Request',
+      method: collectionRequest.method || 'GET',
+      url: collectionRequest.url || '',
+      headers: collectionRequest.headers || {},
+      params: collectionRequest.params || {},
+      body: collectionRequest.body || '',
+      bodyType: collectionRequest.bodyType || 'json',
+      auth: collectionRequest.auth || {
+        type: 'none',
+        token: '',
+        username: '',
+        password: '',
+        apiKey: '',
+        apiKeyHeader: 'X-API-Key',
+      }
+    };
+
+    // Add as a new request
+    setRequests(prev => [...prev, newRequest]);
+    setActiveRequest(requests.length); // Switch to the new request
+  }, [requests.length]);
+
   const glassMorphismStyle = {
     background: isDark 
       ? '#1E1E1E'
@@ -251,6 +283,7 @@ const ApiClient = () => {
           onEnvironmentExport={exportEnvironment}
           onEnvironmentImport={importEnvironment}
           onEnvironmentSave={saveEnvironment}
+          onRequestSelect={handleRequestFromCollection}
           onToggleCollapse={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
         />
 

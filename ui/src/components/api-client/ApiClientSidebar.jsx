@@ -7,6 +7,7 @@ import {
   Tab,
   Tabs,
   Tooltip,
+  Typography,
   alpha,
   useTheme,
 } from '@mui/material';
@@ -33,6 +34,7 @@ const ApiClientSidebar = ({
   onEnvironmentDelete,
   onEnvironmentExport,
   onEnvironmentImport,
+  onRequestSelect,
   onToggleCollapse
 }) => {
   const theme = useTheme();
@@ -157,11 +159,28 @@ const ApiClientSidebar = ({
       
       <Box sx={{ height: 'calc(100% - 48px)', overflow: 'auto' }}>
         {activeTab === 0 ? (
-          <CollectionsSidebar
-            collections={collections}
-            onCollectionSelect={() => {}}
-            onRequestSelect={() => {}}
-          />
+          <Box>
+            {/* Show active environment in Collections tab */}
+            {Boolean(activeEnvironment) && (
+              <Box sx={{ 
+                p: 2, 
+                borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                backgroundColor: alpha(theme.palette.primary.main, 0.05)
+              }}>
+                <Typography color="text.secondary" sx={{ display: 'block', mb: 0.5 }} variant="caption">
+                  Active Environment:
+                </Typography>
+                <Typography sx={{ fontWeight: 500 }} variant="body2">
+                  {activeEnvironment.name}
+                </Typography>
+              </Box>
+            )}
+            <CollectionsSidebar
+              collections={collections}
+              onCollectionSelect={() => {}}
+              onRequestSelect={onRequestSelect}
+            />
+          </Box>
         ) : (
           <EnvironmentManager
             activeEnvironment={activeEnvironment}

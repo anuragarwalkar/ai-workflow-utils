@@ -2,10 +2,6 @@ import express from 'express';
 import {
   convertNaturalLanguageToApi,
   executeRequest,
-  exportCollections,
-  getCollections,
-  importCollection,
-  saveCollection,
 } from '../controllers/api-client/index.js';
 
 import {
@@ -21,6 +17,17 @@ import {
   updateEnvironment
 } from '../controllers/api-client-environment/index.js';
 
+import {
+  createCollection,
+  deleteCollection,
+  exportAllCollections,
+  exportCollection,
+  getCollection,
+  getCollections,
+  importCollection,
+  updateCollection
+} from '../controllers/api-client-collection/index.js';
+
 const router = express.Router();
 
 // Request execution
@@ -31,35 +38,28 @@ router.post('/convert-nl', convertNaturalLanguageToApi);
 
 // Collections management
 router.get('/collections', getCollections);
-router.post('/collections', saveCollection);
+router.post('/collections', createCollection);
+router.get('/collections/:id', getCollection);
+router.put('/collections/:id', updateCollection);
+router.delete('/collections/:id', deleteCollection);
 
+// Collection import/export
+router.post('/collections/import', importCollection);
+router.get('/collections/:id/export', exportCollection);
+router.get('/collections/export/all', exportAllCollections);
 
-// New API Client Environments management
+// API Client Environments management
 router.get('/environments', getApiClientEnvironments);
-
 router.post('/environments', createEnvironment);
-
 router.get('/environments/active', getActiveEnvironment);
-
 router.get('/environments/:id', getEnvironment);
-
 router.put('/environments/:id', updateEnvironment);
-
 router.delete('/environments/:id', deleteEnvironment);
-
 router.put('/environments/:id/activate', setActiveEnvironment);
 
 // Environment import/export
 router.post('/environments/import', importEnvironment);
-
 router.get('/environments/:id/export', exportEnvironment);
-
 router.get('/environments/export/all', exportAllEnvironments);
-
-// Export 
-router.get('/export', exportCollections);
-
-// Import
-router.post('/import', importCollection);
 
 export default router;
