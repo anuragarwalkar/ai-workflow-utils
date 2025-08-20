@@ -27,6 +27,7 @@ import {
 } from '@mui/icons-material';
 import { useAppTheme } from '../../theme/useAppTheme';
 import CurlImporter from './CurlImporter';
+import ScriptEditor from './ScriptEditor';
 
 const RequestBuilder = ({ 
   request, 
@@ -69,6 +70,10 @@ const RequestBuilder = ({
 
   const handleCurlImport = useCallback((parsedRequest) => {
     onUpdate(parsedRequest);
+  }, [onUpdate]);
+
+  const handleScriptChange = useCallback((scriptType, script) => {
+    onUpdate({ [scriptType]: script });
   }, [onUpdate]);
 
 
@@ -116,6 +121,7 @@ const RequestBuilder = ({
           <Tab label="Authorization" />
           <Tab label="Headers" />
           <Tab label="Body" />
+          <Tab label="Scripts" />
           <Tab label="Import cURL" />
         </Tabs>
       </Paper>
@@ -153,6 +159,15 @@ const RequestBuilder = ({
           />
         )}
         {activeTab === 4 && (
+          <ScriptEditor
+            preScript={request.preScript || ''}
+            postScript={request.postScript || ''}
+            onPreScriptChange={(script) => handleScriptChange('preScript', script)}
+            onPostScriptChange={(script) => handleScriptChange('postScript', script)}
+            isDark={isDark}
+          />
+        )}
+        {activeTab === 5 && (
           <CurlImporter onImport={handleCurlImport} />
         )}
       </Box>

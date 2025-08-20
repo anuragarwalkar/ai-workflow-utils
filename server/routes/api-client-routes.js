@@ -2,6 +2,7 @@ import express from 'express';
 import {
   convertNaturalLanguageToApi,
   executeRequest,
+  executeScript,
 } from '../controllers/api-client/index.js';
 
 import {
@@ -32,6 +33,9 @@ const router = express.Router();
 
 // Request execution
 router.post('/execute', executeRequest);
+
+// Script execution  
+router.post('/execute-script', executeScript);
 
 // Natural language to API conversion
 router.post('/convert-nl', convertNaturalLanguageToApi);

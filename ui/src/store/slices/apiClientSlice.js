@@ -37,7 +37,9 @@ const createRequestFromGenerated = (generatedRequest, name) => ({
     password: '',
     apiKey: '',
     apiKeyHeader: 'X-API-Key',
-  }
+  },
+  preScript: '',
+  postScript: '',
 });
 
 const initialState = {
@@ -59,7 +61,9 @@ const initialState = {
         password: '',
         apiKey: '',
         apiKeyHeader: 'X-API-Key',
-      }
+      },
+      preScript: '',
+      postScript: '',
     }
   ],
   activeRequestIndex: 0,
@@ -103,6 +107,8 @@ const apiClientSlice = createSlice({
           apiKey: '',
           apiKeyHeader: 'X-API-Key',
         },
+        preScript: '',
+        postScript: '',
         ...action.payload,
       };
       state.requests.push(newRequest);

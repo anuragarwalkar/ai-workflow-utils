@@ -22,6 +22,15 @@ export const apiClientApi = createApi({
       }),
       invalidatesTags: ['Response'],
     }),
+
+    // Execute script
+    executeScript: builder.mutation({
+      query: (scriptData) => ({
+        url: '/execute-script',
+        method: 'POST',
+        body: scriptData,
+      }),
+    }),
     
     // Environments endpoints
     getEnvironments: builder.query({
@@ -160,6 +169,7 @@ export const apiClientApi = createApi({
 
 export const {
   useExecuteRequestMutation,
+  useExecuteScriptMutation,
   useGetEnvironmentsQuery,
   useGetActiveEnvironmentQuery,
   useCreateEnvironmentMutation,

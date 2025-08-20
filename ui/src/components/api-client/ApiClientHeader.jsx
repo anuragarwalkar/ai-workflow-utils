@@ -763,7 +763,9 @@ const ApiClientHeader = ({
           substituteVariables(value)
         ])
       ),
-      body: substituteVariables(currentRequest?.body || '')
+      body: substituteVariables(currentRequest?.body || ''),
+      // Include environment variables for script execution
+      environment: activeEnvironment?.variables || {},
     };
     
     onSendRequest(processedRequest);

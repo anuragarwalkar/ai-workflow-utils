@@ -145,11 +145,152 @@ export const convertNaturalLanguageToApi = async (req, res) => {
 };
 
 /**
+ * Execute script in Node.js context
+ */
+export const executeScript = async (req, res) => {
+  try {
+    const { script, context = {} } = req.body;
+
+    if (!script || typeof script !== 'string') {
+      return res.status(400).json({
+        error: true,
+        message: 'Script code is required'
+      });
+    }
+
+    logger.info('🔧 API Client: Executing script');
+
+    // Create a safe execution context
+    const scriptContext = {
+      console: {
+        log: (...args) => logger.info('Script log:', ...args),
+        error: (...args) => logger.error('Script error:', ...args),
+        warn: (...args) => logger.warn('Script warn:', ...args),
+      },
+      // Provide access to passed context (environment variables, request data, etc.)
+      ...context,
+      // Add utility functions
+      setEnvironmentVariable: (key, value) => {
+        if (!scriptContext.environment) scriptContext.environment = {};
+        scriptContext.environment[key] = value;
+      },
+      getEnvironmentVariable: (key) => {
+        return scriptContext.environment?.[key];
+      },
+    };
+
+    // Execute the script in a controlled way
+    try {
+      // Create a module-like execution context
+      const vm = await import('vm');
+      const vmContext = vm.createContext({
+        console: scriptContext.console,
+        setEnvironmentVariable: scriptContext.setEnvironmentVariable,
+        getEnvironmentVariable: scriptContext.getEnvironmentVariable,
+        environment: context.environment || {},
+        request: context.request || {},
+        response: context.response || {},
+        // Add common utilities
+        JSON,
+        Date,
+        Math,
+        parseInt,
+        parseFloat,
+        encodeURIComponent,
+        decodeURIComponent,
+      });
+      
+      const result = vm.runInContext(script, vmContext, {
+        timeout: 5000, // 5 second timeout
+        displayErrors: true,
+      });
+
+      logger.info('✅ API Client: Script executed successfully');
+
+      res.json({
+        success: true,
+        result,
+        environment: vmContext.environment || {},
+        logs: [], // In a real implementation, you'd capture console logs
+      });
+
+    } catch (scriptError) {
+      logger.error('❌ API Client: Script execution failed:', scriptError.message);
+      
+      res.json({
+        success: false,
+        error: scriptError.message,
+        stack: scriptError.stack,
+      });
+    }
+
+  } catch (error) {
+    logger.error('❌ API Client: Script execution setup failed:', error.message);
+    
+    res.status(500).json({
+      error: true,
+      message: error.message || 'Failed to execute script',
+      success: false
+    });
+  }
+};
+
+// Helper function to execute scripts safely
+const executeScriptSafely = async (script, context) => {
+  if (!script || !script.trim()) return { success: true, environment: context.environment || {} };
+  
+  try {
+    const vm = await import('vm');
+    const vmContext = vm.createContext({
+      console: {
+        log: (...args) => logger.info('Script log:', ...args),
+        error: (...args) => logger.error('Script error:', ...args),
+        warn: (...args) => logger.warn('Script warn:', ...args),
+      },
+      setEnvironmentVariable: (key, value) => {
+        if (!vmContext.environment) vmContext.environment = {};
+        vmContext.environment[key] = value;
+      },
+      getEnvironmentVariable: (key) => {
+        return vmContext.environment?.[key];
+      },
+      environment: { ...(context.environment || {}) },
+      request: context.request || {},
+      response: context.response || {},
+      // Add common utilities
+      JSON,
+      Date,
+      Math,
+      parseInt,
+      parseFloat,
+      encodeURIComponent,
+      decodeURIComponent,
+    });
+    
+    vm.runInContext(script, vmContext, {
+      timeout: 5000,
+      displayErrors: true,
+    });
+
+    return {
+      success: true,
+      environment: vmContext.environment || context.environment || {},
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      environment: context.environment || {},
+    };
+  }
+};
+
+/**
  * Execute HTTP request through the API client
  */
 export const executeRequest = async (req, res) => {
   try {
-    const { method, url, headers = {}, params = {}, body, bodyType, auth } = req.body;
+    const { method, url, headers = {}, params = {}, body, bodyType, auth, preScript, postScript, environment = {} } = req.body;
 
     if (!url) {
       return res.status(400).json({
@@ -166,6 +307,31 @@ export const executeRequest = async (req, res) => {
     }
 
     logger.info(`🌐 API Client: Executing ${method.toUpperCase()} request to ${url}`);
+
+    // Execute pre-request script
+    let currentEnvironment = { ...environment };
+    let preScriptResult = { success: true };
+    
+    if (preScript && preScript.trim()) {
+      logger.info('🔧 API Client: Executing pre-request script');
+      preScriptResult = await executeScriptSafely(preScript, {
+        environment: currentEnvironment,
+        request: { method, url, headers, params, body, bodyType, auth }
+      });
+      
+      if (!preScriptResult.success) {
+        return res.json({
+          error: true,
+          message: `Pre-request script failed: ${preScriptResult.error}`,
+          preScriptError: preScriptResult.error,
+          status: 0,
+          responseTime: 0,
+          size: 0,
+        });
+      }
+      
+      currentEnvironment = preScriptResult.environment;
+    }
 
     // Prepare headers with authentication
     const requestHeaders = { ...headers };
@@ -254,7 +420,27 @@ export const executeRequest = async (req, res) => {
       size: responseSize,
       contentType: response.headers['content-type'] || 'unknown',
       error: false,
+      environment: currentEnvironment,
     };
+
+    // Execute post-response script
+    let postScriptResult = { success: true };
+    
+    if (postScript && postScript.trim()) {
+      logger.info('🔧 API Client: Executing post-response script');
+      postScriptResult = await executeScriptSafely(postScript, {
+        environment: currentEnvironment,
+        request: { method, url, headers: requestHeaders, params, body, bodyType, auth },
+        response: apiResponse
+      });
+      
+      if (!postScriptResult.success) {
+        apiResponse.postScriptError = postScriptResult.error;
+        logger.warn('⚠️ API Client: Post-response script failed:', postScriptResult.error);
+      }
+      
+      apiResponse.environment = postScriptResult.environment;
+    }
 
     res.json(apiResponse);
 
