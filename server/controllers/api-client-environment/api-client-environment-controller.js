@@ -166,20 +166,20 @@ export const getActiveEnvironment = async (req, res) => {
 };
 
 /**
- * Import environment from Postman v2.1 format
+ * Import environment from API Client v2.1 format
  */
 export const importEnvironment = async (req, res) => {
   try {
-    const postmanEnvironment = req.body;
+    const apiClientEnvironment = req.body;
 
-    if (!postmanEnvironment || !postmanEnvironment.name) {
+    if (!apiClientEnvironment || !apiClientEnvironment.name) {
       return res.status(400).json({
         success: false,
         error: 'Environment data with name is required'
       });
     }
 
-    const environment = await apiClientEnvironmentDbService.importEnvironment(postmanEnvironment);
+    const environment = await apiClientEnvironmentDbService.importEnvironment(apiClientEnvironment);
 
     res.json({
       success: true,
@@ -195,7 +195,7 @@ export const importEnvironment = async (req, res) => {
 };
 
 /**
- * Export environment in Postman v2.1 format
+ * Export environment in API Client v2.1 format
  */
 export const exportEnvironment = async (req, res) => {
   try {

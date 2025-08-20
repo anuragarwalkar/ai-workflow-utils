@@ -7,7 +7,7 @@ This documentation explains how to use the new environment management system for
 The environment management system allows users to:
 - Create, edit, and delete environments
 - Set an active environment
-- Import/export environments in Postman v2.1 format
+- Import/export environments in API Client v2.1 format
 - Use environment variables in API requests with autocomplete
 - Store environment variables as separate JSON files
 
@@ -108,14 +108,14 @@ const processedUrl = EnvironmentApiService.substituteVariables(
   { BASE_URL: 'https://api.example.com' }
 );
 
-// Convert to/from Postman format
-const postmanFormat = EnvironmentApiService.toPostmanFormat(environment);
-const environment = EnvironmentApiService.fromPostmanFormat(postmanData);
+// Convert to/from API Client format
+const apiClientFormat = EnvironmentApiService.toApiClientFormat(environment);
+const environment = EnvironmentApiService.fromApiClientFormat(apiClientData);
 ```
 
 ## Environment Variable Format
 
-Environments are stored in Postman v2.1 compatible format:
+Environments are stored in API Client v2.1 compatible format:
 
 ```json
 {
@@ -135,9 +135,9 @@ Environments are stored in Postman v2.1 compatible format:
       "type": "text"
     }
   ],
-  "_postman_variable_scope": "environment",
-  "_postman_exported_at": "2025-08-19T10:30:00.000Z",
-  "_postman_exported_using": "AI Workflow Utils"
+  "_api_client_variable_scope": "environment",
+  "_api_client_exported_at": "2025-08-19T10:30:00.000Z",
+  "_api_client_exported_using": "AI Workflow Utils"
 }
 ```
 
@@ -252,4 +252,4 @@ const ApiRequestForm = () => {
 };
 ```
 
-This system provides a complete environment management solution similar to Postman's environment system but integrated into your API client application.
+This system provides a complete environment management solution similar to other API testing tools' environment system but integrated into your API client application.

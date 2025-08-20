@@ -126,7 +126,7 @@ const FuturisticLogo = ({ isDark, onClick }) => {
           fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
         }}
       >
-        API Client
+        AI API Client
       </Typography>
       
       {/* Optional pulsing dot indicator */}

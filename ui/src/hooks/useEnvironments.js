@@ -13,7 +13,7 @@ export const useEnvironments = () => {
   const normalizeEnvironment = useCallback(env => {
     if (!env) return null;
     
-    // Convert Postman format (values array) to object format (variables object)
+    // Convert API Client format (values array) to object format (variables object)
     if (env.values && Array.isArray(env.values)) {
       const variables = {};
       env.values.forEach(item => {
@@ -161,10 +161,10 @@ export const useEnvironments = () => {
         setError(null);
         const response = await EnvironmentApiService.exportEnvironment(id);
 
-        // Convert to Postman format for better compatibility
+        // Convert to API Client format for better compatibility
         const environment = environments.find(env => env.id === id);
         if (environment) {
-          return EnvironmentApiService.toPostmanFormat(environment);
+          return EnvironmentApiService.toApiClientFormat(environment);
         }
 
         return response.data;
@@ -180,8 +180,8 @@ export const useEnvironments = () => {
   const exportAllEnvironments = useCallback(async () => {
     try {
       setError(null);
-      // Convert all to Postman format
-      return environments.map(env => EnvironmentApiService.toPostmanFormat(env));
+      // Convert all to API Client format
+      return environments.map(env => EnvironmentApiService.toApiClientFormat(env));
     } catch (err) {
       setError(err.message);
       throw err;
@@ -197,9 +197,9 @@ export const useEnvironments = () => {
 
         let environmentData;
 
-        // Try to detect if it's Postman format
-        if (importData._postman_variable_scope === 'environment' || importData.values) {
-          environmentData = EnvironmentApiService.fromPostmanFormat(importData);
+        // Try to detect if it's API Client format
+        if (importData._api_client_variable_scope === 'environment' || importData.values) {
+          environmentData = EnvironmentApiService.fromApiClientFormat(importData);
         } else {
           environmentData = importData;
         }

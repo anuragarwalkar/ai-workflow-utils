@@ -190,7 +190,7 @@ const CreateCollectionDialog = ({ open, onClose, onCollectionCreated }) => {
         {activeTab === 1 && (
           <Box sx={{ pt: 1 }}>
             <Typography color="text.secondary" sx={{ mb: 3 }} variant="body2">
-              Import a collection from Postman (v2.0 or v2.1 format)
+              Import a collection from API Client (v2.0 or v2.1 format)
             </Typography>
 
             <Paper sx={{ p: 2, mb: 2, border: '2px dashed', borderColor: 'divider', textAlign: 'center' }} variant="outlined">
@@ -221,7 +221,7 @@ const CreateCollectionDialog = ({ open, onClose, onCollectionCreated }) => {
               multiline
               disabled={loading}
               label="Paste Collection JSON"
-              placeholder="Paste your Postman collection JSON here..."
+              placeholder="Paste your API Client collection JSON here..."
               rows={8}
               sx={{ fontFamily: 'monospace' }}
               value={importData}

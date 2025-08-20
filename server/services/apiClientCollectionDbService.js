@@ -66,30 +66,30 @@ class ApiClientCollectionDbService {
       // Handle requests array
       const requests = Array.isArray(collectionData.requests) ? collectionData.requests : [];
       
-      const postmanCollection = {
+      const apiClientCollection = {
         info: {
-          _postman_id: id,
+          _api_client_id: id,
           name: collectionData.name || 'New Collection',
           description: collectionData.description || '',
-          schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+          schema: 'https://schema.api-client-utils.com/json/collection/v2.1.0/collection.json',
           _exporter_id: uuidv4()
         },
-        item: requests.map(request => ApiClientCollectionDbService.convertToPostmanRequest(request)),
+        item: requests.map(request => ApiClientCollectionDbService.convertToApiClientRequest(request)),
         auth: collectionData.auth || null,
         event: collectionData.event || [],
         variable: collectionData.variable || [],
-        _postman_exported_at: timestamp,
-        _postman_exported_using: 'AI Workflow Utils'
+        _api_client_exported_at: timestamp,
+        _api_client_exported_using: 'AI Workflow Utils'
       };
 
       const collectionPath = path.join(this.collectionsDir, `${id}.json`);
-      await fs.writeFile(collectionPath, JSON.stringify(postmanCollection, null, 2));
+      await fs.writeFile(collectionPath, JSON.stringify(apiClientCollection, null, 2));
 
       const indexData = await this.getIndex();
       indexData.collections.push({
         id,
-        name: postmanCollection.info.name,
-        description: postmanCollection.info.description,
+        name: apiClientCollection.info.name,
+        description: apiClientCollection.info.description,
         filePath: collectionPath,
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -97,7 +97,7 @@ class ApiClientCollectionDbService {
       });
 
       await this.updateIndex(indexData);
-      return postmanCollection;
+      return apiClientCollection;
     } catch (error) {
       logger.error('Failed to create collection:', error);
       throw error;

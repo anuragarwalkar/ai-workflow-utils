@@ -5,13 +5,12 @@
   "main": "index.js",
   "type": "module",
   "keywords": [
-    "api-client",
-    "react",
-    "redux",
-    "rtk-query",
-    "functional-programming",
-    "mvvm",
-    "postman-like"
+    "api",
+    "http",
+    "client",
+    "testing",
+    "rest",
+    "api-client"
   ],
   "author": "Your Organization",
   "license": "MIT",

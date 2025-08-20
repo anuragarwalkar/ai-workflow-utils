@@ -157,8 +157,8 @@ class EnvironmentApiService {
     };
   }
 
-  // Convert to Postman v2.1 format
-  static toPostmanFormat(environment) {
+  // Convert to API Client v2.1 format
+  static toApiClientFormat(environment) {
     return {
       id: environment.id,
       name: environment.name,
@@ -168,18 +168,18 @@ class EnvironmentApiService {
         enabled: true,
         type: 'text',
       })),
-      _postman_variable_scope: 'environment',
-      _postman_exported_at: new Date().toISOString(),
-      _postman_exported_using: 'AI Workflow Utils',
+      _api_client_variable_scope: 'environment',
+      _api_client_exported_at: new Date().toISOString(),
+      _api_client_exported_using: 'AI Workflow Utils',
     };
   }
 
-  // Convert from Postman v2.1 format
-  static fromPostmanFormat(postmanData) {
+  // Convert from API Client v2.1 format
+  static fromApiClientFormat(apiClientData) {
     const variables = {};
-    
-    if (postmanData.values && Array.isArray(postmanData.values)) {
-      postmanData.values.forEach(item => {
+
+    if (apiClientData.values && Array.isArray(apiClientData.values)) {
+      apiClientData.values.forEach(item => {
         if (item.enabled !== false) {
           variables[item.key] = item.value;
         }
@@ -187,8 +187,8 @@ class EnvironmentApiService {
     }
     
     return {
-      id: postmanData.id || `env_${Date.now()}`,
-      name: postmanData.name || 'Imported Environment',
+      id: apiClientData.id || `env_${Date.now()}`,
+      name: apiClientData.name || 'Imported Environment',
       variables,
     };
   }

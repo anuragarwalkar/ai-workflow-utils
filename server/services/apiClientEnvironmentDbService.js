@@ -77,27 +77,26 @@ class ApiClientEnvironmentDbService {
         }));
       }
       
-      const postmanEnvironment = {
-        id,
-        name: environmentData.name || 'New Environment',
-        values: variables.map(variable => ({
-          key: variable.key || '',
-          value: variable.value || '',
-          enabled: variable.enabled !== false,
-          type: variable.type || 'default'
+      const apiClientEnvironment = {
+        name: environment.name,
+        id: `env_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        values: Object.entries(environment.variables).map(([key, value]) => ({
+          key,
+          value: value || '',
+          enabled: true,
+          type: 'default'
         })),
-        _postman_variable_scope: 'environment',
-        _postman_exported_at: timestamp,
-        _postman_exported_using: 'AI Workflow Utils'
+        _api_client_variable_scope: 'environment',
+        _api_client_exported_at: timestamp,
+        _api_client_exported_using: 'AI Workflow Utils'
       };
 
-      const environmentPath = path.join(this.environmentsDir, `${id}.json`);
-      await fs.writeFile(environmentPath, JSON.stringify(postmanEnvironment, null, 2));
+      await fs.writeFile(environmentPath, JSON.stringify(apiClientEnvironment, null, 2));
 
       const indexData = await this.getIndex();
       indexData.environments.push({
         id,
-        name: postmanEnvironment.name,
+        name: apiClientEnvironment.name,
         filePath: environmentPath,
         createdAt: timestamp,
         updatedAt: timestamp
@@ -108,7 +107,7 @@ class ApiClientEnvironmentDbService {
       }
 
       await this.updateIndex(indexData);
-      return postmanEnvironment;
+      return apiClientEnvironment;
     } catch (error) {
       logger.error('Failed to create environment:', error);
       throw error;
@@ -127,9 +126,9 @@ class ApiClientEnvironmentDbService {
           return {
             ...envInfo,
             values: fullEnvironment.values || [],
-            _postman_variable_scope: fullEnvironment._postman_variable_scope,
-            _postman_exported_at: fullEnvironment._postman_exported_at,
-            _postman_exported_using: fullEnvironment._postman_exported_using
+            _api_client_variable_scope: fullEnvironment._api_client_variable_scope,
+            _api_client_exported_at: fullEnvironment._api_client_exported_at,
+            _api_client_exported_using: fullEnvironment._api_client_exported_using
           };
         } catch (error) {
           logger.warn(`Failed to load environment data for ${envInfo.id}:`, error.message);
@@ -194,7 +193,7 @@ class ApiClientEnvironmentDbService {
           enabled: variable.enabled !== false,
           type: variable.type || 'default'
         })) : currentEnvironment.values,
-        _postman_exported_at: new Date().toISOString()
+        _api_client_exported_at: new Date().toISOString()
       };
 
       await fs.writeFile(environmentInfo.filePath, JSON.stringify(updatedEnvironment, null, 2));
@@ -261,25 +260,25 @@ class ApiClientEnvironmentDbService {
     return await this.getEnvironment(indexData.activeEnvironmentId);
   }
 
-  async importEnvironment(postmanEnvironment) {
-    logger.info('Importing environment:', { name: postmanEnvironment?.name, hasValues: Array.isArray(postmanEnvironment?.values) });
+  async importEnvironment(apiClientEnvironment) {
+    logger.info('Importing environment:', { name: apiClientEnvironment?.name, hasValues: Array.isArray(apiClientEnvironment?.values) });
     
-    // Handle both Postman v2.1 format (with values array) and simplified format (with variables object)
-    if (!postmanEnvironment.name) {
+    // Handle both API Client v2.1 format (with values array) and simplified format (with variables object)
+    if (!apiClientEnvironment.name) {
       throw new Error('Invalid environment format: name is required');
     }
 
     let values = [];
     
-    // Check if it's Postman v2.1 format with values array
-    if (Array.isArray(postmanEnvironment.values)) {
+    // Check if it's API Client v2.1 format with values array
+    if (Array.isArray(apiClientEnvironment.values)) {
       // eslint-disable-next-line prefer-destructuring
-      values = postmanEnvironment.values;
-      logger.info('Using Postman v2.1 format with values array');
+      values = apiClientEnvironment.values;
+      logger.info('Using API Client v2.1 format with values array');
     }
     // Check if it's simplified format with variables object
-    else if (postmanEnvironment.variables && typeof postmanEnvironment.variables === 'object') {
-      values = Object.entries(postmanEnvironment.variables).map(([key, value]) => ({
+    else if (apiClientEnvironment.variables && typeof apiClientEnvironment.variables === 'object') {
+      values = Object.entries(apiClientEnvironment.variables).map(([key, value]) => ({
         key,
         value: String(value),
         enabled: true,
@@ -289,10 +288,10 @@ class ApiClientEnvironmentDbService {
     }
     else {
       logger.error('Invalid environment format received:', { 
-        hasValues: !!postmanEnvironment.values, 
-        valuesType: typeof postmanEnvironment.values,
-        hasVariables: !!postmanEnvironment.variables,
-        variablesType: typeof postmanEnvironment.variables
+        hasValues: !!apiClientEnvironment.values, 
+        valuesType: typeof apiClientEnvironment.values,
+        hasVariables: !!apiClientEnvironment.variables,
+        variablesType: typeof apiClientEnvironment.variables
       });
       throw new Error('Invalid environment format: must have either values array or variables object');
     }
@@ -302,16 +301,16 @@ class ApiClientEnvironmentDbService {
 
     const normalizedEnvironment = {
       id,
-      name: postmanEnvironment.name,
+      name: apiClientEnvironment.name,
       values: values.map(variable => ({
         key: variable.key || '',
         value: variable.value || '',
         enabled: variable.enabled !== false,
         type: variable.type || 'default'
       })),
-      _postman_variable_scope: 'environment',
-      _postman_exported_at: timestamp,
-      _postman_exported_using: 'AI Workflow Utils'
+      _api_client_variable_scope: 'environment',
+      _api_client_exported_at: timestamp,
+      _api_client_exported_using: 'AI Workflow Utils'
     };
 
     const environmentPath = path.join(this.environmentsDir, `${id}.json`);
