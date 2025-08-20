@@ -99,10 +99,23 @@ export const apiClientApi = createApi({
     }),
     
     setActiveEnvironment: builder.mutation({
-      query: (id) => ({
-        url: `/environments/${id}/activate`,
-        method: 'POST',
-      }),
+      query: (id) => {
+        // Handle case where an object is passed instead of ID
+        let actualId = id;
+        if (typeof id === 'object' && id !== null) {
+          actualId = id.id || String(id);
+        }
+        
+        // Ensure we have a valid string ID
+        if (!actualId || typeof actualId !== 'string') {
+          throw new Error(`Invalid environment ID: expected string, got ${typeof id}`);
+        }
+        
+        return {
+          url: `/environments/${actualId}/activate`,
+          method: 'PUT',
+        };
+      },
       invalidatesTags: ['Environment'],
     }),
     

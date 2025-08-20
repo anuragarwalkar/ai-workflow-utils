@@ -172,8 +172,13 @@ const useEnvironmentActions = (apiHooks) => {
     return result.data;
   }, [apiHooks]);
   
-  const handleSetActiveEnvironment = useCallback(async (environment) => {
-    return await apiHooks.setActiveEnvironment(environment.id).unwrap();
+  const handleSetActiveEnvironment = useCallback(async (environmentOrId) => {
+    // Handle both environment object and direct ID
+    const id = typeof environmentOrId === 'string' ? environmentOrId : environmentOrId?.id;
+    if (!id) {
+      throw new Error('Environment ID is required');
+    }
+    return await apiHooks.setActiveEnvironment(id).unwrap();
   }, [apiHooks]);
   
   return {
