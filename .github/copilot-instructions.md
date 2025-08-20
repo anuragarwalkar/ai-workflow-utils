@@ -4,51 +4,52 @@
 
 AI Workflow Utils is a comprehensive automation platform that streamlines
 software development workflows by integrating AI-powered content generation with
-popular development tools like Jira, Bitbucket, and email systems.
+popular development tools like Jira, Bitbucket, and email systems. Features include
+AI-powered Jira ticket creation, pull request automation, universal API client with
+natural language processing, MCP (Model Context Protocol) integration, and
+comprehensive logging/monitoring.
 
 ## Architecture
 
-- **Backend**: Node.js/Express server with WebSocket support
+- **Backend**: Node.js/Express server with WebSocket support (ES modules)
 - **Frontend**: React with Vite, Material-UI components, Redux Toolkit for state
   management
 - **Database**: LowDB for local storage (~/.ai-workflow-utils/)
 - **AI Integration**: LangChain with multiple providers (OpenAI, Anthropic,
   Google Gemini, Ollama)
 - **Build**: Webpack for server, Vite for UI
+- **CLI**: Global command with startup service management capabilities
 
 ## Project Structure
 
 ```
-├── bin/                    # CLI entry points
-├── server/                 # Backend Express server
-│   ├── controllers/        # Route handlers (modular structure)
-│   │   ├── pr/             # Pull Request controller (modular)
+├── bin/                    # CLI entry points (startup service management)
+├── server/                 # Backend Express server (ES modules)
+│   ├── controllers/        # Route handlers (modular + simple patterns)
+│   │   ├── pull-request/   # Pull Request controller (full modular)
 │   │   │   ├── models/     # Data models and validation
 │   │   │   ├── services/   # Business logic services
 │   │   │   ├── processors/ # Data processing utilities
 │   │   │   ├── utils/      # Common utilities
-│   │   │   ├── prController.js  # Main PR orchestrator
-│   │   │   ├── index.js    # Module exports
-│   │   │   └── README.md   # Module documentation
+│   │   │   └── pull-request-controller.js
 │   │   ├── chat/           # Chat controller (modular)
-│   │   │   ├── models/     # Chat data models and validation
-│   │   │   ├── services/   # AI provider services
-│   │   │   ├── processors/ # Message and streaming processors
-│   │   │   ├── utils/      # Chat utilities and config
-│   │   │   ├── chat-controller.js  # Main chat orchestrator
-│   │   │   ├── index.js    # Module exports
-│   │   │   └── README.md   # Module documentation
-│   │   ├── emailController.js
-│   │   ├── jiraController.js
-│   │   └── prController.js # Backward compatibility layer
-│   ├── services/          # Business logic
+│   │   ├── api-client/     # Universal API client (simple structure)
+│   │   ├── mcp/           # Model Context Protocol integration
+│   │   ├── logs/          # Real-time logging and monitoring
+│   │   ├── jira/          # Jira integration
+│   │   ├── email/         # Email automation
+│   │   ├── environment/   # Configuration management
+│   │   └── template/      # Template management
+│   ├── services/          # Business logic & LangChain integration
 │   ├── routes/            # API routes
 │   ├── middleware/        # Express middleware
+│   ├── mocks/            # Development mocking system
 │   └── data/              # Configuration files
 ├── ui/                    # React frontend
 │   ├── src/
-│   │   ├── components/    # React components
+│   │   ├── components/    # React components (lazy-loaded routes)
 │   │   ├── store/         # Redux store and API
+│   │   ├── routes/        # Route definitions with lazy loading
 │   │   ├── services/      # Frontend services
 │   │   └── hooks/         # Custom React hooks
 └── uploads/               # File uploads directory
@@ -58,17 +59,16 @@ popular development tools like Jira, Bitbucket, and email systems.
 
 ### Backend (Node.js/Express)
 
-- Use ES6+ syntax with CommonJS modules
+- **ES Modules**: Use `import/export` syntax (`"type": "module"` in package.json)
 - Async/await for asynchronous operations
 - Express router pattern for routes
 - Winston for logging
 - Environment variables for configuration
 - LowDB for data persistence
 - Socket.IO for real-time communication
-- **Modular Architecture**: Use the PR controller pattern for complex features
-  - Separate concerns into models, services, processors, and utilities
-  - Single responsibility principle for each module
-  - Maintain backward compatibility through index exports
+- **Modular Architecture**: Complex features use modular pattern (pull-request, chat)
+- **Simple Architecture**: Basic features use single controller files (api-client, mcp)
+- **Backward Compatibility**: Maintain through index exports and legacy controllers
 
 ### Frontend (React)
 
@@ -120,6 +120,9 @@ popular development tools like Jira, Bitbucket, and email systems.
 - `/api/jira` - Jira integration
 - `/api/pr` - Pull request operations
 - `/api/templates` - Template management
+- `/api/api-client` - Universal API client with natural language processing
+- `/api/mcp` - Model Context Protocol integration
+- `/api/logs` - Real-time logging and monitoring
 
 ## Modular Architecture Patterns
 
@@ -129,26 +132,26 @@ The PR controller follows a modular architecture with clear separation of
 concerns:
 
 ```
-server/controllers/pr/
-├── prController.js          # Main orchestrator (delegates to services)
-├── index.js                 # Clean module exports
-├── README.md               # Module documentation
+server/controllers/pull-request/
+├── pull-request-controller.js  # Main orchestrator (delegates to services)
+├── index.js                    # Clean module exports
+├── README.md                  # Module documentation
 ├── models/
-│   └── PullRequest.js      # Data models with validation
+│   └── PullRequest.js         # Data models with validation
 ├── services/
-│   ├── bitbucketService.js    # External API interactions
-│   ├── diffProcessorService.js # Business logic coordination
-│   ├── prContentService.js    # AI-powered content generation
-│   └── streamingService.js    # Real-time SSE handling
+│   ├── bitbucketService.js       # External API interactions
+│   ├── diffProcessorService.js   # Business logic coordination
+│   ├── prContentService.js       # AI-powered content generation
+│   └── streamingService.js       # Real-time SSE handling
 ├── processors/
-│   ├── unidiffProcessor.js        # Data transformation utilities
-│   ├── bitbucketDiffProcessor.js  # Format-specific processing
-│   └── legacyDiffProcessor.js     # Backward compatibility
+│   ├── unidiffProcessor.js            # Data transformation utilities
+│   ├── bitbucketDiffProcessor.js      # Format-specific processing
+│   └── legacyDiffProcessor.js         # Backward compatibility
 └── utils/
-    ├── constants.js           # Module constants
-    ├── environmentConfig.js   # Configuration management
-    ├── errorHandler.js        # Error handling utilities
-    └── templateService.js     # Template operations
+    ├── constants.js               # Module constants
+    ├── environmentConfig.js       # Configuration management
+    ├── errorHandler.js            # Error handling utilities
+    └── templateService.js         # Template operations
 ```
 
 ### Module Responsibilities
@@ -162,17 +165,21 @@ server/controllers/pr/
 ### Modular Import Patterns
 
 ```javascript
-// Import the full controller (backward compatibility)
-import { PRController } from "./controllers/pr/index.js";
+// ES Module imports (note: using ES modules, not CommonJS)
+import { PRController } from "./controllers/pull-request/index.js";
 
 // Import specific services for targeted operations
-import { BitbucketService, PRContentService } from "./controllers/pr/index.js";
+import { BitbucketService, PRContentService } from "./controllers/pull-request/index.js";
 
 // Import individual processors for data transformation
-import { UnidiffProcessor } from "./controllers/pr/index.js";
+import { UnidiffProcessor } from "./controllers/pull-request/index.js";
 
 // Import utilities for common operations
-import { ErrorHandler, EnvironmentConfig } from "./controllers/pr/index.js";
+import { ErrorHandler, EnvironmentConfig } from "./controllers/pull-request/index.js";
+
+// Simple controller imports (non-modular)
+import { convertNaturalLanguageToApi } from "./controllers/api-client/api-client-controller.js";
+import { getMcpClients } from "./controllers/mcp/mcp-controller.js";
 ```
 
 ## Component Patterns
@@ -258,8 +265,12 @@ The application supports multiple providers for different services:
 ## Development Workflow
 
 - `npm run dev` - Start development servers (backend + frontend)
-- `npm run build` - Build for production
+- `npm run dev-server` - Start only backend in dev mode
+- `npm run build` - Build for production (webpack + vite)
 - `npm run start` - Start production server
+- `ai-workflow-utils` - Global CLI command
+- `ai-workflow-utils startup install` - Install as system service
+- `ai-workflow-utils startup start/stop/restart` - Service management
 - Hot reload enabled for both frontend and backend
 
 ## Testing Considerations
@@ -278,6 +289,104 @@ The application supports multiple providers for different services:
 - Error messages that don't expose sensitive information
 
 ## Common Patterns to Follow
+
+### Universal API Client Pattern
+
+```javascript
+// Natural language to API conversion
+export const convertNaturalLanguageToApi = async (req, res) => {
+  const { prompt, streaming = false } = req.body;
+  
+  if (streaming) {
+    // Server-Sent Events setup
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    });
+    
+    // Stream AI responses
+    const streamCallback = (data) => {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+  }
+  
+  // Use LangChain service for AI processing
+  await langchainApiClientService.generateApiRequest(prompt, streamCallback);
+};
+```
+
+### MCP Integration Pattern
+
+```javascript
+// Model Context Protocol client management
+export const createMcpClient = async (req, res) => {
+  try {
+    const clientConfig = req.body;
+    const result = await mcpService.createClient(clientConfig);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+```
+
+### Real-time Logging Pattern
+
+```javascript
+// WebSocket-based log streaming
+export const streamLogs = (io) => {
+  const logStream = createLogStream();
+  
+  logStream.on('data', (logEntry) => {
+    io.emit('log-entry', {
+      timestamp: logEntry.timestamp,
+      level: logEntry.level,
+      message: logEntry.message
+    });
+  });
+};
+```
+
+### CLI and Service Management Pattern
+
+```javascript
+// CLI entry point with service management
+async function main() {
+  const args = process.argv.slice(2);
+  
+  // Handle startup commands
+  if (args[0] === 'startup') {
+    const startupScript = path.join(packageDir, 'bin', 'startup.js');
+    const startupProcess = spawn('node', [startupScript, ...args.slice(1)], {
+      stdio: 'inherit',
+      cwd: packageDir,
+    });
+    return;
+  }
+  
+  // Default: start the server
+  const serverProcess = spawn('node', [serverPath], {
+    stdio: 'inherit',
+    cwd: packageDir,
+  });
+}
+```
+
+### Natural Language Processing Pattern
+
+```javascript
+// Template-driven prompt engineering
+const generateApiRequestPrompt = (userPrompt, examples) => {
+  return `Convert this natural language request into an API configuration:
+User: "${userPrompt}"
+
+Examples:
+${examples.map(ex => `- "${ex.input}" -> ${JSON.stringify(ex.output)}`).join('\n')}
+
+Generate a JSON response with method, url, headers, and body.`;
+};
+```
 
 ### Modular Service Pattern
 
@@ -401,18 +510,15 @@ export const apiSlice = createApi({
 
 When providing suggestions or generating code:
 
-1. Follow the established patterns and conventions
-2. Use the appropriate technology stack components
-3. Maintain consistency with existing code style
-4. Consider the provider-based architecture
-5. Include proper error handling and loading states
-6. Use Material-UI components for consistency
-7. Follow the API response format standards
-8. **Use modular architecture patterns for complex features**:
-   - Separate concerns into appropriate modules (controllers, services,
-     processors, models, utils)
-   - Maintain single responsibility principle
-   - Use static methods for stateless operations
-   - Implement proper data validation in models
-   - Keep backward compatibility through index exports
-   - Add comprehensive documentation for new modules
+1. **Follow ES Module patterns**: Use `import/export`, not `require/module.exports`
+2. **Architecture Choice**: Use modular pattern for complex features (pull-request, chat), simple controllers for basic features (api-client, mcp)
+3. **Use the appropriate technology stack**: LangChain for AI, Material-UI for UI, Redux Toolkit for state
+4. **Maintain consistency**: Follow existing code style and API response format
+5. **Provider-based architecture**: Support multiple AI/repository/issue providers
+6. **Real-time features**: Use Socket.IO for live updates and Server-Sent Events for streaming
+7. **CLI integration**: Consider global command usage and service management capabilities
+8. **Natural language processing**: Implement template-driven prompt engineering for AI features
+9. **Error handling and loading states**: Always include proper error boundaries and loading indicators
+10. **Security**: Store sensitive config in `~/.ai-workflow-utils/environment.json`, validate inputs
+11. **Performance**: Use lazy loading for routes, debouncing for inputs, memoization for expensive operations
+12. **Documentation**: Add README.md files for new complex modules following the established pattern
