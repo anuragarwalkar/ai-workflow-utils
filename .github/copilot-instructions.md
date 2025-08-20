@@ -1,70 +1,57 @@
 # GitHub Copilot Instructions for AI Workflow Utils
 
 ## General Principles
-- **Functional Programming**  
-  - Always write pure functions and immutable data structures.  
-  - Never use classes. Prefer hooks and functional composition.  
-  - Use map/filter/reduce instead of loops when possible.  
-
-- **Code Modularity**  
-  - Each file **must not exceed 200 lines**.  
-  - Split large components into smaller reusable ones.  
-  - Never do prop drilling. Use Redux selectors/hooks or React context instead.  
-  - Each component must have **one clear responsibility only**.  
-
-- **Separation of Concerns**  
-  - **Container components**: Fetch data, manage state, and connect to Redux.  
-  - **Presentational components**: Only handle UI. No business logic. Minimal props.  
-  - **Redux Toolkit slices**: Contain all business logic, reducers, and API calls.  
+- Always use **functional programming** (pure functions, immutability, no classes).
+- Each file **must not exceed 200 lines**.
+- Follow **single responsibility principle** → one purpose per file.
+- Avoid **prop drilling** → use Redux selectors/hooks or React context.
+- Always prefer **map/filter/reduce** over loops.
+- All code must be **ESM only** (`import/export`).
+- Business logic **never belongs in UI components** → must live in Redux slices or backend services.
 
 ---
 
 ## Backend (Node.js / Express)
-- Always use **functional programming style** for middleware, services, and controllers.  
-- **Express Best Practices**:  
-  - Use `async/await` with centralized error handler middleware.  
-  - Split into routes, controllers, services, and models.  
-  - One responsibility per file.  
-  - Never put config values in code → use `.env`.  
-- **API Documentation**:  
-  - Generate Swagger/OpenAPI docs for all endpoints at `/api/docs`.  
-- **Validation & Security**:  
-  - Validate all requests using `zod` or `joi`.  
-  - Always use `helmet`, sanitize inputs, and remove stack traces in production.  
+- Always use **functional style** middleware, controllers, and services.
+- Folder structure: `routes/`, `controllers/`, `services/`, `models/`.
+- Use `async/await` with a centralized error handler.
+- Load configuration from `.env`, never hardcode secrets.
+- Generate **Swagger/OpenAPI docs** for all endpoints (`/api/docs`).
+- Validate all requests with `zod` or `joi`.
+- Apply **security best practices**: `helmet`, sanitize inputs, no stack traces in prod.
 
 ---
 
 ## Frontend (React + Redux + Vite + MUI)
-- **Component Rules**:  
-  - Always use functional components with hooks.  
-  - Never add business logic to components → move to Redux.  
-  - Maximum 5–6 props per component. Use `children` or context when needed.  
-  - Never write inline styles.  
-  - Never use the `xs` prop unless it is absolutely necessary.  
-  - Use responsive design with theme breakpoints, not `xs` prop hacks.  
+- Always use **functional components with hooks**.
+- State & async logic must go in **Redux Toolkit slices** or **RTK Query**.
+- Components should only consume Redux state via selectors/hooks.
+- **Component rules**:
+  - Max 5–6 props per component. Use `children` or context if more are needed.
+  - Split into **container** (data/state) and **presentational** (UI only).
+  - Presentational components must be pure and simple.
 
-- **Styling Rules**:  
-  - Always use **MUI `styled` API** for styling.  
-  - Create a `${ComponentName}.style.js` file for each component’s styled elements.  
-  - Never use `sx` prop or inline styles.  
+---
 
-- **Redux Rules**:  
-  - Use Redux Toolkit slices for all state and async logic.  
-  - Use RTK Query for all API calls.  
-  - Components should only select data from Redux, never call services directly.  
+## Styling Rules
+- **Never use inline styles or `sx` prop**.  
+- **Never use `xs` prop** unless absolutely necessary for responsiveness.  
+- Always use **MUI `styled` API**.  
+- Each component must have a `ComponentName.style.jsx` file for styled components.  
+- Use `ComponentName.module.css` only if non-MUI CSS is unavoidable.  
+- Theme breakpoints must be used for responsive design (instead of `xs` shortcuts).  
 
 ---
 
 ## Deployment & Build
-- **Backend** → Webpack build with ESM (`import/export`).  
-- **Frontend** → Vite build for React app.  
-- Always lazy-load routes and code-split large bundles.  
-- Always memoize expensive operations.  
-- Use debouncing/throttling for WebSocket or input-heavy events.  
+- **Backend** → Webpack build (ESM only).
+- **Frontend** → Vite build (React app).
+- Always lazy-load routes & code-split.
+- Memoize expensive operations and debounce/throttle heavy events.
 
 ---
 
 ## Error Handling & UX
-- Always use **React error boundaries**.  
-- Always show **loading states** for async operations.  
-- Always provide fallback UIs consistent with the design system.  
+- Always use **error boundaries** in React.
+- Always show **loading states** for async operations.
+- Provide consistent, user-friendly fallback UIs.

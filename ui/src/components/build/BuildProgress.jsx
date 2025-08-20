@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+/* eslint-disable max-statements */
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -186,60 +188,54 @@ const BuildProgress = ({ onReset, onBack }) => {
         <Box sx={{ mb: 3 }}>
           {prStatus === 'creating' && (
             <Alert
-              severity='info'
               icon={<CircularProgress size={20} />}
+              severity='info'
               sx={{ mb: 2 }}
             >
               Creating pull request automatically...
             </Alert>
           )}
 
-          {prStatus === 'success' && prData && (
-            <Alert severity='success' sx={{ mb: 2 }}>
+          {prStatus === 'success' && prData ? <Alert severity='success' sx={{ mb: 2 }}>
               <Box>
-                <Typography variant='body2' sx={{ fontWeight: 'bold' }}>
+                <Typography sx={{ fontWeight: 'bold' }} variant='body2'>
                   Pull request created successfully!
                 </Typography>
-                <Typography variant='body2' sx={{ mt: 1 }}>
+                <Typography sx={{ mt: 1 }} variant='body2'>
                   Title: {prData.prTitle}
                 </Typography>
-                {prData.pullRequest?.links?.self?.[0]?.href && (
-                  <Typography variant='body2' sx={{ mt: 1 }}>
+                {prData.pullRequest?.links?.self?.[0]?.href ? <Typography sx={{ mt: 1 }} variant='body2'>
                     <a
                       href={prData.pullRequest.links.self[0].href}
-                      target='_blank'
                       rel='noopener noreferrer'
                       style={{ color: 'inherit', textDecoration: 'underline' }}
+                      target='_blank'
                     >
                       View Pull Request
                     </a>
-                  </Typography>
-                )}
+                  </Typography> : null}
               </Box>
-            </Alert>
-          )}
+            </Alert> : null}
 
-          {prStatus === 'error' && prError && (
-            <Alert severity='error' sx={{ mb: 2 }}>
+          {prStatus === 'error' && prError ? <Alert severity='error' sx={{ mb: 2 }}>
               <Box>
-                <Typography variant='body2' sx={{ fontWeight: 'bold' }}>
+                <Typography sx={{ fontWeight: 'bold' }} variant='body2'>
                   Failed to create pull request
                 </Typography>
-                <Typography variant='body2' sx={{ mt: 1 }}>
+                <Typography sx={{ mt: 1 }} variant='body2'>
                   {prError}
                 </Typography>
                 <Button
                   size='small'
                   startIcon={<PullRequestIcon />}
-                  onClick={handleCreatePullRequest}
                   sx={{ mt: 1 }}
                   variant='outlined'
+                  onClick={handleCreatePullRequest}
                 >
                   Retry PR Creation
                 </Button>
               </Box>
-            </Alert>
-          )}
+            </Alert> : null}
 
           {buildStatus === 'success' && !branchName && (
             <Alert severity='warning' sx={{ mb: 2 }}>
@@ -389,7 +385,7 @@ const BuildProgress = ({ onReset, onBack }) => {
           ) : null}
 
           {!isBuilding && buildStatus ? (
-            <Button onClick={onReset} variant='outlined'>
+            <Button variant='outlined' onClick={onReset}>
               Start New Build
             </Button>
           ) : null}

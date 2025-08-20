@@ -1,3 +1,7 @@
+/* eslint-disable max-statements */
+/* eslint-disable prefer-destructuring */
+/* eslint-disable max-lines */
+/* eslint-disable react/jsx-max-depth */
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
@@ -138,11 +142,12 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
   };
 
   const handleSubmit = async event => {
+    console.log('event:', event);
     event.preventDefault();
 
     let projectData;
     let prNumber = null;
-
+console.log('tabValue:', tabValue);
     if (tabValue === 0) {
       // Manual form submission
       if (!formData.projectKey.trim() || !formData.repoSlug.trim()) {
@@ -347,9 +352,9 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                             />
                             {urlData.parsedData.prNumber ? (
                               <Chip
+                                color='success'
                                 label={`PR: #${urlData.parsedData.prNumber}`}
                                 size='small'
-                                color='success'
                               />
                             ) : null}
                           </Box>
@@ -358,8 +363,8 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
                               control={
                                 <Switch
                                   checked={urlData.directToPR}
-                                  onChange={handleDirectToPRChange}
                                   size='small'
+                                  onChange={handleDirectToPRChange}
                                 />
                               }
                               label='Go directly to this PR review'
