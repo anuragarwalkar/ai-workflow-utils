@@ -319,8 +319,8 @@ const EnvironmentSettings = () => {
                     <TextField
                       fullWidth
                       helperText={config.description}
-                      InputProps={
-                        config.sensitive
+                      InputProps={{
+                        ...(config.sensitive
                           ? {
                               endAdornment: (
                                 <IconButton
@@ -332,12 +332,27 @@ const EnvironmentSettings = () => {
                                 </IconButton>
                               ),
                             }
-                          : undefined
-                      }
+                          : {}),
+                        ...(config.type === 'number'
+                          ? {
+                              inputProps: {
+                                min: key.includes('TEMPERATURE') ? 0 : undefined,
+                                max: key.includes('TEMPERATURE') ? 2 : undefined,
+                                step: key.includes('TEMPERATURE') ? 0.1 : undefined,
+                              },
+                            }
+                          : {}),
+                      }}
                       label={config.label}
                       placeholder={config.default || ''}
                       size='small'
-                      type={config.sensitive && !showSensitive[key] ? 'password' : 'text'}
+                      type={
+                        config.sensitive && !showSensitive[key]
+                          ? 'password'
+                          : config.type === 'number'
+                          ? 'number'
+                          : 'text'
+                      }
                       value={settings[key] || ''}
                       onChange={e => handleInputChange(key, e.target.value)}
                     />

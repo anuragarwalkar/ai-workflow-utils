@@ -12,6 +12,7 @@ import { pull } from 'langchain/hub';
 import logger from '../../logger.js';
 import templateDbService from '../templateDbService.js';
 import mcpService from '../mcpService.js';
+import environmentDbService from '../environmentDbService.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -33,28 +34,36 @@ export class BaseLangChainService {
     // Reset providers to avoid duplicates on reinitialization
     this.providers = [];
 
+    // Get environment settings for temperature configuration
+    const settings = await environmentDbService.getSettings();
+
     // 1. OpenAI (Official ChatGPT API)
     if (process.env.OPENAI_API_KEY) {
+      const temperature = parseFloat(settings.OPENAI_TEMPERATURE || '0');
       this.providers.push({
         name: 'OpenAI ChatGPT',
         model: new ChatOpenAI({
           openAIApiKey: process.env.OPENAI_API_KEY,
           modelName: process.env.OPENAI_MODEL || 'gpt-4-vision-preview',
+          temperature,
         }),
         supportsVision: this.modelSupportsVision(
           process.env.OPENAI_MODEL || 'gpt-4-vision-preview'
         ),
         priority: 1,
       });
+      logger.info(`OpenAI ChatGPT provider initialized with temperature: ${temperature}`);
     }
 
     // 2. OpenAI-Compatible APIs (Anthropic Claude, local models, etc.)
     if (process.env.OPENAI_COMPATIBLE_BASE_URL && process.env.OPENAI_COMPATIBLE_API_KEY) {
+      const temperature = parseFloat(settings.OPENAI_COMPATIBLE_TEMPERATURE || '0');
       this.providers.push({
         name: 'OpenAI Compatible',
         model: new ChatOpenAI({
           apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
           model: process.env.OPENAI_COMPATIBLE_MODEL || 'claude-3-sonnet-20240229',
+          temperature,
           configuration: {
             baseURL: process.env.OPENAI_COMPATIBLE_BASE_URL,
           },
@@ -62,6 +71,7 @@ export class BaseLangChainService {
         supportsVision: this.modelSupportsVision(process.env.OPENAI_COMPATIBLE_MODEL),
         priority: 2,
       });
+      logger.info(`OpenAI Compatible provider initialized with temperature: ${temperature}`);
     }
 
     // 3. Google Gemini
@@ -69,6 +79,7 @@ export class BaseLangChainService {
       try {
         // Validate the model name for Google Gemini
         const googleModel = process.env.GOOGLE_MODEL || 'gemini-1.5-flash';
+        const temperature = parseFloat(settings.GOOGLE_TEMPERATURE || '0');
         
         // Use a more reliable model name that doesn't include "vision" in the name
         // as the library might be handling vision capabilities automatically
@@ -77,13 +88,13 @@ export class BaseLangChainService {
           model: new ChatGoogleGenerativeAI({
             apiKey: process.env.GOOGLE_API_KEY,
             modelName: googleModel,
-            temperature: 0.7, // Add some temperature for better responses
+            temperature,
           }),
           supportsVision: true, // Gemini models support vision
           priority: 3,
         });
         
-        logger.info(`Google Gemini provider initialized with model: ${googleModel}`);
+        logger.info(`Google Gemini provider initialized with model: ${googleModel}, temperature: ${temperature}`);
       } catch (error) {
         logger.error('Failed to initialize Google Gemini provider:', error.message);
       }
@@ -91,15 +102,18 @@ export class BaseLangChainService {
 
     // 4. Ollama (Local models)
     if (process.env.OLLAMA_BASE_URL) {
+      const temperature = parseFloat(settings.OLLAMA_TEMPERATURE || '0');
       this.providers.push({
         name: 'Ollama',
         model: new ChatOllama({
           baseUrl: process.env.OLLAMA_BASE_URL,
           model: process.env.OLLAMA_MODEL || 'llava',
+          temperature,
         }),
         supportsVision: true,
         priority: 4,
       });
+      logger.info(`Ollama provider initialized with temperature: ${temperature}`);
     }
 
     // Sort providers by priority
@@ -667,6 +681,69 @@ export class BaseLangChainService {
    */
   hasMCPAgent(providerName) {
     return this.mcpAgents.has(providerName);
+  }
+
+  /**
+   * Update temperature settings for all providers
+   * @param {Object} temperatureSettings - Object containing temperature values for each provider
+   */
+  async updateTemperatureSettings(temperatureSettings = null) {
+    try {
+      const settings = temperatureSettings || await environmentDbService.getSettings();
+      
+      this.providers.forEach(provider => {
+        let newTemperature = 0; // Default fallback
+        
+        // Determine which temperature setting to use based on provider name
+        switch (provider.name) {
+          case 'OpenAI ChatGPT':
+            newTemperature = parseFloat(settings.OPENAI_TEMPERATURE || '0');
+            break;
+          case 'OpenAI Compatible':
+            newTemperature = parseFloat(settings.OPENAI_COMPATIBLE_TEMPERATURE || '0');
+            break;
+          case 'Google Gemini':
+            newTemperature = parseFloat(settings.GOOGLE_TEMPERATURE || '0');
+            break;
+          case 'Ollama':
+            newTemperature = parseFloat(settings.OLLAMA_TEMPERATURE || '0');
+            break;
+          default:
+            logger.warn(`Unknown provider for temperature update: ${provider.name}`);
+            return;
+        }
+        
+        // Update the model's temperature if the model supports it
+        if (provider.model && typeof provider.model.temperature !== 'undefined') {
+          const oldTemperature = provider.model.temperature;
+          provider.model.temperature = newTemperature;
+          logger.info(`Updated ${provider.name} temperature from ${oldTemperature} to ${newTemperature}`);
+        } else {
+          logger.warn(`Cannot update temperature for ${provider.name} - model doesn't support temperature updates`);
+        }
+      });
+      
+      logger.info('Temperature settings updated for all applicable providers');
+    } catch (error) {
+      logger.error('Failed to update temperature settings:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get current temperature settings for all providers
+   * @returns {Object} Object containing current temperature for each provider
+   */
+  getCurrentTemperatureSettings() {
+    const temperatures = {};
+    
+    this.providers.forEach(provider => {
+      if (provider.model && typeof provider.model.temperature !== 'undefined') {
+        temperatures[provider.name] = provider.model.temperature;
+      }
+    });
+    
+    return temperatures;
   }
 
   /**

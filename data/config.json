@@ -136,6 +136,14 @@
           "required": false,
           "sensitive": false,
           "default": "claude-3-sonnet-20240229"
+        },
+        "OPENAI_COMPATIBLE_TEMPERATURE": {
+          "label": "Temperature",
+          "description": "Model temperature for randomness (default: 0)",
+          "type": "number",
+          "required": false,
+          "sensitive": false,
+          "default": "0"
         }
       }
     },
@@ -157,6 +165,14 @@
           "required": false,
           "sensitive": false,
           "default": "gpt-4-vision-preview"
+        },
+        "OPENAI_TEMPERATURE": {
+          "label": "Temperature",
+          "description": "Model temperature for randomness (default: 0)",
+          "type": "number",
+          "required": false,
+          "sensitive": false,
+          "default": "0"
         }
       }
     },
@@ -178,6 +194,14 @@
           "required": false,
           "sensitive": false,
           "default": "gemini-pro-vision"
+        },
+        "GOOGLE_TEMPERATURE": {
+          "label": "Temperature",
+          "description": "Model temperature for randomness (default: 0)",
+          "type": "number",
+          "required": false,
+          "sensitive": false,
+          "default": "0"
         }
       }
     },
@@ -220,6 +244,14 @@
           "required": false,
           "sensitive": false,
           "default": "llava"
+        },
+        "OLLAMA_TEMPERATURE": {
+          "label": "Temperature",
+          "description": "Model temperature for randomness (default: 0)",
+          "type": "number",
+          "required": false,
+          "sensitive": false,
+          "default": "0"
         }
       }
     },

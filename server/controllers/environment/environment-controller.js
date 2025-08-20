@@ -1,7 +1,9 @@
+/* eslint-disable class-methods-use-this */
 import { EnvironmentConfigService } from './services/environment-config-service.js';
 import { ProviderConnectionService } from './services/provider-config-service.js';
 import { EnvironmentRequest } from './models/environment-request.js';
 import { ErrorHandler } from './utils/error-handler.js';
+import langChainServiceFactory from '../../services/langchain/LangChainServiceFactory.js';
 import logger from '../../logger.js';
 
 /**
@@ -61,6 +63,21 @@ class EnvironmentController {
 
       // Update settings
       await EnvironmentConfigService.updateSettings(updates);
+
+      // Check if any temperature settings were updated and update LangChain services
+      const temperatureKeys = ['OPENAI_TEMPERATURE', 'OPENAI_COMPATIBLE_TEMPERATURE', 'GOOGLE_TEMPERATURE', 'OLLAMA_TEMPERATURE'];
+      const hasTemperatureUpdates = temperatureKeys.some(key => Object.prototype.hasOwnProperty.call(updates, key));
+      
+      if (hasTemperatureUpdates) {
+        try {
+          logger.info('Temperature settings detected in updates, updating LangChain services...');
+          await langChainServiceFactory.updateTemperatureSettings();
+          logger.info('LangChain services temperature settings updated successfully');
+        } catch (temperatureError) {
+          logger.warn('Failed to update LangChain temperature settings:', temperatureError.message);
+          // Don't fail the entire request if temperature update fails
+        }
+      }
 
       // Return the updated structured config
       const structuredConfig = await EnvironmentConfigService.getStructuredSettings();

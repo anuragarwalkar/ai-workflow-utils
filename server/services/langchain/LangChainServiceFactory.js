@@ -22,12 +22,56 @@ class LangChainServiceFactory {
   /**
    * Initialize all services with providers
    */
-  initializeProviders() {
-    Object.values(this.services).forEach(service => {
-      service.initializeProviders();
-    });
+  async initializeProviders() {
+    const initPromises = Object.values(this.services).map(service => 
+      service.initializeProviders()
+    );
+    await Promise.all(initPromises);
     this.initialized = true;
     logger.info('All LangChain services initialized');
+  }
+
+  /**
+   * Update temperature settings across all services
+   * @param {Object} temperatureSettings - Optional temperature settings object
+   */
+  async updateTemperatureSettings(temperatureSettings = null) {
+    try {
+      if (!this.initialized) {
+        await this.initializeProviders();
+      }
+
+      const updatePromises = Object.entries(this.services).map(async ([serviceName, service]) => {
+        if (typeof service.updateTemperatureSettings === 'function') {
+          await service.updateTemperatureSettings(temperatureSettings);
+          logger.info(`Updated temperature settings for ${serviceName} service`);
+        } else {
+          logger.warn(`Service ${serviceName} does not support temperature updates`);
+        }
+      });
+
+      await Promise.all(updatePromises);
+      logger.info('Temperature settings updated across all LangChain services');
+    } catch (error) {
+      logger.error('Failed to update temperature settings across services:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get current temperature settings from all services
+   * @returns {Object} Object containing temperature settings for each service
+   */
+  getCurrentTemperatureSettings() {
+    const allTemperatures = {};
+    
+    Object.entries(this.services).forEach(([serviceName, service]) => {
+      if (typeof service.getCurrentTemperatureSettings === 'function') {
+        allTemperatures[serviceName] = service.getCurrentTemperatureSettings();
+      }
+    });
+    
+    return allTemperatures;
   }
 
   /**
