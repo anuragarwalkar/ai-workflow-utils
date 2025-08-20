@@ -563,6 +563,10 @@ const VariableInputContainer = ({
               zIndex: 2,
               backgroundColor: 'transparent',
               caretColor: isDark ? '#E0E0E0' : '#333', // Show cursor
+              '&::placeholder': {
+                color: theme.palette.text.secondary,
+                opacity: 1,
+              },
               '&::selection': {
                 backgroundColor: alpha(theme.palette.primary.main, 0.3),
               },
