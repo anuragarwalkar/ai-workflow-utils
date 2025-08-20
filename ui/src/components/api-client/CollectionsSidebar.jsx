@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Box,
   Button,
+  Chip,
   Collapse,
   Dialog,
   DialogActions,
@@ -23,6 +24,7 @@ import {
   ExpandMore,
   InsertDriveFile as FileIcon,
   FolderOpen as FolderIcon,
+  Folder as FolderClosedIcon,
 } from '@mui/icons-material';
 import CreateCollectionDialog from './CreateCollectionDialog';
 import { useDeleteCollectionMutation } from '../../store/api/apiClientApi';
@@ -84,36 +86,47 @@ const CollectionsSidebar = ({ collections, onRequestSelect }) => {
     setCollectionToDelete(null);
   };
 
+  const getMethodColor = (method) => {
+    const colors = {
+      GET: '#4CAF50',
+      POST: '#FF9800',
+      PUT: '#2196F3',
+      PATCH: '#9C27B0',
+      DELETE: '#F44336',
+    };
+    return colors[method] || '#757575';
+  };
+
   if (!collections || collections.length === 0) {
     return (
       <>
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 1.5 }}>
           <Box 
             alignItems="center" 
             display="flex" 
-            justifyContent="space-between" 
-            mb={2}
+            justifyContent="flex-end" 
+            mb={1}
+            px={0.5}
           >
-            <Typography variant="h6">Collections</Typography>
             <IconButton size="small" onClick={handleCreateCollection}>
-              <AddIcon />
+              <AddIcon fontSize="small" />
             </IconButton>
           </Box>
           
           <Box
             sx={{
               border: `2px dashed ${alpha(theme.palette.divider, 0.3)}`,
-              borderRadius: '12px',
-              p: 3,
+              borderRadius: '8px',
+              p: 2.5,
               textAlign: 'center',
               color: 'text.secondary',
             }}
           >
-            <FolderIcon sx={{ fontSize: 48, mb: 1, opacity: 0.5 }} />
-            <Typography variant="body2">
+            <FolderIcon sx={{ fontSize: 40, mb: 1, opacity: 0.5 }} />
+            <Typography variant="body2" fontSize="0.875rem">
               No collections yet
             </Typography>
-            <Typography display="block" sx={{ mt: 1 }} variant="caption">
+            <Typography display="block" sx={{ mt: 0.5 }} variant="caption" fontSize="0.75rem">
               Create your first collection to organize requests
             </Typography>
           </Box>
@@ -130,29 +143,34 @@ const CollectionsSidebar = ({ collections, onRequestSelect }) => {
 
   return (
     <>
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: 1.5 }}>
         <Box 
           alignItems="center" 
           display="flex" 
-          justifyContent="space-between" 
-          mb={2}
+          justifyContent="flex-end" 
+          mb={1}
+          px={0.5}
         >
-          <Typography variant="h6">Collections</Typography>
           <IconButton size="small" onClick={handleCreateCollection}>
-            <AddIcon />
+            <AddIcon fontSize="small" />
           </IconButton>
         </Box>
         
-        <List dense>
+        <List dense disablePadding>
           {Array.isArray(collections) && collections.map((collection) => (
             <Box key={collection.id}>
+              {/* Collection Header */}
               <ListItem
                 button
+                disableGutters
                 sx={{
-                  borderRadius: '8px',
-                  mb: 0.5,
+                  borderRadius: '6px',
+                  mb: 0.25,
+                  py: 0.5,
+                  px: 1,
+                  minHeight: 32,
                   '&:hover': {
-                    background: alpha(theme.palette.primary.main, 0.1),
+                    background: alpha(theme.palette.primary.main, 0.04),
                   },
                   '&:hover .delete-button': {
                     opacity: 1,
@@ -160,13 +178,19 @@ const CollectionsSidebar = ({ collections, onRequestSelect }) => {
                 }}
                 onClick={() => toggleCollection(collection.id)}
               >
-                <FolderIcon sx={{ mr: 1, fontSize: 20 }} />
+                {expandedCollections.has(collection.id) ? 
+                  <FolderIcon sx={{ mr: 1, fontSize: 16, color: 'primary.main' }} /> : 
+                  <FolderClosedIcon sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
+                }
                 <ListItemText 
                   primary={collection.name}
                   primaryTypographyProps={{
                     variant: 'body2',
-                    fontWeight: 600,
+                    fontWeight: 500,
+                    fontSize: '0.875rem',
+                    noWrap: true,
                   }}
+                  sx={{ my: 0 }}
                 />
                 <IconButton
                   className="delete-button"
@@ -174,49 +198,93 @@ const CollectionsSidebar = ({ collections, onRequestSelect }) => {
                   sx={{
                     opacity: 0,
                     transition: 'opacity 0.2s',
-                    mr: 1,
+                    mr: 0.5,
+                    p: 0.25,
                     '&:hover': {
                       color: 'error.main',
+                      backgroundColor: alpha(theme.palette.error.main, 0.1),
                     },
                   }}
                   onClick={(event) => handleDeleteCollection(event, collection)}
                 >
-                  <DeleteIcon fontSize="small" />
+                  <DeleteIcon sx={{ fontSize: 14 }} />
                 </IconButton>
                 {expandedCollections.has(collection.id) ? 
-                  <ExpandLess /> : 
-                  <ExpandMore />
+                  <ExpandLess sx={{ fontSize: 16 }} /> : 
+                  <ExpandMore sx={{ fontSize: 16 }} />
                 }
               </ListItem>
               
+              {/* Collection Requests */}
               <Collapse in={expandedCollections.has(collection.id)}>
-                <List dense sx={{ pl: 2 }}>
+                <List dense disablePadding sx={{ ml: 1.5 }}>
                   {collection.requests?.map((request) => (
                     <ListItem
                       button
+                      disableGutters
                       key={request.id}
                       sx={{
-                        borderRadius: '6px',
-                        py: 0.5,
+                        borderRadius: '4px',
+                        py: 0.25,
+                        px: 1,
+                        minHeight: 28,
                         '&:hover': {
-                          background: alpha(theme.palette.secondary.main, 0.1),
+                          background: alpha(theme.palette.secondary.main, 0.08),
                         },
                       }}
                       onClick={() => onRequestSelect(request)}
                     >
-                      <FileIcon sx={{ mr: 1, fontSize: 16 }} />
-                      <ListItemText
-                        primary={request.name}
-                        primaryTypographyProps={{
-                          variant: 'caption',
-                          fontWeight: 500,
-                        }}
-                        secondary={`${request.method} ${request.url}`}
-                        secondaryTypographyProps={{
-                          variant: 'caption',
-                          sx: { fontSize: '0.7rem' },
-                        }}
-                      />
+                      <FileIcon sx={{ mr: 1, fontSize: 14, color: 'text.disabled' }} />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flex: 1, minWidth: 0 }}>
+                        <Chip
+                          label={request.method}
+                          size="small"
+                          sx={{
+                            backgroundColor: getMethodColor(request.method),
+                            color: 'white',
+                            fontSize: '0.65rem',
+                            height: 18,
+                            minWidth: 36,
+                            '& .MuiChip-label': {
+                              px: 0.5,
+                              fontWeight: 600,
+                            },
+                          }}
+                        />
+                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontWeight: 500,
+                              fontSize: '0.75rem',
+                              display: 'block',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              lineHeight: 1.2,
+                            }}
+                          >
+                            {request.name}
+                          </Typography>
+                          {request.url && (
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                color: 'text.secondary',
+                                fontSize: '0.65rem',
+                                display: 'block',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                lineHeight: 1.1,
+                                mt: 0.25,
+                              }}
+                            >
+                              {request.url}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
                     </ListItem>
                   ))}
                 </List>

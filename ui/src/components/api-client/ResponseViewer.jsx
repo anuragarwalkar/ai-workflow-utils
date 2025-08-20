@@ -77,7 +77,12 @@ const ResponseViewer = ({ response, loading }) => {
   };
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      flex: 1
+    }}>
       {/* Response Header */}
       <Box sx={{ 
         p: 1, 
