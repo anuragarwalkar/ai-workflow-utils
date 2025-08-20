@@ -161,7 +161,6 @@ const CollectionsSidebar = ({ collections, onRequestSelect }) => {
             <Box key={collection.id}>
               {/* Collection Header */}
               <ListItem
-                button
                 disableGutters
                 sx={{
                   borderRadius: '6px',
@@ -169,6 +168,7 @@ const CollectionsSidebar = ({ collections, onRequestSelect }) => {
                   py: 0.5,
                   px: 1,
                   minHeight: 32,
+                  cursor: 'pointer',
                   '&:hover': {
                     background: alpha(theme.palette.primary.main, 0.04),
                   },
@@ -220,7 +220,6 @@ const CollectionsSidebar = ({ collections, onRequestSelect }) => {
                 <List dense disablePadding sx={{ ml: 1.5 }}>
                   {collection.requests?.map((request) => (
                     <ListItem
-                      button
                       disableGutters
                       key={request.id}
                       sx={{
@@ -228,6 +227,7 @@ const CollectionsSidebar = ({ collections, onRequestSelect }) => {
                         py: 0.25,
                         px: 1,
                         minHeight: 28,
+                        cursor: 'pointer',
                         '&:hover': {
                           background: alpha(theme.palette.secondary.main, 0.08),
                         },
