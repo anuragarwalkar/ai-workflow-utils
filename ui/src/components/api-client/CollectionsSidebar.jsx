@@ -25,15 +25,17 @@ import {
   FolderOpen as FolderIcon,
 } from '@mui/icons-material';
 import CreateCollectionDialog from './CreateCollectionDialog';
-import CollectionsApiService from '../../services/collectionsApiService';
+import { useDeleteCollectionMutation } from '../../store/api/apiClientApi';
 
-const CollectionsSidebar = ({ collections, onRequestSelect, onCollectionCreated }) => {
+const CollectionsSidebar = ({ collections, onRequestSelect }) => {
   const theme = useTheme();
   const [expandedCollections, setExpandedCollections] = React.useState(new Set());
   const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [collectionToDelete, setCollectionToDelete] = React.useState(null);
-  const [isDeleting, setIsDeleting] = React.useState(false);
+  
+  // Use RTK Query mutation for deleting collections
+  const [deleteCollection, { isLoading: isDeleting }] = useDeleteCollectionMutation();
 
   const toggleCollection = (collectionId) => {
     const newExpanded = new Set(expandedCollections);
@@ -50,9 +52,7 @@ const CollectionsSidebar = ({ collections, onRequestSelect, onCollectionCreated 
   };
 
   const handleCollectionCreated = (newCollection) => {
-    if (onCollectionCreated) {
-      onCollectionCreated(newCollection);
-    }
+    // RTK Query will automatically update the cache, no manual refresh needed
     setCreateDialogOpen(false);
   };
 
@@ -65,14 +65,9 @@ const CollectionsSidebar = ({ collections, onRequestSelect, onCollectionCreated 
   const handleConfirmDelete = async () => {
     if (!collectionToDelete) return;
     
-    setIsDeleting(true);
     try {
-      await CollectionsApiService.deleteCollection(collectionToDelete.id);
-      
-      // Call the parent callback to refresh collections
-      if (onCollectionCreated) {
-        onCollectionCreated();
-      }
+      // Use RTK Query mutation - this will automatically update the cache
+      await deleteCollection(collectionToDelete.id).unwrap();
       
       setDeleteDialogOpen(false);
       setCollectionToDelete(null);
@@ -81,8 +76,6 @@ const CollectionsSidebar = ({ collections, onRequestSelect, onCollectionCreated 
       // eslint-disable-next-line no-console
       console.error('Failed to delete collection:', error);
       // You might want to show a toast notification here
-    } finally {
-      setIsDeleting(false);
     }
   };
 
@@ -151,7 +144,7 @@ const CollectionsSidebar = ({ collections, onRequestSelect, onCollectionCreated 
         </Box>
         
         <List dense>
-          {collections.map((collection) => (
+          {Array.isArray(collections) && collections.map((collection) => (
             <Box key={collection.id}>
               <ListItem
                 button

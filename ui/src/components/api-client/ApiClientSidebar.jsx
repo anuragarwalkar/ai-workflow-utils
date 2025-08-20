@@ -177,7 +177,6 @@ const ApiClientSidebar = ({
             )}
             <CollectionsSidebar
               collections={collections}
-              onCollectionSelect={() => {}}
               onRequestSelect={onRequestSelect}
             />
           </Box>

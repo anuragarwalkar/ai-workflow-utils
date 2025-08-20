@@ -2,8 +2,6 @@ import React from 'react';
 import { Alert, Box, alpha, useTheme } from '@mui/material';
 import { useAppTheme } from '../../theme/useAppTheme';
 import { useApiClientViewModel } from './viewModels/useApiClientViewModel';
-import { useCollectionsViewModel } from './viewModels/useCollectionsViewModel';
-import { useEnvironmentViewModel } from './viewModels/useEnvironmentViewModel';
 import { useUiStateViewModel } from './viewModels/useUiStateViewModel';
 import ApiClientHeader from './ApiClientHeader';
 import ApiClientSidebar from './ApiClientSidebar';
@@ -16,8 +14,6 @@ const ApiClient = () => {
   
   // ViewModels
   const apiClient = useApiClientViewModel();
-  const collections = useCollectionsViewModel();
-  const environments = useEnvironmentViewModel();
   const uiState = useUiStateViewModel();
   
   const glassMorphismStyle = {
@@ -45,10 +41,10 @@ const ApiClient = () => {
       ) : null}
       
       <ApiClientHeader
-        activeEnvironment={environments.activeEnvironment}
+        activeEnvironment={apiClient.activeEnvironment}
         activeRequest={apiClient.activeRequestIndex}
         currentRequest={apiClient.currentRequest}
-        environments={environments.environments || []}
+        environments={apiClient.environments}
         glassMorphismStyle={glassMorphismStyle}
         loading={apiClient.isExecuting}
         requests={apiClient.requests}
@@ -61,26 +57,25 @@ const ApiClient = () => {
 
       <Box display="flex" height="calc(100vh - 140px)">
         <ApiClientSidebar
-          activeEnvironment={environments.activeEnvironment}
+          activeEnvironment={apiClient.activeEnvironment}
           activeTab={uiState.activeTab}
-          collections={collections.collections || []}
-          environments={environments.environments || []}
+          environments={apiClient.environments}
           glassMorphismStyle={glassMorphismStyle}
           isCollapsed={uiState.leftSidebarCollapsed}
           setActiveTab={uiState.setActiveTab}
-          onEnvironmentChange={environments.setActiveEnvironment}
-          onEnvironmentDelete={environments.deleteEnvironment}
-          onEnvironmentExport={environments.exportEnvironment}
-          onEnvironmentImport={environments.importEnvironment}
-          onEnvironmentSave={environments.updateEnvironment}
+          onEnvironmentChange={apiClient.setActiveEnvironment}
+          onEnvironmentSave={apiClient.saveEnvironment}
+          onEnvironmentDelete={apiClient.deleteEnvironment}
+          onEnvironmentExport={apiClient.exportEnvironment}
+          onEnvironmentImport={apiClient.importEnvironment}
           onRequestSelect={apiClient.addCollectionRequest}
           onToggleCollapse={uiState.toggleLeftSidebar}
         />
 
         <ApiClientMainPanel
-          activeEnvironment={environments.activeEnvironment}
+          activeEnvironment={apiClient.activeEnvironment}
           currentRequest={apiClient.currentRequest}
-          environments={environments.environments || []}
+          environments={apiClient.environments}
           glassMorphismStyle={glassMorphismStyle}
           loading={apiClient.isExecuting}
           response={apiClient.currentResponse}

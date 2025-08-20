@@ -22,15 +22,20 @@ import {
   Close as CloseIcon,
   Upload as UploadIcon,
 } from '@mui/icons-material';
-import { API_BASE_URL } from '../../config/environment.js';
+import { useCreateCollectionMutation, useImportCollectionMutation } from '../../store/api/apiClientApi';
 
 const CreateCollectionDialog = ({ open, onClose, onCollectionCreated }) => {
   const [activeTab, setActiveTab] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [newCollectionData, setNewCollectionData] = useState({ name: '', description: '' });
   const [importFile, setImportFile] = useState(null);
   const [importData, setImportData] = useState('');
+
+  // RTK Query mutations
+  const [createCollection, { isLoading: isCreating }] = useCreateCollectionMutation();
+  const [importCollection, { isLoading: isImporting }] = useImportCollectionMutation();
+  
+  const loading = isCreating || isImporting;
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -56,32 +61,19 @@ const CreateCollectionDialog = ({ open, onClose, onCollectionCreated }) => {
       return;
     }
 
-    setLoading(true);
     setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/api-client/collections`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newCollectionData.name.trim(),
-          description: newCollectionData.description.trim(),
-          requests: [],
-        }),
-      });
+      const result = await createCollection({
+        name: newCollectionData.name.trim(),
+        description: newCollectionData.description.trim(),
+        requests: [],
+      }).unwrap();
 
-      const result = await response.json();
-
-      if (result.success) {
-        onCollectionCreated(result.data);
-        handleClose();
-      } else {
-        setError(result.error || 'Failed to create collection');
-      }
+      onCollectionCreated(result);
+      handleClose();
     } catch (err) {
-      setError(`Failed to create collection: ${err.message}`);
-    } finally {
-      setLoading(false);
+      setError(err.data?.error || err.message || 'Failed to create collection');
     }
   };
 
@@ -109,28 +101,14 @@ const CreateCollectionDialog = ({ open, onClose, onCollectionCreated }) => {
   };
 
   const importCollectionData = async (collectionData) => {
-    setLoading(true);
     setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/api-client/collections/import`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ collection: collectionData }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        onCollectionCreated(result.data);
-        handleClose();
-      } else {
-        setError(result.error || 'Failed to import collection');
-      }
+      const result = await importCollection({ collection: collectionData }).unwrap();
+      onCollectionCreated(result);
+      handleClose();
     } catch (err) {
-      setError(`Failed to import collection: ${err.message}`);
-    } finally {
-      setLoading(false);
+      setError(err.data?.error || err.message || 'Failed to import collection');
     }
   };
 

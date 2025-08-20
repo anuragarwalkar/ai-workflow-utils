@@ -834,10 +834,7 @@ const ApiClientHeader = ({
               },
               '& .MuiTab-root:hover:not(.Mui-selected)': {
                 backgroundColor: alpha(theme.palette.action.hover, 0.1),
-                transform: 'translateY(-50%)',
-                opacity: 0,
-                transition: 'opacity 0.2s',
-                zIndex: 1,
+                transition: 'background-color 0.2s',
               },
             }}
             value={activeRequest}

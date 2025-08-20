@@ -118,7 +118,10 @@ class EnvironmentApiService {
   static getVariableSuggestions(environments = []) {
     const suggestions = new Set();
     
-    environments.forEach(env => {
+    // Ensure environments is an array
+    const envArray = Array.isArray(environments) ? environments : [];
+    
+    envArray.forEach(env => {
       Object.keys(env.variables || {}).forEach(key => {
         suggestions.add(key);
       });

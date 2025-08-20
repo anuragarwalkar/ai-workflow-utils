@@ -110,9 +110,12 @@ const EnvironmentList = ({
 }) => {
   const theme = useTheme();
   
+  // Ensure environments is an array
+  const envArray = Array.isArray(environments) ? environments : [];
+  
   return (
     <List dense>
-      {environments.map((env) => (
+      {envArray.map((env) => (
         <ListItem
           button
           key={env.id}
