@@ -139,11 +139,11 @@ class EnvironmentApiService {
       errors.push('Variables must be an object');
     }
     
-    // Check for valid variable names (no spaces, special chars except underscore)
+    // Check for valid variable names (no spaces, special chars except underscore and hyphen)
     if (environmentData.variables) {
       Object.keys(environmentData.variables).forEach(key => {
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) {
-          errors.push(`Invalid variable name: ${key}. Use only letters, numbers, and underscores.`);
+        if (!/^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(key)) {
+          errors.push(`Invalid variable name: ${key}. Use only letters, numbers, underscores, and hyphens.`);
         }
       });
     }

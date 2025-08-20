@@ -262,8 +262,39 @@ class ApiClientEnvironmentDbService {
   }
 
   async importEnvironment(postmanEnvironment) {
-    if (!postmanEnvironment.name || !Array.isArray(postmanEnvironment.values)) {
-      throw new Error('Invalid Postman environment format');
+    logger.info('Importing environment:', { name: postmanEnvironment?.name, hasValues: Array.isArray(postmanEnvironment?.values) });
+    
+    // Handle both Postman v2.1 format (with values array) and simplified format (with variables object)
+    if (!postmanEnvironment.name) {
+      throw new Error('Invalid environment format: name is required');
+    }
+
+    let values = [];
+    
+    // Check if it's Postman v2.1 format with values array
+    if (Array.isArray(postmanEnvironment.values)) {
+      // eslint-disable-next-line prefer-destructuring
+      values = postmanEnvironment.values;
+      logger.info('Using Postman v2.1 format with values array');
+    }
+    // Check if it's simplified format with variables object
+    else if (postmanEnvironment.variables && typeof postmanEnvironment.variables === 'object') {
+      values = Object.entries(postmanEnvironment.variables).map(([key, value]) => ({
+        key,
+        value: String(value),
+        enabled: true,
+        type: 'default'
+      }));
+      logger.info('Using simplified format with variables object');
+    }
+    else {
+      logger.error('Invalid environment format received:', { 
+        hasValues: !!postmanEnvironment.values, 
+        valuesType: typeof postmanEnvironment.values,
+        hasVariables: !!postmanEnvironment.variables,
+        variablesType: typeof postmanEnvironment.variables
+      });
+      throw new Error('Invalid environment format: must have either values array or variables object');
     }
 
     const id = uuidv4();
@@ -272,7 +303,7 @@ class ApiClientEnvironmentDbService {
     const normalizedEnvironment = {
       id,
       name: postmanEnvironment.name,
-      values: postmanEnvironment.values.map(variable => ({
+      values: values.map(variable => ({
         key: variable.key || '',
         value: variable.value || '',
         enabled: variable.enabled !== false,

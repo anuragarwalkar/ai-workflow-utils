@@ -170,12 +170,12 @@ export const getActiveEnvironment = async (req, res) => {
  */
 export const importEnvironment = async (req, res) => {
   try {
-    const { environment: postmanEnvironment } = req.body;
+    const postmanEnvironment = req.body;
 
-    if (!postmanEnvironment) {
+    if (!postmanEnvironment || !postmanEnvironment.name) {
       return res.status(400).json({
         success: false,
-        error: 'Environment data is required'
+        error: 'Environment data with name is required'
       });
     }
 
