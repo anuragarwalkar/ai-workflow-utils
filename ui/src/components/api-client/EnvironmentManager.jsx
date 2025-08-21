@@ -2,12 +2,8 @@
 /* eslint-disable max-lines */
 import { useState } from 'react';
 import {
-  Alert,
   Box,
   Button,
-  Card,
-  CardContent,
-  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -19,7 +15,6 @@ import {
   ListItemText,
   Menu,
   MenuItem,
-  Snackbar,
   TextField,
   Typography,
   alpha,
@@ -33,10 +28,9 @@ import {
   Public as GlobalIcon,
   FileUpload as ImportIcon,
   MoreVert as MoreVertIcon,
-  Save as SaveIcon,
-  Upload as UploadIcon,
 } from '@mui/icons-material';
 import EnvironmentEditor from './CompactEnvironmentEditor';
+import ToastService from '../../services/toastService';
 
 // Header component with create and import buttons
 const EnvironmentHeader = ({ onCreateEnvironment, onFileImport }) => (
@@ -200,17 +194,8 @@ const EnvironmentManager = ({
   const [editingEnv, setEditingEnv] = useState(null);
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [selectedEnv, setSelectedEnv] = useState(null);
-  const [notification, setNotification] = useState({ 
-    open: false, 
-    message: '', 
-    severity: 'success' 
-  });
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [importData, setImportData] = useState('');
-
-  const showNotification = (message, severity = 'success') => {
-    setNotification({ open: true, message, severity });
-  };
 
   const handleCreateEnvironment = () => {
     setEditingEnv(null);
@@ -227,17 +212,17 @@ const EnvironmentManager = ({
     try {
       if (onEnvironmentSave) {
         await onEnvironmentSave(envData);
-        showNotification(
+        ToastService.success(
           editingEnv ? 'Environment updated successfully' : 'Environment created successfully'
         );
       } else if (onEnvironmentUpdate) {
         onEnvironmentUpdate(envData);
-        showNotification('Environment saved');
+        ToastService.success('Environment saved');
       }
       
       setDialogOpen(false);
     } catch {
-      showNotification('Invalid environment data', 'error');
+      ToastService.error('Invalid environment data');
     }
   };
 
@@ -247,10 +232,10 @@ const EnvironmentManager = ({
       try {
         if (onEnvironmentDelete) {
           await onEnvironmentDelete(env.id);
-          showNotification('Environment deleted successfully');
+          ToastService.success('Environment deleted successfully');
         }
       } catch {
-        showNotification('Failed to delete environment', 'error');
+        ToastService.error('Failed to delete environment');
       }
     }
     setMenuAnchor(null);
@@ -273,10 +258,10 @@ const EnvironmentManager = ({
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        showNotification('Environment exported successfully');
+        ToastService.success('Environment exported successfully');
       }
     } catch {
-      showNotification('Failed to export environment', 'error');
+      ToastService.error('Failed to export environment');
     }
     setMenuAnchor(null);
   };
@@ -284,7 +269,7 @@ const EnvironmentManager = ({
   const handleImportEnvironment = async () => {    
     try {
       if (!importData.trim()) {
-        showNotification('No import data provided', 'error');
+        ToastService.error('No import data provided');
         return;
       }
 
@@ -292,16 +277,16 @@ const EnvironmentManager = ({
       
       if (onEnvironmentImport) {
         await onEnvironmentImport(parsedData);
-        showNotification('Environment imported successfully');
+        ToastService.success('Environment imported successfully');
       } else {
-        showNotification('Import function not available', 'error');
+        ToastService.error('Import function not available');
       }
       
       setImportDialogOpen(false);
       setImportData('');
     } catch (error) {
       console.error('[EnvironmentManager] [handleImportEnvironment] Import error:', error);
-      showNotification('Invalid import data format', 'error');
+      ToastService.error('Invalid import data format');
     }
   };
 
@@ -322,7 +307,7 @@ const EnvironmentManager = ({
 
     // Validate file type
     if (!file.type.includes('json') && !file.name.toLowerCase().endsWith('.json')) {
-      showNotification('Please select a JSON file', 'error');
+      ToastService.error('Please select a JSON file');
       return;
     }
 
@@ -334,7 +319,7 @@ const EnvironmentManager = ({
         console.log('[EnvironmentManager] [handleFileImport] File content loaded:', result?.length, 'characters');
         
         if (!result) {
-          showNotification('File is empty or could not be read', 'error');
+          ToastService.error('File is empty or could not be read');
           return;
         }
 
@@ -356,13 +341,13 @@ const EnvironmentManager = ({
         }, 0);
       } catch (error) {
         console.error('[EnvironmentManager] [handleFileImport] Error parsing JSON:', error);
-        showNotification('Invalid JSON file format', 'error');
+        ToastService.error('Invalid JSON file format');
       }
     };
 
     reader.onerror = (error) => {
       console.error('[EnvironmentManager] [handleFileImport] FileReader error:', error);
-      showNotification('Error reading file', 'error');
+      ToastService.error('Error reading file');
     };
 
     reader.readAsText(file);
@@ -400,11 +385,6 @@ const EnvironmentManager = ({
           onClose={() => setImportDialogOpen(false)}
           onImport={handleImportEnvironment}
           onImportDataChange={setImportData}
-        />
-        
-        <NotificationSnackbar
-          notification={notification}
-          onClose={() => setNotification(prev => ({ ...prev, open: false }))}
         />
       </>
     );
@@ -449,11 +429,6 @@ const EnvironmentManager = ({
         onEdit={handleEditEnvironment}
         onExport={handleExportEnvironment}
       />
-      
-      <NotificationSnackbar
-        notification={notification}
-        onClose={() => setNotification(prev => ({ ...prev, open: false }))}
-      />
     </>
   );
 };
@@ -484,19 +459,6 @@ const ImportDialog = ({ open, importData, onClose, onImportDataChange, onImport 
       <Button variant="contained" onClick={onImport}>Import</Button>
     </DialogActions>
   </Dialog>
-);
-
-// Notification snackbar component
-const NotificationSnackbar = ({ notification, onClose }) => (
-  <Snackbar
-    autoHideDuration={4000}
-    open={notification.open}
-    onClose={onClose}
-  >
-    <Alert severity={notification.severity} onClose={onClose}>
-      {notification.message}
-    </Alert>
-  </Snackbar>
 );
 
 export default EnvironmentManager;

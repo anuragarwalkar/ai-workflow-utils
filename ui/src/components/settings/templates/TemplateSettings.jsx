@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+/* eslint-disable react/jsx-max-depth */
 import {
   Box,
   Button,
