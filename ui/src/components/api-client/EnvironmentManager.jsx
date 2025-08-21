@@ -281,32 +281,91 @@ const EnvironmentManager = ({
     setMenuAnchor(null);
   };
 
-  const handleImportEnvironment = async () => {
+  const handleImportEnvironment = async () => {    
     try {
+      if (!importData.trim()) {
+        showNotification('No import data provided', 'error');
+        return;
+      }
+
       const parsedData = JSON.parse(importData);
       
       if (onEnvironmentImport) {
         await onEnvironmentImport(parsedData);
         showNotification('Environment imported successfully');
+      } else {
+        showNotification('Import function not available', 'error');
       }
       
       setImportDialogOpen(false);
       setImportData('');
-    } catch {
+    } catch (error) {
+      console.error('[EnvironmentManager] [handleImportEnvironment] Import error:', error);
       showNotification('Invalid import data format', 'error');
     }
   };
 
   const handleFileImport = (event) => {
-    const [file] = event.target.files;
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImportData(e.target.result);
-        setImportDialogOpen(true);
-      };
-      reader.readAsText(file);
+    console.log('[EnvironmentManager] [handleFileImport] File import triggered', event);
+    
+    // Prevent default propagation and handle file reading.
+    event.preventDefault();
+    const input = event.target;
+    const file = input.files && input.files[0];
+    
+    console.log('[EnvironmentManager] [handleFileImport] Selected file:', file);
+    
+    if (!file) {
+      console.log('[EnvironmentManager] [handleFileImport] No file selected');
+      return;
     }
+
+    // Validate file type
+    if (!file.type.includes('json') && !file.name.toLowerCase().endsWith('.json')) {
+      showNotification('Please select a JSON file', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const result = e.target.result;
+        console.log('[EnvironmentManager] [handleFileImport] File content loaded:', result?.length, 'characters');
+        
+        if (!result) {
+          showNotification('File is empty or could not be read', 'error');
+          return;
+        }
+
+        // Validate JSON format before setting import data
+        JSON.parse(result);
+        
+        setImportData(result);
+        setImportDialogOpen(true);
+        
+        console.log('[EnvironmentManager] [handleFileImport] Import dialog opened');
+
+        // Reset the file input so the same file can be re-selected later
+        setTimeout(() => {
+          try {
+            input.value = '';
+          } catch (err) {
+            console.log('[EnvironmentManager] [handleFileImport] Could not reset input value:', err);
+          }
+        }, 0);
+      } catch (error) {
+        console.error('[EnvironmentManager] [handleFileImport] Error parsing JSON:', error);
+        showNotification('Invalid JSON file format', 'error');
+      }
+    };
+
+    reader.onerror = (error) => {
+      console.error('[EnvironmentManager] [handleFileImport] FileReader error:', error);
+      showNotification('Error reading file', 'error');
+    };
+
+    reader.readAsText(file);
   };
 
   const handleMenuOpen = (event, env) => {
@@ -324,7 +383,7 @@ const EnvironmentManager = ({
     return (
       <>
         <Box sx={{ p: 1.5 }}>
-          <EnvironmentHeader onCreateEnvironment={handleCreateEnvironment} />
+          <EnvironmentHeader onFileImport={handleFileImport} onCreateEnvironment={handleCreateEnvironment} />
           <EmptyEnvironmentState />
         </Box>
         
@@ -333,6 +392,14 @@ const EnvironmentManager = ({
           environment={editingEnv}
           onSave={handleSaveEnvironment}
           onClose={() => setDialogOpen(false)}
+        />
+
+        <ImportDialog
+          importData={importData}
+          open={importDialogOpen}
+          onClose={() => setImportDialogOpen(false)}
+          onImport={handleImportEnvironment}
+          onImportDataChange={setImportData}
         />
         
         <NotificationSnackbar
