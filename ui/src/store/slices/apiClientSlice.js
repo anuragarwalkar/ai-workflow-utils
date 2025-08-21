@@ -22,7 +22,7 @@ const createRequestName = (method, url, requestCount) => {
 };
 
 const createRequestFromGenerated = (generatedRequest, name) => ({
-  id: Date.now(),
+  id: globalThis.crypto.randomUUID(),
   name,
   method: generatedRequest.method || 'GET',
   url: generatedRequest.url || '',
