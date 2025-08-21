@@ -184,15 +184,24 @@ const ResponseBody = ({ data, contentType }) => {
 
   if (isJson) {
     return (
-      <Box sx={{ height: '100%', overflow: 'auto' }}>
+      <Box sx={{ height: '100%', overflow: 'auto', p: 1 }}>
         <JsonView
           value={data}
           displayDataTypes={false}
           displayObjectSize={false}
+          collapsed={false}
+          enableClipboard={true}
+          displayArrayIndex={true}
+          shortenTextAfterLength={0}
+          onlyShowIfExpanded={false}
           style={{
             backgroundColor: 'transparent',
             fontSize: '0.875rem',
             fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+            width: '100%',
+            height: 'auto',
+            minHeight: '100%',
+            overflow: 'visible',
           }}
           theme={isDark ? 'dark' : 'light'}
         />
