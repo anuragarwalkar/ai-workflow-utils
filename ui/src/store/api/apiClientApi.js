@@ -63,7 +63,7 @@ export const apiClientApi = createApi({
         return {
           ...env,
           variables: env.values ? env.values.reduce((acc, item) => {
-            if (item.enabled !== false) {
+            if (Boolean(item.enabled)) {
               acc[item.key] = item.value;
             }
             return acc;
