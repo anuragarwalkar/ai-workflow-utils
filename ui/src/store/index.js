@@ -7,6 +7,7 @@ import buildSlice from './slices/buildSlice';
 import chatSlice from './slices/chatSlice';
 import prSlice from './slices/prSlice';
 import templateSlice from './slices/templateSlice';
+import apiClientSlice from './slices/apiClientSlice';
 import { jiraApi } from './api/jiraApi';
 import { emailApi } from './api/emailApi';
 import { buildApi } from './api/buildApi';
@@ -16,6 +17,7 @@ import { templateApi } from './api/templateApi';
 import { environmentSettingsApi } from './api/environmentSettingsApi';
 import { logsApi } from './api/logsApi';
 import { mcpApi } from './api/mcpApi';
+import { apiClientApi } from './api/apiClientApi';
 
 const store = configureStore({
   reducer: {
@@ -27,6 +29,7 @@ const store = configureStore({
     chat: chatSlice,
     pr: prSlice,
     templates: templateSlice,
+    apiClient: apiClientSlice,
     [jiraApi.reducerPath]: jiraApi.reducer,
     [emailApi.reducerPath]: emailApi.reducer,
     [buildApi.reducerPath]: buildApi.reducer,
@@ -36,6 +39,7 @@ const store = configureStore({
     [environmentSettingsApi.reducerPath]: environmentSettingsApi.reducer,
     [logsApi.reducerPath]: logsApi.reducer,
     [mcpApi.reducerPath]: mcpApi.reducer,
+    [apiClientApi.reducerPath]: apiClientApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
@@ -52,7 +56,8 @@ const store = configureStore({
       templateApi.middleware,
       environmentSettingsApi.middleware,
       logsApi.middleware,
-      mcpApi.middleware
+      mcpApi.middleware,
+      apiClientApi.middleware
     ),
 });
 

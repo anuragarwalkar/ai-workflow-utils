@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Box,
-  Collapse,
   IconButton,
   Paper,
   Tab,
@@ -29,6 +28,12 @@ const ApiClientSidebar = ({
   isCollapsed,
   setActiveTab,
   onEnvironmentChange,
+  onEnvironmentUpdate,
+  onEnvironmentSave,
+  onEnvironmentDelete,
+  onEnvironmentExport,
+  onEnvironmentImport,
+  onRequestSelect,
   onToggleCollapse
 }) => {
   const theme = useTheme();
@@ -153,17 +158,22 @@ const ApiClientSidebar = ({
       
       <Box sx={{ height: 'calc(100% - 48px)', overflow: 'auto' }}>
         {activeTab === 0 ? (
-          <CollectionsSidebar
-            collections={collections}
-            onCollectionSelect={() => {}}
-            onRequestSelect={() => {}}
-          />
+          <Box>
+            <CollectionsSidebar
+              collections={collections}
+              onRequestSelect={onRequestSelect}
+            />
+          </Box>
         ) : (
           <EnvironmentManager
             activeEnvironment={activeEnvironment}
             environments={environments}
             onEnvironmentChange={onEnvironmentChange}
-            onEnvironmentUpdate={() => {}}
+            onEnvironmentUpdate={onEnvironmentUpdate}
+            onEnvironmentDelete={onEnvironmentDelete}
+            onEnvironmentExport={onEnvironmentExport}
+            onEnvironmentImport={onEnvironmentImport}
+            onEnvironmentSave={onEnvironmentSave}
           />
         )}
       </Box>

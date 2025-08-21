@@ -1,10 +1,5 @@
 export {
   convertNaturalLanguageToApi,
   executeRequest,
-  exportCollections,
-  getCollections,
-  getEnvironments,
-  importCollection,
-  saveCollection,
-  saveEnvironment,
+  executeScript,
 } from './api-client-controller.js';

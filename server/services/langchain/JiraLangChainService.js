@@ -1,3 +1,5 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable max-params */
 import { BaseLangChainService } from './BaseLangChainService.js';
 import logger from '../../logger.js';
 
@@ -5,14 +7,15 @@ import logger from '../../logger.js';
  * Jira-specific LangChain service for handling Jira issue generation
  */
 export class JiraLangChainService extends BaseLangChainService {
+  // eslint-disable-next-line no-useless-constructor
   constructor() {
     super();
   }
 
   /**
-   * Stream content generation specifically for Jira issues using templates only
+   * Stream content generation specifically for Jira issues using templates with MCP support
    */
-  async streamContent(promptTemplateFormatter, images, issueType, res) {
+  async streamContent(promptTemplateFormatter, images, issueType, res, options = {}) {
     let fullContent = '';
 
     res.write(
@@ -24,18 +27,25 @@ export class JiraLangChainService extends BaseLangChainService {
     );
 
     try {
-      // Use regular template-based content generation instead of structured parsing
+      // Use enhanced template-based content generation with MCP support
       const result = await this.generateTemplateBasedContent(
         promptTemplateFormatter,
         images,
-        issueType
+        issueType,
+        {
+          useMCPAgent: options.useMCPAgent || false,
+          preferredProvider: options.preferredProvider || null
+        }
       );
+
+      const providerDisplay = result.usedMCP ? `${result.provider} (with MCP tools)` : result.provider;
 
       res.write(
         `data: ${JSON.stringify({
           type: 'status',
-          message: `Using ${result.provider}...`,
+          message: `Using ${providerDisplay}...`,
           provider: result.provider,
+          usedMCP: result.usedMCP,
         })}\n\n`
       );
 
@@ -66,10 +76,11 @@ export class JiraLangChainService extends BaseLangChainService {
           summary: this.extractSummaryFromContent(fullContent || result.content),
           description: fullContent || result.content,
           provider: result.provider,
+          usedMCP: result.usedMCP,
         })}\n\n`
       );
 
-      logger.info(`Successfully streamed template-based Jira content using ${result.provider}`);
+      logger.info(`Successfully streamed template-based Jira content using ${providerDisplay}`);
     } catch (error) {
       logger.error(`Error in Jira template-based streaming: ${error.message}`);
       res.write(
@@ -83,71 +94,24 @@ export class JiraLangChainService extends BaseLangChainService {
   }
 
   /**
-   * Generate template-based content for Jira issues
+   * Generate template-based content for Jira issues using base class functionality
    */
-  async generateTemplateBasedContent(promptTemplateFormatter, images, issueType) {
-    const hasImages = images && images.length > 0;
-
-    if (this.providers.length === 0) {
-      throw new Error('No AI providers are configured');
-    }
-
-    // Get the template and format it
-    const promptTemplate = await this.createPromptTemplate(issueType, hasImages);
-    const formattedPrompt = await promptTemplate.format({
-      ...promptTemplateFormatter,
+  async generateTemplateBasedContent(promptTemplateFormatter, images, issueType, options = {}) {
+    // Use the enhanced generateContent from base class that supports MCP agents
+    const result = await this.generateContent({
+      promptTemplateFormatter,
+      images,
+      promptTemplateIdentifier: issueType,
+      streaming: false,
+      useMCPAgent: options.useMCPAgent || false,
+      preferredProvider: options.preferredProvider || null
     });
 
-    return await this.tryProvidersForTemplateContent(formattedPrompt, images, hasImages);
-  }
-
-  /**
-   * Try each provider for template-based content generation
-   */
-  async tryProvidersForTemplateContent(formattedPrompt, images, hasImages) {
-    for (const provider of this.providers) {
-      try {
-        logger.info(`Trying provider: ${provider.name} for template-based output`);
-
-        const messageContent = this.prepareMessageContentForProvider(
-          formattedPrompt,
-          images,
-          hasImages,
-          provider.supportsVision
-        );
-
-        const response = await provider.model.invoke([
-          {
-            role: 'human',
-            content: messageContent,
-          },
-        ]);
-
-        logger.info(`Successfully generated template-based content using ${provider.name}`);
-
-        // Log the raw response for debugging
-        console.log(`Raw Jira response from ${provider.name}:`, {
-          content: response.content,
-          contentType: typeof response.content,
-          contentLength: response.content ? response.content.length : 0,
-        });
-
-        return {
-          content: response.content,
-          provider: provider.name,
-        };
-      } catch (error) {
-        logger.warn(`Provider ${provider.name} failed: ${error.message}`);
-
-        if (provider === this.providers[this.providers.length - 1]) {
-          throw new Error(
-            `All providers failed. Last error from ${provider.name}: ${error.message}`
-          );
-        }
-
-        continue;
-      }
-    }
+    return {
+      content: result.content,
+      provider: result.provider,
+      usedMCP: result.usedMCP || false
+    };
   }
 
   /**
@@ -184,32 +148,21 @@ export class JiraLangChainService extends BaseLangChainService {
   }
 
   /**
-   * Prepare message content for a specific provider
-   */
-  prepareMessageContentForProvider(formattedPrompt, images, hasImages, supportsVision) {
-    const useImages = hasImages && supportsVision;
-
-    if (useImages) {
-      return this.prepareMessageContent(formattedPrompt, images);
-    } else {
-      let messageContent = formattedPrompt;
-      if (hasImages && !supportsVision) {
-        messageContent += " (note: images were provided but this model doesn't support vision)";
-      }
-      return messageContent;
-    }
-  }
-
-  /**
-   * Enhanced generation with retry logic using templates only
+   * Enhanced generation with retry logic using base class functionality with MCP support
    * @param {Object} promptTemplateFormatter - Template variables
    * @param {Array} images - Image data array
    * @param {string} issueType - Type of Jira issue
+   * @param {Object} options - Generation options (useMCPAgent, preferredProvider)
    * @returns {Promise<Object>} Generated content result
    */
-  async generateContentWithRetry(promptTemplateFormatter, images, issueType) {
+  async generateContentWithRetry(promptTemplateFormatter, images, issueType, options = {}) {
     try {
-      return await this.generateTemplateBasedContent(promptTemplateFormatter, images, issueType);
+      return await this.generateTemplateBasedContent(
+        promptTemplateFormatter,
+        images,
+        issueType,
+        options
+      );
     } catch (error) {
       logger.error(`Error generating template-based content: ${error.message}`);
       throw error;

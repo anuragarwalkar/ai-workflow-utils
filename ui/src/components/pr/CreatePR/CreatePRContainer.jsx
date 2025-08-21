@@ -1,240 +1,172 @@
-import { useEffect, useState } from 'react';
-import { Box, Button, CircularProgress, Paper, Typography } from '@mui/material';
-import PRForm from './PRForm';
-import PreviewSection from './PreviewSection';
-import { useCreatePullRequestMutation } from '../../../store/api/prApi';
-import { API_BASE_URL } from '../../../config/environment';
-import ToastService from '../../../services/toastService';
+import { CircularProgress } from '@mui/material';
+import ErrorBoundary from '../../common/ErrorBoundary.jsx';
+import { ERROR_MESSAGES, FORM_FIELDS, SUCCESS_MESSAGES } from '../../../constants/pr.js';
+import { usePRForm } from '../../../hooks/usePRForm.js';
+import { usePRPreview } from '../../../hooks/usePRPreview.js';
+import ToastService from '../../../services/toastService.js';
+import { useCreatePullRequestMutation } from '../../../store/api/prApi.js';
+import { createLogger } from '../../../utils/log.js';
+import { validateRequiredFields } from '../../../utils/validation.js';
+import {
+  ActionContainer,
+  ContentPaper,
+  MainContainer,
+  PreviewButton,
+  Title,
+} from './CreatePRContainer.style.js';
+import PRForm from './PRForm.jsx';
+import PreviewSection from './PreviewSection.jsx';
 
-const STORAGE_KEY = 'gitstash_project_config';
+const logger = createLogger('CreatePRContainer');
 
-const CreatePRContainer = () => {
-  const [formData, setFormData] = useState({
-    projectKey: '',
-    repoSlug: '',
-    branchName: '',
-  });
-  const [preview, setPreview] = useState(null);
-  const [showPreview, setShowPreview] = useState(false);
-  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+/**
+ * Container component for Create PR functionality
+ * Handles state management and business logic coordination
+ * @returns {JSX.Element} CreatePRContent component
+ */
+const CreatePRContent = () => {
+  const {
+    formData,
+    handleFieldChange,
+    resetBranchName,
+    saveCurrentConfig,
+    isFormValid,
+  } = usePRForm();
 
-  const [createPR, { isLoading }] = useCreatePullRequestMutation();
+  const {
+    preview,
+    showPreview,
+    isPreviewLoading,
+    generatePreview,
+    resetPreview,
+  } = usePRPreview();
 
-  // Load saved project key and repo slug from local storage
-  useEffect(() => {
-    const savedConfig = localStorage.getItem(STORAGE_KEY);
-    if (savedConfig) {
-      const { projectKey, repoSlug } = JSON.parse(savedConfig);
-      setFormData(prev => ({
-        ...prev,
-        projectKey,
-        repoSlug,
-      }));
+  const [createPR, { isLoading: isCreating }] = useCreatePullRequestMutation();
+
+  /**
+   * Handle form field changes
+   * @param {string} field - Field name
+   * @param {string} value - New value
+   */
+  const handleFormChange = (field, value) => {
+    logger.debug('handleFormChange', `Field changed: ${field}`, { field, value });
+    handleFieldChange(field, value);
+    
+    // Reset preview when form changes
+    if (showPreview) {
+      resetPreview();
     }
-  }, []);
-
-  const handleFormChange = newData => {
-    setFormData(newData);
-    setShowPreview(false);
   };
 
+  /**
+   * Handle preview generation
+   */
   const handlePreview = async () => {
-    try {
-      // Set loading state
-      setIsPreviewLoading(true);
+    logger.info('handlePreview', 'Starting preview generation');
+    
+    // Validate form before generating preview
+    const validation = validateRequiredFields(formData, [
+      FORM_FIELDS.PROJECT_KEY,
+      FORM_FIELDS.REPO_SLUG,
+      FORM_FIELDS.BRANCH_NAME,
+    ]);
 
-      // Reset preview state
-      setPreview(null);
-      setShowPreview(true);
-
-      // Use fetch with streaming for POST request
-      const response = await fetch(`${API_BASE_URL}/api/pr/stream-preview`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      let streamedPreview = {
-        prTitle: '',
-        prDescription: '',
-        aiGenerated: false,
-        branchName: formData.branchName,
-      };
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const jsonStr = line.slice(6); // Remove 'data: ' prefix
-                if (jsonStr.trim()) {
-                  const data = JSON.parse(jsonStr);
-
-                  switch (data.type) {
-                    case 'status':
-                      break;
-                    case 'chunk':
-                      // Real-time content streaming - show progress (standardized across app)
-                      break;
-                    case 'title_chunk':
-                      streamedPreview.prTitle += data.data;
-                      setPreview({ ...streamedPreview });
-                      break;
-                    case 'title_complete':
-                      streamedPreview.prTitle = data.data;
-                      setPreview({ ...streamedPreview });
-                      break;
-                    case 'description_chunk':
-                      streamedPreview.prDescription += data.data;
-                      setPreview({ ...streamedPreview });
-                      break;
-                    case 'description_complete':
-                      streamedPreview.prDescription = data.data;
-                      setPreview({ ...streamedPreview });
-                      break;
-                    case 'complete':
-                      streamedPreview = data.data;
-                      setPreview(streamedPreview);
-
-                      // Save project key and repo slug to local storage after successful preview
-                      localStorage.setItem(
-                        STORAGE_KEY,
-                        JSON.stringify({
-                          projectKey: formData.projectKey,
-                          repoSlug: formData.repoSlug,
-                        })
-                      );
-                      setIsPreviewLoading(false);
-                      return; // Exit the loop
-                    case 'error':
-                      console.error('Streaming error:', data.message);
-                      setIsPreviewLoading(false);
-                      throw new Error(data.message);
-                    default:
-                      console.log('Unknown stream event:', data.type);
-                  }
-                }
-              } catch (parseError) {
-                console.error('Error parsing stream data:', parseError);
-              }
-            }
-          }
-        }
-      } finally {
-        reader.releaseLock();
-        setIsPreviewLoading(false);
-      }
-    } catch (error) {
-      console.error('Failed to start streaming preview:', error);
-      setIsPreviewLoading(false);
-      // Fallback to regular API call
-      handlePreviewFallback();
+    if (!validation.isValid) {
+      logger.warn('handlePreview', 'Form validation failed', validation.errors);
+      ToastService.error(ERROR_MESSAGES.VALIDATION_FAILED);
+      return;
     }
+
+    await generatePreview(
+      formData,
+      (_previewData) => {
+        logger.info('handlePreview', SUCCESS_MESSAGES.PREVIEW_GENERATED);
+        saveCurrentConfig();
+      },
+      (error) => {
+        logger.error('handlePreview', ERROR_MESSAGES.PREVIEW_FAILED, error);
+        ToastService.handleApiError(error, ERROR_MESSAGES.PREVIEW_FAILED);
+      }
+    );
   };
 
-  const handlePreviewFallback = async () => {
-    try {
-      setIsPreviewLoading(true);
-
-      const response = await createPR({
-        ...formData,
-      }).unwrap();
-
-      // Save project key and repo slug to local storage after successful preview
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          projectKey: formData.projectKey,
-          repoSlug: formData.repoSlug,
-        })
-      );
-
-      setPreview(response);
-      setShowPreview(true);
-    } catch (error) {
-      console.error('Failed to generate preview:', error);
-      // Handle error (show notification, etc.)
-    } finally {
-      setIsPreviewLoading(false);
-    }
-  };
-
-  const handleCreate = async editedPreview => {
+  /**
+   * Handle PR creation
+   * @param {object} editedPreview - Edited preview data
+   */
+  const handleCreate = async (editedPreview) => {
+    logger.info('handleCreate', 'Creating pull request');
+    
     try {
       const response = await createPR({
-        branchName: formData.branchName,
-        projectKey: formData.projectKey,
-        repoSlug: formData.repoSlug,
+        branchName: formData[FORM_FIELDS.BRANCH_NAME],
+        projectKey: formData[FORM_FIELDS.PROJECT_KEY],
+        repoSlug: formData[FORM_FIELDS.REPO_SLUG],
         customTitle: editedPreview.prTitle,
         customDescription: editedPreview.prDescription,
       }).unwrap();
 
-      // Handle success - show toast with PR URL if available
+      // Handle success
       const successMessage = response.pullRequestUrl
         ? `${response.message} - View: ${response.pullRequestUrl}`
-        : response.message || 'Pull request created successfully';
+        : response.message || SUCCESS_MESSAGES.PR_CREATED;
 
       ToastService.success(successMessage);
+      logger.info('handleCreate', 'Pull request created successfully', response);
 
-      // Reset form
-      setFormData(prev => ({
-        ...prev,
-        branchName: '',
-      }));
-      setShowPreview(false);
-      setPreview(null);
+      // Reset form and preview
+      resetBranchName();
+      resetPreview();
     } catch (error) {
-      ToastService.handleApiError(error, 'Failed to create pull request');
+      logger.error('handleCreate', ERROR_MESSAGES.CREATE_FAILED, error);
+      ToastService.handleApiError(error, ERROR_MESSAGES.CREATE_FAILED);
     }
   };
 
+  const isPreviewDisabled = isPreviewLoading || isCreating || !isFormValid();
+
   return (
-    <Box sx={{ width: '100%', mt: 2 }}>
-      <Paper sx={{ p: 3 }}>
-        <Typography gutterBottom variant='h6'>
+    <MainContainer>
+      <ContentPaper>
+        <Title variant='h6'>
           Create Pull Request
-        </Typography>
+        </Title>
 
-        <PRForm formData={formData} onChange={handleFormChange} />
+        <PRForm 
+          disabled={isPreviewLoading || isCreating}
+          formData={formData} 
+          onChange={handleFormChange}
+        />
 
-        <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-          <Button
-            disabled={
-              isPreviewLoading ||
-              isLoading ||
-              !formData.projectKey ||
-              !formData.repoSlug ||
-              !formData.branchName
-            }
+        <ActionContainer>
+          <PreviewButton
+            disabled={isPreviewDisabled}
             variant='contained'
             onClick={handlePreview}
           >
             {isPreviewLoading ? <CircularProgress size={24} /> : 'Preview'}
-          </Button>
-        </Box>
+          </PreviewButton>
+        </ActionContainer>
 
-        {showPreview && preview ? (
-          <PreviewSection isLoading={isLoading} preview={preview} onConfirm={handleCreate} />
-        ) : null}
-      </Paper>
-    </Box>
+        {Boolean(showPreview && preview) && (
+          <PreviewSection 
+            isLoading={isCreating} 
+            preview={preview} 
+            onConfirm={handleCreate} 
+          />
+        )}
+      </ContentPaper>
+    </MainContainer>
   );
 };
+/**
+ * Main component wrapped with error boundary
+ * @returns {JSX.Element} CreatePRContainer with error boundary
+ */
+const CreatePRContainer = () => (
+  <ErrorBoundary friendlyMessage="There was an error with the Pull Request creation form. Please refresh the page and try again.">
+    <CreatePRContent />
+  </ErrorBoundary>
+);
 
 export default CreatePRContainer;

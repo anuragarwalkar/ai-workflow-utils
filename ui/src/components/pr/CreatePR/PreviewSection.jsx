@@ -1,24 +1,50 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, CircularProgress, Paper, Typography } from '@mui/material';
-import DescriptionEditor from './DescriptionEditor';
-import TitleEditor from './TitleEditor';
+import { CircularProgress } from '@mui/material';
+import { PREVIEW_MODES } from '../../../constants/pr.js';
+import DescriptionEditor from './DescriptionEditor.jsx';
+import TitleEditor from './TitleEditor.jsx';
+import {
+  AIGeneratedText,
+  CreateButton,
+  InfoText,
+  PreviewContainer,
+  PreviewForm,
+  PreviewInfo,
+  PreviewTitle,
+} from './PreviewSection.style.js';
 
-// Preview Info Component
-const PreviewInfo = ({ preview }) => (
-  <Box sx={{ mt: 2 }}>
-    <Typography color='text.secondary' variant='subtitle2'>
+/**
+ * Preview Info Component - Shows branch and AI generation info
+ * @param {object} props - Component props
+ * @param {object} props.preview - Preview data
+ * @returns {JSX.Element} PreviewInfo component
+ */
+const PreviewInfoComponent = ({ preview }) => (
+  <PreviewInfo>
+    <InfoText>
       Branch: {preview?.branchName}
-    </Typography>
-    {preview?.aiGenerated ? (
-      <Typography color='primary' variant='subtitle2'>
+    </InfoText>
+    {Boolean(preview?.aiGenerated) && (
+      <AIGeneratedText>
         AI-Generated Content (Streamed)
-      </Typography>
-    ) : null}
-  </Box>
+      </AIGeneratedText>
+    )}
+  </PreviewInfo>
 );
 
-// Preview Form Component
-const PreviewForm = ({
+/**
+ * Preview Form Component - Editable form for title and description
+ * @param {object} props - Component props
+ * @param {string} props.editableTitle - Editable title
+ * @param {function} props.setEditableTitle - Title setter
+ * @param {string} props.editableDescription - Editable description
+ * @param {function} props.setEditableDescription - Description setter
+ * @param {string} props.descriptionMode - Description editor mode
+ * @param {function} props.setDescriptionMode - Description mode setter
+ * @param {object} props.preview - Preview data
+ * @returns {JSX.Element} PreviewForm component
+ */
+const PreviewFormComponent = ({
   editableTitle,
   setEditableTitle,
   editableDescription,
@@ -27,7 +53,7 @@ const PreviewForm = ({
   setDescriptionMode,
   preview,
 }) => (
-  <Paper sx={{ p: 2, bgcolor: 'grey.100', mb: 2 }}>
+  <PreviewForm>
     <TitleEditor title={editableTitle} onChange={setEditableTitle} />
     <DescriptionEditor
       description={editableDescription}
@@ -35,15 +61,19 @@ const PreviewForm = ({
       onChange={setEditableDescription}
       onModeChange={setDescriptionMode}
     />
-    <PreviewInfo preview={preview} />
-  </Paper>
+    <PreviewInfoComponent preview={preview} />
+  </PreviewForm>
 );
 
-// Hook for managing preview state
+/**
+ * Hook for managing preview state
+ * @param {object} preview - Preview data
+ * @returns {object} Preview state handlers
+ */
 const usePreviewState = preview => {
   const [editableTitle, setEditableTitle] = useState('');
   const [editableDescription, setEditableDescription] = useState('');
-  const [descriptionMode, setDescriptionMode] = useState('view');
+  const [descriptionMode, setDescriptionMode] = useState(PREVIEW_MODES.VIEW);
 
   useEffect(() => {
     if (preview) {
@@ -62,16 +92,14 @@ const usePreviewState = preview => {
   };
 };
 
-// Render preview content
-const renderPreviewContent = (formProps, preview) => (
-  <>
-    <Typography gutterBottom variant='h6'>
-      Preview
-    </Typography>
-    <PreviewForm {...formProps} preview={preview} />
-  </>
-);
-
+/**
+ * Main PreviewSection component
+ * @param {object} props - Component props
+ * @param {object} props.preview - Preview data
+ * @param {function} props.onConfirm - Confirm handler
+ * @param {boolean} props.isLoading - Loading state
+ * @returns {JSX.Element} PreviewSection component
+ */
 const PreviewSection = ({ preview, onConfirm, isLoading }) => {
   const previewState = usePreviewState(preview);
 
@@ -86,12 +114,20 @@ const PreviewSection = ({ preview, onConfirm, isLoading }) => {
   const isDisabled = isLoading || !previewState.editableTitle || !previewState.editableDescription;
 
   return (
-    <Box sx={{ mt: 4 }}>
-      {renderPreviewContent(previewState, preview)}
-      <Button color='primary' disabled={isDisabled} variant='contained' onClick={handleConfirm}>
+    <PreviewContainer>
+      <PreviewTitle variant='h6'>
+        Preview
+      </PreviewTitle>
+      <PreviewFormComponent {...previewState} preview={preview} />
+      <CreateButton 
+        color='primary' 
+        disabled={isDisabled} 
+        variant='contained' 
+        onClick={handleConfirm}
+      >
         {isLoading ? <CircularProgress size={24} /> : 'Create Pull Request'}
-      </Button>
-    </Box>
+      </CreateButton>
+    </PreviewContainer>
   );
 };
 

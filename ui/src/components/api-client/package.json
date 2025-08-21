@@ -1,0 +1,51 @@
+{
+  "name": "@your-org/api-client-lib",
+  "version": "1.0.0",
+  "description": "A modular API client library built with React, Redux Toolkit Query, and functional programming patterns",
+  "main": "index.js",
+  "type": "module",
+  "keywords": [
+    "api",
+    "http",
+    "client",
+    "testing",
+    "rest",
+    "api-client"
+  ],
+  "author": "Your Organization",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "react-redux": ">=8.0.0",
+    "@reduxjs/toolkit": ">=1.9.0",
+    "@mui/material": ">=5.0.0",
+    "@emotion/react": ">=11.0.0",
+    "@emotion/styled": ">=11.0.0"
+  },
+  "files": [
+    "index.js",
+    "viewModels/",
+    "models/",
+    "components/",
+    "store/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "babel src --out-dir lib --copy-files",
+    "prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/preset-react": "^7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/api-client-lib.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/api-client-lib/issues"
+  },
+  "homepage": "https://github.com/your-org/api-client-lib#readme"
+}

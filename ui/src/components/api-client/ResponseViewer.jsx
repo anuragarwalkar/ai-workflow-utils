@@ -11,6 +11,7 @@ import {
   alpha,
   useTheme,
 } from '@mui/material';
+import JsonView from '@uiw/react-json-view';
 import { useAppTheme } from '../../theme/useAppTheme';
 
 const ResponseViewer = ({ response, loading }) => {
@@ -76,7 +77,12 @@ const ResponseViewer = ({ response, loading }) => {
   };
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      flex: 1
+    }}>
       {/* Response Header */}
       <Box sx={{ 
         p: 1, 
@@ -165,6 +171,7 @@ const ResponseViewer = ({ response, loading }) => {
 };
 
 const ResponseBody = ({ data, contentType }) => {
+  const { isDark } = useAppTheme();
   const isJson = contentType && contentType.includes('application/json');
   
   if (!data) {
@@ -177,20 +184,18 @@ const ResponseBody = ({ data, contentType }) => {
 
   if (isJson) {
     return (
-      <Box
-        component="pre"
-        sx={{
-          fontFamily: 'Monaco, Consolas, "Courier New", monospace',
-          fontSize: '0.875rem',
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
-          margin: 0,
-          padding: 0,
-          height: '100%',
-          overflow: 'auto',
-        }}
-      >
-        {JSON.stringify(data, null, 2)}
+      <Box sx={{ height: '100%', overflow: 'auto' }}>
+        <JsonView
+          value={data}
+          displayDataTypes={false}
+          displayObjectSize={false}
+          style={{
+            backgroundColor: 'transparent',
+            fontSize: '0.875rem',
+            fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+          }}
+          theme={isDark ? 'dark' : 'light'}
+        />
       </Box>
     );
   }

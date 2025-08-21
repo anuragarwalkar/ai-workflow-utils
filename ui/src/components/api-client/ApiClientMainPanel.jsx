@@ -21,7 +21,7 @@ const ApiClientMainPanel = ({
 }) => {
   const theme = useTheme();
   const containerRef = useRef(null);
-  const [requestHeight, setRequestHeight] = useState(60); // Percentage
+  const [requestHeight, setRequestHeight] = useState(45); // Percentage - giving more space to response viewer
   const [isResizing, setIsResizing] = useState(false);
 
   const handleMouseDown = useCallback((e) => {
@@ -127,6 +127,7 @@ const ApiClientMainPanel = ({
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
+          flex: 1,
         }}
       >
         <ResponseViewer loading={loading} response={response} />

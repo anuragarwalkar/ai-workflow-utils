@@ -1,8 +1,10 @@
 /* eslint-disable max-lines */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   FormControl,
@@ -30,6 +32,7 @@ import {
 } from '@mui/icons-material';
 import { useAppTheme } from '../../theme/useAppTheme';
 import { CurlParser } from '../../utils/curlParser';
+import EnvironmentApiService from '../../services/environmentApiService';
 
 // Utility function to truncate long tab names
 const truncateTabName = (name, maxLength = 20) => {
@@ -123,7 +126,7 @@ const FuturisticLogo = ({ isDark, onClick }) => {
           fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
         }}
       >
-        API Client
+        AI API Client
       </Typography>
       
       {/* Optional pulsing dot indicator */}
@@ -151,23 +154,568 @@ const FuturisticLogo = ({ isDark, onClick }) => {
   );
 };
 
+// Helper function to parse and highlight dynamic variables
+const parseVariables = (text) => {
+  if (!text) return [];
+  
+  // Support both {{variable}} and ${variable} syntax
+  const variableRegex = /(\{\{[^}]+\}\}|\$\{[^}]+\})/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = variableRegex.exec(text)) !== null) {
+    // Add text before the variable
+    if (match.index > lastIndex) {
+      parts.push({
+        text: text.slice(lastIndex, match.index),
+        isVariable: false,
+        id: `text-${lastIndex}-${match.index}`,
+      });
+    }
+    
+    // Add the variable with styling
+    const [, variableText] = match;
+    const isHandlebarsStyle = variableText.startsWith('{{');
+    parts.push({
+      text: variableText,
+      isVariable: true,
+      isHandlebarsStyle,
+      id: `var-${match.index}-${match.index + variableText.length}`,
+    });
+    
+    lastIndex = match.index + variableText.length;
+  }
+  
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push({
+      text: text.slice(lastIndex),
+      isVariable: false,
+      id: `text-${lastIndex}-${text.length}`,
+    });
+  }
+  
+  return parts;
+};
+
+// Variable Preview Component
+const VariablePreview = ({ value, isDark }) => {
+  const parts = parseVariables(value);
+  
+  if (parts.length === 0) return null;
+  
+  const getVariableColors = (isHandlebarsStyle, isDark) => {
+    if (isHandlebarsStyle) {
+      // {{variable}} style - use green/blue
+      return {
+        color: isDark ? '#00ff88' : '#1976d2',
+        backgroundColor: isDark ? 'rgba(0, 255, 136, 0.15)' : 'rgba(25, 118, 210, 0.15)',
+      };
+    } else {
+      // ${variable} style - use orange/purple
+      return {
+        color: isDark ? '#ff9800' : '#7b1fa2',
+        backgroundColor: isDark ? 'rgba(255, 152, 0, 0.15)' : 'rgba(123, 31, 162, 0.15)',
+      };
+    }
+  };
+  
+  return (
+    <Box
+      sx={{
+        position: 'absolute',
+        top: '1px',
+        left: '1px',
+        right: '1px',
+        bottom: '1px',
+        padding: '8px 14px',
+        pointerEvents: 'none',
+        zIndex: 1, // Above the input
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: '13px',
+        fontWeight: 500,
+        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        borderRadius: '5px',
+      }}
+    >
+      {parts.map((part) => {
+        const colors = part.isVariable ? getVariableColors(part.isHandlebarsStyle, isDark) : {};
+        
+        return (
+          <span
+            key={part.id}
+            style={{
+              color: part.isVariable ? colors.color : (isDark ? '#E0E0E0' : '#333'),
+              backgroundColor: part.isVariable ? colors.backgroundColor : 'transparent',
+              borderRadius: part.isVariable ? '3px' : '0',
+              padding: part.isVariable ? '1px 4px' : '0',
+              fontWeight: part.isVariable ? 600 : 500,
+              textShadow: part.isVariable && isDark 
+                ? `0 0 6px ${colors.color}40` 
+                : 'none',
+            }}
+          >
+            {part.text}
+          </span>
+        );
+      })}
+    </Box>
+  );
+};
+
+// Environment Variable Input with autocomplete
+const EnvironmentVariableInput = ({ 
+  value, 
+  error, 
+  helperText, 
+  placeholder, 
+  variableSuggestions, 
+  activeEnvironment,
+  theme, 
+  isDark,
+  onChange 
+}) => {
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
+  const [pendingCursorPosition, setPendingCursorPosition] = useState(null);
+  const inputRef = useRef(null);
+
+  return (
+    <VariableInputContainer
+      activeEnvironment={activeEnvironment}
+      cursorPosition={cursorPosition}
+      dropdownPosition={dropdownPosition}
+      error={error}
+      helperText={helperText}
+      inputRef={inputRef}
+      isDark={isDark}
+      pendingCursorPosition={pendingCursorPosition}
+      placeholder={placeholder}
+      selectedSuggestionIndex={selectedSuggestionIndex}
+      setCursorPosition={setCursorPosition}
+      setDropdownPosition={setDropdownPosition}
+      setPendingCursorPosition={setPendingCursorPosition}
+      setSelectedSuggestionIndex={setSelectedSuggestionIndex}
+      setShowSuggestions={setShowSuggestions}
+      setSuggestions={setSuggestions}
+      showSuggestions={showSuggestions}
+      suggestions={suggestions}
+      theme={theme}
+      value={value}
+      variableSuggestions={variableSuggestions}
+      onChange={onChange}
+    />
+  );
+};
+
+// Main input container with all functionality
+const VariableInputContainer = ({
+  value,
+  error,
+  helperText,
+  placeholder,
+  variableSuggestions,
+  activeEnvironment,
+  theme,
+  isDark,
+  onChange,
+  suggestions,
+  setSuggestions,
+  showSuggestions,
+  setShowSuggestions,
+  cursorPosition,
+  setCursorPosition,
+  dropdownPosition,
+  setDropdownPosition,
+  selectedSuggestionIndex,
+  setSelectedSuggestionIndex,
+  pendingCursorPosition,
+  setPendingCursorPosition,
+  inputRef,
+}) => {
+
+  // Calculate dropdown position based on input field
+  const updateDropdownPosition = useCallback(() => {
+    if (inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, [inputRef, setDropdownPosition]);
+
+  // Check if cursor is inside variable syntax
+  const checkVariableContext = (value, cursorPos) => {
+    const beforeCursor = value.substring(0, cursorPos);
+    const lastOpenHandlebars = beforeCursor.lastIndexOf('{{');
+    const lastCloseHandlebars = beforeCursor.lastIndexOf('}}');
+    const lastOpenDollar = beforeCursor.lastIndexOf('${');
+    const lastCloseDollar = beforeCursor.lastIndexOf('}');
+    
+    // Check for {{}} syntax
+    const inHandlebars = lastOpenHandlebars > lastCloseHandlebars && lastOpenHandlebars !== -1;
+    // Check for ${} syntax
+    const inDollar = lastOpenDollar > lastCloseDollar && lastOpenDollar !== -1;
+    
+    if (inHandlebars) {
+      return { isInVariable: true, prefix: beforeCursor.substring(lastOpenHandlebars + 2) };
+    }
+    if (inDollar) {
+      return { isInVariable: true, prefix: beforeCursor.substring(lastOpenDollar + 2) };
+    }
+    
+    return { isInVariable: false, prefix: '' };
+  };
+
+  // Update suggestions based on variable context
+  const updateSuggestions = (prefix) => {
+    const filteredSuggestions = variableSuggestions.filter(variable =>
+      variable.toLowerCase().includes(prefix.toLowerCase())
+    );
+    setSuggestions(filteredSuggestions);
+    setShowSuggestions(filteredSuggestions.length > 0);
+    setSelectedSuggestionIndex(0); // Reset selection
+    updateDropdownPosition();
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (event) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        setSelectedSuggestionIndex(prev => 
+          prev < suggestions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        setSelectedSuggestionIndex(prev => 
+          prev > 0 ? prev - 1 : suggestions.length - 1
+        );
+        break;
+      case 'Enter':
+      case 'Tab':
+        event.preventDefault();
+        if (suggestions[selectedSuggestionIndex]) {
+          handleSuggestionClick(suggestions[selectedSuggestionIndex]);
+        }
+        break;
+      case 'Escape':
+        setShowSuggestions(false);
+        break;
+    }
+  };
+
+  // Detect when user types {{ or ${ and show variable suggestions
+  const handleInputChange = (event) => {
+    const newValue = event.target.value;
+    const cursorPos = event.target.selectionStart;
+    
+    const { isInVariable, prefix } = checkVariableContext(newValue, cursorPos);
+    
+    if (isInVariable) {
+      setCursorPosition(cursorPos);
+      updateSuggestions(prefix);
+    } else {
+      setShowSuggestions(false);
+    }
+    
+    onChange(event);
+  };
+
+  // Build new suggestion value and position
+  const buildSuggestionReplacement = (suggestion, currentCursorPos) => {
+    const beforeCursor = value.substring(0, currentCursorPos);
+    const afterCursor = value.substring(currentCursorPos);
+    const lastOpenHandlebars = beforeCursor.lastIndexOf('{{');
+    const lastOpenDollar = beforeCursor.lastIndexOf('${');
+    
+    if (lastOpenHandlebars > lastOpenDollar) {
+      // Using {{}} syntax
+      const prefix = value.substring(0, lastOpenHandlebars);
+      const newValue = `${prefix}{{${suggestion}}}${afterCursor}`;
+      const finalPosition = prefix.length + suggestion.length + 4; // length of {{}} = 4
+      return { newValue, finalPosition };
+    } else if (lastOpenDollar !== -1) {
+      // Using ${} syntax
+      const prefix = value.substring(0, lastOpenDollar);
+      const newValue = `${prefix}\${${suggestion}}${afterCursor}`;
+      const finalPosition = prefix.length + suggestion.length + 3; // length of ${} = 3
+      return { newValue, finalPosition };
+    }
+    return null;
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    // Get current cursor position from the actual input
+    const currentCursorPos = inputRef.current ? inputRef.current.selectionStart : cursorPosition;
+    const result = buildSuggestionReplacement(suggestion, currentCursorPos);
+    
+    if (!result) return;
+    
+    const { newValue, finalPosition } = result;
+    
+    // Set pending cursor position to be applied after value update
+    setPendingCursorPosition(finalPosition);
+    
+    // Create a synthetic event
+    const syntheticEvent = {
+      target: { value: newValue }
+    };
+    onChange(syntheticEvent);
+    setShowSuggestions(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setShowSuggestions(false);
+    if (showSuggestions) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showSuggestions, setShowSuggestions]);
+
+  // Update position on scroll/resize
+  useEffect(() => {
+    const handleUpdate = () => {
+      if (showSuggestions) {
+        updateDropdownPosition();
+      }
+    };
+    
+    if (showSuggestions) {
+      window.addEventListener('scroll', handleUpdate);
+      window.addEventListener('resize', handleUpdate);
+      return () => {
+        window.removeEventListener('scroll', handleUpdate);
+        window.removeEventListener('resize', handleUpdate);
+      };
+    }
+  }, [showSuggestions, updateDropdownPosition]);
+
+  // Handle pending cursor position after value changes
+  const handleCursorPositioning = useCallback(() => {
+    if (pendingCursorPosition !== null && inputRef.current) {
+      const input = inputRef.current;
+      input.focus();
+      
+      // Handle both input and textarea elements
+      if (input.setSelectionRange) {
+        input.setSelectionRange(pendingCursorPosition, pendingCursorPosition);
+      } else if (input.selectionStart !== undefined) {
+        input.selectionStart = pendingCursorPosition;
+        input.selectionEnd = pendingCursorPosition;
+      }
+      
+      setPendingCursorPosition(null);
+    }
+  }, [pendingCursorPosition, setPendingCursorPosition, inputRef]);
+
+  useEffect(() => {
+    handleCursorPositioning();
+  }, [value, handleCursorPositioning]);
+
+  return (
+    <Box sx={{ position: 'relative', flex: 1 }}>
+      <TextField
+        fullWidth
+        error={error}
+        helperText={helperText}
+        InputProps={{
+          startAdornment: value.trim().startsWith('curl ') && (
+            <CodeIcon sx={{ color: theme.palette.text.secondary, mr: 1, fontSize: 16 }} />
+          ),
+          sx: {
+            position: 'relative',
+            '& input': {
+              position: 'relative',
+              zIndex: 2,
+              backgroundColor: 'transparent',
+              // Apply variable highlighting using text color
+              color: 'transparent', // Hide default text
+            },
+          },
+        }}
+        inputRef={inputRef}
+        placeholder={placeholder}
+        size="small"
+        sx={{
+          marginBottom: 0,
+          '& .MuiOutlinedInput-root': {
+            height: '36px',
+            borderRadius: '6px',
+            fontSize: '13px',
+            position: 'relative',
+            '& input': {
+              fontWeight: 500,
+              position: 'relative',
+              zIndex: 2,
+              backgroundColor: 'transparent',
+              caretColor: isDark ? '#E0E0E0' : '#333', // Show cursor
+              '&::placeholder': {
+                color: theme.palette.text.secondary,
+                opacity: 1,
+              },
+              '&::selection': {
+                backgroundColor: alpha(theme.palette.primary.main, 0.3),
+              },
+            },
+            '& fieldset': {
+              borderColor: theme.palette.grey[300],
+              borderWidth: '1px',
+            },
+            '&:hover fieldset': {
+              borderColor: theme.palette.primary.main,
+              boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.2)}`,
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: theme.palette.primary.main,
+              borderWidth: '1px',
+              boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
+            },
+            '&.Mui-disabled': {
+              backgroundColor: theme.palette.grey[50],
+              opacity: 0.6,
+              '& fieldset': {
+                borderColor: theme.palette.grey[200],
+              },
+            },
+            ...(isDark && {
+              backgroundColor: '#2D2D2D',
+              color: '#E0E0E0',
+              '& input::placeholder': {
+                color: '#A0A0A0',
+                opacity: 1,
+              },
+              '& fieldset': {
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+              },
+              '&:hover fieldset': {
+                borderColor: theme.palette.primary.main,
+                boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.2)}`,
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: theme.palette.primary.main,
+                borderWidth: '1px',
+                boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
+              },
+            }),
+          },
+        }}
+        value={value}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+      />
+      
+      {/* Variable highlighting overlay */}
+      <VariablePreview isDark={isDark} value={value} />
+      
+      {/* Variable suggestions dropdown using Portal */}
+      {showSuggestions && suggestions.length > 0 ? createPortal(
+        <Paper
+          elevation={8}
+          sx={{
+            position: 'absolute',
+            top: dropdownPosition.top,
+            left: dropdownPosition.left,
+            width: dropdownPosition.width,
+            zIndex: 10000, // Very high z-index
+            maxHeight: 200,
+            overflow: 'auto',
+            border: `1px solid ${theme.palette.divider}`,
+            backgroundColor: theme.palette.background.paper,
+          }}
+        >
+          {suggestions.map((suggestion, index) => (
+            <Box
+              key={suggestion}
+              sx={{
+                p: 1,
+                cursor: 'pointer',
+                fontSize: '12px',
+                backgroundColor: index === selectedSuggestionIndex
+                  ? theme.palette.action.selected
+                  : 'transparent',
+                '&:hover': {
+                  backgroundColor: theme.palette.action.hover,
+                },
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault(); // Prevent blur
+                handleSuggestionClick(suggestion);
+              }}
+              onMouseEnter={() => setSelectedSuggestionIndex(index)}
+            >
+              <Typography sx={{ fontFamily: 'monospace' }} variant="body2">
+                {suggestion}
+              </Typography>
+              {activeEnvironment?.variables?.[suggestion] ? (
+                <Typography 
+                  sx={{ 
+                    color: theme.palette.text.secondary,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    maxWidth: 150,
+                  }}
+                  variant="caption"
+                >
+                  {activeEnvironment.variables[suggestion]}
+                </Typography>
+              ) : null}
+            </Box>
+          ))}
+        </Paper>,
+        document.body // Render at document root
+      ) : null}
+    </Box>
+  );
+};
+
 const ApiClientHeader = ({ 
+  activeEnvironment,
   activeRequest, 
+  currentRequest,
+  environments,
   glassMorphismStyle, 
+  loading,
   requests, 
   setActiveRequest, 
   onAddRequest,
   onCloseRequest,
-  currentRequest,
-  onUpdateRequest,
   onSendRequest,
-  loading
+  onUpdateRequest,
 }) => {
   const theme = useTheme();
   const { isDark, toggleTheme } = useAppTheme();
   const [inputValue, setInputValue] = useState('');
   const [curlError, setCurlError] = useState('');
   const navigate = useNavigate();
+
+  // Get variable suggestions for autocomplete
+  const getVariableSuggestions = () => {
+    return EnvironmentApiService.getVariableSuggestions(environments || []);
+  };
+
+  // Substitute variables in text
+  const substituteVariables = (text) => {
+    if (!activeEnvironment || !text) return text;
+    return EnvironmentApiService.substituteVariables(text, activeEnvironment.variables || {});
+  };
 
   // Sync input value with current request URL
   useEffect(() => {
@@ -205,7 +753,22 @@ const ApiClientHeader = ({
   };
 
   const handleSend = () => {
-    onSendRequest(currentRequest);
+    // Create a copy of the request with environment variables substituted
+    const processedRequest = {
+      ...currentRequest,
+      url: substituteVariables(currentRequest?.url || ''),
+      headers: Object.fromEntries(
+        Object.entries(currentRequest?.headers || {}).map(([key, value]) => [
+          substituteVariables(key),
+          substituteVariables(value)
+        ])
+      ),
+      body: substituteVariables(currentRequest?.body || ''),
+      // Include environment variables for script execution
+      environment: activeEnvironment?.variables || {},
+    };
+    
+    onSendRequest(processedRequest);
   };
 
   const handleCloseTab = (event, index) => {
@@ -277,10 +840,7 @@ const ApiClientHeader = ({
               },
               '& .MuiTab-root:hover:not(.Mui-selected)': {
                 backgroundColor: alpha(theme.palette.action.hover, 0.1),
-                transform: 'translateY(-50%)',
-                opacity: 0,
-                transition: 'opacity 0.2s',
-                zIndex: 1,
+                transition: 'background-color 0.2s',
               },
             }}
             value={activeRequest}
@@ -611,70 +1171,15 @@ const ApiClientHeader = ({
           </Select>
         </FormControl>
 
-        <TextField
-          fullWidth
+        <EnvironmentVariableInput
+          activeEnvironment={activeEnvironment}
           error={!!curlError}
           helperText={curlError}
-          InputProps={{
-            startAdornment: inputValue.trim().startsWith('curl ') && (
-              <CodeIcon sx={{ color: theme.palette.text.secondary, mr: 1, fontSize: 16 }} />
-            ),
-          }}
+          isDark={isDark}
           placeholder="Enter URL or paste cURL command here..."
-          size="small"
-          sx={{
-            flex: 1,
-            marginBottom: 0,
-            '& .MuiOutlinedInput-root': {
-              height: '36px',
-              borderRadius: '6px',
-              fontSize: '13px',
-              '& input': {
-                fontWeight: 500,
-              },
-              '& fieldset': {
-                borderColor: theme.palette.grey[300],
-                borderWidth: '1px',
-              },
-              '&:hover fieldset': {
-                borderColor: theme.palette.primary.main,
-                boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.2)}`,
-              },
-              '&.Mui-focused fieldset': {
-                borderColor: theme.palette.primary.main,
-                borderWidth: '1px',
-                boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
-              },
-              '&.Mui-disabled': {
-                backgroundColor: theme.palette.grey[50],
-                opacity: 0.6,
-                '& fieldset': {
-                  borderColor: theme.palette.grey[200],
-                },
-              },
-              ...(isDark && {
-                backgroundColor: '#2D2D2D',
-                color: '#E0E0E0',
-                '& input::placeholder': {
-                  color: '#A0A0A0',
-                  opacity: 1,
-                },
-                '& fieldset': {
-                  borderColor: 'rgba(255, 255, 255, 0.2)',
-                },
-                '&:hover fieldset': {
-                  borderColor: theme.palette.primary.main,
-                  boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.2)}`,
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: theme.palette.primary.main,
-                  borderWidth: '1px',
-                  boxShadow: `0 0 0 2px ${alpha(theme.palette.primary.main, 0.2)}`,
-                },
-              }),
-            },
-          }}
+          theme={theme}
           value={inputValue}
+          variableSuggestions={getVariableSuggestions()}
           onChange={handleInputChange}
         />
 

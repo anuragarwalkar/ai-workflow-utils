@@ -1,3 +1,6 @@
+/* eslint-disable max-statements */
+/* eslint-disable react/jsx-max-depth */
+/* eslint-disable max-lines */
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
