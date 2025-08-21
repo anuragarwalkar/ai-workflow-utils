@@ -15,7 +15,7 @@ _Streamline your development process with intelligent Jira ticket creation,
 AI-powered code reviews & pull request creation with custom template support,
 featuring a beautiful dark/light theme interface_
 
-![v1 6 6](https://github.com/user-attachments/assets/14699d96-56bc-4a4b-9c17-74e0c90afddb)
+<img width="1920" height="1484" alt="AI-Workflow-Utils-08-21-2025_03_39_PM" src="https://github.com/user-attachments/assets/87243a4f-d44d-460f-80c6-60d9624d0e00" />
 
 </div>
 
