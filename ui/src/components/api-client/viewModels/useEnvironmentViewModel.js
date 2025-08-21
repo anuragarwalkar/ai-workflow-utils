@@ -133,7 +133,21 @@ const useEnvironmentActions = (dispatch, mutations) => {
       throw err;
     }
   }, [exportEnvironment, dispatch]);
-  
+
+  const handleSaveEnvironment = useCallback(async (environmentData) => {
+    try {
+      // If environment has an ID and exists, update it; otherwise create new
+      if (environmentData.id) {
+        return await handleUpdateEnvironment(environmentData.id, environmentData);
+      } else {
+        return await handleCreateEnvironment(environmentData);
+      }
+    } catch (err) {
+      dispatch(setError(err.message || 'Failed to save environment'));
+      throw err;
+    }
+  }, [handleCreateEnvironment, handleUpdateEnvironment, dispatch]);
+
   return {
     createEnvironment: handleCreateEnvironment,
     updateEnvironment: handleUpdateEnvironment,
@@ -141,5 +155,6 @@ const useEnvironmentActions = (dispatch, mutations) => {
     setActiveEnvironment: handleSetActiveEnvironment,
     importEnvironment: handleImportEnvironment,
     exportEnvironment: handleExportEnvironment,
+    saveEnvironment: handleSaveEnvironment,
   };
 };

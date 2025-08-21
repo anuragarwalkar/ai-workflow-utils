@@ -211,18 +211,24 @@ const EnvironmentManager = ({
   const handleSaveEnvironment = async (envData) => {
     try {
       if (onEnvironmentSave) {
-        await onEnvironmentSave(envData);
+        const result = await onEnvironmentSave(envData);
         ToastService.success(
           editingEnv ? 'Environment updated successfully' : 'Environment created successfully'
         );
       } else if (onEnvironmentUpdate) {
-        onEnvironmentUpdate(envData);
+        const result = onEnvironmentUpdate(envData);
         ToastService.success('Environment saved');
+      } else {
+        console.warn('[EnvironmentManager] [handleSaveEnvironment] No save or update handler provided');
+        ToastService.error('No save handler available');
+        return;
       }
       
+      console.log('[EnvironmentManager] [handleSaveEnvironment] Closing dialog');
       setDialogOpen(false);
-    } catch {
-      ToastService.error('Invalid environment data');
+    } catch (error) {
+      console.error('[EnvironmentManager] [handleSaveEnvironment] Error caught:', error);
+      ToastService.error(`Failed to save environment: ${error.message || 'Unknown error'}`);
     }
   };
 

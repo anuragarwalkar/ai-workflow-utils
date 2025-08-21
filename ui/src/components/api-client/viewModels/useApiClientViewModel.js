@@ -151,6 +151,7 @@ const useExecutionActions = (dispatch, executeRequest) => {
 // Separate hook for environment actions
 const useEnvironmentActions = (apiHooks) => {
   const handleSaveEnvironment = useCallback(async (environmentData) => {
+    console.log('environmentData:', environmentData);
     // Use create for new environments (no ID) or update for existing ones
     if (environmentData.id && environmentData.id.startsWith('env_')) {
       return await apiHooks.createEnvironment(environmentData).unwrap();

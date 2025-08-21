@@ -24,7 +24,7 @@ const ApiClientContent = ({
         onEnvironmentDelete={environments.deleteEnvironment}
         onEnvironmentExport={environments.exportEnvironment}
         onEnvironmentImport={environments.importEnvironment}
-        onEnvironmentSave={environments.updateEnvironment}
+        onEnvironmentSave={environments.saveEnvironment}
         onRequestSelect={apiClient.addCollectionRequest}
         onToggleCollapse={uiState.toggleLeftSidebar}
       />
