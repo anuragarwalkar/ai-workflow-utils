@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import {
-  AiDevAssistant,
+  AiChatAssistant,
   AiEmailComposer,
   ApiClient,
   CreateJiraContainer,
@@ -14,6 +14,7 @@ import {
   ReleaseBuildContainer,
   SendEmailContainer,
   SettingsContainer,
+  ToolsDemo,
 } from './lazyComponents';
 
 const AppRoutes = () => (
@@ -89,10 +90,18 @@ const AppRoutes = () => (
     <Route
       element={
         <Layout>
-          <AiDevAssistant />
+          <AiChatAssistant />
         </Layout>
       }
-      path='/ai-dev-assistant'
+      path='/ai-chat-assistant'
+    />
+    <Route
+      element={
+        <Layout>
+          <ToolsDemo />
+        </Layout>
+      }
+      path='/tools-demo'
     />
     <Route
       element={<ApiClient />}
