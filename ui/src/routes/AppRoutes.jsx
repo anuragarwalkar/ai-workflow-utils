@@ -90,7 +90,7 @@ const AppRoutes = () => (
     <Route
       element={
         <Layout>
-          Demo Chat App 
+          <AiChatAssistant />
         </Layout>
       }
       path='/ai-chat-assistant'
