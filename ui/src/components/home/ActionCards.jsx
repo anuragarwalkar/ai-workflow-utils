@@ -88,10 +88,6 @@ const ActionCards = () => {
     navigate('/api-client');
   };
 
-  const handleToolsDemo = () => {
-    navigate('/tools-demo');
-  };
-
   // Define all action cards
   const allActionCards = [
     // Released features
@@ -152,18 +148,6 @@ const ActionCards = () => {
       onClick: handleAiChat,
       gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
       shadowColor: 'rgba(255, 154, 158, 0.3)',
-      isReleased: true,
-      isAlpha: true,
-    },
-    {
-      id: 'tools-demo',
-      title: 'AI Tools Demo',
-      description: 'Demonstration of the modular AI tools system with function calling',
-      icon: TuneIcon,
-      actionIcon: AutoFixHighIcon,
-      onClick: handleToolsDemo,
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      shadowColor: 'rgba(102, 126, 234, 0.3)',
       isReleased: true,
       isAlpha: true,
     },
