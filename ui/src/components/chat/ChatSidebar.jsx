@@ -30,18 +30,19 @@ const logger = createLogger('ChatSidebar');
 const SidebarContainer = styled(Box)(({ theme }) => ({
   width: CHAT_UI.SIDEBAR_WIDTH,
   height: '100%',
-  backgroundColor: theme.palette.grey[100],
+  backgroundColor: theme.palette.mode === 'dark' ? '#202123' : theme.palette.grey[50],
   borderRight: `1px solid ${theme.palette.divider}`,
   display: 'flex',
   flexDirection: 'column',
 }));
 
 const SidebarHeader = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(3, 2),
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
   borderBottom: `1px solid ${theme.palette.divider}`,
+  backgroundColor: theme.palette.mode === 'dark' ? '#202123' : theme.palette.background.paper,
 }));
 
 const ConversationList = styled(List)({

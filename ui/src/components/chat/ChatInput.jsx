@@ -27,27 +27,32 @@ const logger = createLogger('ChatInput');
 const InputContainer = styled(Paper)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  borderRadius: '24px',
-  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: '28px',
+  border: `2px solid ${theme.palette.divider}`,
   backgroundColor: theme.palette.background.paper,
-  boxShadow: theme.shadows[1],
-  transition: 'box-shadow 0.2s ease-in-out',
+  boxShadow: theme.shadows[2],
+  transition: 'all 0.2s ease-in-out',
+  padding: '4px',
+  minHeight: '56px',
+  maxWidth: '800px',
+  width: '100%',
+  margin: '0 auto',
   '&:focus-within': {
-    boxShadow: theme.shadows[3],
+    boxShadow: theme.shadows[4],
     borderColor: theme.palette.primary.main,
   },
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   flex: 1,
-  padding: '12px 16px',
+  padding: '14px 20px',
   fontSize: '16px',
   lineHeight: '1.5',
   '& .MuiInputBase-input': {
     padding: 0,
     '&::placeholder': {
       color: theme.palette.text.secondary,
-      opacity: 1,
+      opacity: 0.7,
     },
   },
 }));

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import {
@@ -14,7 +13,6 @@ import {
   ReleaseBuildContainer,
   SendEmailContainer,
   SettingsContainer,
-  ToolsDemo,
 } from './lazyComponents';
 
 const AppRoutes = () => (
@@ -88,20 +86,8 @@ const AppRoutes = () => (
       path='/ai-generate-pr-template'
     />
     <Route
-      element={
-        <Layout>
-          <AiChatAssistant />
-        </Layout>
-      }
+      element={<AiChatAssistant />}
       path='/ai-chat-assistant'
-    />
-    <Route
-      element={
-        <Layout>
-          <ToolsDemo />
-        </Layout>
-      }
-      path='/tools-demo'
     />
     <Route
       element={<ApiClient />}

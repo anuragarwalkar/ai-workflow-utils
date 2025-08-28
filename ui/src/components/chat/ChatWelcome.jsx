@@ -8,7 +8,6 @@ import {
   Box,
   Button,
   Card,
-  CardContent,
   Grid,
   Typography,
 } from '@mui/material';
@@ -29,15 +28,20 @@ const WelcomeContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  justifyContent: 'center',
+  justifyContent: 'flex-start',
   height: '100%',
-  padding: theme.spacing(4),
+  padding: theme.spacing(4, 4, 6, 4),
   textAlign: 'center',
+  maxWidth: '1200px',
+  margin: '0 auto',
+  overflowY: 'auto',
+  minHeight: 0,
 }));
 
 const WelcomeTitle = styled(Typography)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
+  marginBottom: theme.spacing(3),
   fontWeight: 600,
+  fontSize: '2.5rem',
   background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
   backgroundClip: 'text',
   WebkitBackgroundClip: 'text',
@@ -45,18 +49,28 @@ const WelcomeTitle = styled(Typography)(({ theme }) => ({
 }));
 
 const FeatureGrid = styled(Grid)(({ theme }) => ({
-  marginTop: theme.spacing(4),
-  maxWidth: '800px',
+  marginTop: theme.spacing(6),
+  maxWidth: '1000px',
+  width: '100%',
 }));
 
 const FeatureCard = styled(Card)(({ theme, disabled }) => ({
-  height: '100%',
+  height: '160px',
   cursor: disabled ? 'not-allowed' : 'pointer',
   opacity: disabled ? 0.6 : 1,
-  transition: 'all 0.2s ease',
+  transition: 'all 0.3s ease',
+  padding: theme.spacing(3),
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: theme.palette.background.paper,
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: '16px',
   '&:hover': {
-    transform: disabled ? 'none' : 'translateY(-2px)',
-    boxShadow: disabled ? theme.shadows[1] : theme.shadows[4],
+    transform: disabled ? 'none' : 'translateY(-4px)',
+    boxShadow: disabled ? theme.shadows[2] : theme.shadows[8],
+    borderColor: disabled ? theme.palette.divider : theme.palette.primary.light,
   },
 }));
 
@@ -64,19 +78,18 @@ const FeatureIcon = styled(Box)(({ theme, disabled }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  width: 48,
-  height: 48,
-  borderRadius: '12px',
+  width: 56,
+  height: 56,
+  borderRadius: '16px',
   backgroundColor: disabled 
-    ? theme.palette.grey[300] 
-    : theme.palette.primary.light,
+    ? theme.palette.grey[200] 
+    : `${theme.palette.primary.main}15`,
   color: disabled 
-    ? theme.palette.grey[600] 
+    ? theme.palette.grey[500] 
     : theme.palette.primary.main,
   marginBottom: theme.spacing(2),
-  margin: '0 auto',
   '& .MuiSvgIcon-root': {
-    fontSize: '24px',
+    fontSize: '28px',
   },
 }));
 
@@ -173,41 +186,41 @@ const ChatWelcome = ({ onSendMessage }) => {
 
   return (
     <WelcomeContainer>
-      <WelcomeTitle variant="h3">
-        AI Chat Assistant
-      </WelcomeTitle>
-      
-      <Typography color="text.secondary" variant="h6">
-        Your intelligent coding companion
-      </Typography>
-      
-      <Typography color="text.secondary" sx={{ mt: 2, maxWidth: '600px' }} variant="body1">
-        Get help with coding, debugging, documentation, and more. 
-        Start a conversation below or try one of these suggestions.
-      </Typography>
+      <Box sx={{ mt: 4 }}>
+        <WelcomeTitle variant="h3">
+          AI Chat Assistant
+        </WelcomeTitle>
+        
+        <Typography color="text.secondary" variant="h6">
+          Your intelligent coding companion
+        </Typography>
+        
+        <Typography color="text.secondary" sx={{ mt: 2, maxWidth: '600px' }} variant="body1">
+          Get help with coding, debugging, documentation, and more. 
+          Start a conversation below or try one of these suggestions.
+        </Typography>
+      </Box>
 
-      <FeatureGrid container spacing={3}>
+      <FeatureGrid container spacing={4}>
         {features.map((feature) => {
           const IconComponent = feature.icon;
           const isDisabled = !feature.available;
 
           return (
-            <Grid item key={feature.title} md={4} sm={6} xs={12}>
+            <Grid item key={feature.title} lg={3} md={6} sm={6} xs={12}>
               <FeatureCard 
                 disabled={isDisabled}
                 onClick={() => handleFeatureClick(feature)}
               >
-                <CardContent>
-                  <FeatureIcon disabled={isDisabled}>
-                    <IconComponent />
-                  </FeatureIcon>
-                  <Typography gutterBottom variant="h6">
-                    {feature.title}
-                  </Typography>
-                  <Typography color="text.secondary" variant="body2">
-                    {feature.description}
-                  </Typography>
-                </CardContent>
+                <FeatureIcon disabled={isDisabled}>
+                  <IconComponent />
+                </FeatureIcon>
+                <Typography gutterBottom sx={{ fontWeight: 600, fontSize: '1.1rem' }} variant="h6">
+                  {feature.title}
+                </Typography>
+                <Typography color="text.secondary" sx={{ fontSize: '0.9rem', lineHeight: 1.4 }} variant="body2">
+                  {feature.description}
+                </Typography>
               </FeatureCard>
             </Grid>
           );

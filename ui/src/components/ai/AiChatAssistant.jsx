@@ -19,29 +19,58 @@ const logger = createLogger('AiChatAssistant');
 const ChatContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   height: '100vh',
+  width: '100vw',
   backgroundColor: theme.palette.background.default,
   overflow: 'hidden',
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
 }));
 
-const MainChatArea = styled(Box)({
+const MainChatArea = styled(Box)(({ theme }) => ({
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
-  height: '100%',
+  height: '100vh',
   minWidth: 0,
-});
+  backgroundColor: theme.palette.background.default,
+}));
 
-const MessagesContainer = styled(Box)({
+const MessagesContainer = styled(Box)(({ theme }) => ({
   flex: 1,
   overflowY: 'auto',
   display: 'flex',
   flexDirection: 'column',
-});
+  backgroundColor: theme.palette.background.default,
+  minHeight: 0, // This is crucial for flex overflow
+  // Custom scrollbar styling for better UX
+  '&::-webkit-scrollbar': {
+    width: '8px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: 'transparent',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: theme.palette.divider,
+    borderRadius: '4px',
+    '&:hover': {
+      backgroundColor: theme.palette.text.secondary,
+    },
+  },
+}));
 
 const InputContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(3, 4),
   borderTop: `1px solid ${theme.palette.divider}`,
   backgroundColor: theme.palette.background.paper,
+  position: 'relative',
+  zIndex: 1,
+  flexShrink: 0, // Prevent the input area from shrinking
+  maxWidth: '800px',
+  margin: '0 auto',
+  width: '100%',
 }));
 
 /**

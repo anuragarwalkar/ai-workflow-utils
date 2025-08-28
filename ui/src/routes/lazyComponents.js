@@ -14,7 +14,6 @@ export const GitStashContainer = lazy(() => import('../components/gitstash/GitSt
 export const PRContainer = lazy(() => import('../components/pr/PRContainer'));
 export const SettingsContainer = lazy(() => import('../components/settings/SettingsContainer'));
 export const AiChatAssistant = lazy(() => import('../components/ai/AiChatAssistant'));
-export const ToolsDemo = lazy(() => import('../components/ai/tools/ToolsDemo'));
 export const ApiClient = lazy(() => import('../components/api-client/ApiClient'));
 export const JiraViewerPage = lazy(() => import('../components/jira/JiraViewer/JiraViewerPage'));
 export const JiraIdPrompt = lazy(() => import('../components/jira/JiraViewer/JiraIdPrompt'));

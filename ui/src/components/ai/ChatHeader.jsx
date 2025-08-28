@@ -13,9 +13,10 @@ const logger = createLogger('ChatHeader');
 const HeaderContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  padding: theme.spacing(1, 2),
+  padding: theme.spacing(2, 3),
   borderBottom: `1px solid ${theme.palette.divider}`,
   backgroundColor: theme.palette.background.paper,
+  minHeight: '64px',
 }));
 
 /**
