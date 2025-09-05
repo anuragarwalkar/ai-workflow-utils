@@ -111,7 +111,8 @@ class HtmlFormatter {
     // Generate table header
     html += '<thead><tr>';
     filteredHeaders.forEach(h => {
-      html += `<th style="border:1px solid #ccc;padding:10px;background-color:#f2f2f2;text-align:center;vertical-align:middle;">${h}</th>`;
+      const headerStyle = this._getHeaderStyle(h);
+      html += `<th style="${headerStyle}">${h}</th>`;
     });
     html += '</tr></thead><tbody>';
 
@@ -130,6 +131,26 @@ class HtmlFormatter {
   }
 
   /**
+   * Gets appropriate header styles based on column type
+   * @private
+   * @param {string} header - Column header
+   * @returns {string} CSS styles for the header
+   */
+  static _getHeaderStyle(header) {
+    const baseStyle = 'border:1px solid #ccc;padding:10px;background-color:#f2f2f2;text-align:center;vertical-align:middle;';
+    const lower = header.toLowerCase();
+    
+    if (lower.includes('type') || lower.includes('bug') || lower.includes('us') || lower.includes('task')) {
+      return `${baseStyle}width:150px;min-width:150px;max-width:150px;`;
+    } else if (lower.includes('jira')) {
+      return `${baseStyle}width:120px;min-width:120px;max-width:120px;`;
+    } else {
+      // Summary and other columns get flexible width
+      return `${baseStyle}width:auto;`;
+    }
+  }
+
+  /**
    * Generates HTML for a single table cell with appropriate formatting
    * @private
    * @param {string} header - Column header
@@ -138,7 +159,17 @@ class HtmlFormatter {
    */
   static _generateTableCell(header, value, {jiraUrl}) {
     const lower = header.toLowerCase();
-    const tdStyle = 'border:1px solid #ccc;padding:10px;text-align:left;vertical-align:middle;';
+    const baseTdStyle = 'border:1px solid #ccc;padding:10px;text-align:left;vertical-align:middle;';
+    
+    // Apply fixed widths to specific columns
+    let tdStyle = baseTdStyle;
+    if (lower.includes('type') || lower.includes('bug') || lower.includes('us') || lower.includes('task')) {
+      tdStyle += 'width:150px;min-width:150px;max-width:150px;word-wrap:break-word;';
+    } else if (lower.includes('jira')) {
+      tdStyle += 'width:120px;min-width:120px;max-width:120px;word-wrap:break-word;';
+    } else {
+      tdStyle += 'width:auto;';
+    }
 
     if (lower.includes('jira') && value) {
       return `<td style="${tdStyle}"><a href="${jiraUrl}/browse/${value}" style="color:#0645AD;text-decoration:none;">${value}</a></td>`;
