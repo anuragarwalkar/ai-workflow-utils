@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import logger from '../../../logger.js';
 
 /**
@@ -9,7 +10,7 @@ class HtmlFormatter {
    * @param {Array} tableData - 2D array representing table data
    * @returns {string} Formatted HTML content
    */
-  static formatTableByGroup(tableData) {
+  static formatTableByGroup(tableData, options) {
     try {
       if (!Array.isArray(tableData) || tableData.length === 0) {
         throw new Error('Invalid table data for formatting');
@@ -38,7 +39,7 @@ class HtmlFormatter {
       let html = '';
       for (const key in grouped) {
         const group = grouped[key];
-        html += this._generateGroupHtml(group, groupByFields, filteredHeaders, keepIndexes);
+        html += this._generateGroupHtml(group, groupByFields, filteredHeaders, keepIndexes, options);
       }
 
       logger.info('Table formatted successfully', {
@@ -99,7 +100,7 @@ class HtmlFormatter {
    * @param {Array} keepIndexes - Column indexes to keep
    * @returns {string} HTML for the group
    */
-  static _generateGroupHtml(group, groupByFields, filteredHeaders, keepIndexes) {
+  static _generateGroupHtml(group, groupByFields, filteredHeaders, keepIndexes, options) {
     const groupTitle = groupByFields.map(f => `${f}: ${group.groupValues[f]}`).join(' | ');
 
     let html = `<div style="background-color:#eef3f7;padding:10px;font-weight:bold;text-align:left;border-left:4px solid #801C81;margin-top:30px;font-family:Arial,sans-serif;font-size:14px;">${groupTitle}</div>`;
@@ -119,7 +120,7 @@ class HtmlFormatter {
       html += '<tr>';
       keepIndexes.forEach(({ h, i }) => {
         const val = row[i] || '';
-        html += this._generateTableCell(h, val);
+        html += this._generateTableCell(h, val, options);
       });
       html += '</tr>';
     });
@@ -135,12 +136,12 @@ class HtmlFormatter {
    * @param {string} value - Cell value
    * @returns {string} HTML for the cell
    */
-  static _generateTableCell(header, value) {
+  static _generateTableCell(header, value, {jiraUrl}) {
     const lower = header.toLowerCase();
     const tdStyle = 'border:1px solid #ccc;padding:10px;text-align:left;vertical-align:middle;';
 
     if (lower.includes('jira') && value) {
-      return `<td style="${tdStyle}"><a href="https://jira/app/${value}" style="color:#0645AD;text-decoration:none;">${value}</a></td>`;
+      return `<td style="${tdStyle}"><a href="${jiraUrl}/browse/${value}" style="color:#0645AD;text-decoration:none;">${value}</a></td>`;
     } else if (value && value.includes('.html')) {
       return `<td style="${tdStyle}"><a href="${value}" style="color:#0645AD;text-decoration:none;">${value.split('/').pop()}</a></td>`;
     } else {
@@ -156,8 +157,8 @@ class HtmlFormatter {
    * @param {string} metadata.wikiUrl - Wiki URL
    * @returns {string} Complete email HTML
    */
-  static generateCompleteEmailBody(tableData, { version, wikiUrl }) {
-    const formattedTable = this.formatTableByGroup(tableData);
+  static generateCompleteEmailBody(tableData, { version, wikiUrl, jiraUrl }) {
+    const formattedTable = this.formatTableByGroup(tableData, {jiraUrl});
     const greeting = this._getTimeBasedGreeting();
     const formattedDate = this._formatDate();
 

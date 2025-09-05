@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { HtmlFormatter } from '../processors/html-formatter.js';
 import logger from '../../../logger.js';
 import langChainServiceFactory from '../../../services/langchain/LangChainServiceFactory.js';

@@ -4,6 +4,7 @@ import { EmailContentService } from './services/email-content-service.js';
 import { EmailRequest } from './models/email-request.js';
 import { ErrorHandler } from './utils/error-handler.js';
 import logger from '../../logger.js';
+import { EnvironmentConfig } from '../jira/utils/environment-config.js';
 
 /**
  * Email Controller - Main orchestrator for email generation workflow
@@ -42,6 +43,7 @@ class EmailController {
       const emailBody = EmailContentService.generateEmailBody(enhancedTableData, {
         wikiUrl: emailRequest.wikiUrl,
         version: emailRequest.version,
+        jiraUrl: EnvironmentConfig.getBaseUrl(),
       });
 
       logger.info('Email generation completed successfully');
