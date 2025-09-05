@@ -20,7 +20,7 @@ const UploadSection = ({ imageFile, onImageChange, onRemoveImage }) => (
         Upload Image
         <VisuallyHiddenInput accept='image/*' type='file' onChange={onImageChange} />
       </Button>
-      {Boolean(imageFile) && (
+      {!!(imageFile) && (
         <Stack alignItems='center' direction='row' spacing={1}>
           <Typography variant='body2'>{imageFile.name}</Typography>
           <IconButton aria-label='Remove image' size='small' onClick={onRemoveImage}>

@@ -64,7 +64,7 @@ class ErrorBoundary extends React.Component {
               {this.props.friendlyMessage || 
                 'An unexpected error occurred. Please try again or contact support if the problem persists.'}
             </Typography>
-            {Boolean(this.state.error) && (
+            {!!(this.state.error) && (
               <Typography sx={{ display: 'block', mb: 2, color: 'text.secondary' }} variant="caption">
                 Error: {this.state.error.message}
               </Typography>
@@ -77,7 +77,7 @@ class ErrorBoundary extends React.Component {
             >
               Try Again
             </Button>
-            {Boolean(this.props.onReset) && (
+            {!!(this.props.onReset) && (
               <Button 
                 size="small" 
                 variant="text" 

@@ -215,7 +215,7 @@ const AiChatAssistant = () => {
         {/* Futuristic Chat Loader - Shows when system is loading */}
         <FuturisticChatLoader
           message="Initializing AI Assistant..."
-          visible={Boolean(isLoading && !hasMessages)}
+          visible={!!(isLoading && !hasMessages)}
         />
       </MainChatArea>
     </ChatContainer>

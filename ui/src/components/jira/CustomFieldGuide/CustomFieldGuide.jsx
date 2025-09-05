@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
   Accordion,
@@ -190,7 +191,7 @@ const FieldCardContent = ({ field, showValues, projectKey, valuesData, valuesLoa
     <Box sx={{ mt: 1 }}>{renderFieldType(field.type)}</Box>
 
     {/* Show values if requested */}
-    {Boolean(showValues && projectKey) && (
+    {!!(showValues && projectKey) && (
       <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
         <Typography sx={{ fontWeight: 'bold', mb: 1 }} variant='subtitle2'>
           Sample Values from {projectKey}:
@@ -212,7 +213,7 @@ const FieldCardActions = ({ field, projectKey, showValues, setShowValues }) => (
     >
       Copy ID
     </Button>
-    {Boolean(projectKey) && (
+    {!!(projectKey) && (
       <Button
         size='small'
         startIcon={<VisibilityIcon />}

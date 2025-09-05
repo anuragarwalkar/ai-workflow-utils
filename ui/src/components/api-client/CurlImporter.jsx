@@ -139,13 +139,13 @@ const CurlImporter = ({ onImport }) => {
       </Box>
 
       {/* Status Messages */}
-      {Boolean(error) && (
+      {!!(error) && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
 
-      {Boolean(success) && (
+      {!!(success) && (
         <Alert severity="success" sx={{ mb: 2 }}>
           {success}
         </Alert>

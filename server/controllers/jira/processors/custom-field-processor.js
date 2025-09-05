@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /**
  * Custom field processor for Jira field data processing
  */
@@ -223,7 +224,7 @@ export const parseDate = str => {
   try {
     const date = new Date(str);
     return isNaN(date.getTime()) ? str : date.toISOString();
-  } catch (error) {
+  } catch {
     return str;
   }
 };
@@ -238,7 +239,7 @@ export const parseUserValue = str => {
   if (isJsonLike(str)) {
     try {
       return JSON.parse(sanitizeJsonString(str));
-    } catch (error) {
+    } catch {
       // Fall through to string handling
     }
   }

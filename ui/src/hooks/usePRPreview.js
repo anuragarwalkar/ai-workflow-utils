@@ -114,7 +114,7 @@ export const usePRPreview = () => {
    * @returns {boolean} Whether preview is ready
    */
   const isPreviewReady = () => {
-    const isReady = Boolean(
+    const isReady = !!(
       preview &&
       preview.prTitle &&
       preview.prDescription

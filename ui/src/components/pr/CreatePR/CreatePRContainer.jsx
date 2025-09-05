@@ -148,7 +148,7 @@ const CreatePRContent = () => {
           </PreviewButton>
         </ActionContainer>
 
-        {Boolean(showPreview && preview) && (
+        {!!(showPreview && preview) && (
           <PreviewSection 
             isLoading={isCreating} 
             preview={preview} 

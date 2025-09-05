@@ -160,7 +160,7 @@ const EnvironmentMenu = ({
 }) => (
   <Menu
     anchorEl={anchorEl}
-    open={Boolean(anchorEl)}
+    open={!!(anchorEl)}
     onClose={onClose}
   >
     <MenuItem onClick={() => onEdit(environment)}>

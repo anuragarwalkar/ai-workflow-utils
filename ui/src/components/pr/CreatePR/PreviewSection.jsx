@@ -24,7 +24,7 @@ const PreviewInfoComponent = ({ preview }) => (
     <InfoText>
       Branch: {preview?.branchName}
     </InfoText>
-    {Boolean(preview?.aiGenerated) && (
+    {!!(preview?.aiGenerated) && (
       <AIGeneratedText>
         AI-Generated Content (Streamed)
       </AIGeneratedText>
