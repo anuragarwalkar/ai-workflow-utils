@@ -154,9 +154,9 @@ const ChatMessage = ({ message, showTimestamp = true, isStreaming = false }) => 
       <>
         <MessageText>
           {message.content}
-          {Boolean(isStreaming) && <FuturisticStreamingIndicator />}
+          {!!(isStreaming) && <FuturisticStreamingIndicator />}
         </MessageText>
-        {Boolean(showTimestamp && message.timestamp) && (
+        {!!(showTimestamp && message.timestamp) && (
           <MessageTimestamp>
             {formatMessageTime(message.timestamp)}
           </MessageTimestamp>

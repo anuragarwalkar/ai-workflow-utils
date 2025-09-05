@@ -157,7 +157,7 @@ const AiChatAssistant = () => {
 
   return (
     <ChatContainer>
-      {sidebarOpen && (
+      {!!sidebarOpen && (
         <ChatSidebar
           conversations={conversations}
           currentSessionId={currentSessionId}

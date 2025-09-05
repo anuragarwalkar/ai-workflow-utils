@@ -63,7 +63,7 @@ const ActionButton = styled(IconButton)(({ theme, variant }) => ({
   color: variant === 'primary' ? theme.palette.primary.main : theme.palette.text.secondary,
   '&:hover': {
     backgroundColor: variant === 'primary' 
-      ? `${theme.palette.primary.main  }10` 
+      ? `${theme.palette.primary.main}10` 
       : theme.palette.action.hover,
   },
   '&:disabled': {
