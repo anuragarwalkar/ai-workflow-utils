@@ -39,26 +39,6 @@ export const useChatAssistant = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
-
-  // Initialize first conversation
-  useEffect(() => {
-    if (!currentSessionId) {
-      handleNewConversation();
-    }
-  }, [currentSessionId, handleNewConversation]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
-
   const handleNewConversation = useCallback(() => {
     const sessionId = generateSessionId();
     const newConversation = {
@@ -96,12 +76,26 @@ export const useChatAssistant = () => {
       if (remainingConversations.length > 0) {
         handleSelectConversation(remainingConversations[0].id);
       } else {
-        handleNewConversation();
+        // Create new conversation inline to avoid circular dependency
+        const newSessionId = generateSessionId();
+        const newConversation = {
+          id: newSessionId,
+          messages: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        setConversations(prev => [newConversation, ...prev]);
+        setCurrentSessionId(newSessionId);
+        setMessages([]);
+        setConversationState(CONVERSATION_STATE.IDLE);
+        
+        logger.info('handleDeleteConversation', `Created new conversation: ${newSessionId}`);
       }
     }
     
     logger.info('handleDeleteConversation', `Deleted conversation: ${sessionId}`);
-  }, [conversations, currentSessionId, handleSelectConversation, handleNewConversation]);
+  }, [conversations, currentSessionId, handleSelectConversation]);
 
   const updateConversation = useCallback((sessionId, newMessages) => {
     setConversations(prev => 
@@ -210,6 +204,40 @@ export const useChatAssistant = () => {
     setSidebarOpen(prev => !prev);
     logger.info('toggleSidebar', `Sidebar: ${!sidebarOpen ? 'open' : 'closed'}`);
   }, [sidebarOpen]);
+
+  // Effects
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  // Initialize first conversation
+  useEffect(() => {
+    if (!currentSessionId) {
+      const sessionId = generateSessionId();
+      const newConversation = {
+        id: sessionId,
+        messages: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      setConversations(prev => [newConversation, ...prev]);
+      setCurrentSessionId(sessionId);
+      setMessages([]);
+      setConversationState(CONVERSATION_STATE.IDLE);
+      
+      logger.info('useEffect-initConversation', `Created conversation: ${sessionId}`);
+    }
+  }, [currentSessionId]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   const isLoading = conversationState === CONVERSATION_STATE.LOADING;
 

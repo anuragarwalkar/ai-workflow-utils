@@ -124,6 +124,7 @@
     "unidiff": "^1.0.4",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
+    "ws": "^8.18.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {

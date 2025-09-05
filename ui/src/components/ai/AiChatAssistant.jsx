@@ -8,10 +8,12 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { createLogger } from '../../utils/log.js';
+import { useChatAssistant } from '../../hooks/useChatAssistantSimple.js';
 import ChatInput from '../chat/ChatInput.jsx';
 import ChatMessage from '../chat/ChatMessage.jsx';
 import ChatSidebar from '../chat/ChatSidebar.jsx';
 import ChatWelcome from '../chat/ChatWelcome.jsx';
+import VoiceAssistantButton from '../chat/VoiceAssistantButton.jsx';
 import ChatHeader from './ChatHeader.jsx';
 
 const logger = createLogger('AiChatAssistant');
@@ -45,6 +47,8 @@ const MessagesContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   backgroundColor: theme.palette.background.default,
   minHeight: 0, // This is crucial for flex overflow
+  padding: theme.spacing(1, 0),
+  gap: theme.spacing(0.5),
   // Custom scrollbar styling for better UX
   '&::-webkit-scrollbar': {
     width: '8px',
@@ -67,28 +71,60 @@ const InputContainer = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   position: 'relative',
   zIndex: 1,
-  flexShrink: 0, // Prevent the input area from shrinking
-  maxWidth: '800px',
-  margin: '0 auto',
+  flexShrink: 0,
   width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(2),
+  alignItems: 'center',
 }));
 
 /**
- * AiChatAssistant main component - Simplified version
+ * AiChatAssistant main component
  * @returns {React.Element} AiChatAssistant component
  */
 const AiChatAssistant = () => {
-  // For now, use simple state until we integrate with the existing hook
-  const [messages] = React.useState([]);
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
-  const [inputValue, setInputValue] = React.useState('');
-  
-  logger.info('AiChatAssistant', 'Rendering chat component');
+  const {
+    sidebarOpen,
+    conversations,
+    currentSessionId,
+    messages,
+    isLoading,
+    streamingMessageId,
+    messagesEndRef,
+    handleNewConversation,
+    handleSelectConversation,
+    handleDeleteConversation,
+    handleSendMessage,
+    toggleSidebar,
+  } = useChatAssistant();
 
-  const handleSendMessage = (messageContent) => {
+  const [inputValue, setInputValue] = React.useState('');
+  const [_voiceError, setVoiceError] = React.useState(null);
+
+  // Handle voice message integration
+  const handleVoiceMessage = (message) => {
+    logger.info('AiChatAssistant', 'handleVoiceMessage', { message });
+    // For now, we'll add voice messages as regular text messages
+    handleSendMessageWrapper(message);
+  };
+
+  // Handle voice errors
+  const handleVoiceError = (error) => {
+    logger.error('AiChatAssistant', 'handleVoiceError', { error });
+    setVoiceError(error);
+    // Could show a toast notification here
+  };
+  
+  logger.info('AiChatAssistant', 'Rendering chat component', {
+    messageCount: messages.length,
+    currentSessionId,
+    isLoading,
+  });
+
+  const handleSendMessageWrapper = (messageContent) => {
     logger.info('AiChatAssistant', 'handleSendMessage', { messageContent });
-    // TODO: Integrate with existing useChatAssistant hook
-    // Clear input after sending
+    handleSendMessage(messageContent);
     setInputValue('');
   };
 
@@ -98,7 +134,7 @@ const AiChatAssistant = () => {
 
   const handleSend = () => {
     if (inputValue.trim()) {
-      handleSendMessage(inputValue);
+      handleSendMessageWrapper(inputValue);
     }
   };
 
@@ -109,21 +145,17 @@ const AiChatAssistant = () => {
     }
   };
 
-  const toggleSidebar = () => {
-    setSidebarOpen(prev => !prev);
-  };
-
   const hasMessages = messages.length > 0;
 
   return (
     <ChatContainer>
       {Boolean(sidebarOpen) && (
         <ChatSidebar
-          conversations={[]}
-          currentSessionId={null}
-          onDeleteConversation={() => {}}
-          onNewConversation={() => {}}
-          onSelectConversation={() => {}}
+          conversations={conversations}
+          currentSessionId={currentSessionId}
+          onDeleteConversation={handleDeleteConversation}
+          onNewConversation={handleNewConversation}
+          onSelectConversation={handleSelectConversation}
         />
       )}
       
@@ -135,23 +167,33 @@ const AiChatAssistant = () => {
 
         <MessagesContainer>
           {!hasMessages ? (
-            <ChatWelcome onSendMessage={handleSendMessage} />
+            <ChatWelcome onSendMessage={handleSendMessageWrapper} />
           ) : (
             <>
               {messages.map((message) => (
                 <ChatMessage
-                  isStreaming={false}
+                  isStreaming={message.id === streamingMessageId}
                   key={message.id}
                   message={message}
                 />
               ))}
+              <div ref={messagesEndRef} />
             </>
           )}
         </MessagesContainer>
 
         <InputContainer>
+          {/* Voice Assistant Button */}
+          <VoiceAssistantButton
+            disabled={isLoading}
+            sessionId={currentSessionId}
+            onVoiceError={handleVoiceError}
+            onVoiceMessage={handleVoiceMessage}
+          />
+          
+          {/* Regular Chat Input */}
           <ChatInput
-            disabled={false}
+            disabled={isLoading}
             placeholder="Type your message here..."
             value={inputValue}
             onChange={handleInputChange}

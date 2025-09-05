@@ -30,7 +30,7 @@ const logger = createLogger('ChatSidebar');
 const SidebarContainer = styled(Box)(({ theme }) => ({
   width: CHAT_UI.SIDEBAR_WIDTH,
   height: '100%',
-  backgroundColor: theme.palette.mode === 'dark' ? '#202123' : theme.palette.grey[50],
+  backgroundColor: theme.palette.background.paper,
   borderRight: `1px solid ${theme.palette.divider}`,
   display: 'flex',
   flexDirection: 'column',
@@ -42,7 +42,7 @@ const SidebarHeader = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'space-between',
   borderBottom: `1px solid ${theme.palette.divider}`,
-  backgroundColor: theme.palette.mode === 'dark' ? '#202123' : theme.palette.background.paper,
+  backgroundColor: theme.palette.background.paper,
 }));
 
 const ConversationList = styled(List)({
@@ -55,10 +55,10 @@ const ConversationItem = styled(ListItem)(({ theme, isActive }) => ({
   padding: 0,
   '& .MuiListItemButton-root': {
     padding: theme.spacing(1.5, 2),
-    backgroundColor: isActive ? theme.palette.primary.light : 'transparent',
+    backgroundColor: isActive ? theme.palette.action.selected : 'transparent',
     '&:hover': {
       backgroundColor: isActive 
-        ? theme.palette.primary.light 
+        ? theme.palette.action.selected 
         : theme.palette.action.hover,
     },
   },

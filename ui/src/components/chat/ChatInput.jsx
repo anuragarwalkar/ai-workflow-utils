@@ -185,7 +185,7 @@ const ChatInput = ({
         />
 
         {/* Voice Recording Button */}
-        <Tooltip title={isRecording ? "Stop recording" : "Voice input (Coming soon)"}>
+        <Tooltip title={isRecording ? "Stop recording" : "Voice input"}>
           <ActionButton
             disabled={disabled}
             variant={isRecording ? 'primary' : 'default'}

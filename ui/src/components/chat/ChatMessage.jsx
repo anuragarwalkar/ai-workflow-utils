@@ -15,16 +15,53 @@ const logger = createLogger('ChatMessage');
 
 const MessageContainer = styled(Box)(({ theme, isUser }) => ({
   display: 'flex',
-  gap: theme.spacing(2),
-  padding: theme.spacing(2, 3),
-  backgroundColor: isUser ? 'transparent' : theme.palette.grey[50],
-  alignItems: 'flex-start',
+  width: '100%',
+  padding: theme.spacing(1, 3),
+  justifyContent: isUser ? 'flex-start' : 'flex-end',
 }));
 
-const MessageContent = styled(Box)({
+const MessageWrapper = styled(Box)(({ theme, isUser }) => ({
+  display: 'flex',
+  gap: theme.spacing(1),
+  maxWidth: '85%',
+  alignItems: 'flex-start',
+  flexDirection: isUser ? 'row' : 'row-reverse',
+}));
+
+const MessageContent = styled(Box)(({ theme, isUser }) => ({
   flex: 1,
   minWidth: 0,
-});
+  maxWidth: 'calc(100% - 48px)', // Account for avatar width + gap
+  backgroundColor: isUser ? theme.palette.primary.main : theme.palette.background.paper,
+  color: isUser ? theme.palette.primary.contrastText : theme.palette.text.primary,
+  borderRadius: theme.spacing(2),
+  padding: theme.spacing(1.5, 2),
+  boxShadow: isUser ? theme.shadows[2] : theme.shadows[1],
+  border: isUser ? 'none' : `1px solid ${theme.palette.divider}`,
+  position: 'relative',
+  // Add a subtle tail to the speech bubble - swapped for user on left, AI on right
+  '&::before': isUser ? {
+    content: '""',
+    position: 'absolute',
+    left: '-8px',
+    top: '12px',
+    width: 0,
+    height: 0,
+    borderRight: `8px solid ${theme.palette.primary.main}`,
+    borderTop: '6px solid transparent',
+    borderBottom: '6px solid transparent',
+  } : {
+    content: '""',
+    position: 'absolute',
+    right: '-8px',
+    top: '12px',
+    width: 0,
+    height: 0,
+    borderLeft: `8px solid ${theme.palette.background.paper}`,
+    borderTop: '6px solid transparent',
+    borderBottom: '6px solid transparent',
+  },
+}));
 
 const MessageText = styled(Typography)(({ theme }) => ({
   whiteSpace: 'pre-wrap',
@@ -32,6 +69,7 @@ const MessageText = styled(Typography)(({ theme }) => ({
   lineHeight: 1.6,
   fontFamily: theme.typography.body1.fontFamily,
   fontSize: '15px',
+  margin: 0,
 }));
 
 const MessageTimestamp = styled(Typography)(({ theme }) => ({
@@ -50,11 +88,11 @@ const MessageAvatar = styled(Avatar)(({ theme, isUser }) => ({
 }));
 
 const ErrorMessage = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(1, 2),
-  backgroundColor: theme.palette.error.light,
+  padding: theme.spacing(1.5, 2),
+  backgroundColor: theme.palette.error.main,
   color: theme.palette.error.contrastText,
-  borderRadius: theme.spacing(1),
-  marginTop: theme.spacing(1),
+  borderRadius: theme.spacing(2),
+  margin: 0,
 }));
 
 const StreamingIndicator = styled(Box)(({ theme }) => ({
@@ -148,10 +186,12 @@ const ChatMessage = ({ message, showTimestamp = true, isStreaming = false }) => 
 
   return (
     <MessageContainer isUser={isUser}>
-      {renderAvatar()}
-      <MessageContent>
-        {renderMessageContent()}
-      </MessageContent>
+      <MessageWrapper isUser={isUser}>
+        {renderAvatar()}
+        <MessageContent isUser={isUser}>
+          {renderMessageContent()}
+        </MessageContent>
+      </MessageWrapper>
     </MessageContainer>
   );
 };
