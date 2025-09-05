@@ -14,6 +14,7 @@ import ChatMessage from '../chat/ChatMessage.jsx';
 import ChatSidebar from '../chat/ChatSidebar.jsx';
 import ChatWelcome from '../chat/ChatWelcome.jsx';
 import VoiceAssistantButton from '../chat/VoiceAssistantButton.jsx';
+import FuturisticChatLoader from '../chat/FuturisticChatLoader.jsx';
 import ChatHeader from './ChatHeader.jsx';
 
 const logger = createLogger('AiChatAssistant');
@@ -38,17 +39,15 @@ const MainChatArea = styled(Box)(({ theme }) => ({
   height: '100vh',
   minWidth: 0,
   backgroundColor: theme.palette.background.default,
+  overflow: 'hidden', // Prevent overflow on the main container
 }));
 
-const MessagesContainer = styled(Box)(({ theme }) => ({
+const ScrollableContent = styled(Box)(({ theme }) => ({
   flex: 1,
   overflowY: 'auto',
   display: 'flex',
   flexDirection: 'column',
-  backgroundColor: theme.palette.background.default,
-  minHeight: 0, // This is crucial for flex overflow
-  padding: theme.spacing(1, 0),
-  gap: theme.spacing(0.5),
+  minHeight: 0,
   // Custom scrollbar styling for better UX
   '&::-webkit-scrollbar': {
     width: '8px',
@@ -63,6 +62,15 @@ const MessagesContainer = styled(Box)(({ theme }) => ({
       backgroundColor: theme.palette.text.secondary,
     },
   },
+}));
+
+const MessagesContainer = styled(Box)(({ theme }) => ({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  backgroundColor: theme.palette.background.default,
+  padding: theme.spacing(1, 0),
+  gap: theme.spacing(0.5),
 }));
 
 const InputContainer = styled(Box)(({ theme }) => ({
@@ -165,42 +173,50 @@ const AiChatAssistant = () => {
           onToggleSidebar={toggleSidebar}
         />
 
-        <MessagesContainer>
-          {!hasMessages ? (
-            <ChatWelcome onSendMessage={handleSendMessageWrapper} />
-          ) : (
-            <>
-              {messages.map((message) => (
-                <ChatMessage
-                  isStreaming={message.id === streamingMessageId}
-                  key={message.id}
-                  message={message}
-                />
-              ))}
-              <div ref={messagesEndRef} />
-            </>
-          )}
-        </MessagesContainer>
+        <ScrollableContent>
+          <MessagesContainer>
+            {!hasMessages ? (
+              <ChatWelcome onSendMessage={handleSendMessageWrapper} />
+            ) : (
+              <>
+                {messages.map((message) => (
+                  <ChatMessage
+                    isStreaming={message.id === streamingMessageId}
+                    key={message.id}
+                    message={message}
+                  />
+                ))}
+                <div ref={messagesEndRef} />
+              </>
+            )}
+          </MessagesContainer>
 
-        <InputContainer>
-          {/* Voice Assistant Button */}
-          <VoiceAssistantButton
-            disabled={isLoading}
-            sessionId={currentSessionId}
-            onVoiceError={handleVoiceError}
-            onVoiceMessage={handleVoiceMessage}
-          />
-          
-          {/* Regular Chat Input */}
-          <ChatInput
-            disabled={isLoading}
-            placeholder="Type your message here..."
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
-            onSend={handleSend}
-          />
-        </InputContainer>
+          <InputContainer>
+            {/* Voice Assistant Button */}
+            <VoiceAssistantButton
+              disabled={isLoading}
+              sessionId={currentSessionId}
+              onVoiceError={handleVoiceError}
+              onVoiceMessage={handleVoiceMessage}
+            />
+            
+            {/* Regular Chat Input */}
+            <ChatInput
+              disabled={isLoading}
+              placeholder="Type your message here..."
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              onSend={handleSend}
+            />
+          </InputContainer>
+        </ScrollableContent>
+
+        {/* Futuristic Chat Loader - Shows when system is loading */}
+        <FuturisticChatLoader
+          message="Initializing AI Assistant..."
+          visible={Boolean(isLoading && !hasMessages)}
+        />
       </MainChatArea>
     </ChatContainer>
   );

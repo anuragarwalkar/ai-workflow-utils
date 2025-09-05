@@ -10,6 +10,7 @@ import { styled } from '@mui/material/styles';
 import { MESSAGE_TYPES } from '../../constants/chat.js';
 import { formatMessageTime, isAssistantMessage, isUserMessage } from '../../utils/chatUtils.js';
 import { createLogger } from '../../utils/log.js';
+import FuturisticStreamingIndicator from './FuturisticStreamingIndicator.jsx';
 
 const logger = createLogger('ChatMessage');
 
@@ -95,26 +96,6 @@ const ErrorMessage = styled(Box)(({ theme }) => ({
   margin: 0,
 }));
 
-const StreamingIndicator = styled(Box)(({ theme }) => ({
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: theme.spacing(0.5),
-  marginLeft: theme.spacing(1),
-  '&::after': {
-    content: '""',
-    width: '8px',
-    height: '8px',
-    backgroundColor: theme.palette.primary.main,
-    borderRadius: '50%',
-    animation: 'pulse 1.5s infinite',
-  },
-  '@keyframes pulse': {
-    '0%': { opacity: 0.3 },
-    '50%': { opacity: 1 },
-    '100%': { opacity: 0.3 },
-  },
-}));
-
 /**
  * ChatMessage component
  * @param {object} props - Component props
@@ -173,7 +154,7 @@ const ChatMessage = ({ message, showTimestamp = true, isStreaming = false }) => 
       <>
         <MessageText>
           {message.content}
-          {Boolean(isStreaming) && <StreamingIndicator />}
+          {Boolean(isStreaming) && <FuturisticStreamingIndicator />}
         </MessageText>
         {Boolean(showTimestamp && message.timestamp) && (
           <MessageTimestamp>

@@ -26,13 +26,12 @@ import {
   Api as ApiIcon,
   Close as CloseIcon,
   Code as CodeIcon,
-  DarkMode as DarkModeIcon,
-  LightMode as LightModeIcon,
   Send as SendIcon,
 } from '@mui/icons-material';
 import { useAppTheme } from '../../theme/useAppTheme';
 import { CurlParser } from '../../utils/curlParser';
 import EnvironmentApiService from '../../services/environmentApiService';
+import ThemeToggleButton from '../common/ThemeToggleButton.jsx';
 
 // Utility function to truncate long tab names
 const truncateTabName = (name, maxLength = 20) => {
@@ -701,7 +700,7 @@ const ApiClientHeader = ({
   onUpdateRequest,
 }) => {
   const theme = useTheme();
-  const { isDark, toggleTheme } = useAppTheme();
+  const { isDark } = useAppTheme();
   const [inputValue, setInputValue] = useState('');
   const [curlError, setCurlError] = useState('');
   const navigate = useNavigate();
@@ -936,23 +935,7 @@ const ApiClientHeader = ({
             </IconButton>
           </Tooltip>
           
-          <Tooltip title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
-            <IconButton 
-              size="small"
-              sx={{
-                width: '28px',
-                height: '28px',
-                background: alpha(theme.palette.primary.main, 0.1),
-                color: theme.palette.primary.main,
-                '&:hover': {
-                  background: alpha(theme.palette.primary.main, 0.2),
-                },
-              }}
-              onClick={toggleTheme}
-            >
-              {isDark ? <LightModeIcon sx={{ fontSize: 16 }} /> : <DarkModeIcon sx={{ fontSize: 16 }} />}
-            </IconButton>
-          </Tooltip>
+          <ThemeToggleButton />
         </Box>
       </Box>
 

@@ -7,12 +7,15 @@ import { Box, IconButton, Tooltip } from '@mui/material';
 import { Menu as MenuIcon, MenuOpen as MenuOpenIcon } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { createLogger } from '../../utils/log.js';
+import ThemeToggleButton from '../common/ThemeToggleButton.jsx';
+import NavigationButton from '../common/NavigationButton.jsx';
 
 const logger = createLogger('ChatHeader');
 
 const HeaderContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
+  justifyContent: 'space-between',
   padding: theme.spacing(2, 3),
   borderBottom: `1px solid ${theme.palette.divider}`,
   backgroundColor: theme.palette.background.paper,
@@ -31,11 +34,22 @@ const ChatHeader = ({ sidebarOpen, onToggleSidebar }) => {
 
   return (
     <HeaderContainer>
-      <Tooltip title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}>
-        <IconButton onClick={onToggleSidebar}>
-          {sidebarOpen ? <MenuOpenIcon /> : <MenuIcon />}
-        </IconButton>
-      </Tooltip>
+      <Box alignItems="center" display="flex" gap={1}>
+        <NavigationButton 
+          to="/" 
+          tooltip="Go to Main Page"
+          type="home"
+        />
+        <Tooltip title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}>
+          <IconButton onClick={onToggleSidebar}>
+            {sidebarOpen ? <MenuOpenIcon /> : <MenuIcon />}
+          </IconButton>
+        </Tooltip>
+      </Box>
+
+      <Box alignItems="center" display="flex" gap={0.5}>
+        <ThemeToggleButton />
+      </Box>
     </HeaderContainer>
   );
 };
