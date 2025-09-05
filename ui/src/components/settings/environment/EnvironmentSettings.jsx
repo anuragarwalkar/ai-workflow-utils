@@ -200,11 +200,11 @@ const EnvironmentSettings = () => {
 
     if (requiredFields.length === 0) {
       // If no required fields, check if at least one field has a value
-      return configFields.some(([key]) => Boolean(settings[key]));
+      return configFields.some(([key]) => !!(settings[key]));
     }
 
     // Check if all required fields have values
-    return requiredFields.every(([key]) => Boolean(settings[key]));
+    return requiredFields.every(([key]) => !!(settings[key]));
   };
 
   const renderProviderStatus = provider => {

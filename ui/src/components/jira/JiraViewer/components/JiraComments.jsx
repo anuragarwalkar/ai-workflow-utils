@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+/* eslint-disable max-lines */
+/* eslint-disable max-statements */
+/* eslint-disable react/jsx-max-depth */
+/* eslint-disable react/no-unstable-nested-components */
+import { useState } from 'react';
 import {
   Avatar,
   Box,
@@ -440,7 +444,7 @@ const JiraComments = ({ jiraData }) => {
       {/* Comment Actions Menu */}
       <Menu
         anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
+        open={!!(anchorEl)}
         PaperProps={{
           sx: {
             background: 'rgba(0, 0, 0, 0.9)',

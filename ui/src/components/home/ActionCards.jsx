@@ -76,7 +76,7 @@ const ActionCards = () => {
 
   // New unreleased feature handlers
   const handleAiChat = () => {
-    navigate('/ai-dev-assistant');
+    navigate('/ai-chat-assistant');
   };
 
   const handleWorkflowAutomation = () => {
@@ -142,7 +142,7 @@ const ActionCards = () => {
     {
       id: 'ai-chat',
       title: 'AI Chat Assistant',
-      description: 'Intelligent conversational AI for development task assistance',
+      description: 'General-purpose template-driven AI assistant for various tasks',
       icon: ChatIcon,
       actionIcon: AutoFixHighIcon,
       onClick: handleAiChat,

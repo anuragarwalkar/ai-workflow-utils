@@ -13,7 +13,7 @@ const logger = createLogger('ValidationUtils');
  * @returns {object} Validation result
  */
 export const validateRequired = (value, fieldName) => {
-  const isValid = Boolean(value && value.trim().length > 0);
+  const isValid = !!(value && value.trim().length > 0);
   
   if (!isValid) {
     logger.debug('validateRequired', `Validation failed for ${fieldName}`, { value, fieldName });

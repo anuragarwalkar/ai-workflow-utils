@@ -62,7 +62,7 @@ const UrlEntryForm = ({
               label={`Repo: ${urlData.parsedData.repoSlug}`}
               size="small"
             />
-            {Boolean(urlData.parsedData.prNumber) && (
+            {!!(urlData.parsedData.prNumber) && (
               <Chip
                 color="success"
                 label={`PR: #${urlData.parsedData.prNumber}`}
@@ -70,7 +70,7 @@ const UrlEntryForm = ({
               />
             )}
           </Box>
-          {Boolean(urlData.parsedData.prNumber) && (
+          {!!(urlData.parsedData.prNumber) && (
             <FormControlLabel
               control={
                 <Switch
@@ -87,7 +87,7 @@ const UrlEntryForm = ({
       </Grid>
     )}
 
-    {Boolean(urlData.url) && urlData.parsedData?.isValid === false && (
+    {!!(urlData.url) && urlData.parsedData?.isValid === false && (
       <Grid item xs={12}>
         <Alert severity="warning">
           Invalid URL format. Please ensure the URL follows the GitStash format:

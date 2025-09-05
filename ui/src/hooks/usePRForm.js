@@ -90,7 +90,7 @@ export const usePRForm = () => {
    * @returns {boolean} Whether form is valid
    */
   const isFormValid = () => {
-    const isValid = Boolean(
+    const isValid = !!(
       formData[FORM_FIELDS.PROJECT_KEY] &&
       formData[FORM_FIELDS.REPO_SLUG] &&
       formData[FORM_FIELDS.BRANCH_NAME]

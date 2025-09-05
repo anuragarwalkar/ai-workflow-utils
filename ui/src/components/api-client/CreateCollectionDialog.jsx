@@ -151,7 +151,7 @@ const CreateCollectionDialog = ({ open, onClose, onCollectionCreated }) => {
       </DialogTitle>
 
       <DialogContent>
-        {Boolean(error) && (
+        {!!(error) && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>

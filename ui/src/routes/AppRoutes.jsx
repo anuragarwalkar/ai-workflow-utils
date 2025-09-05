@@ -1,8 +1,7 @@
-import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import {
-  AiDevAssistant,
+  AiChatAssistant,
   AiEmailComposer,
   ApiClient,
   CreateJiraContainer,
@@ -87,12 +86,8 @@ const AppRoutes = () => (
       path='/ai-generate-pr-template'
     />
     <Route
-      element={
-        <Layout>
-          <AiDevAssistant />
-        </Layout>
-      }
-      path='/ai-dev-assistant'
+      element={<AiChatAssistant />}
+      path='/ai-chat-assistant'
     />
     <Route
       element={<ApiClient />}

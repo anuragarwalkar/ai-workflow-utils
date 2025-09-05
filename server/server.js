@@ -21,8 +21,10 @@ import templateRoutes from './routes/template-routes.js';
 import environmentSettingsRoutes from './routes/environment-routes.js';
 import logsRoutes from './routes/logs-routes.js';
 import mcpRoutes from './routes/mcp-routes.js';
+import voiceRoutes from './routes/voice-routes.js';
 import langChainServiceFactory from './services/langchain/LangChainServiceFactory.js';
-
+import geminiVoiceService from './services/voice/GeminiVoiceService.js';
+ 
 // Load default .env file first (for fallback values)
 dotenv.config();
 
@@ -108,6 +110,7 @@ app.use('/api/templates', templateRoutes);
 app.use('/api/environment-settings', environmentSettingsRoutes);
 app.use('/api/logs', logsRoutes);
 app.use('/api/mcp', mcpRoutes);
+app.use('/api/voice', voiceRoutes);
 
 // Serve static files from React build
 const staticPath = path.join(projectRoot, 'ui/dist');
@@ -153,6 +156,64 @@ app.use(errorHandler);
 io.on('connection', socket => {
   logger.info(`Client connected to WebSocket: ${socket.id}`);
 
+  // Handle voice session events
+  socket.on('start-voice-session', async (data) => {
+    try {
+      logger.info(`Starting voice session for socket ${socket.id}:`, data);
+      
+      const sessionInfo = await geminiVoiceService.startVoiceSession(data.sessionId, data);
+      
+      // Set up voice service event listeners for this socket
+      const handleVoiceEvent = (event, eventData) => {
+        if (eventData.sessionId === data.sessionId) {
+          socket.emit(event, eventData);
+        }
+      };
+
+      geminiVoiceService.on('session-connected', (eventData) => handleVoiceEvent('voice-session-connected', eventData));
+      geminiVoiceService.on('session-ready', (eventData) => handleVoiceEvent('voice-session-ready', eventData));
+      geminiVoiceService.on('voice-text', (eventData) => handleVoiceEvent('voice-text', eventData));
+      geminiVoiceService.on('voice-audio', (eventData) => handleVoiceEvent('voice-audio', eventData));
+      geminiVoiceService.on('session-disconnected', (eventData) => handleVoiceEvent('voice-session-disconnected', eventData));
+      geminiVoiceService.on('session-error', (eventData) => handleVoiceEvent('voice-session-error', eventData));
+
+      socket.emit('voice-session-started', sessionInfo);
+    } catch (error) {
+      logger.error(`Error starting voice session for socket ${socket.id}:`, error);
+      socket.emit('voice-session-error', { error: error.message });
+    }
+  });
+
+  socket.on('stop-voice-session', async (data) => {
+    try {
+      logger.info(`Stopping voice session for socket ${socket.id}:`, data);
+      await geminiVoiceService.stopVoiceSession(data.sessionId);
+      socket.emit('voice-session-stopped', { sessionId: data.sessionId });
+    } catch (error) {
+      logger.error(`Error stopping voice session for socket ${socket.id}:`, error);
+      socket.emit('voice-session-error', { error: error.message });
+    }
+  });
+
+  socket.on('voice-audio-input', async (data) => {
+    try {
+      const audioBuffer = Buffer.from(data.audioData, 'base64');
+      await geminiVoiceService.sendAudioInput(data.sessionId, audioBuffer, data.mimeType);
+    } catch (error) {
+      logger.error(`Error sending voice audio for socket ${socket.id}:`, error);
+      socket.emit('voice-session-error', { error: error.message });
+    }
+  });
+
+  socket.on('voice-text-input', async (data) => {
+    try {
+      await geminiVoiceService.sendTextInput(data.sessionId, data.text);
+    } catch (error) {
+      logger.error(`Error sending voice text for socket ${socket.id}:`, error);
+      socket.emit('voice-session-error', { error: error.message });
+    }
+  });
+
   // Handle client disconnection
   socket.on('disconnect', reason => {
     logger.info(`Client disconnected from WebSocket: ${socket.id}, reason: ${reason}`);
@@ -176,6 +237,15 @@ const gracefulShutdown = signal => {
 
   isShuttingDown = true;
   logger.info(`${signal} received, shutting down gracefully`);
+
+  // Cleanup voice sessions
+  geminiVoiceService.cleanupAll()
+    .then(() => {
+      logger.info('Voice sessions cleaned up');
+    })
+    .catch((error) => {
+      logger.error('Error cleaning up voice sessions:', error);
+    });
 
   // Set a timeout to force exit if graceful shutdown takes too long
   const forceExitTimeout = setTimeout(() => {
