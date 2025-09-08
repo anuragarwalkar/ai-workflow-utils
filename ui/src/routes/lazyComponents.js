@@ -17,3 +17,4 @@ export const AiChatAssistant = lazy(() => import('../components/ai/AiChatAssista
 export const ApiClient = lazy(() => import('../components/api-client/ApiClient'));
 export const JiraViewerPage = lazy(() => import('../components/jira/JiraViewer/JiraViewerPage'));
 export const JiraIdPrompt = lazy(() => import('../components/jira/JiraViewer/JiraIdPrompt'));
+export const Meeting = lazy(() => import('../components/meeting/Meeting'));

@@ -9,6 +9,7 @@ import {
   HomeButtons,
   JiraIdPrompt,
   JiraViewerPage,
+  Meeting,
   PRContainer,
   ReleaseBuildContainer,
   SendEmailContainer,
@@ -84,6 +85,14 @@ const AppRoutes = () => (
         </Layout>
       }
       path='/ai-generate-pr-template'
+    />
+    <Route
+      element={
+        <Layout>
+          <Meeting />
+        </Layout>
+      }
+      path='/meeting'
     />
     <Route
       element={<AiChatAssistant />}

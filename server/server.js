@@ -22,6 +22,7 @@ import environmentSettingsRoutes from './routes/environment-routes.js';
 import logsRoutes from './routes/logs-routes.js';
 import mcpRoutes from './routes/mcp-routes.js';
 import voiceRoutes from './routes/voice-routes.js';
+import meetingRoutes from './routes/meeting-routes.js';
 import langChainServiceFactory from './services/langchain/LangChainServiceFactory.js';
 import geminiVoiceService from './services/voice/GeminiVoiceService.js';
  
@@ -111,6 +112,7 @@ app.use('/api/environment-settings', environmentSettingsRoutes);
 app.use('/api/logs', logsRoutes);
 app.use('/api/mcp', mcpRoutes);
 app.use('/api/voice', voiceRoutes);
+app.use('/api/meeting', meetingRoutes);
 
 // Serve static files from React build
 const staticPath = path.join(projectRoot, 'ui/dist');

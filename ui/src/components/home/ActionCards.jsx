@@ -22,6 +22,7 @@ import {
   Email as EmailIcon,
   Http as HttpIcon,
   MergeType as MergeIcon,
+  Mic as MicIcon,
   Reviews as ReviewsIcon,
   RocketLaunch as RocketLaunchIcon,
   Send as SendIcon,
@@ -80,12 +81,15 @@ const ActionCards = () => {
   };
 
   const handleWorkflowAutomation = () => {
-    console.log('Workflow Automation feature clicked');
     // TODO: Implement Workflow Automation functionality
   };
 
   const handleApiClient = () => {
     navigate('/api-client');
+  };
+
+  const handleMeeting = () => {
+    navigate('/meeting');
   };
 
   // Define all action cards
@@ -208,6 +212,17 @@ const ActionCards = () => {
       onClick: handleWorkflowAutomation,
       gradient: 'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)',
       shadowColor: 'rgba(210, 153, 194, 0.3)',
+      isReleased: false,
+    },
+    {
+      id: 'meeting',
+      title: 'Meeting Summarizer',
+      description: 'AI-powered meeting recording and intelligent summary generation',
+      icon: MicIcon,
+      actionIcon: AutoFixHighIcon,
+      onClick: handleMeeting,
+      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      shadowColor: 'rgba(102, 126, 234, 0.3)',
       isReleased: false,
     },
     {
