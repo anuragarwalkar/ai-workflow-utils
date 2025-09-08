@@ -149,7 +149,29 @@ Then configure Ollama as your AI provider in the web interface.
 npm install -g ai-workflow-utils
 ```
 
-### **Step 3: Launch the Application**
+### **Step 3: Permission Setup (Important!)**
+
+The application includes file upload functionality that requires proper permissions. Check if your setup is ready:
+
+```bash
+# Check if the application has necessary permissions
+ai-workflow-utils check-permissions
+```
+
+If you see permission warnings:
+
+```bash
+# Option 1: Fix project directory permissions
+sudo chown -R $USER:$USER ~/.npm
+mkdir -p ~/ai-workflow-utils && cd ~/ai-workflow-utils
+
+# Option 2: Use a custom upload directory
+export UPLOAD_DIR=~/ai-workflow-utils/uploads
+```
+
+📖 **For detailed setup instructions, see [DEPLOYMENT.md](DEPLOYMENT.md)**
+
+### **Step 4: Launch the Application**
 
 ```bash
 # Start the application directly
@@ -159,7 +181,7 @@ ai-workflow-utils
 The application will start immediately and be available at
 `http://localhost:3000`
 
-### **Step 4: (Optional) Install as Startup Service**
+### **Step 5: (Optional) Install as Startup Service**
 
 For production use or to run automatically on system boot:
 
@@ -177,6 +199,9 @@ ai-workflow-utils startup status    # Check service status
 ai-workflow-utils startup start     # Start the service
 ai-workflow-utils startup stop      # Stop the service
 ai-workflow-utils startup uninstall # Remove startup service
+```
+
+### **Step 6: (Optional) PWA Installation (Progressive Web App)**
 ```
 
 **Supported Platforms:**

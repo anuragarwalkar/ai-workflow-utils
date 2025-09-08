@@ -5,8 +5,16 @@ const loadConfigFromStorage = () => {
   try {
     const savedConfig = localStorage.getItem('release_build_config');
     return savedConfig ? JSON.parse(savedConfig) : null;
-  } catch (error) {
-    console.error('Failed to load config from localStorage:', error);
+  } catch {
+    return null;
+  }
+};
+
+const loadScriptFromStorage = () => {
+  try {
+    const savedScript = localStorage.getItem('release_build_script');
+    return savedScript ? JSON.parse(savedScript) : null;
+  } catch {
     return null;
   }
 };
@@ -19,8 +27,20 @@ const saveConfigToStorage = config => {
       gitRepos: config.gitRepos || '',
     };
     localStorage.setItem('release_build_config', JSON.stringify(configToSave));
-  } catch (error) {
-    console.error('Failed to save config to localStorage:', error);
+  } catch {
+    // Silently fail if localStorage is not available
+  }
+};
+
+const saveScriptToStorage = script => {
+  try {
+    if (script) {
+      localStorage.setItem('release_build_script', JSON.stringify(script));
+    } else {
+      localStorage.removeItem('release_build_script');
+    }
+  } catch {
+    // Silently fail if localStorage is not available
   }
 };
 
@@ -34,6 +54,7 @@ const initialState = {
   buildConfig: null, // Store build configuration for PR creation
   branchName: null, // Store branch name from WebSocket
   savedRepoConfig: loadConfigFromStorage(), // Load saved repository configuration
+  uploadedScript: loadScriptFromStorage(), // Load saved script information
 };
 
 const buildSlice = createSlice({
@@ -78,6 +99,9 @@ const buildSlice = createSlice({
       state.error = null;
       state.buildConfig = null;
       state.branchName = null;
+      state.uploadedScript = null;
+      // Clear script from localStorage
+      saveScriptToStorage(null);
     },
     setBuildError: (state, action) => {
       state.error = action.payload;
@@ -100,6 +124,16 @@ const buildSlice = createSlice({
       // Save to localStorage
       saveConfigToStorage(config);
     },
+    setUploadedScript: (state, action) => {
+      state.uploadedScript = action.payload;
+      // Save to localStorage
+      saveScriptToStorage(action.payload);
+    },
+    clearUploadedScript: state => {
+      state.uploadedScript = null;
+      // Remove from localStorage
+      saveScriptToStorage(null);
+    },
   },
 });
 
@@ -113,6 +147,8 @@ export const {
   setBranchName,
   setBuildConfig,
   saveRepoConfig,
+  setUploadedScript,
+  clearUploadedScript,
 } = buildSlice.actions;
 
 export default buildSlice.reducer;

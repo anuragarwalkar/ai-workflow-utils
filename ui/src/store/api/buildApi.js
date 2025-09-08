@@ -16,6 +16,18 @@ export const buildApi = createApi({
       }),
       invalidatesTags: ['Build'],
     }),
+    uploadBuildScript: builder.mutation({
+      query: file => {
+        const formData = new FormData();
+        formData.append('buildScript', file);
+        return {
+          url: '/upload-script',
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: ['Build'],
+    }),
     getBuildStatus: builder.query({
       query: () => '/status',
       providesTags: ['Build'],
@@ -23,5 +35,9 @@ export const buildApi = createApi({
   }),
 });
 
-export const { useStartBuildMutation, useGetBuildStatusQuery, useLazyGetBuildStatusQuery } =
-  buildApi;
+export const { 
+  useStartBuildMutation, 
+  useUploadBuildScriptMutation,
+  useGetBuildStatusQuery, 
+  useLazyGetBuildStatusQuery 
+} = buildApi;

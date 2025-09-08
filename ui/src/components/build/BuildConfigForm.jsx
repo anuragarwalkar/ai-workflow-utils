@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 /* eslint-disable react/jsx-max-depth */
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   Alert,
   Box,
@@ -10,12 +10,23 @@ import {
   FormControlLabel,
   FormGroup,
   Grid,
+  IconButton,
   Paper,
   TextField,
   Typography,
 } from '@mui/material';
+import { CheckCircle, CloudUpload, Delete } from '@mui/icons-material';
 
-const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
+const BuildConfigForm = ({ 
+  config, 
+  onChange, 
+  onNext, 
+  onSaveConfig, 
+  onScriptUpload,
+  onScriptRemove 
+}) => {
+  const fileInputRef = useRef(null);
+
   const handleTicketNumberChange = event => {
     onChange({
       ...config,
@@ -99,6 +110,62 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
     return parts[parts.length - 1];
   };
 
+  const handleScriptFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleScriptFileChange = async event => {
+    const [file] = event.target.files;
+    if (file) {
+      // Validate file type
+      if (!file.name.endsWith('.sh')) {
+        alert('Please select a shell script file (.sh)');
+        return;
+      }
+      
+      // Update local state first
+      onChange({
+        ...config,
+        buildScript: {
+          file,
+          name: file.name,
+          size: file.size,
+        },
+      });
+
+      // Upload the script file if onScriptUpload is provided
+      if (onScriptUpload) {
+        try {
+          await onScriptUpload(file);
+        } catch (uploadError) {
+          // Handle upload error - remove from local state
+          alert(`Failed to upload script: ${uploadError.message || 'Unknown error'}`);
+          onChange({
+            ...config,
+            buildScript: null,
+          });
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+        }
+      }
+    }
+  };
+
+  const handleScriptFileRemove = () => {
+    onChange({
+      ...config,
+      buildScript: null,
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    // Clear uploaded script from Redux state
+    if (onScriptRemove) {
+      onScriptRemove();
+    }
+  };
+
   return (
     <Box>
       <Typography gutterBottom variant='h6'>
@@ -147,6 +214,69 @@ const BuildConfigForm = ({ config, onChange, onNext, onSaveConfig }) => {
                 />
               </Grid>
             </Grid>
+          </Paper>
+        </Grid>
+
+        {/* Build Script Upload */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3 }}>
+            <Typography gutterBottom variant='subtitle1'>
+              Build Script
+            </Typography>
+            <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
+              Upload your custom release_build.sh script file
+            </Typography>
+            
+            <input
+              hidden
+              accept='.sh'
+              ref={fileInputRef}
+              type='file'
+              onChange={handleScriptFileChange}
+            />
+            
+            {config.buildScript ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  p: 2,
+                  border: '1px solid',
+                  borderColor: 'success.main',
+                  borderRadius: 1,
+                  bgcolor: 'success.light',
+                  color: 'success.dark',
+                }}
+              >
+                <CheckCircle />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant='body2'>
+                    {config.buildScript.name}
+                  </Typography>
+                  <Typography color='text.secondary' variant='caption'>
+                    {(config.buildScript.size / 1024).toFixed(1)} KB
+                  </Typography>
+                </Box>
+                <IconButton
+                  color='error'
+                  size='small'
+                  onClick={handleScriptFileRemove}
+                >
+                  <Delete />
+                </IconButton>
+              </Box>
+            ) : (
+              <Box>
+                <Button
+                  startIcon={<CloudUpload />}
+                  variant='outlined'
+                  onClick={handleScriptFileSelect}
+                >
+                  Upload Build Script (.sh)
+                </Button>
+              </Box>
+            )}
           </Paper>
         </Grid>
 

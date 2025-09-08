@@ -1,6 +1,6 @@
 {
   "name": "ai-workflow-utils",
-  "version": "1.7.13",
+  "version": "1.7.14",
   "type": "module",
   "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems. Includes startup service management for automatic system boot integration.",
   "main": "dist/server.js",
@@ -17,6 +17,7 @@
     "dist/data/",
     "README.md",
     "STARTUP.md",
+    "DEPLOYMENT.md",
     "LICENSE",
     ".env.example"
   ],
@@ -56,6 +57,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
     "start-server": "node dist/server.js",
+    "postinstall": "node -e \"const fs=require('fs'),path=require('path'); try{fs.mkdirSync(path.join(process.cwd(),'uploads','build-scripts'),{recursive:true}); console.log('Created uploads directory');}catch(e){console.log('Note: Upload directory will be created dynamically when needed');}\"",
     "dev": "concurrently --names \"watch,server,ui\" \"npm run build-server:watch\" \"npm run start-server-dev\" \"npm run start-ui\"",
     "dev-server": "concurrently --names \"watch,server\" \"npm run build-server:watch\" \"npm run start-server-dev\"",
     "start-server-dev": "nodemon dist/server.js",
@@ -75,7 +77,8 @@
     "lint:ui": "cd ui && eslint .",
     "lint:ui:fix": "cd ui && eslint . --fix",
     "lint:check": "npm run lint",
-    "refactor:check": "npm run lint -- --max-warnings 0"
+    "refactor:check": "npm run lint -- --max-warnings 0",
+    "check-permissions": "node bin/check-permissions.js"
   },
   "author": {
     "name": "Anurag Arwalkar",

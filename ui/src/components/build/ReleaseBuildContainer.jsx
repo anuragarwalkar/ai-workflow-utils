@@ -13,11 +13,17 @@ import {
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentView } from '../../store/slices/appSlice';
-import { useStartBuildMutation } from '../../store/api/buildApi';
+import { 
+  useStartBuildMutation, 
+  useUploadBuildScriptMutation 
+} from '../../store/api/buildApi';
 import {
   clearBuildLogs,
+  clearUploadedScript,
   resetBuildState,
   saveRepoConfig,
+  setBuildError,
+  setUploadedScript,
   startBuild,
 } from '../../store/slices/buildSlice';
 import socketService from '../../services/socketService';
@@ -37,12 +43,14 @@ const ReleaseBuildContainer = () => {
     availablePackages: [],
     selectedPackages: [],
     createPullRequest: false,
+    buildScript: null,
   });
 
   const [startBuildMutation, { isLoading: isStartingBuild }] =
     useStartBuildMutation();
+  const [uploadBuildScript] = useUploadBuildScriptMutation();
 
-  const { isBuilding, error, savedRepoConfig } = useSelector(
+  const { isBuilding, error, savedRepoConfig, uploadedScript } = useSelector(
     state => state.build
   );
 
@@ -71,6 +79,20 @@ const ReleaseBuildContainer = () => {
     };
   }, [savedRepoConfig]);
 
+  // Load uploaded script information
+  useEffect(() => {
+    if (uploadedScript) {
+      setBuildConfig(prevConfig => ({
+        ...prevConfig,
+        buildScript: {
+          name: uploadedScript.originalName || uploadedScript.filename,
+          size: uploadedScript.size,
+          path: uploadedScript.path,
+        },
+      }));
+    }
+  }, [uploadedScript]);
+
   // Auto-advance to progress step when build starts
   useEffect(() => {
     if (isBuilding && activeStep < 2) {
@@ -92,20 +114,42 @@ const ReleaseBuildContainer = () => {
     }
   };
 
+  const handleScriptUpload = async file => {
+    try {
+      const result = await uploadBuildScript(file).unwrap();
+      dispatch(setUploadedScript(result.script));
+      return result;
+    } catch (error) {
+      throw new Error(error.data?.error || 'Failed to upload script');
+    }
+  };
+
+  const handleScriptRemove = () => {
+    dispatch(clearUploadedScript());
+  };
+
   const handleStartBuild = async () => {
     try {
       // Clear previous logs
       dispatch(clearBuildLogs());
 
-      // Start the build process with configuration
-      const result = await startBuildMutation({
+      // Prepare build configuration
+      const buildPayload = {
         ticketNumber: buildConfig.ticketNumber,
         selectedPackages: buildConfig.selectedPackages,
         createPullRequest: buildConfig.createPullRequest,
         repoKey: buildConfig.repoKey,
         repoSlug: buildConfig.repoSlug,
         gitRepos: buildConfig.gitRepos,
-      }).unwrap();
+      };
+
+      // Add script path if script was uploaded
+      if (uploadedScript?.path) {
+        buildPayload.scriptPath = uploadedScript.path;
+      }
+
+      // Start the build process with configuration
+      const result = await startBuildMutation(buildPayload).unwrap();
 
       // Update Redux state
       dispatch(
@@ -118,7 +162,8 @@ const ReleaseBuildContainer = () => {
       // Move to progress step
       setActiveStep(2);
     } catch (error) {
-      console.error('Failed to start build:', error);
+      // Handle build start error
+      dispatch(setBuildError(error.data?.message || 'Failed to start build'));
     }
   };
 
@@ -141,6 +186,8 @@ const ReleaseBuildContainer = () => {
             onChange={setBuildConfig}
             onNext={handleNext}
             onSaveConfig={repoConfig => dispatch(saveRepoConfig(repoConfig))}
+            onScriptRemove={handleScriptRemove}
+            onScriptUpload={handleScriptUpload}
           />
         );
       case 1:
@@ -200,6 +247,17 @@ const ReleaseBuildContainer = () => {
                       No packages selected
                     </Typography>
                   )}
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography color='text.secondary' variant='subtitle2'>
+                    Build Script:
+                  </Typography>
+                  <Typography variant='body1'>
+                    {buildConfig.buildScript 
+                      ? buildConfig.buildScript.name 
+                      : 'Default script (release_build.sh)'
+                    }
+                  </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Typography color='text.secondary' variant='subtitle2'>
