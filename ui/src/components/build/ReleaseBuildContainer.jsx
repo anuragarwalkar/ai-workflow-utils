@@ -1,14 +1,18 @@
+/* eslint-disable max-statements */
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Box,
   Button,
   Container,
+  FormControlLabel,
   Grid,
   Paper,
   Step,
   StepLabel,
   Stepper,
+  Tab,
+  Tabs,
   Typography,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
@@ -29,12 +33,15 @@ import {
 import socketService from '../../services/socketService';
 import BuildConfigForm from './BuildConfigForm';
 import BuildProgress from './BuildProgress';
+import CronJobScheduleTab from './CronJobScheduleTab';
+import ReviewBuildStep from './ReviewBuildStep';
 
 const steps = ['Configure Build', 'Review & Start', 'Build Progress'];
 
 const ReleaseBuildContainer = () => {
   const dispatch = useDispatch();
   const [activeStep, setActiveStep] = useState(0);
+  const [activeTab, setActiveTab] = useState(0);
   const [buildConfig, setBuildConfig] = useState({
     ticketNumber: '',
     repoKey: '',
@@ -177,6 +184,10 @@ const ReleaseBuildContainer = () => {
     setActiveStep(0);
   };
 
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+
   const getStepContent = step => {
     switch (step) {
       case 0:
@@ -192,95 +203,14 @@ const ReleaseBuildContainer = () => {
         );
       case 1:
         return (
-          <Box>
-            <Typography gutterBottom variant='h6'>
-              Review Build Configuration
-            </Typography>
-            <Paper sx={{ p: 3, mb: 3 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Typography color='text.secondary' variant='subtitle2'>
-                    Repository Key:
-                  </Typography>
-                  <Typography sx={{ mb: 2 }} variant='body1'>
-                    {buildConfig.repoKey || 'Not specified'}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography color='text.secondary' variant='subtitle2'>
-                    Repository Slug:
-                  </Typography>
-                  <Typography sx={{ mb: 2 }} variant='body1'>
-                    {buildConfig.repoSlug || 'Not specified'}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography color='text.secondary' variant='subtitle2'>
-                    Git Repositories:
-                  </Typography>
-                  <Typography sx={{ mb: 2 }} variant='body1'>
-                    {buildConfig.gitRepos || 'Not specified'}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography color='text.secondary' variant='subtitle2'>
-                    Ticket Number:
-                  </Typography>
-                  <Typography sx={{ mb: 2 }} variant='body1'>
-                    {buildConfig.ticketNumber || 'Not specified'}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography color='text.secondary' variant='subtitle2'>
-                    Selected Packages ({buildConfig.selectedPackages.length}):
-                  </Typography>
-                  {buildConfig.selectedPackages.length > 0 ? (
-                    <Box sx={{ mt: 1 }}>
-                      {buildConfig.selectedPackages.map(pkg => (
-                        <Typography key={pkg} sx={{ ml: 2 }} variant='body2'>
-                          • {pkg}
-                        </Typography>
-                      ))}
-                    </Box>
-                  ) : (
-                    <Typography color='text.secondary' variant='body2'>
-                      No packages selected
-                    </Typography>
-                  )}
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography color='text.secondary' variant='subtitle2'>
-                    Build Script:
-                  </Typography>
-                  <Typography variant='body1'>
-                    {buildConfig.buildScript 
-                      ? buildConfig.buildScript.name 
-                      : 'Default script (release_build.sh)'
-                    }
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography color='text.secondary' variant='subtitle2'>
-                    Create Pull Request:
-                  </Typography>
-                  <Typography variant='body1'>
-                    {buildConfig.createPullRequest ? 'Yes' : 'No'}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Paper>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button onClick={handleBack}>Back</Button>
-              <Button
-                disabled={isStartingBuild || !buildConfig.ticketNumber}
-                variant='contained'
-                onClick={handleStartBuild}
-              >
-                {isStartingBuild ? 'Starting...' : 'Start Build'}
-              </Button>
-            </Box>
-          </Box>
+          <ReviewBuildStep
+            buildConfig={buildConfig}
+            isStartingBuild={isStartingBuild}
+            onBack={handleBack}
+            onStartBuild={handleStartBuild}
+          />
         );
+       
       case 2:
         return <BuildProgress onBack={handleBack} onReset={handleReset} />;
       default:
@@ -306,16 +236,35 @@ const ReleaseBuildContainer = () => {
         </Alert>
       ) : null}
 
-      <Paper sx={{ p: 3 }}>
-        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-          {steps.map(label => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
+      <Paper sx={{ p: 0 }}>
+        <Tabs sx={{ borderBottom: 1, borderColor: 'divider' }} value={activeTab} onChange={handleTabChange}>
+          <Tab label='Build Configuration' />
+          <Tab label='Schedule' />
+        </Tabs>
 
-        {getStepContent(activeStep)}
+        <Box sx={{ p: 3 }}>
+          {activeTab === 0 && (
+            <>
+              <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+                {steps.map(label => (
+                  <Step key={label}>
+                    <StepLabel>{label}</StepLabel>
+                  </Step>
+                ))}
+              </Stepper>
+              {getStepContent(activeStep)}
+            </>
+          )}
+          
+          {activeTab === 1 && (
+            <CronJobScheduleTab 
+              buildConfig={buildConfig}
+              onScheduleCreated={() => {
+                // Handle schedule creation if needed
+              }}
+            />
+          )}
+        </Box>
       </Paper>
     </Container>
   );

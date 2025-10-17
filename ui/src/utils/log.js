@@ -83,3 +83,16 @@ export const createLogger = (componentName) => {
  * Default logger instance (use createLogger for component-specific logging)
  */
 export const logger = createLogger('App');
+
+/**
+ * Simple log function for quick logging (format: [TAG] message)
+ * @param {string} tag - Tag/identifier for the log
+ * @param {any} data - Data to log
+ */
+export const log = (tag, data) => {
+  if (data !== undefined) {
+    console.log(tag, data);
+  } else {
+    console.log(tag);
+  }
+};

@@ -16,6 +16,7 @@ import jiraRoutes from './routes/jira-routes.js';
 import emailRoutes from './routes/email-routes.js';
 import buildRoutes from './routes/build-routes.js';
 import chatRoutes from './routes/chat-routes.js';
+import cronJobRoutes from './routes/cron-job-routes.js';
 import prRoutes from './routes/pull-request-routes.js';
 import templateRoutes from './routes/template-routes.js';
 import environmentSettingsRoutes from './routes/environment-routes.js';
@@ -24,6 +25,7 @@ import mcpRoutes from './routes/mcp-routes.js';
 import voiceRoutes from './routes/voice-routes.js';
 import langChainServiceFactory from './services/langchain/LangChainServiceFactory.js';
 import geminiVoiceService from './services/voice/GeminiVoiceService.js';
+import cronSchedulerService from './services/cronSchedulerService.js';
  
 // Load default .env file first (for fallback values)
 dotenv.config();
@@ -105,6 +107,7 @@ app.use('/api/jira', jiraRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/build', buildRoutes(io));
 app.use('/api/chat', chatRoutes);
+app.use('/api/cron-jobs', cronJobRoutes);
 app.use('/api/pr', prRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/environment-settings', environmentSettingsRoutes);
@@ -307,10 +310,19 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Start the server
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   logger.info(`🚀 Server is running on http://localhost:${PORT}`);
   logger.info(`📁 Serving static files from: ${staticPath}`);
   logger.info(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  
+  // Initialize cron scheduler service
+  try {
+    cronSchedulerService.setSocketIO(io);
+    await cronSchedulerService.init();
+    logger.info('⏰ Cron scheduler service initialized');
+  } catch (error) {
+    logger.error('Failed to initialize cron scheduler service:', error);
+  }
 });
 
 // Export for testing purposes

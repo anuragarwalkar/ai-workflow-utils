@@ -13,6 +13,7 @@ import { jiraApi } from './api/jiraApi';
 import { emailApi } from './api/emailApi';
 import { buildApi } from './api/buildApi';
 import { chatApi } from './api/chatApi';
+import { cronJobApi } from './api/cronJobApi';
 import { prApi } from './api/prApi';
 import { templateApi } from './api/templateApi';
 import { environmentSettingsApi } from './api/environmentSettingsApi';
@@ -37,6 +38,7 @@ const store = configureStore({
     [emailApi.reducerPath]: emailApi.reducer,
     [buildApi.reducerPath]: buildApi.reducer,
     [chatApi.reducerPath]: chatApi.reducer,
+    [cronJobApi.reducerPath]: cronJobApi.reducer,
     [prApi.reducerPath]: prApi.reducer,
     [templateApi.reducerPath]: templateApi.reducer,
     [environmentSettingsApi.reducerPath]: environmentSettingsApi.reducer,
@@ -56,6 +58,7 @@ const store = configureStore({
       emailApi.middleware,
       buildApi.middleware,
       chatApi.middleware,
+      cronJobApi.middleware,
       prApi.middleware,
       templateApi.middleware,
       environmentSettingsApi.middleware,
