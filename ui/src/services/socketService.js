@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
 import store from '../store';
 import { addBuildLog, setBranchName, setBuildError } from '../store/slices/buildSlice';
+import { addCronJobLog, completeCronJob, startCronJob } from '../store/slices/cronJobProgressSlice';
 import { API_BASE_URL } from '../config/environment.js';
 import { createLogger } from '../utils/log.js';
 
@@ -37,34 +38,58 @@ class SocketService {
       store.dispatch(setBuildError('Failed to connect to build service'));
     });
 
+    this.setupEventListeners();
+    return this.socket;
+  }
+
+  setupEventListeners() {
     // Listen for build progress events
     this.socket.on('build-progress', data => {
       logger.info('build-progress', 'Build progress received:', data);
       store.dispatch(addBuildLog(data));
-
-      // Check if the message contains branch name information
       if (data.message && typeof data.message === 'string') {
-        // Look for branch name patterns in the message
         const branchNameMatch =
           data.message.match(/(?:branch|Branch):\s*([^\s\n]+)/i) ||
           data.message.match(/(?:created branch|switching to branch|on branch):\s*([^\s\n]+)/i) ||
           data.message.match(/(?:git checkout -b|git branch)\s+([^\s\n]+)/i);
-
         if (branchNameMatch && branchNameMatch[1]) {
           const branchName = branchNameMatch[1].trim();
           logger.info('build-progress', 'Captured branch name from WebSocket:', branchName);
           store.dispatch(setBranchName(branchName));
         }
       }
-
-      // Also check if data has a specific branchName field
       if (data.branchName) {
         logger.info('build-progress', 'Captured branch name from WebSocket data:', data.branchName);
         store.dispatch(setBranchName(data.branchName));
       }
     });
 
-        // Listen for voice assistant events
+    // Listen for cron job progress events
+    this.socket.on('cronJobStarted', data => {
+      logger.info('cronJobStarted', 'Cron job started:', data);
+      store.dispatch(startCronJob({ jobId: data.jobId, jobName: data.jobName }));
+    });
+
+    this.socket.on('cronJobLog', data => {
+      logger.info('cronJobLog', 'Cron job log:', data);
+      store.dispatch(addCronJobLog({
+        message: data.message,
+        logType: data.logType,
+        timestamp: data.timestamp,
+      }));
+    });
+
+    this.socket.on('cronJobCompleted', data => {
+      logger.info('cronJobCompleted', 'Cron job completed:', data);
+      store.dispatch(completeCronJob({ status: 'success' }));
+    });
+
+    this.socket.on('cronJobFailed', data => {
+      logger.info('cronJobFailed', 'Cron job failed:', data);
+      store.dispatch(completeCronJob({ status: 'error' }));
+    });
+
+    // Listen for voice assistant events
     this.socket.on('voice-session-connected', data => {
       logger.info('voice-session-connected', 'Voice session connected:', data);
       this.emit('voice-session-connected', data);
@@ -94,8 +119,6 @@ class SocketService {
       logger.error('voice-session-error', 'Voice session error:', data);
       this.emit('voice-session-error', data);
     });
-
-    return this.socket;
   }
 
   disconnect() {

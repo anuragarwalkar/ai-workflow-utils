@@ -4,6 +4,7 @@ import jiraSlice from './slices/jiraSlice';
 import emailSlice from './slices/emailSlice';
 import uiSlice from './slices/uiSlice';
 import buildSlice from './slices/buildSlice';
+import cronJobProgressSlice from './slices/cronJobProgressSlice';
 import chatSlice from './slices/chatSlice';
 import prSlice from './slices/prSlice';
 import templateSlice from './slices/templateSlice';
@@ -29,6 +30,7 @@ const store = configureStore({
     email: emailSlice,
     ui: uiSlice,
     build: buildSlice,
+    cronJobProgress: cronJobProgressSlice,
     chat: chatSlice,
     pr: prSlice,
     templates: templateSlice,

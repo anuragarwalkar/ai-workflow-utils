@@ -3,12 +3,14 @@ import {
   Alert,
   Box,
   Button,
+  Dialog,
   Typography,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Schedule as ScheduleIcon,
 } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
 import {
   useDeleteCronJobMutation,
   useGetAllCronJobsQuery,
@@ -17,7 +19,10 @@ import {
 } from '../../store/api/cronJobApi';
 import { log } from '../../utils/log';
 import CronJobDialog from './CronJobDialog';
+import CronJobProgress from './CronJobProgress';
+import ExecutionHistory from './ExecutionHistory';
 import JobCardGrid from './JobCardGrid';
+import RunningJobsBanner from './RunningJobsBanner';
 
 const DAYS_OF_WEEK = [
   'Sunday',
@@ -52,6 +57,10 @@ const EmptyState = ({ buildConfig, onAddClick }) => (
 const CronJobSchedule = ({ buildConfig, onScheduleCreated }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
+
+  const { isRunning: isJobRunning, currentJobName } = useSelector(
+    state => state.cronJobProgress
+  );
 
   const { data: cronJobs = [], isLoading, refetch } = useGetAllCronJobsQuery();
   const [deleteCronJob] = useDeleteCronJobMutation();
@@ -132,6 +141,12 @@ const CronJobSchedule = ({ buildConfig, onScheduleCreated }) => {
         </Alert>
       )}
 
+      <RunningJobsBanner
+        cronJobs={cronJobs}
+        currentJobName={currentJobName}
+        isJobRunning={isJobRunning}
+      />
+
       {cronJobs.length ? (
         <JobCardGrid
           cronJobs={cronJobs}
@@ -147,6 +162,8 @@ const CronJobSchedule = ({ buildConfig, onScheduleCreated }) => {
         />
       )}
 
+      <ExecutionHistory cronJobs={cronJobs} />
+
       <CronJobDialog
         buildConfig={buildConfig}
         editingJob={editingJob}
@@ -154,6 +171,18 @@ const CronJobSchedule = ({ buildConfig, onScheduleCreated }) => {
         onClose={handleCloseDialog}
         onScheduleCreated={onScheduleCreated}
       />
+
+      <Dialog
+        fullWidth
+        maxWidth='md'
+        open={isJobRunning}
+        onClose={() => {}}
+      >
+        <CronJobProgress
+          jobName={currentJobName}
+          onClose={() => {}}
+        />
+      </Dialog>
     </Box>
   );
 };
