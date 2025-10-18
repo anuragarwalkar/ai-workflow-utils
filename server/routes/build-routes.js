@@ -206,7 +206,8 @@ export default io => {
         ticketNumber, 
         selectedPackages, 
         createPullRequest,
-        scriptPath: customScriptPath
+        scriptPath: customScriptPath,
+        cronJobId
       } = req.body;
 
       logger.info('Starting mobile app build process', {
@@ -214,6 +215,7 @@ export default io => {
         selectedPackages: selectedPackages?.length || 0,
         createPullRequest,
         customScript: !!customScriptPath,
+        cronJobId,
       });
 
       // Validate required parameters
@@ -248,61 +250,58 @@ export default io => {
         stdio: ['pipe', 'pipe', 'pipe'],
       });
 
+      // Helper function to emit both build-progress and cronJobLog events
+      const emitProgress = (type, message, additionalData = {}) => {
+        const progressData = {
+          type,
+          message,
+          timestamp: new Date().toISOString(),
+          ...additionalData,
+        };
+        
+        // Emit build-progress for regular builds
+        io.emit('build-progress', progressData);
+        
+        // Also emit cronJobLog if this is a cron job build
+        if (cronJobId) {
+          io.emit('cronJobLog', {
+            jobId: cronJobId,
+            message,
+            logType: type === 'error' || type === 'stderr' ? 'error' : type === 'success' ? 'success' : 'info',
+            timestamp: progressData.timestamp,
+          });
+        }
+      };
+
       // Emit build started event
-      io.emit('build-progress', {
-        type: 'start',
-        message: 'Build process initiated...',
-        timestamp: new Date().toISOString(),
-      });
+      emitProgress('start', 'Build process initiated...');
 
       // Handle stdout (normal output)
       buildProcess.stdout.on('data', data => {
         const output = data.toString();
         logger.info(`Build stdout: ${output}`);
-
-        io.emit('build-progress', {
-          type: 'stdout',
-          message: output,
-          timestamp: new Date().toISOString(),
-        });
+        emitProgress('stdout', output);
       });
 
       // Handle stderr (error output)
       buildProcess.stderr.on('data', data => {
         const output = data.toString();
         logger.warn(`Build stderr: ${output}`);
-
-        io.emit('build-progress', {
-          type: 'stderr',
-          message: output,
-          timestamp: new Date().toISOString(),
-        });
+        emitProgress('stderr', output);
       });
 
       // Handle process completion
       buildProcess.on('close', code => {
         const message = `Build process completed with exit code: ${code}`;
         logger.info(message);
-
-        io.emit('build-progress', {
-          type: code === 0 ? 'success' : 'error',
-          message,
-          exitCode: code,
-          timestamp: new Date().toISOString(),
-        });
+        emitProgress(code === 0 ? 'success' : 'error', message, { exitCode: code });
       });
 
       // Handle process errors
       buildProcess.on('error', error => {
         const message = `Build process error: ${error.message}`;
         logger.error(message);
-
-        io.emit('build-progress', {
-          type: 'error',
-          message,
-          error: error.message,
-          timestamp: new Date().toISOString(),
-        });
+        emitProgress('error', message, { error: error.message });
       });
 
       // Handle user input for interactive prompts

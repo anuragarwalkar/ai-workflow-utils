@@ -1,12 +1,9 @@
 /* eslint-disable max-statements */
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Box,
-  Button,
   Container,
-  FormControlLabel,
-  Grid,
   Paper,
   Step,
   StepLabel,

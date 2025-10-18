@@ -80,7 +80,6 @@ const ActionCards = () => {
   };
 
   const handleWorkflowAutomation = () => {
-    console.log('Workflow Automation feature clicked');
     // TODO: Implement Workflow Automation functionality
   };
 

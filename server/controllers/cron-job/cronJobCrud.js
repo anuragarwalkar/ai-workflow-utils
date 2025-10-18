@@ -1,4 +1,5 @@
 import cronJobDbService from '../../services/cronJobDbService.js';
+import cronSchedulerService from '../../services/cronSchedulerService.js';
 import logger from '../../logger.js';
 import { validationResult } from 'express-validator';
 
@@ -66,6 +67,12 @@ export const createCronJob = async (req, res) => {
 
     const newJob = await cronJobDbService.createJob(jobData);
     
+    // Schedule the job if it's enabled
+    if (newJob.enabled) {
+      logger.info('[CRON_JOB_CONTROLLER] [createCronJob] Scheduling enabled job:', newJob.id);
+      await cronSchedulerService.scheduleJob(newJob);
+    }
+    
     res.status(201).json({
       success: true,
       data: newJob,
@@ -78,6 +85,20 @@ export const createCronJob = async (req, res) => {
       message: 'Failed to create cron job',
       error: error.message,
     });
+  }
+};
+
+const handleJobRescheduling = async (id, updates, updatedJob) => {
+  if (updates.cronExpression === undefined && updates.enabled === undefined) return;
+  
+  logger.info('[CRON_JOB_CONTROLLER] [updateCronJob] Rescheduling job:', id);
+  
+  if (cronSchedulerService.activeTasks.has(id)) {
+    await cronSchedulerService.stopJob(id);
+  }
+  
+  if (updatedJob.enabled) {
+    await cronSchedulerService.scheduleJob(updatedJob);
   }
 };
 
@@ -108,6 +129,7 @@ export const updateCronJob = async (req, res) => {
     }
 
     const updatedJob = await cronJobDbService.updateJob(id, updates);
+    await handleJobRescheduling(id, updates, updatedJob);
     
     res.json({
       success: true,
@@ -128,6 +150,12 @@ export const updateCronJob = async (req, res) => {
 export const deleteCronJob = async (req, res) => {
   try {
     const { id } = req.params;
+    
+    // Stop the scheduled job if it's active
+    if (cronSchedulerService.activeTasks.has(id)) {
+      await cronSchedulerService.stopJob(id);
+    }
+    
     const deletedJob = await cronJobDbService.deleteJob(id);
     
     res.json({

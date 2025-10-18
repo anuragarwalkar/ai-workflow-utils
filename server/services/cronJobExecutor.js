@@ -12,7 +12,7 @@ class CronJobExecutor {
     }
   }
 
-  static buildReleasePayload(buildConfig) {
+  static buildReleasePayload(buildConfig, cronJobId = null) {
     return {
       ticketNumber: buildConfig.ticketNumber,
       selectedPackages: buildConfig.selectedPackages || [],
@@ -21,6 +21,7 @@ class CronJobExecutor {
       repoSlug: buildConfig.repoSlug,
       gitRepos: buildConfig.gitRepos,
       scriptPath: buildConfig.scriptPath,
+      cronJobId, // Pass the cron job ID to the build API
     };
   }
 
@@ -53,12 +54,12 @@ class CronJobExecutor {
 
       this.emitLog(io, jobId, `Starting release build with config: ${JSON.stringify(buildConfig)}`, 'info');
 
-      const payload = this.buildReleasePayload(buildConfig);
+      const payload = this.buildReleasePayload(buildConfig, jobId);
       this.emitLog(io, jobId, `Calling release API with payload: ${JSON.stringify(payload, null, 2)}`, 'start');
 
       const result = await this.callReleaseAPI(payload);
       this.emitLog(io, jobId, `Release API response: ${JSON.stringify(result)}`, 'info');
-      this.emitLog(io, jobId, 'Build process started via release API', 'success');
+      this.emitLog(io, jobId, 'Build process started via release API. Waiting for build completion...', 'info');
 
       return { success: true, buildId: result.buildId };
     } catch (error) {

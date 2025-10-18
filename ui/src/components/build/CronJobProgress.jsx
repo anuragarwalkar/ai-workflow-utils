@@ -18,12 +18,27 @@ import {
 } from '../../store/slices/cronJobProgressSlice';
 import { log } from '../../utils/log';
 
-const CronJobProgress = ({ jobName, onClose }) => {
+const CronJobProgress = ({ _jobName, onClose }) => {
   const dispatch = useDispatch();
   const logContainerRef = useRef(null);
   const { isRunning, cronJobLogs, cronJobStatus, cronJobError } = useSelector(
     state => state.cronJobProgress
   );
+
+  // Mount logging
+  useEffect(() => {
+    log('[CRON_JOB_PROGRESS] [MOUNT] Component mounted', { _jobName });
+  }, [_jobName]);
+
+  // Debug logging
+  useEffect(() => {
+    log('[CRON_JOB_PROGRESS] State updated:', {
+      isRunning,
+      logCount: cronJobLogs.length,
+      cronJobStatus,
+      cronJobError,
+    });
+  }, [isRunning, cronJobLogs, cronJobStatus, cronJobError]);
 
   useEffect(() => {
     if (logContainerRef.current) {
@@ -80,18 +95,39 @@ const CronJobProgress = ({ jobName, onClose }) => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 2 }}>
       <Box
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          mb: 3,
+          mb: 2,
         }}
       >
-        <Typography variant='h6'>
-          {jobName} - Execution Progress
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+          }}
+        >
+          <Button
+            disabled={isRunning}
+            size='small'
+            startIcon={<ClearIcon />}
+            variant='outlined'
+            onClick={handleClearLogs}
+          >
+            Clear Logs
+          </Button>
+          <Button
+            size='small'
+            startIcon={<CloseIcon />}
+            variant='outlined'
+            onClick={onClose}
+          >
+            Close
+          </Button>
+        </Box>
         {getStatusChip()}
       </Box>
 
@@ -100,26 +136,6 @@ const CronJobProgress = ({ jobName, onClose }) => {
           {cronJobError}
         </Alert>
       ) : null}
-
-      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-        <Button
-          disabled={isRunning}
-          size='small'
-          startIcon={<ClearIcon />}
-          variant='outlined'
-          onClick={handleClearLogs}
-        >
-          Clear Logs
-        </Button>
-        <Button
-          size='small'
-          startIcon={<CloseIcon />}
-          variant='outlined'
-          onClick={onClose}
-        >
-          Close
-        </Button>
-      </Box>
 
       <Paper
         ref={logContainerRef}

@@ -194,16 +194,12 @@ class CronSchedulerService {
     }
   }
 
-  static getNextRunTime(cronExpression) {
-    try {
-      const tempTask = cron.schedule(cronExpression, () => {}, { scheduled: false });
-      const nextRun = tempTask.nextDate();
-      tempTask.destroy();
-      return nextRun ? nextRun.toISOString() : null;
-    } catch (error) {
-      logger.error('Failed to calculate next run time:', error);
-      return null;
-    }
+  static getNextRunTime(_cronExpression) {
+    // Note: Calculating next run time with cron-parser has webpack bundling issues
+    // The cron job will still run on schedule, we just won't display the exact next run time
+    // This is a non-critical UI feature that doesn't affect scheduling functionality
+    // The actual scheduling is handled by node-cron which works correctly
+    return 'Scheduled';
   }
 
   async addJob(jobData) {

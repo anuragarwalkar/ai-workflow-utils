@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Box,
   Button,
   Dialog,
+  DialogContent,
+  DialogTitle,
   Typography,
 } from '@mui/material';
 import {
@@ -18,6 +20,7 @@ import {
   useTriggerCronJobManuallyMutation,
 } from '../../store/api/cronJobApi';
 import { log } from '../../utils/log';
+import socketService from '../../services/socketService';
 import CronJobDialog from './CronJobDialog';
 import CronJobProgress from './CronJobProgress';
 import ExecutionHistory from './ExecutionHistory';
@@ -54,6 +57,39 @@ const EmptyState = ({ buildConfig, onAddClick }) => (
   </Box>
 );
 
+const handleJobActions = {
+  delete: async (jobId, deleteCronJob) => {
+    try {
+      log('[CRON_JOB_SCHEDULE] [handleDeleteJob] Deleting', { jobId });
+      await deleteCronJob(jobId).unwrap();
+    } catch (err) {
+      log('[CRON_JOB_SCHEDULE] [handleDeleteJob] Error', { error: err });
+    }
+  },
+  toggle: async (jobId, toggleCronJob) => {
+    try {
+      log('[CRON_JOB_SCHEDULE] [handleToggleJob] Toggling', { jobId });
+      await toggleCronJob(jobId).unwrap();
+    } catch (err) {
+      log('[CRON_JOB_SCHEDULE] [handleToggleJob] Error', { error: err });
+    }
+  },
+  trigger: async (jobId, triggerManually) => {
+    try {
+      log('[CRON_JOB_SCHEDULE] [handleTriggerManually] Triggering', { jobId });
+      await triggerManually(jobId).unwrap();
+    } catch (err) {
+      log('[CRON_JOB_SCHEDULE] [handleTriggerManually] Error', { error: err });
+    }
+  },
+};
+
+const LoadingState = () => (
+  <Box display='flex' justifyContent='center' p={4}>
+    <Typography>Loading...</Typography>
+  </Box>
+);
+
 const CronJobSchedule = ({ buildConfig, onScheduleCreated }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
@@ -67,7 +103,12 @@ const CronJobSchedule = ({ buildConfig, onScheduleCreated }) => {
   const [toggleCronJob] = useToggleCronJobMutation();
   const [triggerManually] = useTriggerCronJobManuallyMutation();
 
-  const handleOpenDialog = (job = null) => {
+  // Connect to WebSocket when component mounts
+  useEffect(() => {
+    socketService.connect();
+  }, []);
+
+  const handleOpenDialog = (job) => {
     setEditingJob(job);
     setOpenDialog(true);
   };
@@ -78,40 +119,11 @@ const CronJobSchedule = ({ buildConfig, onScheduleCreated }) => {
     refetch();
   };
 
-  const handleDeleteJob = async (jobId) => {
-    try {
-      log('[CRON_JOB_SCHEDULE] [handleDeleteJob] Deleting', { jobId });
-      await deleteCronJob(jobId).unwrap();
-    } catch (err) {
-      log('[CRON_JOB_SCHEDULE] [handleDeleteJob] Error', { error: err });
-    }
-  };
+  const handleDeleteJob = (jobId) => handleJobActions.delete(jobId, deleteCronJob);
+  const handleToggleJob = (jobId) => handleJobActions.toggle(jobId, toggleCronJob);
+  const handleTriggerManually = (jobId) => handleJobActions.trigger(jobId, triggerManually);
 
-  const handleToggleJob = async (jobId) => {
-    try {
-      log('[CRON_JOB_SCHEDULE] [handleToggleJob] Toggling', { jobId });
-      await toggleCronJob(jobId).unwrap();
-    } catch (err) {
-      log('[CRON_JOB_SCHEDULE] [handleToggleJob] Error', { error: err });
-    }
-  };
-
-  const handleTriggerManually = async (jobId) => {
-    try {
-      log('[CRON_JOB_SCHEDULE] [handleTriggerManually] Triggering', { jobId });
-      await triggerManually(jobId).unwrap();
-    } catch (err) {
-      log('[CRON_JOB_SCHEDULE] [handleTriggerManually] Error', { error: err });
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <Box display='flex' justifyContent='center' p={4}>
-        <Typography>Loading...</Typography>
-      </Box>
-    );
-  }
+  if (isLoading) return <LoadingState />;
 
   return (
     <Box p={3}>
@@ -176,12 +188,24 @@ const CronJobSchedule = ({ buildConfig, onScheduleCreated }) => {
         fullWidth
         maxWidth='md'
         open={isJobRunning}
+        sx={{
+          '& .MuiDialog-paper': {
+            minHeight: '600px',
+          },
+        }}
         onClose={() => {}}
       >
-        <CronJobProgress
-          jobName={currentJobName}
-          onClose={() => {}}
-        />
+        <DialogTitle sx={{ pb: 1 }}>
+          {currentJobName || 'Job'} - Execution Progress
+        </DialogTitle>
+        <DialogContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <CronJobProgress
+            jobName={currentJobName}
+            onClose={() => {
+              log('[CRON_JOB_SCHEDULE_TAB] Dialog close requested from CronJobProgress');
+            }}
+          />
+        </DialogContent>
       </Dialog>
     </Box>
   );

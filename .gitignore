@@ -17,4 +17,5 @@ node_modules/
 # ignore server
 dist/
 
+# Ignore uploads in git
 uploads/*

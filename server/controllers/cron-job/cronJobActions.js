@@ -1,4 +1,5 @@
 import cronJobDbService from '../../services/cronJobDbService.js';
+import cronSchedulerService from '../../services/cronSchedulerService.js';
 import logger from '../../logger.js';
 import { generateCronExpression } from './utils/cronUtils.js';
 
@@ -10,6 +11,17 @@ export const toggleCronJob = async (req, res) => {
     const updatedJob = await cronJobDbService.updateJob(id, {
       enabled: !job.enabled,
     });
+    
+    // Schedule or unschedule based on the new state
+    if (updatedJob.enabled) {
+      logger.info('[CRON_JOB_CONTROLLER] [toggleCronJob] Scheduling job:', id);
+      await cronSchedulerService.scheduleJob(updatedJob);
+    } else {
+      logger.info('[CRON_JOB_CONTROLLER] [toggleCronJob] Stopping job:', id);
+      if (cronSchedulerService.activeTasks.has(id)) {
+        await cronSchedulerService.stopJob(id);
+      }
+    }
     
     res.json({
       success: true,
@@ -53,6 +65,8 @@ export const getCronJobLogs = async (req, res) => {
 export const triggerCronJobManually = async (req, res) => {
   try {
     const { id } = req.params;
+    logger.info('[CRON_JOB_CONTROLLER] [triggerCronJobManually] Triggering job:', id);
+    
     const job = await cronJobDbService.getJobById(id);
     
     if (!job.enabled) {
@@ -69,19 +83,21 @@ export const triggerCronJobManually = async (req, res) => {
       });
     }
 
-    // TODO: Implement actual job execution logic
-    await cronJobDbService.updateJobStatus(id, 'running', {
-      log: 'Job triggered manually',
-      logType: 'info',
-    });
+    // Actually trigger the job execution via cronSchedulerService
+    logger.info('[CRON_JOB_CONTROLLER] [triggerCronJobManually] Calling cronSchedulerService.triggerJobManually');
+    const result = await cronSchedulerService.triggerJobManually(id);
 
     res.json({
       success: true,
       message: 'Cron job triggered successfully',
+      data: result,
     });
   } catch (error) {
     logger.error('[CRON_JOB_CONTROLLER] [triggerCronJobManually] Error:', error);
-    const statusCode = error.message.includes('not found') ? 404 : 500;
+    const statusCode = error.message.includes('not found') ? 404 
+      : error.message.includes('disabled') ? 400 
+      : error.message.includes('already running') ? 409 
+      : 500;
     res.status(statusCode).json({
       success: false,
       message: 'Failed to trigger cron job',
