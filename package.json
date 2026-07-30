@@ -1,6 +1,6 @@
 {
   "name": "ai-workflow-utils",
-  "version": "1.7.14",
+  "version": "1.7.15",
   "type": "module",
   "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems. Includes startup service management for automatic system boot integration.",
   "main": "dist/server.js",
@@ -129,6 +129,9 @@
     "winston": "^3.17.0",
     "ws": "^8.18.3",
     "zod": "^3.25.76"
+  },
+  "overrides": {
+    "@modelcontextprotocol/sdk": "1.12.3"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
