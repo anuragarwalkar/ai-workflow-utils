@@ -7,8 +7,8 @@ import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { HumanMessage } from '@langchain/core/messages';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { MultiServerMCPClient } from '@langchain/mcp-adapters';
-import { createReactAgent } from 'langchain/agents';
-import { pull } from 'langchain/hub';
+import { createReactAgent } from '@langchain/classic/agents';
+import { pull } from '@langchain/classic/hub';
 import logger from '../../logger.js';
 import templateDbService from '../templateDbService.js';
 import mcpService from '../mcpService.js';
@@ -87,7 +87,7 @@ export class BaseLangChainService {
           name: 'Google Gemini',
           model: new ChatGoogleGenerativeAI({
             apiKey: process.env.GOOGLE_API_KEY,
-            modelName: googleModel,
+            model: googleModel,
             temperature,
           }),
           supportsVision: true, // Gemini models support vision

@@ -1,6 +1,6 @@
 import { BaseLangChainService } from './BaseLangChainService.js';
 import { z } from 'zod';
-import { OutputFixingParser, StructuredOutputParser } from 'langchain/output_parsers';
+import { OutputFixingParser, StructuredOutputParser } from '@langchain/classic/output_parsers';
 import logger from '../../logger.js';
 
 // Zod schema for API request structure
