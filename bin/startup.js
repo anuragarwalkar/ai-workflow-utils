@@ -99,7 +99,8 @@ class StartupManager {
           execSync(`sudo systemctl start ${this.serviceName}`, { stdio: 'inherit' });
           break;
       }
-      console.log('✅ Service started successfully!');
+      console.log('✅ Service start command issued successfully!');
+      console.log('💡 Run "ai-workflow-utils startup status" to check logs and verify it is running.');
     } catch (error) {
       console.error('❌ Failed to start service:', error.message);
       process.exit(1);
@@ -134,17 +135,79 @@ class StartupManager {
     try {
       switch (this.platform) {
         case 'darwin':
-          execSync(`launchctl list | grep ${this.serviceName}`, { stdio: 'inherit' });
+          try {
+            console.log('\\n📊 Service Status (launchctl):');
+            execSync(`launchctl list | grep ${this.serviceName}`, { stdio: 'inherit' });
+          } catch (e) {
+            console.log('❌ Service is not running or not loaded in launchctl');
+          }
+          
+          console.log('\\n📝 Recent Error Logs:');
+          const errLogPath = path.join(os.homedir(), 'Library', 'Logs', `${this.serviceName}.error.log`);
+          if (fs.existsSync(errLogPath)) {
+            execSync(`tail -n 15 "${errLogPath}"`, { stdio: 'inherit' });
+          } else {
+            console.log('   No error logs found.');
+          }
+
+          console.log('\\n📝 Recent Output Logs:');
+          const outLogPath = path.join(os.homedir(), 'Library', 'Logs', `${this.serviceName}.log`);
+          if (fs.existsSync(outLogPath)) {
+            execSync(`tail -n 15 "${outLogPath}"`, { stdio: 'inherit' });
+          } else {
+            console.log('   No output logs found.');
+          }
           break;
         case 'win32':
-          execSync(`sc query "${this.serviceName}"`, { stdio: 'inherit' });
+          try {
+            console.log('\\n📊 Service Status (sc query):');
+            execSync(`sc query "${this.serviceName}"`, { stdio: 'inherit' });
+          } catch (e) {
+            console.log('❌ Service is not installed or not running');
+          }
+
+          console.log('\\n📝 Recent Logs (daemon logs):');
+          const daemonDir = path.join(this.packageDir, 'bin', 'daemon');
+          if (fs.existsSync(daemonDir)) {
+            try {
+              const files = fs.readdirSync(daemonDir).filter(f => f.endsWith('.log'));
+              if (files.length === 0) {
+                console.log('   No log files found in daemon directory.');
+              } else {
+                files.forEach(file => {
+                  console.log(`\\n--- ${file} ---`);
+                  const logPath = path.join(daemonDir, file);
+                  try {
+                    execSync(`powershell -command "Get-Content -Tail 15 '${logPath}'"`, { stdio: 'inherit' });
+                  } catch (e) {
+                    console.log(`   Could not read ${file}`);
+                  }
+                });
+              }
+            } catch (e) {
+              console.log('   Could not read daemon logs.');
+            }
+          } else {
+            console.log('   Daemon directory not found. Log files are not yet created.');
+          }
           break;
         case 'linux':
-          execSync(`sudo systemctl status ${this.serviceName}`, { stdio: 'inherit' });
+          try {
+            console.log('\\n📊 Service Status (systemctl):');
+            execSync(`sudo systemctl status ${this.serviceName} --no-pager`, { stdio: 'inherit' });
+          } catch (e) {
+            console.log('❌ Service is not installed or not running');
+          }
+          console.log('\\n📝 Recent Logs (journalctl):');
+          try {
+            execSync(`sudo journalctl -u ${this.serviceName} -n 15 --no-pager`, { stdio: 'inherit' });
+          } catch (e) {
+            console.log('   Could not fetch journalctl logs.');
+          }
           break;
       }
     } catch (error) {
-      console.log('❌ Service is not running or not installed');
+      console.log('❌ Service check failed:', error.message);
     }
   }
 
