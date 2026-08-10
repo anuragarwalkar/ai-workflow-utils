@@ -110,6 +110,29 @@ class BitbucketService {
     logger.info('Pull request created successfully');
     return response.data;
   }
+  /**
+   * Add a comment to a pull request
+   */
+  static async addPullRequestComment(projectKey, repoSlug, pullRequestId, text) {
+    const { bitbucketUrl, authToken } = EnvironmentConfig.get();
+    const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests/${pullRequestId}/comments`;
+
+    logger.info(`Adding comment to PR ${pullRequestId} in ${projectKey}/${repoSlug}`);
+
+    const response = await axiosInstance.post(
+      url,
+      { text },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    logger.info(`Successfully added comment to PR ${pullRequestId}`);
+    return response.data;
+  }
 }
 
 export default BitbucketService;

@@ -5,6 +5,7 @@ import {
   getPullRequests,
   reviewPullRequest,
   streamCreatePRPreview,
+  addComment,
 } from '../controllers/pull-request/index.js';
 import { asyncHandler, createRateLimit } from '../middleware/index.js';
 
@@ -31,5 +32,11 @@ router.post('/create', asyncHandler(createPullRequest));
 
 // Route to stream PR preview generation
 router.post('/stream-preview', asyncHandler(streamCreatePRPreview));
+
+// Route to add a comment to a pull request
+router.post(
+  '/:projectKey/:repoSlug/pull-requests/:pullRequestId/comments',
+  asyncHandler(addComment)
+);
 
 export default router;

@@ -16,6 +16,8 @@ import {
   IconButton,
   LinearProgress,
   Switch,
+  Tabs,
+  Tab,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -43,6 +45,7 @@ import {
 import { useStreamingPRReview } from '../../hooks/useStreamingPRReview';
 import RichTextViewer from '../common/RichTextViewer';
 import FileChanges from './FileChanges';
+import ReviewIssuesPanel from './components/ReviewIssuesPanel';
 
 // eslint-disable-next-line max-statements
 const PullRequestDiff = ({ onPrevious, onReset }) => {
@@ -51,6 +54,7 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
     state => state.pr
   );
   const [expandedFiles, setExpandedFiles] = useState({});
+  const [activeTab, setActiveTab] = useState(0);
 
   // Fetch PR list if we have a direct PR ID but no selected PR details
   const { data: pullRequests, isLoading: isPRListLoading } = useGetPullRequestsQuery(
@@ -179,9 +183,15 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
 
         dispatch(setReviewData(result));
       }
+      // Switch to Issues tab when review finishes
+      setActiveTab(1);
     } catch (error) {
       dispatch(setError(`Failed to generate review: ${error.data?.error || error.message}`));
     }
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
   };
 
   const getDiffStats = () => {
@@ -416,31 +426,53 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
                   </Alert>
                 ) : null}
 
-                <RichTextViewer
-                  content={
-                    isStreaming || streamingContent
-                      ? streamingContent +
-                        (isStreaming
-                          ? ' ▋' // Add cursor while streaming
-                          : '')
-                      : reviewData?.review || 'No review available'
-                  }
-                  sx={{
-                    backgroundColor: 'grey.50',
-                    p: 2,
-                    border: '1px solid',
-                    borderColor: 'grey.300',
-                    borderRadius: 1,
-                    width: '100%',
-                    minWidth: 0, // Allow content to shrink if needed
-                    minHeight: '200px', // Add minimum height to make content area visible
-                    overflowWrap: 'break-word',
-                    wordWrap: 'break-word',
-                    overflowX: 'auto', // Enable horizontal scrolling
-                    maxWidth: '100%', // Prevent content from breaking out of container
-                  }}
-                  variant='inline'
-                />
+                {(reviewData || streamingContent || reviewComplete) && (
+                  <>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+                      <Tabs value={activeTab} onChange={handleTabChange} aria-label="review tabs">
+                        <Tab label="Full Review" />
+                        <Tab label="Issues & Comments" disabled={isStreaming} />
+                      </Tabs>
+                    </Box>
+
+                    {activeTab === 0 && (
+                      <RichTextViewer
+                        content={
+                          isStreaming || streamingContent
+                            ? streamingContent +
+                              (isStreaming
+                                ? ' ▋' // Add cursor while streaming
+                                : '')
+                            : reviewData?.review || 'No review available'
+                        }
+                        sx={{
+                          backgroundColor: 'grey.50',
+                          p: 2,
+                          border: '1px solid',
+                          borderColor: 'grey.300',
+                          borderRadius: 1,
+                          width: '100%',
+                          minWidth: 0, // Allow content to shrink if needed
+                          minHeight: '200px', // Add minimum height to make content area visible
+                          overflowWrap: 'break-word',
+                          wordWrap: 'break-word',
+                          overflowX: 'auto', // Enable horizontal scrolling
+                          maxWidth: '100%', // Prevent content from breaking out of container
+                        }}
+                        variant='inline'
+                      />
+                    )}
+
+                    {activeTab === 1 && !isStreaming && (
+                      <ReviewIssuesPanel 
+                        reviewContent={reviewComplete?.review || reviewData?.review}
+                        projectKey={selectedProject.projectKey}
+                        repoSlug={selectedProject.repoSlug}
+                        pullRequestId={selectedPullRequest?.id || directPRId}
+                      />
+                    )}
+                  </>
+                )}
 
                 {reviewComplete?.reviewedAt || (reviewData?.reviewedAt && !isStreaming) ? (
                   <Typography

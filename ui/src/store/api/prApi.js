@@ -47,6 +47,16 @@ export const prApi = createApi({
         },
       }),
     }),
+    addPRComment: builder.mutation({
+      query: ({ projectKey, repoSlug, pullRequestId, commentText }) => ({
+        url: `/${projectKey}/${repoSlug}/pull-requests/${pullRequestId}/comments`,
+        method: 'POST',
+        body: { commentText },
+      }),
+      invalidatesTags: (result, error, { projectKey, repoSlug, pullRequestId }) => [
+        { type: 'PullRequest', id: `${projectKey}-${repoSlug}-${pullRequestId}` },
+      ],
+    }),
   }),
 });
 
@@ -57,4 +67,5 @@ export const {
   useLazyGetPullRequestDiffQuery,
   useReviewPullRequestMutation,
   useCreatePullRequestMutation,
+  useAddPRCommentMutation,
 } = prApi;

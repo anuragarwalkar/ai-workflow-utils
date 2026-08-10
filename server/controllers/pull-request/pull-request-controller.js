@@ -217,6 +217,52 @@ class PRController {
       }
     }
   }
+  /**
+   * Add a comment to a pull request
+   */
+  static async addComment(req, res) {
+    try {
+      const { projectKey, repoSlug, pullRequestId } = req.params;
+      const { commentText } = req.body;
+
+      if (!projectKey || !repoSlug || !pullRequestId) {
+        return ErrorHandler.handleValidationError(
+          'Project key, repository slug, and pull request ID are required',
+          res
+        );
+      }
+
+      if (!commentText) {
+        return ErrorHandler.handleValidationError('Comment text is required', res);
+      }
+
+      logger.info(
+        `Adding comment to PR ${pullRequestId} in ${projectKey}/${repoSlug}`
+      );
+
+      const data = await BitbucketService.addPullRequestComment(
+        projectKey,
+        repoSlug,
+        pullRequestId,
+        commentText
+      );
+
+      res.status(201).json(data);
+    } catch (error) {
+      logger.error('Error adding pull request comment:', error);
+      if (error.response) {
+        return res.status(error.response.status).json({
+          error: 'Failed to add pull request comment',
+          details: error.response.data,
+          status: error.response.status,
+        });
+      }
+      res.status(500).json({
+        error: 'Internal server error while adding pull request comment',
+        message: error.message,
+      });
+    }
+  }
 }
 
 // Export controller methods for backward compatibility
@@ -226,6 +272,7 @@ export const {
   reviewPullRequest,
   createPullRequest,
   streamCreatePRPreview,
+  addComment,
 } = PRController;
 
 export default PRController;
