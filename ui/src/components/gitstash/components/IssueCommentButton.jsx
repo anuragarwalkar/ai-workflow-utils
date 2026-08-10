@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { CircularProgress, Tooltip } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { CircularProgress, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
 import {
   AddComment as AddCommentIcon,
   CheckCircle as CheckCircleIcon,
@@ -15,20 +15,29 @@ const IssueCommentButton = ({ issue, projectKey, repoSlug, pullRequestId, onPost
   const [errorMsg, setErrorMsg] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editableComment, setEditableComment] = useState('');
+
   const formatComment = () => {
     return `**[${issue.severity}] ${issue.title}**\n📁 File: \`${issue.file}\`\n\n${issue.description}`;
   };
 
-  const handlePostComment = async () => {
+  const handleOpenModal = () => {
+    setEditableComment(formatComment());
+    setModalOpen(true);
+  };
+
+  const handleConfirmPost = async () => {
     if (status === 'success' || isLoading) return;
 
     try {
       setStatus('loading');
+      setModalOpen(false);
       await addPRComment({
         projectKey,
         repoSlug,
         pullRequestId,
-        commentText: formatComment(),
+        commentText: editableComment,
       }).unwrap();
       
       setStatus('success');
@@ -66,7 +75,7 @@ const IssueCommentButton = ({ issue, projectKey, repoSlug, pullRequestId, onPost
         <Tooltip title={getTooltipTitle()}>
           <span>
             <ActionButton
-              onClick={handlePostComment}
+              onClick={handleOpenModal}
               disabled={status === 'success' || isLoading}
               success={status === 'success'}
               size="small"
@@ -83,6 +92,36 @@ const IssueCommentButton = ({ issue, projectKey, repoSlug, pullRequestId, onPost
         severity="error"
         onClose={() => setSnackbarOpen(false)}
       />
+
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Edit PR Comment</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Comment Content (Markdown Supported)"
+            type="text"
+            fullWidth
+            multiline
+            rows={10}
+            variant="outlined"
+            value={editableComment}
+            onChange={(e) => setEditableComment(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setModalOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={handleConfirmPost} 
+            variant="contained" 
+            disabled={isLoading || !editableComment.trim()}
+            startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <AddCommentIcon />}
+          >
+            {isLoading ? 'Posting...' : 'Post Comment'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
