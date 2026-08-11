@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardContent,
+  Chip,
   Divider,
   FormControlLabel,
   Stack,
@@ -13,14 +14,16 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  BugReport as DebugIcon,
   Delete as DeleteIcon,
   CloudDownload as ImportIcon,
   Refresh as RefreshIcon,
+  SystemUpdateAlt as UpdateIcon,
 } from '@mui/icons-material';
 import LogsViewer from './LogsViewer';
+import usePWAUpdate from '../../../hooks/usePWAUpdate';
 
 const AdvancedSettings = () => {
+  const { needRefresh, forceUpdate } = usePWAUpdate();
   const handleClearCache = () => {
     if (window.confirm('Are you sure you want to clear all cached data?')) {
       // Implementation for clearing cache
@@ -143,6 +146,39 @@ const AdvancedSettings = () => {
           />
 
           <FormControlLabel control={<Switch defaultChecked />} label='Enable request caching' />
+
+          <Divider sx={{ my: 2 }} />
+
+          <Typography gutterBottom variant='subtitle1'>
+            App Updates (PWA)
+          </Typography>
+
+          <Stack alignItems='center' direction='row' spacing={2} sx={{ mb: 2 }}>
+            <Chip
+              color={needRefresh ? 'warning' : 'success'}
+              label={needRefresh ? 'Update available' : 'Up to date'}
+              size='small'
+              variant='outlined'
+            />
+          </Stack>
+
+          <Stack direction='row' spacing={2} sx={{ mb: 2 }}>
+            <Button
+              disabled={!needRefresh}
+              startIcon={<UpdateIcon />}
+              variant='contained'
+              onClick={forceUpdate}
+            >
+              Force Update &amp; Refresh
+            </Button>
+            <Button
+              startIcon={<RefreshIcon />}
+              variant='outlined'
+              onClick={() => window.location.reload()}
+            >
+              Refresh App
+            </Button>
+          </Stack>
 
           <Divider sx={{ my: 2 }} />
 
