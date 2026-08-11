@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.7.20...v1.8.0) (2026-08-11)
+
+
+### Features
+
+* add PWA update functionality with force update and refresh options ([288548b](https://github.com/anuragarwalkar/ai-workflow-utils/commit/288548bdb24f8b801c364280765408ea1e901f0b))
+
 ## [1.7.20](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.7.19...v1.7.20) (2026-08-11)
 
 
