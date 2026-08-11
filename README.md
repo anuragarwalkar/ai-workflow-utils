@@ -59,8 +59,8 @@ Revolutionary AI-powered pull request reviews for Atlassian Bitbucket:
 - **🧠 Intelligent Code Analysis**: AI reviews your code changes
 - **💡 Smart Suggestions**: Get actionable improvement recommendations
 - **🔄 Multi-Model Support**: OpenAI Compatible APIs + Ollama for flexibility
-- **⚡ Coming Soon**: AI adds review comments directly to your PRs
-- **⚡ Coming Soon**: Direct comment integration
+- **💬 GitLab Direct Comments**: AI pre-review results are posted directly as comments on GitLab merge requests using the GitLab REST API
+- **🔗 REST API Integration**: Authenticates with your GitLab instance and submits structured review feedback as merge request notes
 
 ### 📊 **Feature #4: Real-time Logs & Monitoring**
 
@@ -332,7 +332,13 @@ the best experience:
 3. Enter PR details
 4. AI analyzes code changes
 5. Get detailed review with suggestions
-6. _Coming Soon_: Direct comment integration
+6. **Post to GitLab**: AI review is automatically added as a comment directly on the GitStash merge request via the GitStash REST API
+
+**GitStash Direct Comment Feature:**
+
+- **REST API Integration**: Uses the GitLab Merge Request Notes API (`POST /projects/:id/merge_requests/:iid/notes`) to post comments
+- **Authenticated Requests**: Secure token-based authentication with your GitLab instance
+- **Structured Feedback**: Review results are formatted as readable markdown and posted directly to the MR thread
 
 ### **📊 Real-time Logs & Monitoring**
 
