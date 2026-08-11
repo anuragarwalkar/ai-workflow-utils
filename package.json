@@ -1,6 +1,6 @@
 {
   "name": "ai-workflow-utils",
-  "version": "1.7.19",
+  "version": "1.7.20",
   "type": "module",
   "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems.",
   "main": "dist/server.js",
@@ -67,7 +67,6 @@
     "build-server:watch": "webpack --config webpack.config.js --watch",
     "preview": "vite preview",
     "build": "export NODE_ENV=production && concurrently --names \"server,ui\" \"npm run build-server\" \"npm run build-ui\"",
-
     "format": "prettier --write \"ui/src/**/*.{js,jsx,ts,tsx,json,css,md}\" \"server/**/*.{js,ts,json}\" \"*.{js,ts,json,md}\"",
     "format:check": "prettier --check \"ui/src/**/*.{js,jsx,ts,tsx,json,css,md}\" \"server/**/*.{js,ts,json}\" \"*.{js,ts,json,md}\"",
     "lint": "npm run lint:server && npm run lint:ui",
