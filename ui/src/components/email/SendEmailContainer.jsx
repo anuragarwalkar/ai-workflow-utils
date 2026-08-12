@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useSendEmailMutation } from '../../store/api/emailApi';
 import { setEmailData, setLastSentVersion } from '../../store/slices/emailSlice';
+import { API_BASE_URL } from '../../config/environment.js';
 
 const SendEmailContainer = () => {
   const dispatch = useDispatch();
@@ -33,45 +34,52 @@ const SendEmailContainer = () => {
   const [wikiUrl, setWikiUrl] = useState('');
   const [wikiBasicAuth, setWikiBasicAuth] = useState('');
 
-  // Load email values from localStorage on component mount
+  // Load email values from API on component mount
   useEffect(() => {
-    const lastEmailVersion = localStorage.getItem('lastEmailVersion');
-
-    if (lastEmailVersion) {
+    const loadLastEmailVersion = async () => {
       try {
-        const lastVersionData = JSON.parse(lastEmailVersion);
-        if (lastVersionData.version) {
-          setVersion(lastVersionData.version);
-        }
-        if (lastVersionData.toEmail) {
-          setToEmail(lastVersionData.toEmail);
-        }
-        if (lastVersionData.ccEmail) {
-          setCcEmail(lastVersionData.ccEmail);
-        }
-        if (lastVersionData.subject) {
-          setSubject(lastVersionData.subject);
-        }
-        if (lastVersionData.wikiUrl) {
-          setWikiUrl(lastVersionData.wikiUrl);
-        }
-        if (lastVersionData.wikiBasicAuth) {
-          // Decode from base64 when retrieving from localStorage
-          try {
-            setWikiBasicAuth(atob(lastVersionData.wikiBasicAuth));
-          } catch (decodeError) {
-            console.error('Error decoding wikiBasicAuth from localStorage:', decodeError);
-            // If decoding fails, treat as plain text (for backward compatibility)
-            setWikiBasicAuth(lastVersionData.wikiBasicAuth);
+        const response = await fetch(`${API_BASE_URL}/api/app-state/lastEmailVersion`);
+        if (!response.ok) return;
+        
+        const json = await response.json();
+        const lastVersionData = json.data;
+
+        if (lastVersionData) {
+          if (lastVersionData.version) {
+            setVersion(lastVersionData.version);
+          }
+          if (lastVersionData.toEmail) {
+            setToEmail(lastVersionData.toEmail);
+          }
+          if (lastVersionData.ccEmail) {
+            setCcEmail(lastVersionData.ccEmail);
+          }
+          if (lastVersionData.subject) {
+            setSubject(lastVersionData.subject);
+          }
+          if (lastVersionData.wikiUrl) {
+            setWikiUrl(lastVersionData.wikiUrl);
+          }
+          if (lastVersionData.wikiBasicAuth) {
+            // Decode from base64 when retrieving from API
+            try {
+              setWikiBasicAuth(atob(lastVersionData.wikiBasicAuth));
+            } catch (decodeError) {
+              console.error('Error decoding wikiBasicAuth from API:', decodeError);
+              // If decoding fails, treat as plain text (for backward compatibility)
+              setWikiBasicAuth(lastVersionData.wikiBasicAuth);
+            }
           }
         }
       } catch (error) {
         console.error('Error parsing last email version data:', error);
       }
-    }
+    };
+    
+    loadLastEmailVersion();
   }, []);
 
-  const saveEmailDataToLocalStorage = () => {
+  const saveEmailDataToApi = async () => {
     const emailVersionData = {
       version,
       timestamp: new Date().toISOString(),
@@ -83,7 +91,15 @@ const SendEmailContainer = () => {
       wikiBasicAuth: wikiBasicAuth ? btoa(wikiBasicAuth) : '',
       dryRun,
     };
-    localStorage.setItem('lastEmailVersion', JSON.stringify(emailVersionData));
+    try {
+      await fetch(`${API_BASE_URL}/api/app-state/lastEmailVersion`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emailVersionData),
+      });
+    } catch (error) {
+      console.error('Error saving email data to API:', error);
+    }
   };
 
   const handleBackToHome = () => {
@@ -110,8 +126,8 @@ const SendEmailContainer = () => {
       setEmailPreview(result);
       dispatch(setEmailData(result));
 
-      // Save last version to local storage when preview is successfully generated
-      saveEmailDataToLocalStorage();
+      // Save last version to API when preview is successfully generated
+      await saveEmailDataToApi();
 
       if (!dryRun) {
         dispatch(setLastSentVersion(version));
@@ -125,8 +141,8 @@ const SendEmailContainer = () => {
   const handleDownloadTemplate = () => {
     if (!emailPreview) return;
 
-    // Update localStorage with current email data before download
-    saveEmailDataToLocalStorage();
+    // Update API with current email data before download
+    saveEmailDataToApi();
 
     // Create the .eml file content
     const emlContent = `To: ${toEmail}

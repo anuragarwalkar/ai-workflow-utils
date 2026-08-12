@@ -18,13 +18,12 @@ import {
   useUploadBuildScriptMutation 
 } from '../../store/api/buildApi';
 import {
-  clearBuildLogs,
-  clearUploadedScript,
   resetBuildState,
-  saveRepoConfig,
   setBuildError,
-  setUploadedScript,
   startBuild,
+  fetchBuildConfigs,
+  saveConfigToApi,
+  saveScriptToApi,
 } from '../../store/slices/buildSlice';
 import socketService from '../../services/socketService';
 import BuildConfigForm from './BuildConfigForm';
@@ -57,6 +56,7 @@ const ReleaseBuildContainer = () => {
   // Connect to WebSocket when component mounts and load saved config
   useEffect(() => {
     socketService.connect();
+    dispatch(fetchBuildConfigs());
 
     // Load saved configuration from Redux state
     if (savedRepoConfig) {
@@ -114,18 +114,37 @@ const ReleaseBuildContainer = () => {
     }
   };
 
-  const handleScriptUpload = async file => {
+
+  const handleScriptUpload = async (file) => {
     try {
-      const result = await uploadBuildScript(file).unwrap();
-      dispatch(setUploadedScript(result.script));
-      return result;
-    } catch (error) {
-      throw new Error(error.data?.error || 'Failed to upload script');
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await uploadBuildScript(formData).unwrap();
+
+      // Save to API via thunk
+      dispatch(saveScriptToApi(response.file));
+
+      setBuildConfig(prev => ({
+        ...prev,
+        buildScript: {
+          name: file.name,
+          size: file.size,
+          path: response.file.path,
+        },
+      }));
+    } catch (err) {
+      dispatch(setBuildError(err.data?.message || 'Failed to upload script'));
     }
   };
 
   const handleScriptRemove = () => {
+    // Remove from Redux and API
+    dispatch(saveScriptToApi(null));
     dispatch(clearUploadedScript());
+    setBuildConfig(prev => ({
+      ...prev,
+      buildScript: null,
+    }));
   };
 
   const handleStartBuild = async () => {
@@ -185,7 +204,7 @@ const ReleaseBuildContainer = () => {
             config={buildConfig}
             onChange={setBuildConfig}
             onNext={handleNext}
-            onSaveConfig={repoConfig => dispatch(saveRepoConfig(repoConfig))}
+            onSaveConfig={repoConfig => dispatch(saveConfigToApi(repoConfig))}
             onScriptRemove={handleScriptRemove}
             onScriptUpload={handleScriptUpload}
           />

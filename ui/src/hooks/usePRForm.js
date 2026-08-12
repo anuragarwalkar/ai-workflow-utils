@@ -18,17 +18,21 @@ export const usePRForm = () => {
 
   // Load saved configuration on mount
   useEffect(() => {
-    logger.info('useEffect', 'Loading saved project configuration');
+    const loadConfig = async () => {
+      logger.info('useEffect', 'Loading saved project configuration');
+      
+      const savedConfig = await loadProjectConfig();
+      if (savedConfig) {
+        setFormData(prev => ({
+          ...prev,
+          [FORM_FIELDS.PROJECT_KEY]: savedConfig[FORM_FIELDS.PROJECT_KEY],
+          [FORM_FIELDS.REPO_SLUG]: savedConfig[FORM_FIELDS.REPO_SLUG],
+        }));
+        logger.info('useEffect', 'Saved configuration loaded successfully');
+      }
+    };
     
-    const savedConfig = loadProjectConfig();
-    if (savedConfig) {
-      setFormData(prev => ({
-        ...prev,
-        [FORM_FIELDS.PROJECT_KEY]: savedConfig[FORM_FIELDS.PROJECT_KEY],
-        [FORM_FIELDS.REPO_SLUG]: savedConfig[FORM_FIELDS.REPO_SLUG],
-      }));
-      logger.info('useEffect', 'Saved configuration loaded successfully');
-    }
+    loadConfig();
   }, []);
 
   /**
@@ -74,12 +78,12 @@ export const usePRForm = () => {
   };
 
   /**
-   * Save current project configuration to localStorage
+   * Save current project configuration to API
    */
-  const saveCurrentConfig = () => {
+  const saveCurrentConfig = async () => {
     try {
       logger.info('saveCurrentConfig', 'Saving current project configuration');
-      saveProjectConfig(formData[FORM_FIELDS.PROJECT_KEY], formData[FORM_FIELDS.REPO_SLUG]);
+      await saveProjectConfig(formData[FORM_FIELDS.PROJECT_KEY], formData[FORM_FIELDS.REPO_SLUG]);
     } catch (error) {
       logger.error('saveCurrentConfig', 'Failed to save project configuration', error);
     }

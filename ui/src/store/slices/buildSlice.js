@@ -1,48 +1,45 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_BASE_URL } from '../../config/environment.js';
 
-// Helper functions for localStorage
-const loadConfigFromStorage = () => {
-  try {
-    const savedConfig = localStorage.getItem('release_build_config');
-    return savedConfig ? JSON.parse(savedConfig) : null;
-  } catch {
-    return null;
-  }
-};
+// Async thunks for API
+export const fetchBuildConfigs = createAsyncThunk('build/fetchConfigs', async () => {
+  const [configRes, scriptRes] = await Promise.all([
+    fetch(`${API_BASE_URL}/api/app-state/release_build_config`),
+    fetch(`${API_BASE_URL}/api/app-state/release_build_script`)
+  ]);
+  
+  const configData = configRes.ok ? (await configRes.json()).data : null;
+  const scriptData = scriptRes.ok ? (await scriptRes.json()).data : null;
+  
+  return { savedRepoConfig: configData, uploadedScript: scriptData };
+});
 
-const loadScriptFromStorage = () => {
-  try {
-    const savedScript = localStorage.getItem('release_build_script');
-    return savedScript ? JSON.parse(savedScript) : null;
-  } catch {
-    return null;
-  }
-};
+export const saveConfigToApi = createAsyncThunk('build/saveConfig', async (config) => {
+  const configToSave = {
+    repoKey: config.repoKey || '',
+    repoSlug: config.repoSlug || '',
+    gitRepos: config.gitRepos || '',
+  };
+  await fetch(`${API_BASE_URL}/api/app-state/release_build_config`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(configToSave)
+  });
+  return configToSave;
+});
 
-const saveConfigToStorage = config => {
-  try {
-    const configToSave = {
-      repoKey: config.repoKey || '',
-      repoSlug: config.repoSlug || '',
-      gitRepos: config.gitRepos || '',
-    };
-    localStorage.setItem('release_build_config', JSON.stringify(configToSave));
-  } catch {
-    // Silently fail if localStorage is not available
+export const saveScriptToApi = createAsyncThunk('build/saveScript', async (script) => {
+  if (script) {
+    await fetch(`${API_BASE_URL}/api/app-state/release_build_script`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(script)
+    });
+  } else {
+    await fetch(`${API_BASE_URL}/api/app-state/release_build_script`, { method: 'DELETE' });
   }
-};
-
-const saveScriptToStorage = script => {
-  try {
-    if (script) {
-      localStorage.setItem('release_build_script', JSON.stringify(script));
-    } else {
-      localStorage.removeItem('release_build_script');
-    }
-  } catch {
-    // Silently fail if localStorage is not available
-  }
-};
+  return script;
+});
 
 const initialState = {
   isBuilding: false,
@@ -53,8 +50,8 @@ const initialState = {
   error: null,
   buildConfig: null, // Store build configuration for PR creation
   branchName: null, // Store branch name from WebSocket
-  savedRepoConfig: loadConfigFromStorage(), // Load saved repository configuration
-  uploadedScript: loadScriptFromStorage(), // Load saved script information
+  savedRepoConfig: null, // Load via fetchBuildConfigs
+  uploadedScript: null, // Load via fetchBuildConfigs
 };
 
 const buildSlice = createSlice({
@@ -100,8 +97,8 @@ const buildSlice = createSlice({
       state.buildConfig = null;
       state.branchName = null;
       state.uploadedScript = null;
-      // Clear script from localStorage
-      saveScriptToStorage(null);
+      // Clear script from API via another action or handled elsewhere
+
     },
     setBuildError: (state, action) => {
       state.error = action.payload;
@@ -121,20 +118,30 @@ const buildSlice = createSlice({
         repoSlug: config.repoSlug || '',
         gitRepos: config.gitRepos || '',
       };
-      // Save to localStorage
-      saveConfigToStorage(config);
     },
     setUploadedScript: (state, action) => {
       state.uploadedScript = action.payload;
-      // Save to localStorage
-      saveScriptToStorage(action.payload);
     },
     clearUploadedScript: state => {
       state.uploadedScript = null;
-      // Remove from localStorage
-      saveScriptToStorage(null);
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(fetchBuildConfigs.fulfilled, (state, action) => {
+      if (action.payload.savedRepoConfig) {
+        state.savedRepoConfig = action.payload.savedRepoConfig;
+      }
+      if (action.payload.uploadedScript) {
+        state.uploadedScript = action.payload.uploadedScript;
+      }
+    });
+    builder.addCase(saveConfigToApi.fulfilled, (state, action) => {
+      state.savedRepoConfig = action.payload;
+    });
+    builder.addCase(saveScriptToApi.fulfilled, (state, action) => {
+      state.uploadedScript = action.payload;
+    });
+  }
 });
 
 export const {

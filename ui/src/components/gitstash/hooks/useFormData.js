@@ -11,15 +11,19 @@ export const useFormData = () => {
     repoSlug: '',
   });
 
-  // Load saved values from localStorage on mount
+  // Load saved values from API on mount
   useEffect(() => {
-    const savedConfig = loadProjectConfig();
-    if (savedConfig) {
-      setFormData({
-        projectKey: savedConfig.projectKey || '',
-        repoSlug: savedConfig.repoSlug || '',
-      });
-    }
+    const loadConfig = async () => {
+      const savedConfig = await loadProjectConfig();
+      if (savedConfig) {
+        setFormData({
+          projectKey: savedConfig.projectKey || '',
+          repoSlug: savedConfig.repoSlug || '',
+        });
+      }
+    };
+    
+    loadConfig();
   }, []);
 
   const handleInputChange = (field) => (event) => {
@@ -29,8 +33,8 @@ export const useFormData = () => {
     }));
   };
 
-  const saveFormData = () => {
-    saveProjectConfig(formData);
+  const saveFormData = async () => {
+    await saveProjectConfig(formData);
   };
 
   return {

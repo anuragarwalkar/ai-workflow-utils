@@ -1,18 +1,19 @@
 /**
- * Service for handling localStorage operations related to PR functionality
+ * Service for handling API operations related to PR functionality
  */
 
 import { FORM_FIELDS, STORAGE_KEYS } from '../constants/pr.js';
 import { createLogger } from '../utils/log.js';
+import { API_BASE_URL } from '../config/environment.js';
 
 const logger = createLogger('PRStorageService');
 
 /**
- * Save project configuration to localStorage
+ * Save project configuration to API
  * @param {string} projectKey - Project key to save
  * @param {string} repoSlug - Repository slug to save
  */
-export const saveProjectConfig = (projectKey, repoSlug) => {
+export const saveProjectConfig = async (projectKey, repoSlug) => {
   try {
     logger.info('saveProjectConfig', 'Saving project configuration', { projectKey, repoSlug });
     
@@ -21,7 +22,18 @@ export const saveProjectConfig = (projectKey, repoSlug) => {
       [FORM_FIELDS.REPO_SLUG]: repoSlug,
     };
     
-    localStorage.setItem(STORAGE_KEYS.PROJECT_CONFIG, JSON.stringify(config));
+    const response = await fetch(`${API_BASE_URL}/api/app-state/${STORAGE_KEYS.PROJECT_CONFIG}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(config),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save project configuration to API');
+    }
+
     logger.info('saveProjectConfig', 'Project configuration saved successfully');
   } catch (error) {
     logger.error('saveProjectConfig', 'Failed to save project configuration', error);
@@ -30,20 +42,26 @@ export const saveProjectConfig = (projectKey, repoSlug) => {
 };
 
 /**
- * Load project configuration from localStorage
- * @returns {object|null} Saved configuration or null if not found
+ * Load project configuration from API
+ * @returns {Promise<object|null>} Saved configuration or null if not found
  */
-export const loadProjectConfig = () => {
+export const loadProjectConfig = async () => {
   try {
     logger.debug('loadProjectConfig', 'Loading project configuration');
     
-    const savedConfig = localStorage.getItem(STORAGE_KEYS.PROJECT_CONFIG);
-    if (!savedConfig) {
+    const response = await fetch(`${API_BASE_URL}/api/app-state/${STORAGE_KEYS.PROJECT_CONFIG}`);
+    if (!response.ok) {
       logger.debug('loadProjectConfig', 'No saved configuration found');
       return null;
     }
+
+    const json = await response.json();
+    const config = json.data;
+
+    if (!config) {
+      return null;
+    }
     
-    const config = JSON.parse(savedConfig);
     logger.info('loadProjectConfig', 'Project configuration loaded successfully', config);
     
     return {
@@ -57,12 +75,19 @@ export const loadProjectConfig = () => {
 };
 
 /**
- * Clear project configuration from localStorage
+ * Clear project configuration from API
  */
-export const clearProjectConfig = () => {
+export const clearProjectConfig = async () => {
   try {
     logger.info('clearProjectConfig', 'Clearing project configuration');
-    localStorage.removeItem(STORAGE_KEYS.PROJECT_CONFIG);
+    const response = await fetch(`${API_BASE_URL}/api/app-state/${STORAGE_KEYS.PROJECT_CONFIG}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete configuration');
+    }
+
     logger.info('clearProjectConfig', 'Project configuration cleared successfully');
   } catch (error) {
     logger.error('clearProjectConfig', 'Failed to clear project configuration', error);
