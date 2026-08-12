@@ -50,7 +50,7 @@ const Layout = ({ children, fullWidth = false }) => {
         disableGutters={fullWidth}
         maxWidth={fullWidth ? false : 'xl'}
         sx={{
-          ...(fullWidth && { maxWidth: '100% !important', margin: '0 auto' }),
+          ...(fullWidth ? { maxWidth: '100% !important', margin: '0 auto' } : { maxWidth: '1200px !important' }),
           px: fullWidth ? 3 : 1,
           py: 2,
           position: 'relative',

@@ -128,7 +128,7 @@ const CreatePRContent = () => {
   return (
     <MainContainer>
       <ContentPaper>
-        <Title variant='h6'>
+        <Title sx={{ textAlign: 'center', fontWeight: 600, mb: 2, width: '100%' }} variant='h5'>
           Create Pull Request
         </Title>
 

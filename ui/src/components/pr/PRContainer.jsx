@@ -34,7 +34,7 @@ const PRContainer = () => {
   };
 
   return (
-    <Box sx={{ width: '100%', p: 3 }}>
+    <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
         <Tabs
           indicatorColor='primary'

@@ -308,9 +308,9 @@ const ReleaseBuildContainer = () => {
   };
 
   return (
-    <Container maxWidth='lg' sx={{ py: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography gutterBottom component='h1' variant='h4'>
+    <Box sx={{ width: '100%' }}>
+      <Box sx={{ mb: 4, textAlign: 'center' }}>
+        <Typography gutterBottom component='h1' sx={{ fontWeight: 600 }} variant='h5'>
           Mobile App Release Build
         </Typography>
         <Typography color='text.secondary' variant='body1'>
@@ -336,7 +336,7 @@ const ReleaseBuildContainer = () => {
 
         {getStepContent(activeStep)}
       </Paper>
-    </Container>
+    </Box>
   );
 };
 

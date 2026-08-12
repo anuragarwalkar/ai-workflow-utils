@@ -232,7 +232,7 @@ const JiraForm = () => {
   return (
     <Box component='form' sx={{ width: '100%' }} onSubmit={handleSubmit}>
       <Stack spacing={3}>
-        <Typography component='h2' variant='h2'>
+        <Typography component='h2' sx={{ fontWeight: 600, width: '100%', textAlign: 'center', mb: 1 }} variant='h5'>
           Create Jira Issue
         </Typography>
 

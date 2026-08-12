@@ -164,22 +164,25 @@ ${emailPreview}`;
   };
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
+    <Box sx={{ maxWidth: 800, mx: 'auto' }}>
       <Paper elevation={3} sx={{ p: 4 }}>
         <Box
           sx={{
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
             mb: 3,
+            position: 'relative',
+            justifyContent: 'center',
           }}
         >
-          <Typography gutterBottom component='h1' variant='h4'>
+          <Box sx={{ position: 'absolute', left: 0 }}>
+            <Button sx={{ minWidth: 120 }} variant='outlined' onClick={handleBackToHome}>
+              Back to Home
+            </Button>
+          </Box>
+          <Typography component='h1' sx={{ fontWeight: 600, m: 0 }} variant='h5'>
             Send Email
           </Typography>
-          <Button sx={{ minWidth: 120 }} variant='outlined' onClick={handleBackToHome}>
-            Back to Home
-          </Button>
         </Box>
 
         <Box sx={{ mb: 4 }}>

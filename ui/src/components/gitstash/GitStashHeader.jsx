@@ -8,11 +8,13 @@ const GitStashHeader = ({ error }) => {
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Button startIcon={<ArrowBackIcon />} sx={{ mr: 2 }} onClick={handleBack}>
-          Back to Home
-        </Button>
-        <Typography component='h1' sx={{ fontWeight: 600 }} variant='h4'>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, position: 'relative', justifyContent: 'center' }}>
+        <Box sx={{ position: 'absolute', left: 0 }}>
+          <Button startIcon={<ArrowBackIcon />} onClick={handleBack}>
+            Back to Home
+          </Button>
+        </Box>
+        <Typography component='h1' sx={{ fontWeight: 600, m: 0 }} variant='h5'>
           GitStash PR Review
         </Typography>
       </Box>

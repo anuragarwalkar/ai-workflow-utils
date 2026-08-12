@@ -305,21 +305,22 @@ const ActionCards = () => {
           width: '100%',
         }}
       >
-        <Grid container spacing={2} sx={{ maxWidth: 1000, mx: 'auto', justifyContent: 'center' }}>
+        <Grid container spacing={4} sx={{ width: '100%', mx: 'auto', justifyContent: 'center' }}>
           {visibleCards.map(card => {
             const IconComponent = card.icon;
             const ActionIconComponent = card.actionIcon;
 
             return (
-              <Grid item key={card.id} md={4} sm={6} xs={12}>
+              <Grid item key={card.id} lg={3} md={4} sm={6} xs={12} sx={{ display: 'flex' }}>
                 <Card
                   sx={{
-                    width: 300,
-                    height: 280,
-                    minWidth: 300,
-                    maxWidth: 300,
+                    width: '100%',
+                    maxWidth: 320,
+                    mx: 'auto',
+                    height: '100%',
                     minHeight: 280,
-                    maxHeight: 280,
+                    display: 'flex',
+                    flexDirection: 'column',
                     cursor: 'pointer',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     background: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
@@ -330,8 +331,6 @@ const ActionCards = () => {
                     borderRadius: '20px',
                     boxShadow: `0 8px 32px ${card.shadowColor}`,
                     position: 'relative',
-                    display: 'flex',
-                    flexDirection: 'column',
                     '&:hover': {
                       transform: 'translateY(-8px) scale(1.02)',
                       boxShadow: `0 20px 60px ${card.shadowColor}`,
@@ -354,7 +353,8 @@ const ActionCards = () => {
                     sx={{
                       p: 3,
                       textAlign: 'center',
-                      height: 232,
+                      height: '100%',
+                      flexGrow: 1,
                       display: 'flex',
                       flexDirection: 'column',
                     }}

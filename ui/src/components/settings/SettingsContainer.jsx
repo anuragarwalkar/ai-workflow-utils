@@ -103,7 +103,7 @@ const SettingsContainer = () => {
 
   if (templatesLoading || settingsLoading) {
     return (
-      <Container maxWidth='lg' sx={{ py: 4 }}>
+      <Box sx={{ width: '100%' }}>
         <Box
           sx={{
             display: 'flex',
@@ -114,17 +114,17 @@ const SettingsContainer = () => {
         >
           <Typography>Loading settings...</Typography>
         </Box>
-      </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth='lg' sx={{ py: 4 }}>
+    <Box sx={{ width: '100%' }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <SettingsIcon sx={{ mr: 2, fontSize: 32, color: 'primary.main' }} />
-          <Typography component='h1' sx={{ fontWeight: 600 }} variant='h4'>
+      <Box sx={{ mb: 4, textAlign: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+          <SettingsIcon sx={{ mr: 2, fontSize: 28, color: 'primary.main' }} />
+          <Typography component='h1' sx={{ fontWeight: 600, m: 0 }} variant='h5'>
             Settings
           </Typography>
         </Box>
@@ -199,7 +199,7 @@ const SettingsContainer = () => {
         {/* Tab Content */}
         <Box sx={{ p: 3 }}>{currentTabData?.component}</Box>
       </Paper>
-    </Container>
+    </Box>
   );
 };
 
