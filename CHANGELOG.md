@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.8.0...v1.9.0) (2026-08-12)
+
+
+### Features
+
+* **pr-review:** added ability show diff side by side and ability to add comment directly to gitstash ([b25b411](https://github.com/anuragarwalkar/ai-workflow-utils/commit/b25b4115f436bdd1906a888a8101677cbb2e8270))
+
 # [1.8.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.7.20...v1.8.0) (2026-08-11)
 
 
