@@ -1,3 +1,10 @@
+## [1.10.2](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.10.1...v1.10.2) (2026-08-12)
+
+
+### Bug Fixes
+
+* **semantic-release:** fix version mismatch ([e22e32a](https://github.com/anuragarwalkar/ai-workflow-utils/commit/e22e32aa06b66f2f00a81bd5818dbd66dfb51979))
+
 ## [1.10.1](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.10.0...v1.10.1) (2026-08-12)
 
 
