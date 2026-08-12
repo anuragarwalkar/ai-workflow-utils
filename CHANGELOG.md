@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.10.0...v1.10.1) (2026-08-12)
+
+
+### Bug Fixes
+
+* **ui:** updated settings and ai code review ux ([52f7e3f](https://github.com/anuragarwalkar/ai-workflow-utils/commit/52f7e3fe02b0f83af316055aa97dc0a511628701))
+
 # [1.10.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.9.0...v1.10.0) (2026-08-12)
 
 

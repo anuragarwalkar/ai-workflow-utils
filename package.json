@@ -1,6 +1,6 @@
 {
   "name": "ai-workflow-utils",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "type": "module",
   "description": "A comprehensive automation platform that streamlines software development workflows by integrating AI-powered content generation with popular development tools like Jira, Bitbucket, and email systems.",
   "main": "dist/server.js",
