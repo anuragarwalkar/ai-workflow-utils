@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.9.0...v1.10.0) (2026-08-12)
+
+
+### Features
+
+* **app-config:** added ability to save config to server ([8f31638](https://github.com/anuragarwalkar/ai-workflow-utils/commit/8f316388abc8cc2860a165841265e020e6731c64))
+
 # [1.9.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.8.0...v1.9.0) (2026-08-12)
 
 
