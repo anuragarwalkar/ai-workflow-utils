@@ -3,7 +3,7 @@ import { Box, Container, Paper } from '@mui/material';
 import { useAppTheme } from '../../theme/useAppTheme';
 import Header from './Header';
 
-const Layout = ({ children }) => {
+const Layout = ({ children, fullWidth = false }) => {
   const { isDark } = useAppTheme();
 
   return (
@@ -47,9 +47,11 @@ const Layout = ({ children }) => {
     >
       <Header />
       <Container
-        maxWidth='xl'
+        disableGutters={fullWidth}
+        maxWidth={fullWidth ? false : 'xl'}
         sx={{
-          px: 1,
+          ...(fullWidth && { maxWidth: '100% !important', margin: '0 auto' }),
+          px: fullWidth ? 3 : 1,
           py: 2,
           position: 'relative',
           zIndex: 1,
@@ -58,11 +60,11 @@ const Layout = ({ children }) => {
         <Paper
           elevation={0}
           sx={{
-            p: 3,
+            p: fullWidth ? 2 : 3,
             width: '100%',
             background: isDark ? 'rgba(45, 55, 72, 0.95)' : 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
-            borderRadius: '24px',
+            borderRadius: fullWidth ? '12px' : '24px',
             border: isDark
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(255, 255, 255, 0.2)',

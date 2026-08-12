@@ -71,7 +71,7 @@ const AppRoutes = () => (
     />
     <Route
       element={
-        <Layout>
+        <Layout fullWidth>
           <GitStashContainer />
         </Layout>
       }

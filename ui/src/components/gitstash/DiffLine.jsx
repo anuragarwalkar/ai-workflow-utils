@@ -8,21 +8,21 @@ const DiffLine = ({ line, type, lineNumber }) => {
     switch (segmentType) {
       case 'ADDED':
         return {
-          backgroundColor: `${theme.palette.success.light}20`,
-          borderLeft: `3px solid ${theme.palette.success.main}`,
-          color: theme.palette.success.dark,
+          backgroundColor: 'rgba(46, 160, 67, 0.15)',
+          borderLeft: '3px solid #3fb950',
+          color: '#e6ffed',
         };
       case 'REMOVED':
         return {
-          backgroundColor: `${theme.palette.error.light}20`,
-          borderLeft: `3px solid ${theme.palette.error.main}`,
-          color: theme.palette.error.dark,
+          backgroundColor: 'rgba(248, 81, 73, 0.15)',
+          borderLeft: '3px solid #f85149',
+          color: '#ffeef0',
         };
       case 'CONTEXT':
         return {
-          backgroundColor: theme.palette.grey[50],
-          borderLeft: `3px solid ${theme.palette.grey[300]}`,
-          color: theme.palette.text.primary,
+          backgroundColor: 'transparent',
+          borderLeft: '3px solid #4a4a4a',
+          color: '#d4d4d4',
         };
       default:
         return {};
@@ -32,9 +32,9 @@ const DiffLine = ({ line, type, lineNumber }) => {
   const getLineIcon = segmentType => {
     switch (segmentType) {
       case 'ADDED':
-        return <AddIcon color='success' fontSize='small' />;
+        return <AddIcon sx={{ color: '#3fb950' }} fontSize='small' />;
       case 'REMOVED':
-        return <RemoveIcon color='error' fontSize='small' />;
+        return <RemoveIcon sx={{ color: '#f85149' }} fontSize='small' />;
       default:
         return null;
     }
@@ -58,7 +58,7 @@ const DiffLine = ({ line, type, lineNumber }) => {
       <Box
         sx={{
           minWidth: '60px',
-          color: theme.palette.text.secondary,
+          color: '#858585',
           marginRight: 2,
         }}
       >

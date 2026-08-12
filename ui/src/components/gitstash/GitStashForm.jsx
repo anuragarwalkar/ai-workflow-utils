@@ -100,14 +100,14 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
   };
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+    <Box>
       <Typography component="h2" sx={{ mb: 3, textAlign: 'center' }} variant="h5">
         Select GitStash Repository
       </Typography>
 
       <Grid container spacing={4}>
         {/* Form Section */}
-        <Grid item md={6} xs={12}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card elevation={2} sx={{ height: 'fit-content' }}>
             <CardContent>
               <TabNavigation tabValue={tabValue} onTabChange={handleTabChange} />
@@ -135,7 +135,7 @@ const GitStashForm = ({ onNext, onDirectNext }) => {
         </Grid>
 
         {/* Help Section */}
-        <Grid item md={6} xs={12}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <HelpSection />
         </Grid>
       </Grid>

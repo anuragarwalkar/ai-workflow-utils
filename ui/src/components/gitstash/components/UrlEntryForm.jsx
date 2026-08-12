@@ -23,7 +23,7 @@ const UrlEntryForm = ({
   onSubmit,
 }) => (
   <Grid container spacing={3}>
-    <Grid item xs={12}>
+    <Grid size={12}>
       <TextField
         fullWidth
         multiline
@@ -39,7 +39,7 @@ const UrlEntryForm = ({
     </Grid>
 
     {urlData.parsedData?.isValid === true && (
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Alert severity="success" sx={{ mb: 2 }}>
           <Typography sx={{ mb: 1 }} variant="subtitle2">
             ✅ URL Parsed Successfully
@@ -88,7 +88,7 @@ const UrlEntryForm = ({
     )}
 
     {!!(urlData.url) && urlData.parsedData?.isValid === false && (
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Alert severity="warning">
           Invalid URL format. Please ensure the URL follows the GitStash format:
           <br />
@@ -103,7 +103,7 @@ const UrlEntryForm = ({
       </Grid>
     )}
 
-    <Grid item xs={12}>
+    <Grid size={12}>
       <Box
         sx={{
           display: 'flex',

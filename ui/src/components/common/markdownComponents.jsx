@@ -3,41 +3,54 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { createTableComponents } from './tableComponents.jsx';
 
-const CodeComponent = ({ inline, className, children, isDark }) => {
-  const match = /language-(\w+)/.exec(className || '');
-
-  if (!inline && match) {
-    return (
-      <SyntaxHighlighter
-        customStyle={{
-          margin: '0.75rem 0', // Smaller margins
-          borderRadius: '6px', // Smaller radius
-          background: 'rgba(0, 0, 0, 0.5)',
-          fontSize: '0.8rem', // Smaller font size
-          padding: '0.75rem', // Smaller padding
-        }}
-        language={match[1]}
-        PreTag='div'
-        style={vscDarkPlus}
-      >
-        {String(children).replace(/\n$/, '')}
-      </SyntaxHighlighter>
-    );
-  }
-
+const CodeComponent = ({ className, children, isDark, ...props }) => {
   const inlineStyle = {
-    background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
-    padding: '1px 4px', // Smaller padding
-    borderRadius: '3px', // Smaller radius
+    background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+    padding: '2px 6px',
+    borderRadius: '4px',
     fontFamily: 'Monaco, Consolas, monospace',
-    fontSize: '0.8rem', // Smaller font size
-    color: isDark ? '#d4d4d8' : '#71717a', // Neutral gray colors
+    fontSize: '0.8rem',
+    color: isDark ? '#e4e4e7' : '#27272a',
   };
 
   return (
-    <code className={className} style={inlineStyle}>
+    <code className={className} style={inlineStyle} {...props}>
       {children}
     </code>
+  );
+};
+
+const PreComponent = ({ children, ...props }) => {
+  // Check if children is a code element (which is the case for block code in react-markdown)
+  if (children && children.props && children.props.node && children.props.node.tagName === 'code') {
+    const codeProps = children.props;
+    const className = codeProps.className || '';
+    const match = /language-(\w+)/.exec(className);
+    const text = String(codeProps.children).replace(/\n$/, '');
+
+    return (
+      <SyntaxHighlighter
+        customStyle={{
+          margin: '0.75rem 0',
+          borderRadius: '6px',
+          backgroundColor: '#1e1e1e', // Always use dark background for block code
+          fontSize: '0.8rem',
+          padding: '0.75rem',
+        }}
+        language={match ? match[1] : 'text'}
+        PreTag='div'
+        style={vscDarkPlus}
+      >
+        {text}
+      </SyntaxHighlighter>
+    );
+  }
+  
+  // Fallback for pre elements that don't directly wrap a single code element
+  return (
+    <pre {...props} style={{ backgroundColor: '#1e1e1e', padding: '0.75rem', borderRadius: '6px', color: '#d4d4d8', overflowX: 'auto' }}>
+      {children}
+    </pre>
   );
 };
 
@@ -202,6 +215,7 @@ const createListComponents = isDark => ({
 
 export const createMarkdownComponents = isDark => ({
   code: props => <CodeComponent {...props} isDark={isDark} />,
+  pre: PreComponent,
   ...createBasicComponents(isDark),
   ...createTextComponents(isDark),
   ...createListComponents(isDark),

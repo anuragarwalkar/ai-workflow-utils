@@ -12,7 +12,7 @@ const ManualEntryForm = ({
   onSubmit,
 }) => (
   <Grid container spacing={3}>
-    <Grid item xs={12}>
+    <Grid size={12}>
       <TextField
         fullWidth
         required
@@ -25,7 +25,7 @@ const ManualEntryForm = ({
       />
     </Grid>
 
-    <Grid item xs={12}>
+    <Grid size={12}>
       <TextField
         fullWidth
         required
@@ -38,7 +38,7 @@ const ManualEntryForm = ({
       />
     </Grid>
 
-    <Grid item xs={12}>
+    <Grid size={12}>
       <Box
         sx={{
           display: 'flex',

@@ -12,23 +12,18 @@ import {
   CircularProgress,
   Divider,
   FormControlLabel,
-  Grid,
-  IconButton,
   LinearProgress,
   Switch,
   Tabs,
   Tab,
-  Tooltip,
   Typography,
+  Portal,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
   AutoAwesome as AutoAwesomeIcon,
-  Code as CodeIcon,
   Refresh as RefreshIcon,
   Speed as SpeedIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -44,8 +39,11 @@ import {
 } from '../../store/slices/prSlice';
 import { useStreamingPRReview } from '../../hooks/useStreamingPRReview';
 import RichTextViewer from '../common/RichTextViewer';
-import FileChanges from './FileChanges';
-import ReviewIssuesPanel from './components/ReviewIssuesPanel';
+import FileTreeSidebar from './components/FileTreeSidebar';
+import FileDiffViewer from './components/FileDiffViewer';
+import ManualCommentModal from './components/ManualCommentModal';
+import { Fab } from '@mui/material';
+import { AddComment as AddCommentIcon } from '@mui/icons-material';
 
 // eslint-disable-next-line max-statements
 const PullRequestDiff = ({ onPrevious, onReset }) => {
@@ -53,8 +51,8 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
   const { selectedProject, selectedPullRequest, diffData, reviewData, directPRId } = useSelector(
     state => state.pr
   );
-  const [expandedFiles, setExpandedFiles] = useState({});
-  const [activeTab, setActiveTab] = useState(0);
+  const [selectedFileIndex, setSelectedFileIndex] = useState(0);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
   // Fetch PR list if we have a direct PR ID but no selected PR details
   const { data: pullRequests, isLoading: isPRListLoading } = useGetPullRequestsQuery(
@@ -131,23 +129,12 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
     }
   }, [diffError, dispatch]);
 
-  const handleFileToggle = fileIndex => {
-    setExpandedFiles(prev => ({
-      ...prev,
-      [fileIndex]: !prev[fileIndex],
-    }));
-  };
-
-  const handleExpandAll = () => {
-    const newExpanded = {};
-    diffData?.diffs?.forEach((_, index) => {
-      newExpanded[index] = true;
-    });
-    setExpandedFiles(newExpanded);
-  };
-
-  const handleCollapseAll = () => {
-    setExpandedFiles({});
+  const handleNavigateFile = (direction) => {
+    if (!diffData?.diffs) return;
+    const newIndex = selectedFileIndex + direction;
+    if (newIndex >= 0 && newIndex < diffData.diffs.length) {
+      setSelectedFileIndex(newIndex);
+    }
   };
 
   const handleReview = async () => {
@@ -183,15 +170,9 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
 
         dispatch(setReviewData(result));
       }
-      // Switch to Issues tab when review finishes
-      setActiveTab(1);
     } catch (error) {
       dispatch(setError(`Failed to generate review: ${error.data?.error || error.message}`));
     }
-  };
-
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
   };
 
   const getDiffStats = () => {
@@ -304,194 +285,105 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
         </Box>
       </Box>
 
-      <Grid container spacing={3} sx={{ width: '100%' }}>
-        <Grid
-          item
-          md={reviewData || isStreaming || streamingContent || streamingError ? 6 : 12}
-          sx={{ width: '100%' }}
-          xs={12}
-        >
-          <Card elevation={1} sx={{ mb: 3 }}>
-            <CardContent>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  mb: 2,
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CodeIcon color='primary' />
-                  <Typography variant='h6'>Code Changes</Typography>
-                  <Chip
-                    color='primary'
-                    label={`${stats.files} files`}
-                    size='small'
-                    variant='outlined'
-                  />
-                  <Chip
-                    color='secondary'
-                    label={`+${stats.additions} -${stats.deletions}`}
-                    size='small'
-                    variant='outlined'
-                  />
-                </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Tooltip title='Expand All'>
-                    <IconButton size='small' onClick={handleExpandAll}>
-                      <VisibilityIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title='Collapse All'>
-                    <IconButton size='small' onClick={handleCollapseAll}>
-                      <VisibilityOffIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </Box>
+      {/* Main Split Layout */}
+      <Box sx={{ display: 'flex', gap: 3, mb: 3, height: 'calc(100vh - 300px)', minHeight: '500px' }}>
+        {/* Left Sidebar */}
+        <FileTreeSidebar 
+          diffData={diffData} 
+          selectedFileIndex={selectedFileIndex}
+          onSelectFile={setSelectedFileIndex}
+        />
 
-              {!diffData?.diffs || diffData.diffs.length === 0 ? (
-                <Card
-                  elevation={0}
-                  sx={{
-                    textAlign: 'center',
-                    py: 4,
-                    backgroundColor: 'grey.50',
-                  }}
+        {/* Right Diff Viewer */}
+        <FileDiffViewer 
+          file={diffData?.diffs?.[selectedFileIndex]}
+          totalFiles={diffData?.diffs?.length || 0}
+          currentIndex={selectedFileIndex}
+          onNavigate={handleNavigateFile}
+        />
+      </Box>
+
+      {/* AI Review Panel (Full Width Below) */}
+      {(reviewData || isStreaming || streamingContent || streamingError) ? (
+        <Card elevation={1} sx={{ mb: 3, width: '100%' }}>
+          <CardContent sx={{ width: '100%', '&:last-child': { pb: 2 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <AutoAwesomeIcon color='secondary' />
+              <Typography variant='h6'>AI Review</Typography>
+              {isStreaming ? (
+                <Chip color='primary' label='Streaming...' size='small' variant='outlined' />
+              ) : null}
+              {reviewData && !isStreaming ? (
+                <Chip color='secondary' label='Generated' size='small' variant='outlined' />
+              ) : null}
+              {reviewComplete ? (
+                <Chip color='success' label='Completed' size='small' variant='outlined' />
+              ) : null}
+            </Box>
+
+            {isStreaming ? (
+              <Box sx={{ mb: 2 }}>
+                <LinearProgress variant='indeterminate' />
+                <Typography
+                  color='text.secondary'
+                  sx={{ mt: 1, display: 'block' }}
+                  variant='caption'
                 >
-                  <CardContent>
-                    <Typography color='text.secondary' sx={{ mb: 2 }} variant='h6'>
-                      📄 No Changes Found
-                    </Typography>
-                    <Typography color='text.secondary' sx={{ mb: 2 }} variant='body2'>
-                      This pull request doesn't contain any file changes.
-                    </Typography>
-                    <Typography color='text.secondary' variant='caption'>
-                      This might be a documentation-only PR or the changes haven't been committed
-                      yet.
-                    </Typography>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Box>
-                  {diffData.diffs.map((file, fileIndex) => (
-                    <FileChanges
-                      expanded={expandedFiles[fileIndex] || false}
-                      file={file}
-                      key={fileIndex}
-                      onToggle={() => handleFileToggle(fileIndex)}
-                    />
-                  ))}
-                </Box>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
+                  AI is analyzing your code changes...
+                </Typography>
+              </Box>
+            ) : null}
 
-        {reviewData || isStreaming || streamingContent || streamingError ? (
-          <Grid item md={6} sx={{ width: '100%' }} xs={12}>
-            <Card elevation={1} sx={{ mb: 3, width: '100%' }}>
-              <CardContent sx={{ width: '100%', '&:last-child': { pb: 2 } }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <AutoAwesomeIcon color='secondary' />
-                  <Typography variant='h6'>AI Review</Typography>
-                  {isStreaming ? (
-                    <Chip color='primary' label='Streaming...' size='small' variant='outlined' />
-                  ) : null}
-                  {reviewData && !isStreaming ? (
-                    <Chip color='secondary' label='Generated' size='small' variant='outlined' />
-                  ) : null}
-                  {reviewComplete ? (
-                    <Chip color='success' label='Completed' size='small' variant='outlined' />
-                  ) : null}
-                </Box>
+            {streamingError ? (
+              <Alert severity='error' sx={{ mb: 2 }}>
+                Streaming error: {streamingError}
+              </Alert>
+            ) : null}
 
-                {isStreaming ? (
-                  <Box sx={{ mb: 2 }}>
-                    <LinearProgress variant='indeterminate' />
-                    <Typography
-                      color='text.secondary'
-                      sx={{ mt: 1, display: 'block' }}
-                      variant='caption'
-                    >
-                      AI is analyzing your code changes...
-                    </Typography>
-                  </Box>
-                ) : null}
+            {(reviewData || streamingContent || reviewComplete) && (
+              <RichTextViewer
+                content={
+                  isStreaming || streamingContent
+                    ? streamingContent +
+                      (isStreaming
+                        ? ' ▋' // Add cursor while streaming
+                        : '')
+                    : reviewData?.review || 'No review available'
+                }
+                sx={{
+                  backgroundColor: 'grey.50',
+                  p: 2,
+                  border: '1px solid',
+                  borderColor: 'grey.300',
+                  borderRadius: 1,
+                  width: '100%',
+                  minWidth: 0, // Allow content to shrink if needed
+                  minHeight: '200px', // Add minimum height to make content area visible
+                  overflowWrap: 'break-word',
+                  wordWrap: 'break-word',
+                  overflowX: 'auto', // Enable horizontal scrolling
+                  maxWidth: '100%', // Prevent content from breaking out of container
+                }}
+                variant='inline'
+              />
+            )}
 
-                {streamingError ? (
-                  <Alert severity='error' sx={{ mb: 2 }}>
-                    Streaming error: {streamingError}
-                  </Alert>
-                ) : null}
-
-                {(reviewData || streamingContent || reviewComplete) && (
-                  <>
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-                      <Tabs value={activeTab} onChange={handleTabChange} aria-label="review tabs">
-                        <Tab label="Full Review" />
-                        <Tab label="Issues & Comments" disabled={isStreaming} />
-                      </Tabs>
-                    </Box>
-
-                    {activeTab === 0 && (
-                      <RichTextViewer
-                        content={
-                          isStreaming || streamingContent
-                            ? streamingContent +
-                              (isStreaming
-                                ? ' ▋' // Add cursor while streaming
-                                : '')
-                            : reviewData?.review || 'No review available'
-                        }
-                        sx={{
-                          backgroundColor: 'grey.50',
-                          p: 2,
-                          border: '1px solid',
-                          borderColor: 'grey.300',
-                          borderRadius: 1,
-                          width: '100%',
-                          minWidth: 0, // Allow content to shrink if needed
-                          minHeight: '200px', // Add minimum height to make content area visible
-                          overflowWrap: 'break-word',
-                          wordWrap: 'break-word',
-                          overflowX: 'auto', // Enable horizontal scrolling
-                          maxWidth: '100%', // Prevent content from breaking out of container
-                        }}
-                        variant='inline'
-                      />
-                    )}
-
-                    {activeTab === 1 && !isStreaming && (
-                      <ReviewIssuesPanel 
-                        reviewContent={reviewComplete?.review || reviewData?.review}
-                        projectKey={selectedProject.projectKey}
-                        repoSlug={selectedProject.repoSlug}
-                        pullRequestId={selectedPullRequest?.id || directPRId}
-                      />
-                    )}
-                  </>
-                )}
-
-                {reviewComplete?.reviewedAt || (reviewData?.reviewedAt && !isStreaming) ? (
-                  <Typography
-                    color='text.secondary'
-                    sx={{ mt: 1, display: 'block' }}
-                    variant='caption'
-                  >
-                    Generated on{' '}
-                    {new Date(reviewComplete?.reviewedAt || reviewData.reviewedAt).toLocaleString()}
-                    {reviewComplete?.aiProvider || reviewData?.aiProvider
-                      ? ` using ${reviewComplete?.aiProvider || reviewData.aiProvider}`
-                      : null}
-                  </Typography>
-                ) : null}
-              </CardContent>
-            </Card>
-          </Grid>
-        ) : null}
-      </Grid>
+            {reviewComplete?.reviewedAt || (reviewData?.reviewedAt && !isStreaming) ? (
+              <Typography
+                color='text.secondary'
+                sx={{ mt: 1, display: 'block' }}
+                variant='caption'
+              >
+                Generated on{' '}
+                {new Date(reviewComplete?.reviewedAt || reviewData.reviewedAt).toLocaleString()}
+                {reviewComplete?.aiProvider || reviewData?.aiProvider
+                  ? ` using ${reviewComplete?.aiProvider || reviewData.aiProvider}`
+                  : null}
+              </Typography>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Divider sx={{ my: 3 }} />
 
@@ -503,6 +395,31 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
           Start Over
         </Button>
       </Box>
+
+      {/* Floating Action Button */}
+      <Portal>
+        <Fab
+          color="primary"
+          aria-label="add comment"
+          onClick={() => setIsCommentModalOpen(true)}
+          sx={{
+            position: 'fixed',
+            bottom: 32,
+            right: 32,
+            zIndex: 1000,
+          }}
+        >
+          <AddCommentIcon />
+        </Fab>
+      </Portal>
+
+      <ManualCommentModal 
+        open={isCommentModalOpen}
+        onClose={() => setIsCommentModalOpen(false)}
+        projectKey={selectedProject?.projectKey}
+        repoSlug={selectedProject?.repoSlug}
+        pullRequestId={selectedPullRequest?.id || directPRId}
+      />
     </Box>
   );
 };
