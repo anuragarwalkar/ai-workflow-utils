@@ -29,6 +29,7 @@ import {
   Tune as TuneIcon,
   Visibility as VisibilityIcon,
   AccountTree as WorkflowIcon,
+  Dashboard as DashboardIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useUnreleasedFeatures } from '../../hooks/useFeatureFlag';
@@ -88,9 +89,23 @@ const ActionCards = () => {
     navigate('/api-client');
   };
 
-  // Define all action cards
+  const handleAiDashboard = () => {
+    navigate('/ai-dashboard');
+  };
+
   const allActionCards = [
     // Released features
+    {
+      id: 'ai-dashboard',
+      title: 'AI Manager',
+      description: 'Your central hub for PRs, Knowledge, Slack & Tasks',
+      icon: DashboardIcon,
+      actionIcon: AutoFixHighIcon,
+      onClick: handleAiDashboard,
+      gradient: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+      shadowColor: 'rgba(15, 23, 42, 0.3)',
+      isReleased: true,
+    },
     {
       id: 'create-jira',
       title: 'AI Create Jira',

@@ -9,6 +9,7 @@ import prSlice from './slices/prSlice';
 import templateSlice from './slices/templateSlice';
 import apiClientSlice from './slices/apiClientSlice';
 import voiceSlice from './slices/voiceSlice';
+import dashboardSlice from './slices/dashboardSlice';
 import { jiraApi } from './api/jiraApi';
 import { emailApi } from './api/emailApi';
 import { buildApi } from './api/buildApi';
@@ -20,6 +21,7 @@ import { logsApi } from './api/logsApi';
 import { mcpApi } from './api/mcpApi';
 import { apiClientApi } from './api/apiClientApi';
 import { voiceApi } from './api/voiceApi';
+import { dashboardApi } from './api/dashboardApi';
 
 const store = configureStore({
   reducer: {
@@ -33,6 +35,7 @@ const store = configureStore({
     templates: templateSlice,
     apiClient: apiClientSlice,
     voice: voiceSlice,
+    dashboard: dashboardSlice,
     [jiraApi.reducerPath]: jiraApi.reducer,
     [emailApi.reducerPath]: emailApi.reducer,
     [buildApi.reducerPath]: buildApi.reducer,
@@ -44,6 +47,7 @@ const store = configureStore({
     [mcpApi.reducerPath]: mcpApi.reducer,
     [apiClientApi.reducerPath]: apiClientApi.reducer,
     [voiceApi.reducerPath]: voiceApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
@@ -62,7 +66,8 @@ const store = configureStore({
       logsApi.middleware,
       mcpApi.middleware,
       apiClientApi.middleware,
-      voiceApi.middleware
+      voiceApi.middleware,
+      dashboardApi.middleware
     ),
 });
 
