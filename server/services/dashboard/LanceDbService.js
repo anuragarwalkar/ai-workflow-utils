@@ -43,7 +43,10 @@ class LanceDbService {
         vector: Array(vectorSize).fill(0),
         text: "init",
         id: "init",
-        metadata: JSON.stringify({ type: "init" })
+        type: "init",
+        sourceId: "init",
+        summary: "init",
+        tags: ["init"]
       }];
       
       const table = await this.db.createTable(tableName, initialData);

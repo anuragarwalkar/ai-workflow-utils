@@ -4,8 +4,10 @@ import { Send as SendIcon, AutoAwesome as AiIcon, Delete as DeleteIcon } from '@
 import { useGetTodosQuery, useCreateTodoMutation, useUpdateTodoMutation, useDeleteTodoMutation } from '../../store/api/dashboardApi';
 import useNotifications from '../../hooks/useNotifications';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useAppTheme } from '../../theme/useAppTheme';
 
 const TodoCard = ({ cardStyle }) => {
+  const { isDark } = useAppTheme();
   const { data: todosData, isLoading } = useGetTodosQuery();
   const [createTodo, { isLoading: isCreating }] = useCreateTodoMutation();
   const [updateTodo] = useUpdateTodoMutation();
@@ -23,9 +25,6 @@ const TodoCard = ({ cardStyle }) => {
       await requestPermission();
     }
 
-    // Determine if it's an AI prompt (e.g. starts with "AI: " or similar, or just treat all as AI prompts if it's longer than a few words, or give a dedicated AI button)
-    // For simplicity, we just send it as text and let the user flag it if it's AI
-    // Let's send the raw text as AI prompt
     await createTodo({ text: inputValue, isAiPrompt: true }).unwrap();
     setInputValue('');
   };
@@ -46,7 +45,7 @@ const TodoCard = ({ cardStyle }) => {
     <Card sx={cardStyle}>
       <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-          <Typography variant="h6" sx={{ color: '#E8EDF5', fontWeight: 600 }}>
+          <Typography variant="h6" sx={{ color: isDark ? '#E8EDF5' : '#0f172a', fontWeight: 600 }}>
             Smart Tasks
           </Typography>
           <AiIcon sx={{ color: '#00BFA5', fontSize: 20 }} />
@@ -62,10 +61,10 @@ const TodoCard = ({ cardStyle }) => {
             disabled={isCreating}
             sx={{
               '& .MuiOutlinedInput-root': {
-                color: '#E8EDF5',
-                bgcolor: 'rgba(255,255,255,0.05)',
+                color: isDark ? '#E8EDF5' : '#334155',
+                bgcolor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
                 borderRadius: '12px',
-                '& fieldset': { borderColor: 'rgba(0,191,165,0.2)' },
+                '& fieldset': { borderColor: isDark ? 'rgba(0,191,165,0.2)' : 'rgba(0,0,0,0.1)' },
                 '&:hover fieldset': { borderColor: 'rgba(0,191,165,0.4)' },
                 '&.Mui-focused fieldset': { borderColor: '#00BFA5' },
               }
@@ -98,7 +97,9 @@ const TodoCard = ({ cardStyle }) => {
                   p: 1.5, 
                   mb: 1.5,
                   borderRadius: '12px',
-                  background: todo.done ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.05)',
+                  background: todo.done 
+                    ? (isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)')
+                    : (isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'),
                   borderLeft: `4px solid ${getPriorityColor(todo.priority)}`,
                   opacity: todo.done ? 0.6 : 1,
                   transition: 'all 0.3s'
@@ -106,11 +107,11 @@ const TodoCard = ({ cardStyle }) => {
                   <Checkbox 
                     checked={todo.done}
                     onChange={() => toggleTodo(todo.id, todo.done)}
-                    sx={{ color: 'rgba(255,255,255,0.3)', '&.Mui-checked': { color: '#00BFA5' }, py: 0 }}
+                    sx={{ color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)', '&.Mui-checked': { color: '#00BFA5' }, py: 0 }}
                   />
                   <Box sx={{ flexGrow: 1, ml: 1 }}>
                     <Typography sx={{ 
-                      color: '#E8EDF5', 
+                      color: isDark ? '#E8EDF5' : '#334155', 
                       textDecoration: todo.done ? 'line-through' : 'none',
                       fontSize: '0.95rem'
                     }}>
@@ -119,7 +120,7 @@ const TodoCard = ({ cardStyle }) => {
                     {(todo.dueAt || todo.notifyAt) && (
                       <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
                         {todo.dueAt && (
-                          <Chip label={`Due: ${new Date(todo.dueAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`} size="small" sx={{ height: 20, fontSize: '0.7rem', bgcolor: 'rgba(255,255,255,0.1)', color: '#8899BB' }} />
+                          <Chip label={`Due: ${new Date(todo.dueAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`} size="small" sx={{ height: 20, fontSize: '0.7rem', bgcolor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', color: isDark ? '#8899BB' : '#64748b' }} />
                         )}
                       </Box>
                     )}
@@ -133,7 +134,7 @@ const TodoCard = ({ cardStyle }) => {
           </AnimatePresence>
           
           {!isLoading && todos.length === 0 && (
-            <Typography variant="body2" sx={{ color: '#8899BB', textAlign: 'center', mt: 4 }}>
+            <Typography variant="body2" sx={{ color: isDark ? '#8899BB' : '#64748b', textAlign: 'center', mt: 4 }}>
               No tasks pending. Add one above!
             </Typography>
           )}

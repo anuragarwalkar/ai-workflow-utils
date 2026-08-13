@@ -49,11 +49,13 @@ Text to summarize:
       const bestModel = chatService.getBestChatModel();
 
       const prompt = PromptTemplate.fromTemplate(`
-Extract a TODO item from the following text.
+Extract a TODO item from the following text. The current local date and time is ${new Date().toString()}.
+If the user mentions relative time (e.g., "in 2 hours", "tomorrow at 3pm"), calculate the exact ISO-8601 timestamp that includes the current local timezone offset (e.g. YYYY-MM-DDTHH:mm:ss+05:30). Do not output a UTC time (Z) unless explicitly asked.
+
 You MUST output a valid JSON object with these exact keys (do NOT output markdown blocks, just the raw JSON):
 - title: (string) The main task
 - priority: (string) "High", "Medium", or "Low"
-- dueAt: (string or null) ISO-8601 date-time format if a specific time is mentioned, or null.
+- dueAt: (string or null) ISO-8601 date-time format (including timezone offset) if a specific time is mentioned, or null.
 - notifyAt: (string or null) ISO-8601 date-time format for when to notify, usually a bit before due time, or exactly at due time, or null.
 
 Text: {text}

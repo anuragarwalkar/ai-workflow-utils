@@ -19,16 +19,16 @@ class MemoryService {
     if (process.env.OPENAI_API_KEY) {
       return new OpenAIEmbeddings({ openAIApiKey: process.env.OPENAI_API_KEY });
     }
+
+    if (process.env.GOOGLE_API_KEY) {
+      return new GoogleGenerativeAIEmbeddings({ apiKey: process.env.GOOGLE_API_KEY });
+    }
     
     if (process.env.OLLAMA_BASE_URL) {
       return new OllamaEmbeddings({ 
         baseUrl: process.env.OLLAMA_BASE_URL, 
         model: process.env.OLLAMA_MODEL || "nomic-embed-text" 
       });
-    }
-
-    if (process.env.GOOGLE_API_KEY) {
-      return new GoogleGenerativeAIEmbeddings({ apiKey: process.env.GOOGLE_API_KEY });
     }
 
     // Fallback to OpenAI if no specific config is found but might be loaded later
@@ -62,7 +62,16 @@ class MemoryService {
     try {
       const vectorStore = await this.getVectorStore(tableName);
       const id = uuidv4();
-      await vectorStore.addDocuments([{ pageContent: text, metadata: { ...metadata, id } }]);
+      
+      const normalizedMetadata = {
+        id,
+        type: metadata.type || 'general',
+        sourceId: metadata.sourceId || '',
+        summary: metadata.summary || '',
+        tags: metadata.tags || [],
+      };
+
+      await vectorStore.addDocuments([{ pageContent: text, metadata: normalizedMetadata }]);
       logger.info(`Added memory to ${tableName}, id: ${id}`);
       return id;
     } catch (err) {
