@@ -3,10 +3,7 @@ import { Box, Typography, TextField, Button, CircularProgress } from '@mui/mater
 import { useSummarizeTextMutation, useSearchSummariesMutation } from '../../store/api/dashboardApi';
 import { useAppTheme } from '../../theme/useAppTheme';
 
-const mockIndexed = [
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor authentication patterns... ut allocnvals enimast sorent insights indexeet es miiane. nimprdova...",
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor authentication labore et dolore waguam et sorent insights indexeet sa niims.tempotation..."
-];
+const mockIndexed = [];
 
 const KnowledgeBaseRAGCard = ({ cardStyle }) => {
   const { isDark } = useAppTheme();
@@ -111,7 +108,12 @@ const KnowledgeBaseRAGCard = ({ cardStyle }) => {
             {searchResults.length > 0 ? 'Search Results' : 'Recent Insights Indexed'}
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            {(searchResults.length > 0 ? searchResults : mockIndexed).map((item, idx) => (
+            {searchResults.length === 0 && (
+              <Typography variant="caption" sx={{ color: '#64748b' }}>
+                No recent insights indexed.
+              </Typography>
+            )}
+            {searchResults.map((item, idx) => (
               <Typography key={idx} variant="caption" sx={{ color: '#94a3b8', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 {typeof item === 'string' ? item : (item.summary || item.text)}
               </Typography>

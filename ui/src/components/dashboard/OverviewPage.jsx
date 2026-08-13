@@ -1,10 +1,6 @@
-import { Box } from '@mui/material';
-import PRReviewsCard from './PRReviewsCard';
-import KnowledgeBaseRAGCard from './KnowledgeBaseRAGCard';
-import SlackShieldCard from './SlackShieldCard';
-import TaskTimelineCard from './TaskTimelineCard';
-import PerformanceMetricsCard from './PerformanceMetricsCard';
+import { Box, Typography } from '@mui/material';
 import { useAppTheme } from '../../theme/useAppTheme';
+import { DashboardCustomize as DashboardCustomizeIcon } from '@mui/icons-material';
 
 const OverviewPage = () => {
   const { isDark } = useAppTheme();
@@ -22,30 +18,21 @@ const OverviewPage = () => {
 
   return (
     <Box sx={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(12, 1fr)',
-      gridTemplateRows: 'minmax(400px, auto) minmax(250px, auto)',
-      gap: 2,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
       height: '100%',
+      color: isDark ? '#64748b' : '#94a3b8',
+      gap: 2,
     }}>
-      {/* Top Row */}
-      <Box sx={{ gridColumn: 'span 6', height: '100%' }}>
-        <PRReviewsCard cardStyle={baseCardStyle} />
-      </Box>
-      <Box sx={{ gridColumn: 'span 3', height: '100%' }}>
-        <KnowledgeBaseRAGCard cardStyle={baseCardStyle} />
-      </Box>
-      <Box sx={{ gridColumn: 'span 3', height: '100%' }}>
-        <SlackShieldCard cardStyle={baseCardStyle} />
-      </Box>
-
-      {/* Bottom Row */}
-      <Box sx={{ gridColumn: 'span 8', height: '100%' }}>
-        <TaskTimelineCard cardStyle={baseCardStyle} />
-      </Box>
-      <Box sx={{ gridColumn: 'span 4', height: '100%' }}>
-        <PerformanceMetricsCard cardStyle={baseCardStyle} />
-      </Box>
+      <DashboardCustomizeIcon sx={{ fontSize: 64, opacity: 0.5 }} />
+      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        Your Dashboard is Empty
+      </Typography>
+      <Typography variant="body2" sx={{ opacity: 0.8 }}>
+        Customizable tiles and drag-and-drop support coming soon.
+      </Typography>
     </Box>
   );
 };

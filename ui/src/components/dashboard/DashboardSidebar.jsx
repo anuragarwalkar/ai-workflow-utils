@@ -13,10 +13,8 @@ import { useAppTheme } from '../../theme/useAppTheme';
 
 const navItems = [
   { label: 'Overview', path: '/ai-dashboard', icon: DashboardIcon, exact: true },
-  { label: 'PR Reviews', path: '/ai-dashboard/pr-reviews', icon: ReviewsIcon },
   { label: 'Knowledge Base', path: '/ai-dashboard/knowledge-base', icon: LibraryBooksIcon },
   { label: 'Slack Activity', path: '/ai-dashboard/slack', icon: ChatIcon },
-  { label: 'Task & Nag Queue', path: '/ai-dashboard/tasks', icon: ScheduleIcon },
 ];
 
 const DashboardSidebar = () => {
@@ -36,7 +34,7 @@ const DashboardSidebar = () => {
       <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 1.5, borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)' }}>
         <AiIcon sx={{ color: '#00BFA5' }} />
         <Typography variant="h6" sx={{ fontWeight: 700, color: isDark ? '#f1f5f9' : '#0f172a', fontSize: '1.1rem' }}>
-          Anurag's AI Manager
+          AI Manager
         </Typography>
       </Box>
 
@@ -89,17 +87,6 @@ const DashboardSidebar = () => {
         })}
       </Box>
 
-      {/* Status Panel (Bottom) */}
-      <Box sx={{ p: 2, borderTop: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)' }}>
-        <Box sx={{ p: 1.5, bgcolor: isDark ? 'rgba(0, 191, 165, 0.1)' : 'rgba(0, 191, 165, 0.05)', borderRadius: '8px', border: '1px solid rgba(0, 191, 165, 0.2)' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#00BFA5' }} />
-            <Typography variant="caption" sx={{ color: isDark ? '#e2e8f0' : '#334155', fontWeight: 600 }}>LangGraph Status: Active</Typography>
-          </Box>
-          <Typography variant="caption" sx={{ display: 'block', color: '#64748b', ml: 2 }}>BullMQ: 3 Jobs</Typography>
-          <Typography variant="caption" sx={{ display: 'block', color: '#64748b', ml: 2 }}>LanceDB: 1.2GB</Typography>
-        </Box>
-      </Box>
     </Box>
   );
 };

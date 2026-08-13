@@ -1,13 +1,7 @@
 import { Box, Typography, Avatar, Chip, Button } from '@mui/material';
 import { useAppTheme } from '../../theme/useAppTheme';
 
-const mockPrs = [
-  { repo: 'manupro', title: 'Deployts renew development kos', assignee: { name: 'Anurag', avatar: '' }, priority: 'P1', status: 'Drafting Review (60%)', action: 'Approve Review', type: 'primary' },
-  { repo: 'manupro', title: 'Creates nedeavor PR underniutration', assignee: { name: 'Rash', avatar: '' }, priority: 'P2', status: 'Awaiting Your Approval (Interrupt Point)', action: 'Reject Review', type: 'error' },
-  { repo: 'manupro', title: 'Configure NWAWSI trmising/oulset cla...', assignee: { name: 'Anurag', avatar: '' }, priority: 'P2', status: 'Awaiting Your Approval (Interrupt Point)', action: 'View Diff', type: 'secondary' },
-  { repo: 'manupro', title: 'Deploite naciaver for development kid', assignee: { name: 'Anurag', avatar: '' }, priority: 'P1', status: 'Nag Loop (1h Overdue - ↺)', action: 'View Diff', type: 'secondary', isErrorStatus: true },
-  { repo: 'manupro', title: 'Employ reeview update weeitors', assignee: { name: 'Anurag', avatar: '' }, priority: 'P1', status: 'Nag Loop (1h Overdue - ↺)', action: 'View Diff', type: 'secondary', isErrorStatus: true },
-];
+const mockPrs = [];
 
 const PRReviewsCard = ({ cardStyle }) => {
   const { isDark } = useAppTheme();
@@ -17,7 +11,6 @@ const PRReviewsCard = ({ cardStyle }) => {
       {/* Header */}
       <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)' }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 600, color: isDark ? '#f1f5f9' : '#0f172a' }}>PR Reviews</Typography>
-        <Chip label="3 Active Nags !" size="small" sx={{ bgcolor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', fontWeight: 600, fontSize: '0.7rem' }} />
       </Box>
 
       {/* Table Header */}
@@ -32,6 +25,11 @@ const PRReviewsCard = ({ cardStyle }) => {
 
       {/* Table Body */}
       <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
+        {mockPrs.length === 0 && (
+          <Typography variant="caption" sx={{ color: '#64748b', textAlign: 'center', display: 'block', mt: 4 }}>
+            No active PRs found.
+          </Typography>
+        )}
         {mockPrs.map((pr, i) => (
           <Box key={i} sx={{ 
             display: 'grid', 

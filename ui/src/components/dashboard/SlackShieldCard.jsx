@@ -57,28 +57,6 @@ const SlackShieldCard = ({ cardStyle }) => {
           </Box>
         ))}
 
-        {/* Mock Escalated Item to match design */}
-        {items.length === 0 && (
-          <>
-            <Box sx={{ p: 1.5, bgcolor: isDark ? 'rgba(239, 68, 68, 0.05)' : 'rgba(239, 68, 68, 0.02)', border: isDark ? '1px solid rgba(239, 68, 68, 0.1)' : '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <Chip label="Escalated (P1 Priority)" size="small" sx={{ height: 20, fontSize: '0.65rem', bgcolor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontWeight: 600 }} />
-              </Box>
-              <Typography variant="caption" sx={{ color: isDark ? '#e2e8f0' : '#334155' }}>
-                Hey message, I have sent extension to get the toba messages?
-              </Typography>
-            </Box>
-
-            <Box sx={{ p: 1.5, bgcolor: isDark ? 'rgba(245, 158, 11, 0.05)' : 'rgba(245, 158, 11, 0.02)', border: isDark ? '1px solid rgba(245, 158, 11, 0.1)' : '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '8px' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <Chip label="Awaiting Your Input" size="small" sx={{ height: 20, fontSize: '0.65rem', bgcolor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', fontWeight: 600 }} />
-              </Box>
-              <Typography variant="caption" sx={{ color: isDark ? '#e2e8f0' : '#334155' }}>
-                Hey Message, I have an email questions alongstanonomquestions for this post-maning?
-              </Typography>
-            </Box>
-          </>
-        )}
       </Box>
 
       {/* Input area */}
