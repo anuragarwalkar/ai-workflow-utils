@@ -9,11 +9,13 @@ class DashboardLangGraphService {
    * Simple pipeline to summarize and store text chunks
    * We can use LangGraph for complex routing, but for a linear flow a simple chain or async sequence is fine.
    */
-  async runSummarizeGraph(rawText) {
+  async runSummarizeGraph(rawText, preferredProvider = null) {
     try {
       // 1. Summarize the text
       const chatService = langChainServiceFactory.getChatService();
-      const bestModel = chatService.getBestChatModel();
+      const modelObj = preferredProvider 
+        ? (chatService.getProviderByName(preferredProvider) || chatService.getBestChatModel()) 
+        : chatService.getBestChatModel();
       
       const prompt = PromptTemplate.fromTemplate(`
 You are a helpful AI assistant. Summarize the following text into 2-3 concise bullet points.
@@ -23,9 +25,9 @@ Text to summarize:
 {text}
       `);
 
-      const chain = prompt.pipe(bestModel.model).pipe(new StringOutputParser());
+      const chain = prompt.pipe(modelObj.model).pipe(new StringOutputParser());
       
-      logger.info('Generating summary for knowledge dump...');
+      logger.info(`Generating summary for knowledge dump using provider: ${modelObj.name}...`);
       const summary = await chain.invoke({ text: rawText });
 
       // 2. Store the original text and summary as memories
@@ -43,10 +45,12 @@ Text to summarize:
     }
   }
 
-  async processNaturalLanguageTodo(text) {
+  async processNaturalLanguageTodo(text, preferredProvider = null) {
     try {
       const chatService = langChainServiceFactory.getChatService();
-      const bestModel = chatService.getBestChatModel();
+      const modelObj = preferredProvider 
+        ? (chatService.getProviderByName(preferredProvider) || chatService.getBestChatModel()) 
+        : chatService.getBestChatModel();
 
       const prompt = PromptTemplate.fromTemplate(`
 Extract a TODO item from the following text. The current local date and time is ${new Date().toString()}.
@@ -61,7 +65,8 @@ You MUST output a valid JSON object with these exact keys (do NOT output markdow
 Text: {text}
       `);
 
-      const chain = prompt.pipe(bestModel.model).pipe(new StringOutputParser());
+      const chain = prompt.pipe(modelObj.model).pipe(new StringOutputParser());
+      logger.info(`Processing natural language TODO using provider: ${modelObj.name}...`);
       const resultStr = await chain.invoke({ text });
       
       try {

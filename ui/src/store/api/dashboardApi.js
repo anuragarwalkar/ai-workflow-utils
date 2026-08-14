@@ -181,12 +181,17 @@ export const dashboardApi = createApi({
         body: { query, limit },
       }),
     }),
+    // Models
+    getAvailableModels: builder.query({
+      query: () => '/models',
+      providesTags: ['Models'],
+    }),
     // We handle processCommand differently if it's streaming, but we can add a non-streaming mutation just in case
     processCommand: builder.mutation({
-      query: ({ text }) => ({
+      query: ({ text, provider }) => ({
         url: '/command',
         method: 'POST',
-        body: { text },
+        body: { text, provider },
       }),
       invalidatesTags: ['Todo', 'Reminder', 'Note'],
     }),
@@ -219,5 +224,6 @@ export const {
   useUpdateTileConfigMutation,
   useSummarizeTextMutation,
   useSearchSummariesMutation,
+  useGetAvailableModelsQuery,
   useProcessCommandMutation,
 } = dashboardApi;

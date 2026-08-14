@@ -17,9 +17,6 @@ class ChatLangChainService extends BaseLangChainService {
     super();
     this.conversationMemories = new Map(); // Store conversation memories by session ID
     this.activeChains = new Map(); // Store active conversation chains
-
-    // Initialize providers from base class
-    this.initializeProviders();
   }
 
   /**

@@ -17,6 +17,10 @@ const graphState = {
     value: (x, y) => y,
     default: () => '',
   },
+  provider: {
+    value: (x, y) => y,
+    default: () => null,
+  },
   intent: {
     value: (x, y) => y,
     default: () => null,
@@ -31,6 +35,15 @@ const graphState = {
   },
 };
 
+const resolveChatModel = (providerName) => {
+  const chatService = langChainServiceFactory.getChatService();
+  if (providerName) {
+    const matched = chatService.getProviderByName(providerName);
+    if (matched) return matched;
+  }
+  return chatService.getBestChatModel();
+};
+
 class DashboardIntentGraph {
   constructor() {
     this.graph = this._buildGraph();
@@ -42,8 +55,7 @@ class DashboardIntentGraph {
     // Node: Classify Intent
     builder.addNode('classifyIntent', async (state) => {
       logger.info('Classifying intent for:', state.input);
-      const chatService = langChainServiceFactory.getChatService();
-      const bestModel = chatService.getBestChatModel();
+      const modelObj = resolveChatModel(state.provider);
 
       const parser = StructuredOutputParser.fromZodSchema(
         z.object({
@@ -67,7 +79,7 @@ User Input: {input}
 
       const chain = RunnableSequence.from([
         prompt,
-        bestModel.model,
+        modelObj.model,
         parser,
       ]);
 
@@ -76,7 +88,7 @@ User Input: {input}
           input: state.input,
           format_instructions: parser.getFormatInstructions(),
         });
-        logger.info('Classified intent:', result.intent);
+        logger.info(`Classified intent using ${modelObj.name}:`, result.intent);
         return { intent: result.intent };
       } catch (e) {
         logger.error('Error classifying intent:', e);
@@ -92,12 +104,10 @@ User Input: {input}
     // Node: Handle Query
     builder.addNode('handleQuery', async (state) => {
       logger.info('Handling query intent');
-      const chatService = langChainServiceFactory.getChatService();
-      const bestModel = chatService.getBestChatModel();
 
       // Retrieve context from LanceDB
       const searchResults = await memoryService.searchMemory(state.input, 5);
-      const contextDocs = searchResults.map(r => r.pageContent).join('\\n\\n---\\n\\n');
+      const contextDocs = searchResults.map(r => r.pageContent).join('\n\n---\n\n');
 
       // We won't invoke the chain here if we want to stream from the controller. 
       // Instead, we just pass back the context, so the controller can handle streaming.
@@ -113,8 +123,7 @@ User Input: {input}
     // Node: Handle Reminder
     builder.addNode('handleReminder', async (state) => {
       logger.info('Handling reminder intent');
-      const chatService = langChainServiceFactory.getChatService();
-      const bestModel = chatService.getBestChatModel();
+      const modelObj = resolveChatModel(state.provider);
 
       const parser = StructuredOutputParser.fromZodSchema(
         z.object({
@@ -135,7 +144,7 @@ User Input: {input}
 
       const chain = RunnableSequence.from([
         prompt,
-        bestModel.model,
+        modelObj.model,
         parser,
       ]);
 
@@ -163,7 +172,7 @@ User Input: {input}
     // Node: Handle Todo
     builder.addNode('handleTodo', async (state) => {
       logger.info('Handling todo intent');
-      const todoData = await dashboardLangGraphService.processNaturalLanguageTodo(state.input);
+      const todoData = await dashboardLangGraphService.processNaturalLanguageTodo(state.input, state.provider);
       const newTodo = await todoDbService.addTodo(todoData);
       
       return { 
@@ -177,7 +186,7 @@ User Input: {input}
     // Node: Handle Note
     builder.addNode('handleNote', async (state) => {
       logger.info('Handling note intent');
-      const summarizeResult = await dashboardLangGraphService.runSummarizeGraph(state.input);
+      const summarizeResult = await dashboardLangGraphService.runSummarizeGraph(state.input, state.provider);
       
       const newNote = await noteDbService.addNote({
         content: state.input,
@@ -214,8 +223,8 @@ User Input: {input}
     return builder.compile();
   }
 
-  async processInput(input) {
-    const initialState = { input, intent: null, result: null, context: [] };
+  async processInput(input, provider = null) {
+    const initialState = { input, provider, intent: null, result: null, context: [] };
     const finalState = await this.graph.invoke(initialState);
     return {
       intent: finalState.intent,
@@ -224,8 +233,8 @@ User Input: {input}
     };
   }
 
-  async *streamInput(input) {
-    const initialState = { input, intent: null, result: null, context: [] };
+  async *streamInput(input, provider = null) {
+    const initialState = { input, provider, intent: null, result: null, context: [] };
     const stream = await this.graph.stream(initialState);
     for await (const chunk of stream) {
       yield chunk;

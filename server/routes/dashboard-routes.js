@@ -3,7 +3,8 @@ import dashboardController from '../controllers/dashboardController.js';
 
 const router = express.Router();
 
-// Command Bar
+// Command Bar & Models
+router.get('/models', dashboardController.getAvailableModels);
 router.post('/command', dashboardController.processCommand);
 
 // Todos

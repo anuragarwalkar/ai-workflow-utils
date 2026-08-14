@@ -31,100 +31,117 @@ export class BaseLangChainService {
    * Initialize AI providers based on environment configuration
    */
   async initializeProviders() {
-    // Reset providers to avoid duplicates on reinitialization
-    this.providers = [];
-
-    // Get environment settings for temperature configuration
-    const settings = await environmentDbService.getSettings();
-
-    // 1. OpenAI (Official ChatGPT API)
-    if (process.env.OPENAI_API_KEY) {
-      const temperature = parseFloat(settings.OPENAI_TEMPERATURE || '0');
-      this.providers.push({
-        name: 'OpenAI ChatGPT',
-        model: new ChatOpenAI({
-          openAIApiKey: process.env.OPENAI_API_KEY,
-          modelName: process.env.OPENAI_MODEL || 'gpt-4-vision-preview',
-          temperature,
-        }),
-        supportsVision: this.modelSupportsVision(
-          process.env.OPENAI_MODEL || 'gpt-4-vision-preview'
-        ),
-        priority: 1,
-      });
-      logger.info(`OpenAI ChatGPT provider initialized with temperature: ${temperature}`);
+    if (this._initializingPromise) {
+      return this._initializingPromise;
     }
 
-    // 2. OpenAI-Compatible APIs (Anthropic Claude, local models, etc.)
-    if (process.env.OPENAI_COMPATIBLE_BASE_URL && process.env.OPENAI_COMPATIBLE_API_KEY) {
-      const temperature = parseFloat(settings.OPENAI_COMPATIBLE_TEMPERATURE || '0');
-      this.providers.push({
-        name: 'OpenAI Compatible',
-        model: new ChatOpenAI({
-          apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
-          model: process.env.OPENAI_COMPATIBLE_MODEL || 'claude-3-sonnet-20240229',
-          temperature,
-          configuration: {
-            baseURL: process.env.OPENAI_COMPATIBLE_BASE_URL,
-          },
-        }),
-        supportsVision: this.modelSupportsVision(process.env.OPENAI_COMPATIBLE_MODEL),
-        priority: 2,
-      });
-      logger.info(`OpenAI Compatible provider initialized with temperature: ${temperature}`);
-    }
-
-    // 3. Google Gemini
-    if (process.env.GOOGLE_API_KEY) {
+    this._initializingPromise = (async () => {
       try {
-        // Validate the model name for Google Gemini
-        const googleModel = process.env.GOOGLE_MODEL || 'gemini-1.5-flash';
-        const temperature = parseFloat(settings.GOOGLE_TEMPERATURE || '0');
-        
-        // Use a more reliable model name that doesn't include "vision" in the name
-        // as the library might be handling vision capabilities automatically
-        this.providers.push({
-          name: 'Google Gemini',
-          model: new ChatGoogleGenerativeAI({
-            apiKey: process.env.GOOGLE_API_KEY,
-            model: googleModel,
-            temperature,
-          }),
-          supportsVision: true, // Gemini models support vision
-          priority: 3,
+        const newProviders = [];
+
+        // Get environment settings for temperature configuration
+        const settings = await environmentDbService.getSettings();
+
+        // 1. OpenAI (Official ChatGPT API)
+        if (process.env.OPENAI_API_KEY) {
+          const temperature = parseFloat(settings.OPENAI_TEMPERATURE || '0');
+          newProviders.push({
+            name: 'OpenAI ChatGPT',
+            model: new ChatOpenAI({
+              openAIApiKey: process.env.OPENAI_API_KEY,
+              modelName: process.env.OPENAI_MODEL || 'gpt-4-vision-preview',
+              temperature,
+            }),
+            supportsVision: this.modelSupportsVision(
+              process.env.OPENAI_MODEL || 'gpt-4-vision-preview'
+            ),
+            priority: 1,
+          });
+          logger.info(`OpenAI ChatGPT provider initialized with temperature: ${temperature}`);
+        }
+
+        // 2. OpenAI-Compatible APIs (Anthropic Claude, local models, etc.)
+        if (process.env.OPENAI_COMPATIBLE_BASE_URL && process.env.OPENAI_COMPATIBLE_API_KEY) {
+          const temperature = parseFloat(settings.OPENAI_COMPATIBLE_TEMPERATURE || '0');
+          newProviders.push({
+            name: 'OpenAI Compatible',
+            model: new ChatOpenAI({
+              apiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
+              model: process.env.OPENAI_COMPATIBLE_MODEL || 'claude-3-sonnet-20240229',
+              temperature,
+              configuration: {
+                baseURL: process.env.OPENAI_COMPATIBLE_BASE_URL,
+              },
+            }),
+            supportsVision: this.modelSupportsVision(process.env.OPENAI_COMPATIBLE_MODEL),
+            priority: 2,
+          });
+          logger.info(`OpenAI Compatible provider initialized with temperature: ${temperature}`);
+        }
+
+        // 3. Google Gemini
+        if (process.env.GOOGLE_API_KEY) {
+          try {
+            // Validate the model name for Google Gemini
+            const googleModel = process.env.GOOGLE_MODEL || 'gemini-1.5-flash';
+            const temperature = parseFloat(settings.GOOGLE_TEMPERATURE || '0');
+            
+            newProviders.push({
+              name: 'Google Gemini',
+              model: new ChatGoogleGenerativeAI({
+                apiKey: process.env.GOOGLE_API_KEY,
+                model: googleModel,
+                temperature,
+              }),
+              supportsVision: true,
+              priority: 3,
+            });
+            
+            logger.info(`Google Gemini provider initialized with model: ${googleModel}, temperature: ${temperature}`);
+          } catch (error) {
+            logger.error('Failed to initialize Google Gemini provider:', error.message);
+          }
+        }
+
+        // 4. Ollama (Local models)
+        if (process.env.OLLAMA_BASE_URL) {
+          const temperature = parseFloat(settings.OLLAMA_TEMPERATURE || '0');
+          newProviders.push({
+            name: 'Ollama',
+            model: new ChatOllama({
+              baseUrl: process.env.OLLAMA_BASE_URL,
+              model: process.env.OLLAMA_MODEL || 'llava',
+              temperature,
+            }),
+            supportsVision: true,
+            priority: 4,
+          });
+          logger.info(`Ollama provider initialized with temperature: ${temperature}`);
+        }
+
+        // Sort providers by priority
+        newProviders.sort((a, b) => a.priority - b.priority);
+
+        // Deduplicate providers by name
+        const seenNames = new Set();
+        this.providers = newProviders.filter(p => {
+          if (seenNames.has(p.name)) return false;
+          seenNames.add(p.name);
+          return true;
         });
-        
-        logger.info(`Google Gemini provider initialized with model: ${googleModel}, temperature: ${temperature}`);
-      } catch (error) {
-        logger.error('Failed to initialize Google Gemini provider:', error.message);
+
+        logger.info(
+          `Initialized ${this.providers.length} AI providers: ${this.providers.map(p => p.name).join(', ')}`
+        );
+
+        // Initialize MCP clients after providers are set up
+        await this.initializeMCPClients();
+      } finally {
+        this._initializingPromise = null;
       }
-    }
+    })();
 
-    // 4. Ollama (Local models)
-    if (process.env.OLLAMA_BASE_URL) {
-      const temperature = parseFloat(settings.OLLAMA_TEMPERATURE || '0');
-      this.providers.push({
-        name: 'Ollama',
-        model: new ChatOllama({
-          baseUrl: process.env.OLLAMA_BASE_URL,
-          model: process.env.OLLAMA_MODEL || 'llava',
-          temperature,
-        }),
-        supportsVision: true,
-        priority: 4,
-      });
-      logger.info(`Ollama provider initialized with temperature: ${temperature}`);
-    }
-
-    // Sort providers by priority
-    this.providers.sort((a, b) => a.priority - b.priority);
-
-    logger.info(
-      `Initialized ${this.providers.length} AI providers: ${this.providers.map(p => p.name).join(', ')}`
-    );
-
-    // Initialize MCP clients after providers are set up
-    await this.initializeMCPClients();
+    return this._initializingPromise;
   }
 
   /**
@@ -652,6 +669,7 @@ export class BaseLangChainService {
     return {
       providers: this.providers.map(p => ({
         name: p.name,
+        model: p.model?.modelName || p.model?.model || '',
         supportsVision: p.supportsVision,
         priority: p.priority,
         mcpAgentAvailable: this.mcpAgents.has(p.name)

@@ -12,10 +12,65 @@ import { PromptTemplate } from '@langchain/core/prompts';
 import logger from '../logger.js';
 
 class DashboardController {
+  // Available AI Models for Dashboard
+  async getAvailableModels(req, res) {
+    try {
+      const chatService = langChainServiceFactory.getChatService();
+      const providersInfo = chatService.getAvailableProviders();
+      
+      const seen = new Set();
+      const models = [];
+      
+      for (const p of providersInfo.providers) {
+        if (seen.has(p.name)) continue;
+        seen.add(p.name);
+
+        let shortName = p.name;
+        let iconType = 'sparkle';
+        const lowerName = p.name.toLowerCase();
+        
+        if (lowerName.includes('gemini')) {
+          shortName = 'Gemini';
+          iconType = 'gemini';
+        } else if (lowerName.includes('openai chatgpt')) {
+          shortName = 'ChatGPT';
+          iconType = 'openai';
+        } else if (lowerName.includes('openai compatible')) {
+          shortName = p.model ? (p.model.includes('/') ? p.model.split('/').pop() : p.model) : 'Claude / OpenAI';
+          iconType = 'claude';
+        } else if (lowerName.includes('ollama')) {
+          shortName = p.model || 'Ollama';
+          iconType = 'ollama';
+        }
+
+        models.push({
+          id: p.name,
+          name: p.name,
+          model: p.model || '',
+          shortName,
+          iconType,
+          supportsVision: p.supportsVision,
+          priority: p.priority,
+        });
+      }
+
+      res.json({
+        success: true,
+        data: {
+          models,
+          defaultModel: models[0]?.id || null,
+        }
+      });
+    } catch (err) {
+      logger.error('Error fetching available models:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
   // Command Bar
   async processCommand(req, res) {
     try {
-      const { text } = req.body;
+      const { text, provider } = req.body;
       if (!text) {
         return res.status(400).json({ success: false, error: 'Text is required' });
       }
@@ -29,7 +84,7 @@ class DashboardController {
         let graphResult = { intent: null, result: null, context: [] };
         
         // 1. Process intent as a stream so we can intercept the classification early
-        const streamIter = dashboardIntentGraph.streamInput(text);
+        const streamIter = dashboardIntentGraph.streamInput(text, provider);
         
         for await (const chunk of streamIter) {
           if (chunk.classifyIntent) {
@@ -52,11 +107,13 @@ class DashboardController {
           }
         }
 
+        const chatService = langChainServiceFactory.getChatService();
+        const selectedModel = provider 
+          ? (chatService.getProviderByName(provider) || chatService.getBestChatModel()) 
+          : chatService.getBestChatModel();
+
         if (graphResult.intent === 'query') {
           // Stream the query response
-          const chatService = langChainServiceFactory.getChatService();
-          const bestModel = chatService.getBestChatModel();
-          
           const prompt = PromptTemplate.fromTemplate(`
 You are a helpful AI assistant. Answer the user's query based on the following context retrieved from their knowledge base.
 If the context doesn't contain the answer, you can use your general knowledge, but prioritize the context.
@@ -67,7 +124,7 @@ Context:
 User Query: {query}
           `);
 
-          const chain = prompt.pipe(bestModel.model);
+          const chain = prompt.pipe(selectedModel.model);
           const stream = await chain.stream({
             context: graphResult.context,
             query: text,
@@ -80,34 +137,52 @@ User Query: {query}
             }
           }
           
-          res.write(`data: ${JSON.stringify({ type: 'done', result: { type: 'query_answered' } })}\n\n`);
+          res.write(`data: ${JSON.stringify({ 
+            type: 'done', 
+            result: { type: 'query_answered' },
+            provider: selectedModel.name
+          })}\n\n`);
           res.end();
         } else {
           // For other intents, just send the final result
-          res.write(`data: ${JSON.stringify({ type: 'done', result: graphResult.result })}\n\n`);
+          res.write(`data: ${JSON.stringify({ 
+            type: 'done', 
+            result: graphResult.result,
+            provider: selectedModel.name
+          })}\n\n`);
           res.end();
         }
       } else {
         // Non-streaming fallback
-        const graphResult = await dashboardIntentGraph.processInput(text);
+        const graphResult = await dashboardIntentGraph.processInput(text, provider);
+        const chatService = langChainServiceFactory.getChatService();
+        const selectedModel = provider 
+          ? (chatService.getProviderByName(provider) || chatService.getBestChatModel()) 
+          : chatService.getBestChatModel();
         
         if (graphResult.intent === 'query') {
-          const chatService = langChainServiceFactory.getChatService();
-          const bestModel = chatService.getBestChatModel();
           const prompt = PromptTemplate.fromTemplate(`You are a helpful AI assistant. Answer the user's query based on the following context retrieved from their knowledge base. If the context doesn't contain the answer, use your general knowledge. Context: {context} \n User Query: {query}`);
-          const chain = prompt.pipe(bestModel.model);
+          const chain = prompt.pipe(selectedModel.model);
           const response = await chain.invoke({ context: graphResult.context, query: text });
           
           return res.json({ 
             success: true, 
             data: { 
               intent: graphResult.intent, 
-              result: { type: 'query_answered', answer: response.content } 
+              result: { type: 'query_answered', answer: response.content },
+              provider: selectedModel.name
             } 
           });
         }
 
-        res.json({ success: true, data: { intent: graphResult.intent, result: graphResult.result } });
+        res.json({ 
+          success: true, 
+          data: { 
+            intent: graphResult.intent, 
+            result: graphResult.result,
+            provider: selectedModel.name
+          } 
+        });
       }
     } catch (err) {
       logger.error('Error processing command:', err);
