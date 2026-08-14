@@ -254,25 +254,26 @@ const CommandBar = () => {
   };
 
   return (
-    <Box sx={{ width: '100%', mb: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box sx={{ width: '100%', mb: 2.5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* Compact Gemini-style Pill Command Bar */}
       <Paper 
         elevation={0}
         sx={{ 
           width: '100%',
-          maxWidth: { xs: '100%', sm: '680px', md: '720px' },
-          borderRadius: '28px',
+          maxWidth: { xs: '100%', sm: '720px', md: '780px' },
+          minHeight: '54px',
+          borderRadius: '32px',
           bgcolor: isDark ? 'rgba(24, 28, 38, 0.95)' : '#ffffff',
           border: isDark 
             ? '1px solid rgba(255, 255, 255, 0.12)' 
             : '1px solid rgba(0, 0, 0, 0.08)',
           boxShadow: isDark 
-            ? '0 4px 20px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)' 
-            : '0 4px 16px -2px rgba(0, 0, 0, 0.06)',
+            ? '0 6px 24px -2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05)' 
+            : '0 6px 20px -2px rgba(0, 0, 0, 0.07)',
           display: 'flex',
           alignItems: 'center',
-          px: 1.2,
-          py: 0.6,
+          px: 1.8,
+          py: 1,
           position: 'relative',
           zIndex: 10,
           transition: 'all 0.2s ease-in-out',
@@ -281,8 +282,8 @@ const CommandBar = () => {
               ? '1px solid rgba(139, 92, 246, 0.6)' 
               : '1px solid rgba(124, 58, 237, 0.45)',
             boxShadow: isDark
-              ? '0 4px 24px 0 rgba(124, 58, 237, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
-              : '0 4px 20px 0 rgba(124, 58, 237, 0.15)',
+              ? '0 6px 28px 0 rgba(124, 58, 237, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+              : '0 6px 24px 0 rgba(124, 58, 237, 0.15)',
           }
         }}
       >
@@ -294,16 +295,16 @@ const CommandBar = () => {
             sx={{ 
               color: isDark ? '#94a3b8' : '#64748b',
               bgcolor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
-              width: 32,
-              height: 32,
-              mr: 1,
+              width: 36,
+              height: 36,
+              mr: 1.2,
               '&:hover': {
                 bgcolor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
                 color: isDark ? '#f8fafc' : '#0f172a'
               }
             }}
           >
-            <AddIcon sx={{ fontSize: 20 }} />
+            <AddIcon sx={{ fontSize: 22 }} />
           </IconButton>
         </Tooltip>
 
@@ -347,7 +348,9 @@ const CommandBar = () => {
           sx={{ 
             flex: 1, 
             color: isDark ? '#f8fafc' : '#0f172a',
-            fontSize: '0.95rem',
+            fontSize: '1rem',
+            px: 0.5,
+            py: 0.2,
             '& input::placeholder': {
               color: isDark ? '#64748b' : '#94a3b8',
               opacity: 1
@@ -361,7 +364,7 @@ const CommandBar = () => {
         />
 
         {/* Right Side Controls: Model Switcher, Mic, Send */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, ml: 0.5 }}>
           {/* Gemini-style Model Switcher Pill */}
           <Tooltip title="Switch AI Model">
             <Box
@@ -369,10 +372,10 @@ const CommandBar = () => {
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 0.4,
-                px: 1.1,
-                py: 0.35,
-                borderRadius: '16px',
+                gap: 0.5,
+                px: 1.3,
+                py: 0.55,
+                borderRadius: '18px',
                 cursor: 'pointer',
                 bgcolor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
                 border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
@@ -390,14 +393,14 @@ const CommandBar = () => {
                 variant="caption" 
                 sx={{ 
                   fontWeight: 600, 
-                  fontSize: '0.8rem',
+                  fontSize: '0.84rem',
                   letterSpacing: '0.01em',
                   whiteSpace: 'nowrap'
                 }}
               >
                 {activeModelLabel}
               </Typography>
-              <ChevronDownIcon sx={{ fontSize: 16, opacity: 0.7 }} />
+              <ChevronDownIcon sx={{ fontSize: 18, opacity: 0.7 }} />
             </Box>
           </Tooltip>
 
@@ -487,8 +490,8 @@ const CommandBar = () => {
               sx={{ 
                 color: isListening ? '#EF4444' : (isDark ? '#94a3b8' : '#64748b'),
                 bgcolor: isListening ? (isDark ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)') : 'transparent',
-                width: 32,
-                height: 32,
+                width: 36,
+                height: 36,
                 animation: isListening ? 'pulse 1.5s infinite' : 'none',
                 '@keyframes pulse': {
                   '0%': { transform: 'scale(1)', opacity: 1 },
@@ -501,7 +504,7 @@ const CommandBar = () => {
                 }
               }}
             >
-              {isListening ? <MicOffIcon fontSize="small" /> : <MicIcon fontSize="small" />}
+              {isListening ? <MicOffIcon sx={{ fontSize: 20 }} /> : <MicIcon sx={{ fontSize: 20 }} />}
             </IconButton>
           </Tooltip>
 
@@ -511,8 +514,8 @@ const CommandBar = () => {
             onClick={handleSend}
             disabled={!inputText.trim() || isProcessing}
             sx={{ 
-              width: 32,
-              height: 32,
+              width: 36,
+              height: 36,
               background: (!inputText.trim() || isProcessing) 
                 ? (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)') 
                 : 'linear-gradient(135deg, #7C3AED 0%, #6366F1 100%)',
@@ -530,9 +533,9 @@ const CommandBar = () => {
             }}
           >
             {isProcessing ? (
-              <CircularProgress size={16} color="inherit" />
+              <CircularProgress size={18} color="inherit" />
             ) : (
-              <SendIcon sx={{ fontSize: 15 }} />
+              <SendIcon sx={{ fontSize: 17 }} />
             )}
           </IconButton>
         </Box>

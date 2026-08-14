@@ -16,15 +16,16 @@ const NotificationPresets = ({
   onTriggerToast,
 }) => (
   <>
-    <Typography sx={{ fontWeight: 600, mb: 1 }} variant='body2'>
+    <Typography sx={{ fontWeight: 600, mb: 1.5 }} variant='subtitle2'>
       Quick Toast Presets
     </Typography>
 
-    <Stack direction='row' flexWrap='wrap' gap={1} sx={{ mb: 3 }}>
+    <Stack direction='row' flexWrap='wrap' gap={1.5} sx={{ mb: 3.5 }}>
       <Button
         color='success'
-        size='small'
+        size='medium'
         startIcon={<CheckCircleIcon />}
+        sx={{ px: 2, py: 0.8 }}
         variant='outlined'
         onClick={() => onTriggerToast('Success: Action completed successfully!', 'success')}
       >
@@ -32,8 +33,9 @@ const NotificationPresets = ({
       </Button>
       <Button
         color='info'
-        size='small'
+        size='medium'
         startIcon={<InfoIcon />}
+        sx={{ px: 2, py: 0.8 }}
         variant='outlined'
         onClick={() => onTriggerToast('Info: Background task update received.', 'info')}
       >
@@ -41,8 +43,9 @@ const NotificationPresets = ({
       </Button>
       <Button
         color='warning'
-        size='small'
+        size='medium'
         startIcon={<WarningIcon />}
+        sx={{ px: 2, py: 0.8 }}
         variant='outlined'
         onClick={() => onTriggerToast('Warning: High resource usage detected.', 'warning')}
       >
@@ -50,8 +53,9 @@ const NotificationPresets = ({
       </Button>
       <Button
         color='error'
-        size='small'
+        size='medium'
         startIcon={<ErrorIcon />}
+        sx={{ px: 2, py: 0.8 }}
         variant='outlined'
         onClick={() => onTriggerToast('Error: Failed to process requested operation.', 'error')}
       >
@@ -60,8 +64,9 @@ const NotificationPresets = ({
       <Button
         color='secondary'
         disabled={!isSupported || browserPermission !== 'granted'}
-        size='small'
+        size='medium'
         startIcon={<DesktopIcon />}
+        sx={{ px: 2, py: 0.8 }}
         variant='outlined'
         onClick={() =>
           onTriggerBrowser(

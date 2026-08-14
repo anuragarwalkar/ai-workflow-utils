@@ -12,7 +12,7 @@ import {
 const NotificationPermissionBanner = ({ browserPermission, isSupported, onRequestPermission }) => {
   const getPermissionBadge = () => {
     if (!isSupported) {
-      return <Chip color='default' label='Not Supported' size='small' variant='outlined' />;
+      return <Chip color='default' label='Not Supported' size='medium' variant='outlined' />;
     }
     if (browserPermission === 'granted') {
       return (
@@ -20,7 +20,7 @@ const NotificationPermissionBanner = ({ browserPermission, isSupported, onReques
           color='success'
           icon={<CheckCircleIcon />}
           label='Permission Granted'
-          size='small'
+          size='medium'
           variant='outlined'
         />
       );
@@ -31,7 +31,7 @@ const NotificationPermissionBanner = ({ browserPermission, isSupported, onReques
           color='error'
           icon={<ErrorIcon />}
           label='Permission Denied / Blocked'
-          size='small'
+          size='medium'
           variant='outlined'
         />
       );
@@ -41,7 +41,7 @@ const NotificationPermissionBanner = ({ browserPermission, isSupported, onReques
         color='warning'
         icon={<WarningIcon />}
         label='Needs Permission'
-        size='small'
+        size='medium'
         variant='outlined'
       />
     );
@@ -55,30 +55,30 @@ const NotificationPermissionBanner = ({ browserPermission, isSupported, onReques
         borderRadius: 2,
         display: 'flex',
         flexWrap: 'wrap',
-        gap: 1.5,
+        gap: 2,
         justifyContent: 'space-between',
-        mb: 2,
-        p: 2,
+        mb: 2.5,
+        p: 2.5,
       }}
       variant='outlined'
     >
-      <Box sx={{ alignItems: 'center', display: 'flex', gap: 1.5 }}>
-        <DesktopIcon color='action' />
+      <Box sx={{ alignItems: 'center', display: 'flex', gap: 2 }}>
+        <DesktopIcon color='action' sx={{ fontSize: 28 }} />
         <Box>
-          <Typography sx={{ fontWeight: 600 }} variant='body2'>
+          <Typography sx={{ fontWeight: 600 }} variant='subtitle2'>
             Browser Desktop Notifications
           </Typography>
-          <Typography color='text.secondary' variant='caption'>
+          <Typography color='text.secondary' variant='body2'>
             Status: {browserPermission}
           </Typography>
         </Box>
       </Box>
 
-      <Stack alignItems='center' direction='row' spacing={1}>
+      <Stack alignItems='center' direction='row' spacing={1.5}>
         {getPermissionBadge()}
         {isSupported && browserPermission !== 'granted' ? (
           <Button
-            size='small'
+            size='medium'
             startIcon={<VpnKeyIcon />}
             variant='contained'
             onClick={onRequestPermission}

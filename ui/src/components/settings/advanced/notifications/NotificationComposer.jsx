@@ -32,23 +32,23 @@ const NotificationComposer = ({ onSendNotification }) => {
   };
 
   return (
-    <Paper sx={{ borderRadius: 2, p: 2 }} variant='outlined'>
-      <Typography sx={{ fontWeight: 600, mb: 2 }} variant='body2'>
+    <Paper sx={{ borderRadius: 2, p: 3 }} variant='outlined'>
+      <Typography sx={{ fontWeight: 600, mb: 2.5 }} variant='subtitle2'>
         Custom Notification Composer
       </Typography>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
           <TextField
             helperText='Used for browser desktop notifications'
             label='Notification Title'
-            size='small'
+            size='medium'
             sx={{ flex: '1 1 240px' }}
             value={customTitle}
             onChange={e => setCustomTitle(e.target.value)}
           />
 
-          <FormControl size='small' sx={{ flex: '1 1 140px' }}>
+          <FormControl size='medium' sx={{ flex: '1 1 150px' }}>
             <InputLabel id='test-severity-label'>Toast Severity</InputLabel>
             <Select
               id='test-severity'
@@ -64,7 +64,7 @@ const NotificationComposer = ({ onSendNotification }) => {
             </Select>
           </FormControl>
 
-          <FormControl size='small' sx={{ flex: '1 1 160px' }}>
+          <FormControl size='medium' sx={{ flex: '1 1 170px' }}>
             <InputLabel id='test-target-label'>Target Destination</InputLabel>
             <Select
               id='test-target'
@@ -84,16 +84,17 @@ const NotificationComposer = ({ onSendNotification }) => {
           fullWidth
           multiline
           label='Notification Message'
-          rows={2}
-          size='small'
+          rows={3}
           value={customMessage}
           onChange={e => setCustomMessage(e.target.value)}
         />
 
-        <Box>
+        <Box sx={{ pt: 0.5 }}>
           <Button
             color='primary'
+            size='large'
             startIcon={<SendIcon />}
+            sx={{ px: 3, py: 1 }}
             variant='contained'
             onClick={handleSubmit}
           >
