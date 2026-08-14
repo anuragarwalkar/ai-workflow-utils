@@ -104,7 +104,13 @@ class NoteDbService {
     
     if (this.db.data.notes.length !== initialLength) {
       await this.db.write();
-      // Note: we might want to delete from LanceDB here if it supported easy deletes by metadata id
+      
+      try {
+        await memoryService.deleteMemoryBySourceId(id);
+      } catch (err) {
+        logger.error(`Failed to delete note ${id} from LanceDB:`, err);
+      }
+      
       return true;
     }
     return false;
