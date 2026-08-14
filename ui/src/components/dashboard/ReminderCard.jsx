@@ -1,5 +1,5 @@
-import { Box, Card, CardContent, Typography, IconButton, CircularProgress, Chip, Menu, MenuItem } from '@mui/material';
-import { AccessTime as TimeIcon, MoreVert as MoreVertIcon, Check as CheckIcon, Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
+import { Box, Card, CardContent, Typography, IconButton, CircularProgress, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
+import { AccessTime as TimeIcon, MoreVert as MoreVertIcon, Check as CheckIcon, Edit as EditIcon, Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useGetRemindersQuery, useUpdateReminderMutation, useDeleteReminderMutation, useCreateReminderMutation } from '../../store/api/dashboardApi';
 import { useAppTheme } from '../../theme/useAppTheme';
 import { useState } from 'react';
@@ -20,6 +20,10 @@ const ReminderCard = ({ cardStyle }) => {
   
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newTime, setNewTime] = useState('');
 
   const handleMenuClick = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -42,6 +46,21 @@ const ReminderCard = ({ cardStyle }) => {
     handleMenuClose();
   };
 
+  const handleDelete = () => {
+    if (selectedId) {
+      deleteReminder(selectedId);
+    }
+    handleMenuClose();
+  };
+
+  const handleAddSubmit = async () => {
+    if (!newTitle.trim() || !newTime) return;
+    await createReminder({ title: newTitle, remindAt: new Date(newTime).toISOString() });
+    setNewTitle('');
+    setNewTime('');
+    setOpenDialog(false);
+  };
+
   return (
     <Card sx={cardStyle}>
       <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -52,7 +71,7 @@ const ReminderCard = ({ cardStyle }) => {
               Reminders
             </Typography>
           </Box>
-          <IconButton size="small" sx={{ color: '#7C3AED', bgcolor: 'rgba(124, 58, 237, 0.1)' }}>
+          <IconButton onClick={() => setOpenDialog(true)} size="small" sx={{ color: '#7C3AED', bgcolor: 'rgba(124, 58, 237, 0.1)' }}>
             <AddIcon fontSize="small" />
             <Typography variant="caption" sx={{ ml: 0.5, fontWeight: 600 }}>Add Reminder</Typography>
           </IconButton>
@@ -162,11 +181,56 @@ const ReminderCard = ({ cardStyle }) => {
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
         >
-          <MenuItem onClick={() => handleSnooze(selectedId, 15)}>Snooze 15m</MenuItem>
-          <MenuItem onClick={() => handleSnooze(selectedId, 60)}>Snooze 1h</MenuItem>
-          <MenuItem onClick={() => handleSnooze(selectedId, 1440)}>Snooze 1d</MenuItem>
-          <MenuItem onClick={() => { deleteReminder(selectedId); handleMenuClose(); }} sx={{ color: '#ef4444' }}>Delete</MenuItem>
+          <MenuItem onClick={() => handleMarkDone(selectedId)} sx={{ fontSize: '0.875rem' }}>
+            <CheckIcon fontSize="small" sx={{ mr: 1, color: '#10b981' }} /> Mark Done
+          </MenuItem>
+          <MenuItem onClick={() => handleSnooze(selectedId, 15)} sx={{ fontSize: '0.875rem' }}>
+            <TimeIcon fontSize="small" sx={{ mr: 1, color: '#f59e0b' }} /> Snooze 15m
+          </MenuItem>
+          <MenuItem onClick={handleDelete} sx={{ fontSize: '0.875rem', color: '#ef4444' }}>
+            <DeleteIcon fontSize="small" sx={{ mr: 1 }} /> Delete
+          </MenuItem>
         </Menu>
+
+        <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { bgcolor: isDark ? '#0f172a' : '#fff', borderRadius: '16px' } }}>
+          <DialogTitle sx={{ color: isDark ? '#f8fafc' : '#0f172a' }}>Add a Reminder</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="What to remind?"
+              fullWidth
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              sx={{
+                mt: 1, mb: 2,
+                '& .MuiOutlinedInput-root': { color: isDark ? '#E8EDF5' : '#334155' }
+              }}
+            />
+            <TextField
+              type="datetime-local"
+              label="When?"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              value={newTime}
+              onChange={(e) => setNewTime(e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': { color: isDark ? '#E8EDF5' : '#334155' }
+              }}
+            />
+          </DialogContent>
+          <DialogActions sx={{ p: 2, pt: 0 }}>
+            <Button onClick={() => setOpenDialog(false)} sx={{ color: '#64748b' }}>Cancel</Button>
+            <Button 
+              onClick={handleAddSubmit} 
+              variant="contained" 
+              disabled={!newTitle.trim() || !newTime || isCreating}
+              sx={{ bgcolor: '#7C3AED', '&:hover': { bgcolor: '#6D28D9' }, borderRadius: '8px' }}
+            >
+              {isCreating ? <CircularProgress size={20} color="inherit" /> : 'Save'}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </CardContent>
     </Card>
   );

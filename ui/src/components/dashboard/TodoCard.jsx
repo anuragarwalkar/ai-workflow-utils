@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Card, CardContent, Typography, TextField, IconButton, Checkbox, Chip, CircularProgress } from '@mui/material';
+import { Box, Card, CardContent, Typography, TextField, IconButton, Checkbox, Chip, CircularProgress, InputAdornment } from '@mui/material';
 import { Send as SendIcon, AutoAwesome as AiIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useGetTodosQuery, useCreateTodoMutation, useUpdateTodoMutation, useDeleteTodoMutation } from '../../store/api/dashboardApi';
 import useNotifications from '../../hooks/useNotifications';
@@ -51,7 +51,7 @@ const TodoCard = ({ cardStyle }) => {
           <AiIcon sx={{ color: '#00BFA5', fontSize: 20 }} />
         </Box>
 
-        <Box component="form" onSubmit={handleAddTodo} sx={{ mb: 3, position: 'relative' }}>
+        <Box component="form" onSubmit={handleAddTodo} sx={{ mb: 3 }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -59,6 +59,20 @@ const TodoCard = ({ cardStyle }) => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isCreating}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton 
+                    type="submit"
+                    disabled={isCreating || !inputValue.trim()}
+                    sx={{ color: '#00BFA5' }}
+                    edge="end"
+                  >
+                    {isCreating ? <CircularProgress size={24} color="inherit" /> : <SendIcon fontSize="small" />}
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
             sx={{
               '& .MuiOutlinedInput-root': {
                 color: isDark ? '#E8EDF5' : '#334155',
@@ -70,13 +84,6 @@ const TodoCard = ({ cardStyle }) => {
               }
             }}
           />
-          <IconButton 
-            type="submit"
-            disabled={isCreating || !inputValue.trim()}
-            sx={{ position: 'absolute', right: 8, top: 8, color: '#00BFA5' }}
-          >
-            {isCreating ? <CircularProgress size={24} color="inherit" /> : <SendIcon fontSize="small" />}
-          </IconButton>
         </Box>
 
         <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1, '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(0,191,165,0.2)', borderRadius: '4px' } }}>

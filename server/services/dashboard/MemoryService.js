@@ -16,10 +16,20 @@ class MemoryService {
 
   getEmbeddings() {
     // Try to get the best available embedding model
+    if (process.env.OPENAI_COMPATIBLE_API_KEY && process.env.OPENAI_COMPATIBLE_BASE_URL) {
+      return new OpenAIEmbeddings({ 
+        openAIApiKey: process.env.OPENAI_COMPATIBLE_API_KEY,
+        modelName: process.env.OPENAI_COMPATIBLE_EMBEDDING_MODEL || "openai/text-embedding-3-small",
+        configuration: {
+          baseURL: process.env.OPENAI_COMPATIBLE_BASE_URL,
+        }
+      });
+    }
+
     if (process.env.OPENAI_API_KEY) {
       return new OpenAIEmbeddings({ openAIApiKey: process.env.OPENAI_API_KEY });
     }
-
+    
     if (process.env.GOOGLE_API_KEY) {
       return new GoogleGenerativeAIEmbeddings({ apiKey: process.env.GOOGLE_API_KEY });
     }

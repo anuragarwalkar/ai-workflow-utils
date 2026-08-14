@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import { Routes, Route } from 'react-router-dom';
 import DashboardSidebar from './DashboardSidebar';
 import OverviewPage from './OverviewPage';
+import ManagePage from './ManagePage';
 import { useAppTheme } from '../../theme/useAppTheme';
 
 // Placeholder components for other pages
@@ -40,6 +41,7 @@ const DashboardLayout = () => {
           <Route path="/knowledge-base" element={<PlaceholderPage title="Knowledge Base & RAG" />} />
           <Route path="/slack" element={<PlaceholderPage title="Slack Integration" />} />
           <Route path="/tasks" element={<PlaceholderPage title="Task & Nag Queue" />} />
+          <Route path="/manage" element={<ManagePage />} />
         </Routes>
       </Box>
     </Box>

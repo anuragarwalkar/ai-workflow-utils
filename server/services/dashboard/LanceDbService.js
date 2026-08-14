@@ -31,7 +31,11 @@ class LanceDbService {
     return this.db;
   }
 
-  async getTable(tableName, vectorSize = 1536) {
+  async getTable(tableName) {
+    // OpenAI text-embedding-3-small and text-embedding-ada-002 use 1536.
+    // If you swap embeddings later, you MUST delete the old LanceDB folder and recreate it.
+    const vectorSize = 1536; 
+    
     await this.init();
     try {
       const tables = await this.db.tableNames();

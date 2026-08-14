@@ -1,6 +1,6 @@
-import { Box, Card, CardContent, Typography, IconButton, CircularProgress, Chip, TextField, Button, InputAdornment } from '@mui/material';
-import { Storage as StorageIcon, MoreVert as MoreVertIcon, Add as AddIcon, Search as SearchIcon, AutoAwesome as AiIcon } from '@mui/icons-material';
-import { useGetNotesQuery, useSearchSummariesMutation } from '../../store/api/dashboardApi';
+import { Box, Card, CardContent, Typography, IconButton, CircularProgress, Chip, TextField, Button, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions, Menu, MenuItem } from '@mui/material';
+import { Storage as StorageIcon, MoreVert as MoreVertIcon, Add as AddIcon, Search as SearchIcon, AutoAwesome as AiIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { useGetNotesQuery, useSearchSummariesMutation, useCreateNoteMutation, useDeleteNoteMutation } from '../../store/api/dashboardApi';
 import { useAppTheme } from '../../theme/useAppTheme';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -9,14 +9,32 @@ const NotesCard = ({ cardStyle }) => {
   const { isDark } = useAppTheme();
   const { data: notesData, isLoading } = useGetNotesQuery();
   const [searchSummaries, { isLoading: isSearching, data: searchData }] = useSearchSummariesMutation();
+  const [createNote, { isLoading: isCreating }] = useCreateNoteMutation();
+  const [deleteNote] = useDeleteNoteMutation();
+  
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('All');
+  
+  // Dialog State
+  const [openDialog, setOpenDialog] = useState(false);
+  const [newNoteText, setNewNoteText] = useState('');
+  
+  // Menu State
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedNoteId, setSelectedNoteId] = useState(null);
   
   const notes = notesData?.data || [];
   const searchResults = searchData?.data || [];
 
-  const displayNotes = searchQuery && searchResults.length > 0 
+  let displayNotes = searchQuery && searchResults.length > 0 
     ? searchResults.map(r => ({ ...r, id: r.id, summary: r.summary, isIndexed: true })) // Maps LanceDB results to note-like structure
     : notes;
+
+  if (filterType === 'Newest First') {
+    displayNotes = [...displayNotes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  } else if (filterType === 'All Tags') {
+    displayNotes = displayNotes.filter(n => n.tags && n.tags.length > 0);
+  }
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -25,11 +43,22 @@ const NotesCard = ({ cardStyle }) => {
   };
 
   const handleSearchClear = (e) => {
-    if (e.target.value === '') {
-      setSearchQuery('');
-    } else {
-      setSearchQuery(e.target.value);
+    setSearchQuery(e.target.value);
+  };
+
+  const handleAddNoteSubmit = async () => {
+    if (!newNoteText.trim()) return;
+    await createNote({ content: newNoteText, type: 'Note', tags: [] });
+    setNewNoteText('');
+    setOpenDialog(false);
+  };
+
+  const handleDelete = async () => {
+    if (selectedNoteId) {
+      await deleteNote(selectedNoteId);
     }
+    setAnchorEl(null);
+    setSelectedNoteId(null);
   };
 
   return (
@@ -50,6 +79,7 @@ const NotesCard = ({ cardStyle }) => {
           <Button 
             size="small" 
             startIcon={<AddIcon />} 
+            onClick={() => setOpenDialog(true)}
             sx={{ color: '#7C3AED', textTransform: 'none', fontWeight: 600, '&:hover': { bgcolor: 'rgba(124, 58, 237, 0.1)' } }}
           >
             Add Note
@@ -57,9 +87,9 @@ const NotesCard = ({ cardStyle }) => {
         </Box>
 
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-          <Chip label="All Types" size="small" variant="outlined" sx={{ color: '#64748b', borderColor: 'rgba(100,116,139,0.2)' }} />
-          <Chip label="All Tags" size="small" variant="outlined" sx={{ color: '#64748b', borderColor: 'rgba(100,116,139,0.2)' }} />
-          <Chip label="Newest First" size="small" variant="outlined" sx={{ color: '#64748b', borderColor: 'rgba(100,116,139,0.2)' }} />
+          <Chip label="All Types" size="small" variant={filterType === 'All' ? 'filled' : 'outlined'} onClick={() => setFilterType('All')} sx={{ color: filterType === 'All' ? '#fff' : '#64748b', bgcolor: filterType === 'All' ? '#7C3AED' : 'transparent', borderColor: 'rgba(100,116,139,0.2)' }} />
+          <Chip label="Has Tags" size="small" variant={filterType === 'All Tags' ? 'filled' : 'outlined'} onClick={() => setFilterType('All Tags')} sx={{ color: filterType === 'All Tags' ? '#fff' : '#64748b', bgcolor: filterType === 'All Tags' ? '#7C3AED' : 'transparent', borderColor: 'rgba(100,116,139,0.2)' }} />
+          <Chip label="Newest First" size="small" variant={filterType === 'Newest First' ? 'filled' : 'outlined'} onClick={() => setFilterType('Newest First')} sx={{ color: filterType === 'Newest First' ? '#fff' : '#64748b', bgcolor: filterType === 'Newest First' ? '#7C3AED' : 'transparent', borderColor: 'rgba(100,116,139,0.2)' }} />
           <Box component="form" onSubmit={handleSearch} sx={{ flexGrow: 1, ml: 1 }}>
             <TextField
               fullWidth
@@ -120,7 +150,11 @@ const NotesCard = ({ cardStyle }) => {
                         <Typography variant="body2" sx={{ color: '#0f172a', fontWeight: 600, mb: 0.5 }}>
                           {note.summary ? (note.summary.split('\\n')[0].replace(/^- /g, '')).substring(0, 50) + (note.summary.length > 50 ? '...' : '') : 'Note'}
                         </Typography>
-                        <IconButton size="small" sx={{ color: '#94a3b8', mt: -0.5, mr: -1 }}>
+                        <IconButton 
+                          size="small" 
+                          sx={{ color: '#94a3b8', mt: -0.5, mr: -1 }}
+                          onClick={(e) => { setAnchorEl(e.currentTarget); setSelectedNoteId(note.id); }}
+                        >
                           <MoreVertIcon fontSize="small" />
                         </IconButton>
                       </Box>
@@ -169,6 +203,51 @@ const NotesCard = ({ cardStyle }) => {
           </Typography>
         </Box>
       </CardContent>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+        PaperProps={{ sx: { bgcolor: isDark ? '#1e293b' : '#fff', borderRadius: '12px', minWidth: '120px' } }}
+      >
+        <MenuItem onClick={handleDelete} sx={{ color: '#ef4444', fontSize: '0.875rem' }}>
+          <DeleteIcon fontSize="small" sx={{ mr: 1 }} /> Delete
+        </MenuItem>
+      </Menu>
+
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { bgcolor: isDark ? '#0f172a' : '#fff', borderRadius: '16px' } }}>
+        <DialogTitle sx={{ color: isDark ? '#f8fafc' : '#0f172a' }}>Add a New Note</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            placeholder="Type your note here. The AI will process and index it..."
+            fullWidth
+            multiline
+            rows={4}
+            value={newNoteText}
+            onChange={(e) => setNewNoteText(e.target.value)}
+            sx={{
+              mt: 1,
+              '& .MuiOutlinedInput-root': {
+                color: isDark ? '#E8EDF5' : '#334155',
+                bgcolor: isDark ? 'rgba(255,255,255,0.05)' : 'transparent',
+              }
+            }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button onClick={() => setOpenDialog(false)} sx={{ color: '#64748b' }}>Cancel</Button>
+          <Button 
+            onClick={handleAddNoteSubmit} 
+            variant="contained" 
+            disabled={!newNoteText.trim() || isCreating}
+            sx={{ bgcolor: '#7C3AED', '&:hover': { bgcolor: '#6D28D9' }, borderRadius: '8px' }}
+          >
+            {isCreating ? <CircularProgress size={20} color="inherit" /> : 'Save Note'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };

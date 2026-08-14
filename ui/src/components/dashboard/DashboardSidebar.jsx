@@ -1,4 +1,4 @@
-import { Box, Typography, Switch, CircularProgress } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import {
   Dashboard as DashboardIcon,
@@ -6,30 +6,19 @@ import {
   Chat as ChatIcon,
   AutoAwesome as AiIcon,
   ArrowBack as ArrowBackIcon,
-  SettingsSuggest as SettingsIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useAppTheme } from '../../theme/useAppTheme';
-import { useGetTileConfigQuery, useUpdateTileConfigMutation } from '../../store/api/dashboardApi';
 
 const navItems = [
   { label: 'Overview', path: '/ai-dashboard', icon: DashboardIcon, exact: true },
   { label: 'Knowledge Base', path: '/ai-dashboard/knowledge-base', icon: LibraryBooksIcon },
   { label: 'Slack Activity', path: '/ai-dashboard/slack', icon: ChatIcon },
+  { label: 'Manage', path: '/ai-dashboard/manage', icon: SettingsIcon },
 ];
 
 const DashboardSidebar = () => {
   const { isDark } = useAppTheme();
-  const { data: tileConfigResponse, isLoading } = useGetTileConfigQuery();
-  const [updateTileConfig] = useUpdateTileConfigMutation();
-
-  const tiles = tileConfigResponse?.data || [];
-
-  const handleToggleTile = (id, currentVisible) => {
-    const updatedTiles = tiles.map(t => 
-      t.id === id ? { ...t, visible: !currentVisible } : t
-    );
-    updateTileConfig(updatedTiles);
-  };
 
   return (
     <Box sx={{
@@ -99,37 +88,6 @@ const DashboardSidebar = () => {
       </Box>
 
       <Box sx={{ flexGrow: 1 }} />
-
-      {/* Tile Management Panel */}
-      <Box sx={{ p: 2, borderTop: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, px: 1 }}>
-          <SettingsIcon sx={{ fontSize: 16, color: '#64748b' }} />
-          <Typography variant="caption" sx={{ fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Dashboard Tiles
-          </Typography>
-        </Box>
-        
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, maxHeight: 200, overflowY: 'auto', '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(100,116,139,0.2)', borderRadius: '4px' } }}>
-          {isLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress size={20} /></Box>
-          ) : (
-            tiles.slice().sort((a, b) => a.order - b.order).map(tile => (
-              <Box key={tile.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 1, py: 0.5, borderRadius: '4px', '&:hover': { bgcolor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' } }}>
-                <Typography variant="caption" sx={{ color: isDark ? '#94a3b8' : '#475569' }}>{tile.label}</Typography>
-                <Switch 
-                  size="small" 
-                  checked={tile.visible} 
-                  onChange={() => handleToggleTile(tile.id, tile.visible)}
-                  sx={{
-                    '& .MuiSwitch-switchBase.Mui-checked': { color: '#7C3AED' },
-                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: '#7C3AED' },
-                  }}
-                />
-              </Box>
-            ))
-          )}
-        </Box>
-      </Box>
     </Box>
   );
 };
