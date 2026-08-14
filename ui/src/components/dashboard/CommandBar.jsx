@@ -111,7 +111,7 @@ const CommandBar = () => {
   };
 
   return (
-    <Box sx={{ width: '100%', mb: 4, display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ width: '100%', mb: 1, display: 'flex', flexDirection: 'column' }}>
       <Paper 
         elevation={isDark ? 0 : 2}
         sx={{ 

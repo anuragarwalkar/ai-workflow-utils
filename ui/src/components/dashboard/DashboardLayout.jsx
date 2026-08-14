@@ -23,7 +23,7 @@ const DashboardLayout = () => {
     <Box sx={{
       display: 'flex',
       height: '100vh',
-      width: '100vw',
+      width: '100%',
       overflow: 'hidden',
       bgcolor: isDark ? '#1e293b' : '#ffffff', // main background behind tiles
     }}>
@@ -32,7 +32,10 @@ const DashboardLayout = () => {
         flexGrow: 1,
         height: '100%',
         overflowY: 'auto',
-        p: 3,
+        pt: 3,
+        pb: 3,
+        pl: 3,
+        pr: 1,
         bgcolor: isDark ? '#0f172a' : '#f1f5f9', // slightly different bg for content area to contrast with cards
       }}>
         <Routes>

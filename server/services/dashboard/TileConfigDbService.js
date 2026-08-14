@@ -1,57 +1,56 @@
-import { Low } from 'lowdb';
-import { JSONFile } from 'lowdb/node';
-import os from 'os';
-import path from 'path';
-import fs from 'fs';
+import appStateDbService from '../appStateDbService.js';
 import logger from '../../logger.js';
 
 const DEFAULT_TILES = [
-  { id: 'contextStream', label: 'Context Stream (LanceDB)', visible: true, order: 0 },
-  { id: 'reminders', label: 'Reminders', visible: true, order: 1 },
-  { id: 'todos', label: 'To-Dos', visible: true, order: 2 },
-  { id: 'knowledgeBase', label: 'Knowledge Base & RAG', visible: false, order: 3 },
-  { id: 'prReviews', label: 'PR Reviews', visible: false, order: 4 },
-  { id: 'taskTimeline', label: 'Task Timeline', visible: false, order: 5 },
-  { id: 'performanceMetrics', label: 'Performance Metrics', visible: false, order: 6 }
+  { id: 'contextStream', label: 'Context Stream (LanceDB)', visible: true, order: 0, column: 'left', x: 0, y: 0, w: 7, h: 5 },
+  { id: 'knowledgeBase', label: 'Knowledge Base & RAG', visible: false, order: 1, column: 'left', x: 0, y: 5, w: 7, h: 4 },
+  { id: 'prReviews', label: 'PR Reviews', visible: false, order: 2, column: 'left', x: 0, y: 9, w: 7, h: 4 },
+  { id: 'performanceMetrics', label: 'Performance Metrics', visible: false, order: 3, column: 'left', x: 0, y: 13, w: 7, h: 4 },
+  { id: 'reminders', label: 'Reminders', visible: true, order: 0, column: 'right', x: 7, y: 0, w: 5, h: 3 },
+  { id: 'todos', label: 'To-Dos', visible: true, order: 1, column: 'right', x: 7, y: 3, w: 5, h: 4 },
+  { id: 'taskTimeline', label: 'Task Timeline', visible: false, order: 2, column: 'right', x: 7, y: 7, w: 5, h: 4 }
 ];
 
+const CONFIG_KEY = 'dashboard_tile_layout';
+
 class TileConfigDbService {
-  constructor() {
-    const homeDir = os.homedir();
-    const configDir = path.join(homeDir, '.ai-workflow-utils');
-    const dbPath = path.join(configDir, 'tile-config.json');
-
-    if (!fs.existsSync(configDir)) {
-      fs.mkdirSync(configDir, { recursive: true });
-    }
-
-    this.adapter = new JSONFile(dbPath);
-    this.db = new Low(this.adapter, { tiles: DEFAULT_TILES });
-  }
-
   async init() {
-    await this.db.read();
-    if (!this.db.data || !this.db.data.tiles || this.db.data.tiles.length === 0) {
-      this.db.data = { tiles: DEFAULT_TILES };
-      await this.db.write();
+    let tiles = await appStateDbService.getState(CONFIG_KEY);
+    
+    if (!tiles || tiles.length === 0) {
+      tiles = DEFAULT_TILES;
+      await appStateDbService.setState(CONFIG_KEY, tiles);
     } else {
       // Merge new default tiles if they don't exist in the current config
       let updated = false;
       DEFAULT_TILES.forEach(defaultTile => {
-        if (!this.db.data.tiles.find(t => t.id === defaultTile.id)) {
-          this.db.data.tiles.push(defaultTile);
+        const existing = tiles.find(t => t.id === defaultTile.id);
+        if (!existing) {
+          tiles.push(defaultTile);
           updated = true;
+        } else {
+          if (existing.column === undefined) {
+            existing.column = defaultTile.column;
+            updated = true;
+          }
+          if (existing.x === undefined) {
+            existing.x = defaultTile.x;
+            existing.y = defaultTile.y;
+            existing.w = defaultTile.w;
+            existing.h = defaultTile.h;
+            updated = true;
+          }
         }
       });
       if (updated) {
-        await this.db.write();
+        await appStateDbService.setState(CONFIG_KEY, tiles);
       }
     }
   }
 
   async getConfig() {
     await this.init();
-    return this.db.data.tiles;
+    return await appStateDbService.getState(CONFIG_KEY);
   }
 
   async updateConfig(tilesArray) {
@@ -65,10 +64,9 @@ class TileConfigDbService {
       throw new Error('Invalid tile configuration provided');
     }
 
-    this.db.data.tiles = validTiles;
-    await this.db.write();
-    logger.info('Updated dashboard tile configuration');
-    return this.db.data.tiles;
+    await appStateDbService.setState(CONFIG_KEY, validTiles);
+    logger.info('Updated dashboard tile configuration in app state DB');
+    return validTiles;
   }
 }
 
