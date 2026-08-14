@@ -1,56 +1,130 @@
-import { Box, Card, CardContent, Typography, IconButton, CircularProgress, Chip, TextField, Button, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions, Menu, MenuItem } from '@mui/material';
-import { Storage as StorageIcon, MoreVert as MoreVertIcon, Add as AddIcon, Search as SearchIcon, AutoAwesome as AiIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { useGetNotesQuery, useSearchSummariesMutation, useCreateNoteMutation, useDeleteNoteMutation } from '../../store/api/dashboardApi';
+import React, { useState } from 'react';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  IconButton,
+  CircularProgress,
+  Chip,
+  TextField,
+  Button,
+  InputAdornment,
+  Menu,
+  MenuItem,
+  Tooltip,
+} from '@mui/material';
+import {
+  Storage as StorageIcon,
+  MoreVert as MoreVertIcon,
+  Add as AddIcon,
+  Search as SearchIcon,
+  AutoAwesome as AiIcon,
+  Delete as DeleteIcon,
+  PushPin as PinIcon,
+  Favorite as FavoriteIcon,
+  OpenInNew as OpenIcon,
+  Description as RichNoteIcon,
+} from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import {
+  useGetNotesQuery,
+  useSearchSummariesMutation,
+  useCreateNoteMutation,
+  useDeleteNoteMutation,
+} from '../../store/api/dashboardApi';
 import { useAppTheme } from '../../theme/useAppTheme';
-import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const NotesCard = ({ cardStyle }) => {
   const { isDark } = useAppTheme();
+  const navigate = useNavigate();
+
   const { data: notesData, isLoading } = useGetNotesQuery();
   const [searchSummaries, { isLoading: isSearching, data: searchData }] = useSearchSummariesMutation();
   const [createNote, { isLoading: isCreating }] = useCreateNoteMutation();
   const [deleteNote] = useDeleteNoteMutation();
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('All');
-  
-  // Dialog State
-  const [openDialog, setOpenDialog] = useState(false);
-  const [newNoteText, setNewNoteText] = useState('');
-  
+
   // Menu State
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedNoteId, setSelectedNoteId] = useState(null);
-  
+
   const notes = notesData?.data || [];
   const searchResults = searchData?.data || [];
 
-  let displayNotes = searchQuery && searchResults.length > 0 
-    ? searchResults.map(r => ({ ...r, id: r.id, summary: r.summary, isIndexed: true })) // Maps LanceDB results to note-like structure
-    : notes;
+  // Debounced semantic search into LanceDB as user types
+  React.useEffect(() => {
+    if (searchQuery.trim().length >= 2) {
+      const timer = setTimeout(() => {
+        searchSummaries({ query: searchQuery.trim(), limit: 10 });
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery, searchSummaries]);
+
+  let displayNotes =
+    searchQuery.trim() && searchResults.length > 0
+      ? searchResults.map((r) => {
+          const originalNote = notes.find((n) => n.id === r.sourceId || n.id === r.id);
+          if (originalNote) return originalNote;
+          return {
+            id: r.sourceId || r.id,
+            title: r.title || (r.text ? r.text.substring(0, 40) : 'Note'),
+            content: r.text,
+            summary: r.summary,
+            tags: r.tags || [],
+            isIndexed: true,
+            createdAt: r.createdAt || new Date().toISOString(),
+          };
+        })
+      : notes;
 
   if (filterType === 'Newest First') {
-    displayNotes = [...displayNotes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  } else if (filterType === 'All Tags') {
-    displayNotes = displayNotes.filter(n => n.tags && n.tags.length > 0);
+    displayNotes = [...displayNotes].sort(
+      (a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
+    );
+  } else if (filterType === 'Has Tags') {
+    displayNotes = displayNotes.filter((n) => n.tags && n.tags.length > 0);
+  } else if (filterType === 'Pinned') {
+    displayNotes = displayNotes.filter((n) => n.isPinned);
   }
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    searchSummaries({ query: searchQuery, limit: 10 });
+    searchSummaries({ query: searchQuery.trim(), limit: 10 });
   };
 
   const handleSearchClear = (e) => {
     setSearchQuery(e.target.value);
   };
 
-  const handleAddNoteSubmit = async () => {
-    if (!newNoteText.trim()) return;
-    await createNote({ content: newNoteText, type: 'Note', tags: [] });
-    setNewNoteText('');
-    setOpenDialog(false);
+  const handleAddNoteClick = async () => {
+    try {
+      const newNote = await createNote({
+        title: '',
+        content: '',
+        richContent: '',
+        contentType: 'rich',
+        tags: [],
+        type: 'Note',
+      }).unwrap();
+
+      if (newNote.data?.id) {
+        navigate(`/ai-dashboard/notes?id=${newNote.data.id}`);
+      } else {
+        navigate('/ai-dashboard/notes');
+      }
+    } catch {
+      navigate('/ai-dashboard/notes');
+    }
+  };
+
+  const handleNoteClick = (id) => {
+    navigate(`/ai-dashboard/notes?id=${id}`);
   };
 
   const handleDelete = async () => {
@@ -64,33 +138,81 @@ const NotesCard = ({ cardStyle }) => {
   return (
     <Card sx={cardStyle}>
       <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <StorageIcon sx={{ color: '#7C3AED', fontSize: 20 }} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#7C3AED' }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#7C3AED' }}>
                 Context Stream (LanceDB)
               </Typography>
             </Box>
             <Typography variant="caption" sx={{ color: '#64748b' }}>
-              Unstructured notes & knowledge. AI processed and stored.
+              Rich AI-powered notes & vector indexed knowledge base.
             </Typography>
           </Box>
-          <Button 
-            size="small" 
-            startIcon={<AddIcon />} 
-            onClick={() => setOpenDialog(true)}
-            sx={{ color: '#7C3AED', textTransform: 'none', fontWeight: 600, '&:hover': { bgcolor: 'rgba(124, 58, 237, 0.1)' } }}
+
+          <Button
+            size="small"
+            startIcon={<AddIcon />}
+            onClick={handleAddNoteClick}
+            disabled={isCreating}
+            sx={{
+              color: '#7C3AED',
+              textTransform: 'none',
+              fontWeight: 600,
+              bgcolor: 'rgba(124, 58, 237, 0.08)',
+              '&:hover': { bgcolor: 'rgba(124, 58, 237, 0.16)' },
+              borderRadius: '8px',
+            }}
           >
-            Add Note
+            New Note
           </Button>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-          <Chip label="All Types" size="small" variant={filterType === 'All' ? 'filled' : 'outlined'} onClick={() => setFilterType('All')} sx={{ color: filterType === 'All' ? '#fff' : '#64748b', bgcolor: filterType === 'All' ? '#7C3AED' : 'transparent', borderColor: 'rgba(100,116,139,0.2)' }} />
-          <Chip label="Has Tags" size="small" variant={filterType === 'All Tags' ? 'filled' : 'outlined'} onClick={() => setFilterType('All Tags')} sx={{ color: filterType === 'All Tags' ? '#fff' : '#64748b', bgcolor: filterType === 'All Tags' ? '#7C3AED' : 'transparent', borderColor: 'rgba(100,116,139,0.2)' }} />
-          <Chip label="Newest First" size="small" variant={filterType === 'Newest First' ? 'filled' : 'outlined'} onClick={() => setFilterType('Newest First')} sx={{ color: filterType === 'Newest First' ? '#fff' : '#64748b', bgcolor: filterType === 'Newest First' ? '#7C3AED' : 'transparent', borderColor: 'rgba(100,116,139,0.2)' }} />
-          <Box component="form" onSubmit={handleSearch} sx={{ flexGrow: 1, ml: 1 }}>
+        {/* Filter Pills & Search */}
+        <Box sx={{ display: 'flex', gap: 0.8, mb: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Chip
+            label="All"
+            size="small"
+            onClick={() => setFilterType('All')}
+            sx={{
+              height: 24,
+              fontSize: '0.72rem',
+              fontWeight: 600,
+              bgcolor: filterType === 'All' ? '#7C3AED' : isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+              color: filterType === 'All' ? '#fff' : isDark ? '#cbd5e1' : '#64748b',
+              cursor: 'pointer',
+            }}
+          />
+          <Chip
+            label="Pinned"
+            size="small"
+            onClick={() => setFilterType('Pinned')}
+            sx={{
+              height: 24,
+              fontSize: '0.72rem',
+              fontWeight: 600,
+              bgcolor: filterType === 'Pinned' ? '#7C3AED' : isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+              color: filterType === 'Pinned' ? '#fff' : isDark ? '#cbd5e1' : '#64748b',
+              cursor: 'pointer',
+            }}
+          />
+          <Chip
+            label="Has Tags"
+            size="small"
+            onClick={() => setFilterType('Has Tags')}
+            sx={{
+              height: 24,
+              fontSize: '0.72rem',
+              fontWeight: 600,
+              bgcolor: filterType === 'Has Tags' ? '#7C3AED' : isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+              color: filterType === 'Has Tags' ? '#fff' : isDark ? '#cbd5e1' : '#64748b',
+              cursor: 'pointer',
+            }}
+          />
+
+          <Box component="form" onSubmit={handleSearch} sx={{ flexGrow: 1, minWidth: '130px' }}>
             <TextField
               fullWidth
               size="small"
@@ -100,7 +222,7 @@ const NotesCard = ({ cardStyle }) => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: 'rgba(100,116,139,0.5)', fontSize: 16 }} />
+                    <SearchIcon sx={{ color: 'rgba(100,116,139,0.5)', fontSize: 15 }} />
                   </InputAdornment>
                 ),
                 endAdornment: isSearching && (
@@ -108,86 +230,152 @@ const NotesCard = ({ cardStyle }) => {
                     <CircularProgress size={12} sx={{ color: '#7C3AED' }} />
                   </InputAdornment>
                 ),
-                sx: { height: 24, fontSize: '0.75rem', borderRadius: 1 }
+                sx: { height: 26, fontSize: '0.75rem', borderRadius: 1.5 },
               }}
             />
           </Box>
         </Box>
 
-        <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1 }}>
+        {/* Note Previews List */}
+        <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 0.5, display: 'flex', flexDirection: 'column', gap: 1.2 }}>
           {isLoading && <CircularProgress size={24} sx={{ display: 'block', mx: 'auto', mt: 4 }} />}
-          
+
           <AnimatePresence>
-            {displayNotes.map(note => (
-              <motion.div
-                key={note.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-              >
-                <Box sx={{ 
-                  p: 2, 
-                  mb: 2, 
-                  borderRadius: '12px',
-                  bgcolor: isDark ? '#ffffff' : '#ffffff', // using white as per screenshot for light mode notes
-                  border: '1px solid rgba(0,0,0,0.05)',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 1.5
-                }}>
-                  <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Box sx={{ 
-                      width: 40, height: 40, borderRadius: '8px', 
-                      bgcolor: 'rgba(124, 58, 237, 0.05)', color: '#7C3AED',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-                    }}>
-                      {/* Icon based on type, placeholder icon for now */}
-                      <StorageIcon sx={{ fontSize: 20 }} />
-                    </Box>
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <Typography variant="body2" sx={{ color: '#0f172a', fontWeight: 600, mb: 0.5 }}>
-                          {note.summary ? (note.summary.split('\\n')[0].replace(/^- /g, '')).substring(0, 50) + (note.summary.length > 50 ? '...' : '') : 'Note'}
-                        </Typography>
-                        <IconButton 
-                          size="small" 
-                          sx={{ color: '#94a3b8', mt: -0.5, mr: -1 }}
-                          onClick={(e) => { setAnchorEl(e.currentTarget); setSelectedNoteId(note.id); }}
-                        >
-                          <MoreVertIcon fontSize="small" />
-                        </IconButton>
+            {displayNotes.map((note) => {
+              const displayTitle = note.title || (note.summary ? note.summary.split('\n')[0].replace(/^- /g, '').substring(0, 45) : 'Untitled Note');
+              const snippet = note.content || note.text || note.summary || 'No text content';
+
+              return (
+                <motion.div
+                  key={note.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                >
+                  <Box
+                    onClick={() => handleNoteClick(note.id)}
+                    sx={{
+                      p: 1.5,
+                      borderRadius: '12px',
+                      bgcolor: isDark ? 'rgba(255,255,255,0.03)' : '#ffffff',
+                      border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 1,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      borderLeft: note.color ? `4px solid ${note.color}` : undefined,
+                      '&:hover': {
+                        bgcolor: isDark ? 'rgba(124, 58, 237, 0.12)' : 'rgba(124, 58, 237, 0.04)',
+                        borderColor: 'rgba(124, 58, 237, 0.3)',
+                        transform: 'translateY(-1px)',
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', gap: 1.5 }}>
+                      <Box
+                        sx={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: '8px',
+                          bgcolor: 'rgba(124, 58, 237, 0.08)',
+                          color: '#7C3AED',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <RichNoteIcon sx={{ fontSize: 18 }} />
                       </Box>
-                      <Typography variant="caption" sx={{ color: '#475569', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', mb: 1 }}>
-                        {note.content || note.text || note.summary}
-                      </Typography>
-                      
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                          {(note.tags || ['#note']).map((tag, i) => (
-                            <Typography key={i} variant="caption" sx={{ color: '#7C3AED', fontSize: '0.65rem', fontWeight: 500 }}>
-                              {tag.startsWith('#') ? tag : `#${tag}`}
+
+                      <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, overflow: 'hidden' }}>
+                            {note.isPinned && <PinIcon sx={{ fontSize: 13, color: '#7C3AED' }} />}
+                            {note.isFavorite && <FavoriteIcon sx={{ fontSize: 12, color: '#EF4444' }} />}
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: isDark ? '#f8fafc' : '#0f172a',
+                                fontWeight: 700,
+                                fontSize: '0.85rem',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}
+                            >
+                              {displayTitle}
                             </Typography>
-                          ))}
+                          </Box>
+
+                          <IconButton
+                            size="small"
+                            sx={{ color: '#94a3b8', mt: -0.5, mr: -0.5 }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAnchorEl(e.currentTarget);
+                              setSelectedNoteId(note.id);
+                            }}
+                          >
+                            <MoreVertIcon fontSize="small" sx={{ fontSize: 16 }} />
+                          </IconButton>
                         </Box>
-                        
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          {note.isIndexed && (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <AiIcon sx={{ color: '#7C3AED', fontSize: 12 }} />
-                              <Typography variant="caption" sx={{ color: '#7C3AED', fontSize: '0.65rem', fontWeight: 600 }}>AI Processed</Typography>
-                            </Box>
-                          )}
-                          <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.65rem' }}>
-                            {note.createdAt ? new Date(note.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'now'}
-                          </Typography>
+
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: isDark ? '#94a3b8' : '#475569',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            my: 0.5,
+                            lineHeight: 1.35,
+                          }}
+                        >
+                          {snippet}
+                        </Typography>
+
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                            {(note.tags || []).slice(0, 2).map((tag, i) => (
+                              <Typography
+                                key={i}
+                                variant="caption"
+                                sx={{ color: '#7C3AED', fontSize: '0.65rem', fontWeight: 600 }}
+                              >
+                                {tag.startsWith('#') ? tag : `#${tag}`}
+                              </Typography>
+                            ))}
+                          </Box>
+
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                            {note.isIndexed && (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                                <AiIcon sx={{ color: '#7C3AED', fontSize: 11 }} />
+                                <Typography variant="caption" sx={{ color: '#7C3AED', fontSize: '0.65rem', fontWeight: 600 }}>
+                                  Indexed
+                                </Typography>
+                              </Box>
+                            )}
+                            <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.65rem' }}>
+                              {note.updatedAt || note.createdAt
+                                ? new Date(note.updatedAt || note.createdAt).toLocaleDateString([], {
+                                    month: 'short',
+                                    day: 'numeric',
+                                  })
+                                : 'now'}
+                            </Typography>
+                          </Box>
                         </Box>
                       </Box>
                     </Box>
                   </Box>
-                </Box>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
 
           {!isLoading && displayNotes.length === 0 && (
@@ -196,10 +384,27 @@ const NotesCard = ({ cardStyle }) => {
             </Typography>
           )}
         </Box>
-        
-        <Box sx={{ pt: 1 }}>
-          <Typography variant="caption" sx={{ color: '#7C3AED', cursor: 'pointer', fontWeight: 600, '&:hover': { textDecoration: 'underline' } }}>
-            View all notes →
+
+        {/* Footer Link to Dedicated Page */}
+        <Box sx={{ pt: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Typography
+            variant="caption"
+            onClick={() => navigate('/ai-dashboard/notes')}
+            sx={{
+              color: '#7C3AED',
+              cursor: 'pointer',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5,
+              '&:hover': { textDecoration: 'underline' },
+            }}
+          >
+            Open Full Notes App <OpenIcon sx={{ fontSize: 13 }} />
+          </Typography>
+
+          <Typography variant="caption" sx={{ color: '#94a3b8' }}>
+            {notes.length} note{notes.length === 1 ? '' : 's'} stored
           </Typography>
         </Box>
       </CardContent>
@@ -210,44 +415,19 @@ const NotesCard = ({ cardStyle }) => {
         onClose={() => setAnchorEl(null)}
         PaperProps={{ sx: { bgcolor: isDark ? '#1e293b' : '#fff', borderRadius: '12px', minWidth: '120px' } }}
       >
-        <MenuItem onClick={handleDelete} sx={{ color: '#ef4444', fontSize: '0.875rem' }}>
+        <MenuItem
+          onClick={() => {
+            if (selectedNoteId) navigate(`/ai-dashboard/notes?id=${selectedNoteId}`);
+            setAnchorEl(null);
+          }}
+          sx={{ fontSize: '0.85rem' }}
+        >
+          <OpenIcon fontSize="small" sx={{ mr: 1, color: '#7C3AED' }} /> Open Editor
+        </MenuItem>
+        <MenuItem onClick={handleDelete} sx={{ color: '#ef4444', fontSize: '0.85rem' }}>
           <DeleteIcon fontSize="small" sx={{ mr: 1 }} /> Delete
         </MenuItem>
       </Menu>
-
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { bgcolor: isDark ? '#0f172a' : '#fff', borderRadius: '16px' } }}>
-        <DialogTitle sx={{ color: isDark ? '#f8fafc' : '#0f172a' }}>Add a New Note</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            placeholder="Type your note here. The AI will process and index it..."
-            fullWidth
-            multiline
-            rows={4}
-            value={newNoteText}
-            onChange={(e) => setNewNoteText(e.target.value)}
-            sx={{
-              mt: 1,
-              '& .MuiOutlinedInput-root': {
-                color: isDark ? '#E8EDF5' : '#334155',
-                bgcolor: isDark ? 'rgba(255,255,255,0.05)' : 'transparent',
-              }
-            }}
-          />
-        </DialogContent>
-        <DialogActions sx={{ p: 2, pt: 0 }}>
-          <Button onClick={() => setOpenDialog(false)} sx={{ color: '#64748b' }}>Cancel</Button>
-          <Button 
-            onClick={handleAddNoteSubmit} 
-            variant="contained" 
-            disabled={!newNoteText.trim() || isCreating}
-            sx={{ bgcolor: '#7C3AED', '&:hover': { bgcolor: '#6D28D9' }, borderRadius: '8px' }}
-          >
-            {isCreating ? <CircularProgress size={20} color="inherit" /> : 'Save Note'}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Card>
   );
 };

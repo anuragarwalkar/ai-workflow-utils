@@ -3,6 +3,7 @@ import dashboardLangGraphService from '../services/dashboard/DashboardLangGraphS
 import memoryService from '../services/dashboard/MemoryService.js';
 import reminderDbService from '../services/dashboard/ReminderDbService.js';
 import noteDbService from '../services/dashboard/NoteDbService.js';
+import noteAiService from '../services/dashboard/NoteAiService.js';
 import tileConfigDbService from '../services/dashboard/TileConfigDbService.js';
 import dashboardIntentGraph from '../services/dashboard/DashboardIntentGraph.js';
 import langChainServiceFactory from '../services/langchain/LangChainServiceFactory.js';
@@ -221,6 +222,17 @@ User Query: {query}
     }
   }
 
+  async getNoteById(req, res) {
+    try {
+      const { id } = req.params;
+      const note = await noteDbService.getNoteById(id);
+      res.json({ success: true, data: note });
+    } catch (err) {
+      logger.error('Error fetching note by id:', err);
+      res.status(404).json({ success: false, error: err.message });
+    }
+  }
+
   async createNote(req, res) {
     try {
       const newNote = await noteDbService.addNote(req.body);
@@ -242,6 +254,28 @@ User Query: {query}
     }
   }
 
+  async toggleNotePin(req, res) {
+    try {
+      const { id } = req.params;
+      const updatedNote = await noteDbService.togglePin(id);
+      res.json({ success: true, data: updatedNote });
+    } catch (err) {
+      logger.error('Error toggling note pin:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async toggleNoteFavorite(req, res) {
+    try {
+      const { id } = req.params;
+      const updatedNote = await noteDbService.toggleFavorite(id);
+      res.json({ success: true, data: updatedNote });
+    } catch (err) {
+      logger.error('Error toggling note favorite:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
   async deleteNote(req, res) {
     try {
       const { id } = req.params;
@@ -249,6 +283,82 @@ User Query: {query}
       res.json({ success: true });
     } catch (err) {
       logger.error('Error deleting note:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  // Note AI Endpoints
+  async summarizeNote(req, res) {
+    try {
+      const { id } = req.params;
+      const { prompt } = req.body || {};
+      const result = await noteAiService.summarizeNote(id, prompt);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      logger.error('Error summarizing note:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async autoTagNote(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await noteAiService.autoTagNote(id);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      logger.error('Error auto-tagging note:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async expandNote(req, res) {
+    try {
+      const { id } = req.params;
+      const { instruction } = req.body || {};
+      const result = await noteAiService.expandNote(id, instruction);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      logger.error('Error expanding note:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async generateNote(req, res) {
+    try {
+      const { prompt, autoSave = false } = req.body || {};
+      if (!prompt) {
+        return res.status(400).json({ success: false, error: 'Prompt is required' });
+      }
+      const result = await noteAiService.generateFromPrompt(prompt, autoSave);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      logger.error('Error generating note:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async suggestRelatedNotes(req, res) {
+    try {
+      const { id } = req.params;
+      const limit = parseInt(req.query.limit || '5', 10);
+      const result = await noteAiService.suggestRelated(id, limit);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      logger.error('Error finding related notes:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async improveWriting(req, res) {
+    try {
+      const { text, mode = 'improve' } = req.body || {};
+      if (!text) {
+        return res.status(400).json({ success: false, error: 'Text is required' });
+      }
+      const result = await noteAiService.improveWriting(text, mode);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      logger.error('Error improving writing:', err);
       res.status(500).json({ success: false, error: err.message });
     }
   }
@@ -295,9 +405,12 @@ User Query: {query}
       const results = await memoryService.searchMemory(query, limit);
       const formatted = results.map(r => ({
         id: r.metadata.id,
+        sourceId: r.metadata.sourceId || r.metadata.id,
+        title: r.metadata.title || '',
         text: r.pageContent,
-        summary: r.metadata.summary,
-        type: r.metadata.type,
+        summary: r.metadata.summary || '',
+        tags: r.metadata.tags || [],
+        type: r.metadata.type || 'note',
       }));
       res.json({ success: true, data: formatted });
     } catch (err) {

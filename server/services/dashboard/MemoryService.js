@@ -105,11 +105,11 @@ class MemoryService {
     try {
       await this.getVectorStore(tableName);
       const table = await lanceDbService.getTable(tableName);
-      await table.delete(`sourceId = '${sourceId}'`);
+      // Double quote "sourceId" for LanceDB / DataFusion case-sensitive column matching
+      await table.delete(`"sourceId" = '${sourceId}'`);
       logger.info(`Deleted memory from ${tableName} for sourceId: ${sourceId}`);
     } catch (err) {
       logger.error(`Failed to delete memory for sourceId ${sourceId}:`, err);
-      throw err;
     }
   }
 }

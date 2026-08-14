@@ -69,6 +69,10 @@ export const dashboardApi = createApi({
       query: () => '/notes',
       providesTags: ['Note'],
     }),
+    getNoteById: builder.query({
+      query: id => `/notes/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Note', id }],
+    }),
     createNote: builder.mutation({
       query: note => ({
         url: '/notes',
@@ -83,7 +87,7 @@ export const dashboardApi = createApi({
         method: 'PATCH',
         body: patch,
       }),
-      invalidatesTags: ['Note'],
+      invalidatesTags: (result, error, { id }) => ['Note', { type: 'Note', id }],
     }),
     deleteNote: builder.mutation({
       query: id => ({
@@ -91,6 +95,62 @@ export const dashboardApi = createApi({
         method: 'DELETE',
       }),
       invalidatesTags: ['Note'],
+    }),
+    toggleNotePin: builder.mutation({
+      query: id => ({
+        url: `/notes/${id}/pin`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Note'],
+    }),
+    toggleNoteFavorite: builder.mutation({
+      query: id => ({
+        url: `/notes/${id}/favorite`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Note'],
+    }),
+    summarizeNote: builder.mutation({
+      query: ({ id, prompt }) => ({
+        url: `/notes/${id}/summarize`,
+        method: 'POST',
+        body: { prompt },
+      }),
+      invalidatesTags: ['Note'],
+    }),
+    autoTagNote: builder.mutation({
+      query: id => ({
+        url: `/notes/${id}/auto-tag`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Note'],
+    }),
+    expandNote: builder.mutation({
+      query: ({ id, instruction }) => ({
+        url: `/notes/${id}/expand`,
+        method: 'POST',
+        body: { instruction },
+      }),
+      invalidatesTags: ['Note'],
+    }),
+    generateNote: builder.mutation({
+      query: ({ prompt, autoSave }) => ({
+        url: '/notes/generate',
+        method: 'POST',
+        body: { prompt, autoSave },
+      }),
+      invalidatesTags: ['Note'],
+    }),
+    getRelatedNotes: builder.query({
+      query: ({ id, limit = 5 }) => `/notes/${id}/related?limit=${limit}`,
+      providesTags: (result, error, { id }) => [{ type: 'Note', id: `related-${id}` }],
+    }),
+    improveWriting: builder.mutation({
+      query: ({ text, mode }) => ({
+        url: '/notes/improve-writing',
+        method: 'POST',
+        body: { text, mode },
+      }),
     }),
     // Tile Config
     getTileConfig: builder.query({
@@ -143,9 +203,18 @@ export const {
   useUpdateReminderMutation,
   useDeleteReminderMutation,
   useGetNotesQuery,
+  useGetNoteByIdQuery,
   useCreateNoteMutation,
   useUpdateNoteMutation,
   useDeleteNoteMutation,
+  useToggleNotePinMutation,
+  useToggleNoteFavoriteMutation,
+  useSummarizeNoteMutation,
+  useAutoTagNoteMutation,
+  useExpandNoteMutation,
+  useGenerateNoteMutation,
+  useGetRelatedNotesQuery,
+  useImproveWritingMutation,
   useGetTileConfigQuery,
   useUpdateTileConfigMutation,
   useSummarizeTextMutation,

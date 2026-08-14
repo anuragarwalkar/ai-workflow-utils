@@ -9,6 +9,7 @@ import {
   Settings as SettingsIcon,
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
+  EditNote as NotesIcon,
 } from '@mui/icons-material';
 import { useAppTheme } from '../../theme/useAppTheme';
 
@@ -16,6 +17,7 @@ import { API_BASE_URL } from '../../config/environment.js';
 
 const navItems = [
   { label: 'Overview', path: '/ai-dashboard', icon: DashboardIcon, exact: true },
+  { label: 'AI Notes', path: '/ai-dashboard/notes', icon: NotesIcon },
   { label: 'Knowledge Base', path: '/ai-dashboard/knowledge-base', icon: LibraryBooksIcon },
   { label: 'Manage', path: '/ai-dashboard/manage', icon: SettingsIcon },
 ];
