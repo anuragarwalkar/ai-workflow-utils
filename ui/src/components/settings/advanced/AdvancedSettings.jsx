@@ -20,6 +20,7 @@ import {
   SystemUpdateAlt as UpdateIcon,
 } from '@mui/icons-material';
 import LogsViewer from './LogsViewer';
+import NotificationTester from './NotificationTester';
 import usePWAUpdate from '../../../hooks/usePWAUpdate';
 
 const AdvancedSettings = () => {
@@ -42,7 +43,7 @@ const AdvancedSettings = () => {
     input.type = 'file';
     input.accept = '.json';
     input.onchange = e => {
-      const file = e.target.files[0];
+      const [file] = e.target.files;
       if (file) {
         console.log('Importing data from:', file.name);
       }
@@ -179,6 +180,10 @@ const AdvancedSettings = () => {
               Refresh App
             </Button>
           </Stack>
+
+          <Divider sx={{ my: 2 }} />
+
+          <NotificationTester />
 
           <Divider sx={{ my: 2 }} />
 
