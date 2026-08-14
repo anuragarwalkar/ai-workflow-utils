@@ -25,17 +25,21 @@ export const useNotifications = (todos = []) => {
 
     const now = Date.now();
     
-    todos.forEach(todo => {
-      if (todo.done || !todo.notifyAt) return;
+    todos.forEach(item => {
+      const isDone = item.done === true || item.status === 'done';
+      const targetTime = item.notifyAt || item.remindAt;
+
+      if (isDone || !targetTime) return;
       
-      const notifyTime = new Date(todo.notifyAt).getTime();
+      const notifyTime = new Date(targetTime).getTime();
       const delay = notifyTime - now;
 
       // Only set timer if it's in the future and not already set
-      if (delay > 0 && delay < 86400000 && !timersRef.current[todo.id]) { // max 24h timer
-        timersRef.current[todo.id] = setTimeout(() => {
-          const notification = new Notification('AI Workflow TODO', {
-            body: todo.title,
+      if (delay > 0 && delay < 86400000 && !timersRef.current[item.id]) { // max 24h timer
+        timersRef.current[item.id] = setTimeout(() => {
+          const notificationTitle = item.remindAt ? 'AI Workflow Reminder' : 'AI Workflow TODO';
+          const notification = new Notification(notificationTitle, {
+            body: item.title,
             icon: '/favicon.ico',
             requireInteraction: true,
           });
@@ -46,7 +50,7 @@ export const useNotifications = (todos = []) => {
           };
 
           // Clean up timer ref
-          delete timersRef.current[todo.id];
+          delete timersRef.current[item.id];
         }, delay);
       }
     });

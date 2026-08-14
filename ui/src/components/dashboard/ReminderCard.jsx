@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 const ReminderCard = ({ cardStyle }) => {
   const { isDark } = useAppTheme();
   const { data: remindersData, isLoading } = useGetRemindersQuery();
-  const [updateReminder] = useUpdateReminderMutation();
+  const [updateReminder, { isLoading: isUpdating }] = useUpdateReminderMutation();
   const [deleteReminder] = useDeleteReminderMutation();
   const [createReminder, { isLoading: isCreating }] = useCreateReminderMutation();
   
@@ -24,6 +24,8 @@ const ReminderCard = ({ cardStyle }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newTime, setNewTime] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null);
 
   const handleMenuClick = (event, id) => {
     setAnchorEl(event.currentTarget);
@@ -53,12 +55,42 @@ const ReminderCard = ({ cardStyle }) => {
     handleMenuClose();
   };
 
-  const handleAddSubmit = async () => {
-    if (!newTitle.trim() || !newTime) return;
-    await createReminder({ title: newTitle, remindAt: new Date(newTime).toISOString() });
+  const handleEditClick = (reminder) => {
+    setNewTitle(reminder.title);
+    
+    let localTimeStr = '';
+    if (reminder.remindAt) {
+      const d = new Date(reminder.remindAt);
+      const tzOffset = d.getTimezoneOffset() * 60000;
+      localTimeStr = new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
+    }
+    
+    setNewTime(localTimeStr);
+    setIsEditing(true);
+    setEditId(reminder.id);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
     setNewTitle('');
     setNewTime('');
-    setOpenDialog(false);
+    setIsEditing(false);
+    setEditId(null);
+  };
+
+  const handleAddSubmit = async () => {
+    if (!newTitle.trim() || !newTime) return;
+    try {
+      if (isEditing) {
+        await updateReminder({ id: editId, title: newTitle, remindAt: new Date(newTime).toISOString() }).unwrap();
+      } else {
+        await createReminder({ title: newTitle, remindAt: new Date(newTime).toISOString() }).unwrap();
+      }
+      handleCloseDialog();
+    } catch (error) {
+      console.error('Failed to save reminder:', error);
+    }
   };
 
   return (
@@ -71,10 +103,27 @@ const ReminderCard = ({ cardStyle }) => {
               Reminders
             </Typography>
           </Box>
-          <IconButton onClick={() => setOpenDialog(true)} size="small" sx={{ color: '#7C3AED', bgcolor: 'rgba(124, 58, 237, 0.1)' }}>
-            <AddIcon fontSize="small" />
-            <Typography variant="caption" sx={{ ml: 0.5, fontWeight: 600 }}>Add Reminder</Typography>
-          </IconButton>
+          <Button 
+            onClick={() => {
+              setNewTitle('');
+              setNewTime('');
+              setIsEditing(false);
+              setEditId(null);
+              setOpenDialog(true);
+            }} 
+            size="small" 
+            sx={{ 
+              color: '#7C3AED', 
+              bgcolor: 'rgba(124, 58, 237, 0.1)',
+              '&:hover': { bgcolor: 'rgba(124, 58, 237, 0.2)' },
+              borderRadius: '20px',
+              textTransform: 'none',
+              pl: 1, pr: 1.5
+            }}
+          >
+            <AddIcon fontSize="small" sx={{ mr: 0.5 }} />
+            <Typography variant="caption" sx={{ fontWeight: 600 }}>Add Reminder</Typography>
+          </Button>
         </Box>
 
         <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1 }}>
@@ -146,20 +195,33 @@ const ReminderCard = ({ cardStyle }) => {
                       <Chip 
                         label="Snooze" 
                         size="small" 
-                        onClick={() => handleSnooze(reminder.id, 60)} 
+                        clickable
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSnooze(reminder.id, 60);
+                        }} 
                         sx={{ bgcolor: 'transparent', border: '1px solid rgba(100,116,139,0.2)', color: '#64748b', fontSize: '0.7rem' }} 
                       />
                       <Chip 
                         icon={<EditIcon sx={{ fontSize: 12 }} />} 
                         label="Edit" 
                         size="small" 
+                        clickable
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditClick(reminder);
+                        }}
                         sx={{ bgcolor: 'transparent', border: '1px solid rgba(100,116,139,0.2)', color: '#64748b', fontSize: '0.7rem' }} 
                       />
                       <Chip 
                         icon={<CheckIcon sx={{ fontSize: 12 }} />} 
                         label="Mark Done" 
                         size="small" 
-                        onClick={() => handleMarkDone(reminder.id)}
+                        clickable
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMarkDone(reminder.id);
+                        }}
                         sx={{ bgcolor: 'rgba(16, 185, 129, 0.1)', color: '#10B981', border: 'none', fontWeight: 600, fontSize: '0.7rem' }} 
                       />
                     </Box>
@@ -192,8 +254,8 @@ const ReminderCard = ({ cardStyle }) => {
           </MenuItem>
         </Menu>
 
-        <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { bgcolor: isDark ? '#0f172a' : '#fff', borderRadius: '16px' } }}>
-          <DialogTitle sx={{ color: isDark ? '#f8fafc' : '#0f172a' }}>Add a Reminder</DialogTitle>
+        <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth PaperProps={{ sx: { bgcolor: isDark ? '#0f172a' : '#fff', borderRadius: '16px' } }}>
+          <DialogTitle sx={{ color: isDark ? '#f8fafc' : '#0f172a' }}>{isEditing ? 'Edit Reminder' : 'Add a Reminder'}</DialogTitle>
           <DialogContent>
             <TextField
               autoFocus
@@ -220,14 +282,14 @@ const ReminderCard = ({ cardStyle }) => {
             />
           </DialogContent>
           <DialogActions sx={{ p: 2, pt: 0 }}>
-            <Button onClick={() => setOpenDialog(false)} sx={{ color: '#64748b' }}>Cancel</Button>
+            <Button onClick={handleCloseDialog} sx={{ color: '#64748b' }}>Cancel</Button>
             <Button 
               onClick={handleAddSubmit} 
               variant="contained" 
-              disabled={!newTitle.trim() || !newTime || isCreating}
+              disabled={!newTitle.trim() || !newTime || isCreating || isUpdating}
               sx={{ bgcolor: '#7C3AED', '&:hover': { bgcolor: '#6D28D9' }, borderRadius: '8px' }}
             >
-              {isCreating ? <CircularProgress size={20} color="inherit" /> : 'Save'}
+              {(isCreating || isUpdating) ? <CircularProgress size={20} color="inherit" /> : 'Save'}
             </Button>
           </DialogActions>
         </Dialog>
