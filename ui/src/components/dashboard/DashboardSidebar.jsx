@@ -26,43 +26,17 @@ const DashboardSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load state from server or fallback to local storage
+  // Load state from local storage
   useEffect(() => {
-    const fetchState = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/app-state/dashboard_sidebar_collapsed`);
-        if (response.ok) {
-          const result = await response.json();
-          setIsCollapsed(result.data === true || result.data === 'true');
-        } else {
-          const saved = localStorage.getItem('dashboard_sidebar_collapsed');
-          if (saved) setIsCollapsed(saved === 'true');
-        }
-      } catch (err) {
-        console.error('Failed to fetch sidebar state:', err);
-      } finally {
-        setIsLoaded(true);
-      }
-    };
-    fetchState();
+    const saved = localStorage.getItem('dashboard_sidebar_collapsed');
+    if (saved) setIsCollapsed(saved === 'true');
+    setIsLoaded(true);
   }, []);
 
-  const toggleSidebar = async () => {
+  const toggleSidebar = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
     localStorage.setItem('dashboard_sidebar_collapsed', newState);
-
-    try {
-      await fetch(`${API_BASE_URL}/api/app-state/dashboard_sidebar_collapsed`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newState),
-      });
-    } catch (err) {
-      console.error('Failed to save sidebar state to server:', err);
-    }
   };
 
   // Prevent flash of expanded sidebar if it should be collapsed
