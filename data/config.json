@@ -266,26 +266,6 @@
           "required": false,
           "sensitive": false,
           "default": "3000"
-    },
-    "slack": {
-      "title": "Slack Integration",
-      "description": "Configure Slack integration for the AI Dashboard",
-      "fields": {
-        "SLACK_BOT_TOKEN": {
-          "label": "Slack Bot Token",
-          "description": "Bot User OAuth Token (xoxb-...)",
-          "type": "string",
-          "required": false,
-          "sensitive": true
-        },
-        "SLACK_CHANNELS": {
-          "label": "Slack Channels",
-          "description": "Comma-separated list of channel IDs to monitor",
-          "type": "string",
-          "required": false,
-          "sensitive": false
-        }
-      }
     }
   }
 }

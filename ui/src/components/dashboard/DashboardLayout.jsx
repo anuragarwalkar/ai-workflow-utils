@@ -39,7 +39,6 @@ const DashboardLayout = () => {
           <Route path="/" element={<OverviewPage />} />
           <Route path="/pr-reviews" element={<PlaceholderPage title="PR Reviews" />} />
           <Route path="/knowledge-base" element={<PlaceholderPage title="Knowledge Base & RAG" />} />
-          <Route path="/slack" element={<PlaceholderPage title="Slack Integration" />} />
           <Route path="/tasks" element={<PlaceholderPage title="Task & Nag Queue" />} />
           <Route path="/manage" element={<ManagePage />} />
         </Routes>

@@ -9,11 +9,10 @@ const DEFAULT_TILES = [
   { id: 'contextStream', label: 'Context Stream (LanceDB)', visible: true, order: 0 },
   { id: 'reminders', label: 'Reminders', visible: true, order: 1 },
   { id: 'todos', label: 'To-Dos', visible: true, order: 2 },
-  { id: 'slackOverview', label: 'Slack Overview', visible: false, order: 3 },
-  { id: 'knowledgeBase', label: 'Knowledge Base & RAG', visible: false, order: 4 },
-  { id: 'prReviews', label: 'PR Reviews', visible: false, order: 5 },
-  { id: 'taskTimeline', label: 'Task Timeline', visible: false, order: 6 },
-  { id: 'performanceMetrics', label: 'Performance Metrics', visible: false, order: 7 }
+  { id: 'knowledgeBase', label: 'Knowledge Base & RAG', visible: false, order: 3 },
+  { id: 'prReviews', label: 'PR Reviews', visible: false, order: 4 },
+  { id: 'taskTimeline', label: 'Task Timeline', visible: false, order: 5 },
+  { id: 'performanceMetrics', label: 'Performance Metrics', visible: false, order: 6 }
 ];
 
 class TileConfigDbService {

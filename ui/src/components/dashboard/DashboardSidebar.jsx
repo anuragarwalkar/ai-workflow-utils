@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import {
   Dashboard as DashboardIcon,
   LibraryBooks as LibraryBooksIcon,
-  Chat as ChatIcon,
   AutoAwesome as AiIcon,
   ArrowBack as ArrowBackIcon,
   Settings as SettingsIcon,
@@ -13,7 +12,6 @@ import { useAppTheme } from '../../theme/useAppTheme';
 const navItems = [
   { label: 'Overview', path: '/ai-dashboard', icon: DashboardIcon, exact: true },
   { label: 'Knowledge Base', path: '/ai-dashboard/knowledge-base', icon: LibraryBooksIcon },
-  { label: 'Slack Activity', path: '/ai-dashboard/slack', icon: ChatIcon },
   { label: 'Manage', path: '/ai-dashboard/manage', icon: SettingsIcon },
 ];
 

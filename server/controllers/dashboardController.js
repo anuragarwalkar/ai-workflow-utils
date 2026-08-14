@@ -1,4 +1,3 @@
-import slackService from '../services/dashboard/SlackService.js';
 import todoDbService from '../services/dashboard/TodoDbService.js';
 import dashboardLangGraphService from '../services/dashboard/DashboardLangGraphService.js';
 import memoryService from '../services/dashboard/MemoryService.js';
@@ -117,36 +116,6 @@ User Query: {query}
       } else {
         res.status(500).json({ success: false, error: err.message });
       }
-    }
-  }
-
-  // Slack
-  async getSlackItems(req, res) {
-    try {
-      const items = await slackService.getAssignedItems();
-      res.json({ success: true, data: items });
-    } catch (err) {
-      logger.error('Error fetching slack items:', err);
-      res.status(500).json({ success: false, error: err.message });
-    }
-  }
-
-  async getSlackChannels(req, res) {
-    try {
-      const channels = await slackService.getChannels();
-      res.json({ success: true, data: channels });
-    } catch (err) {
-      logger.error('Error fetching slack channels:', err);
-      res.status(500).json({ success: false, error: err.message });
-    }
-  }
-
-  async testSlackConnection(req, res) {
-    try {
-      const isConnected = await slackService.testConnection();
-      res.json({ success: true, connected: isConnected });
-    } catch (err) {
-      res.json({ success: false, connected: false, error: err.message });
     }
   }
 

@@ -6,11 +6,6 @@ const router = express.Router();
 // Command Bar
 router.post('/command', dashboardController.processCommand);
 
-// Slack
-router.get('/slack/items', dashboardController.getSlackItems);
-router.get('/slack/channels', dashboardController.getSlackChannels);
-router.post('/slack/test', dashboardController.testSlackConnection);
-
 // Todos
 router.get('/todos', dashboardController.getTodos);
 router.post('/todos', dashboardController.createTodo);

@@ -6,23 +6,8 @@ export const dashboardApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${API_BASE_URL}/api/dashboard`,
   }),
-  tagTypes: ['Todo', 'SlackItem', 'Summary', 'SlackChannel', 'Reminder', 'Note', 'TileConfig'],
+  tagTypes: ['Todo', 'Summary', 'Reminder', 'Note', 'TileConfig'],
   endpoints: builder => ({
-    // Slack
-    getSlackItems: builder.query({
-      query: () => '/slack/items',
-      providesTags: ['SlackItem'],
-    }),
-    getSlackChannels: builder.query({
-      query: () => '/slack/channels',
-      providesTags: ['SlackChannel'],
-    }),
-    testSlackConnection: builder.mutation({
-      query: () => ({
-        url: '/slack/test',
-        method: 'POST',
-      }),
-    }),
     // Todos
     getTodos: builder.query({
       query: () => '/todos',
@@ -149,9 +134,6 @@ export const dashboardApi = createApi({
 });
 
 export const {
-  useGetSlackItemsQuery,
-  useGetSlackChannelsQuery,
-  useTestSlackConnectionMutation,
   useGetTodosQuery,
   useCreateTodoMutation,
   useUpdateTodoMutation,

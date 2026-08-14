@@ -5,7 +5,6 @@ import CommandBar from './CommandBar';
 import NotesCard from './NotesCard';
 import ReminderCard from './ReminderCard';
 import TodoCard from './TodoCard';
-import OverviewCard from './OverviewCard'; // Slack
 import KnowledgeBaseRAGCard from './KnowledgeBaseRAGCard';
 import PRReviewsCard from './PRReviewsCard';
 import TaskTimelineCard from './TaskTimelineCard';
@@ -94,12 +93,6 @@ const OverviewPage = () => {
           {getTileVisibility('todos') && (
             <Box sx={{ height: 350 }}>
               <TodoCard cardStyle={baseCardStyle} />
-            </Box>
-          )}
-
-          {getTileVisibility('slackOverview') && (
-            <Box sx={{ height: 400 }}>
-              <OverviewCard cardStyle={baseCardStyle} />
             </Box>
           )}
           
