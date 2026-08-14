@@ -164,192 +164,190 @@ ${emailPreview}`;
   };
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto' }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            mb: 3,
-            position: 'relative',
-            justifyContent: 'center',
-          }}
-        >
-          <Box sx={{ position: 'absolute', left: 0 }}>
-            <Button sx={{ minWidth: 120 }} variant='outlined' onClick={handleBackToHome}>
-              Back to Home
-            </Button>
-          </Box>
-          <Typography component='h1' sx={{ fontWeight: 600, m: 0 }} variant='h5'>
-            Send Email
-          </Typography>
+    <Box sx={{ width: '100%' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          mb: 4,
+          position: 'relative',
+          justifyContent: 'center',
+        }}
+      >
+        <Box sx={{ position: 'absolute', left: 0 }}>
+          <Button sx={{ minWidth: 120 }} variant='outlined' onClick={handleBackToHome}>
+            Back to Home
+          </Button>
         </Box>
+        <Typography component='h1' sx={{ fontWeight: 600, m: 0 }} variant='h5'>
+          Send Email
+        </Typography>
+      </Box>
 
-        <Box sx={{ mb: 4 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                helperText='Enter the version number for the release notes'
-                label='Version'
-                placeholder='e.g., 1.0.0'
-                value={version}
-                onChange={e => setVersion(e.target.value)}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                helperText='Your Atlassian Wiki URL for release notes'
-                label='Wiki URL'
-                placeholder='https://your-company.atlassian.net/wiki'
-                value={wikiUrl}
-                onChange={e => setWikiUrl(e.target.value)}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                helperText='Wiki basic authentication (username:password)'
-                label='Wiki Basic Auth'
-                placeholder='username:password'
-                type='password'
-                value={wikiBasicAuth}
-                onChange={e => setWikiBasicAuth(e.target.value)}
-              />
-            </Grid>
-
-            {dryRun && emailPreview ? (
-              <>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    helperText='Email subject line'
-                    label='Subject'
-                    placeholder='Email subject'
-                    value={subject}
-                    onChange={e => setSubject(e.target.value)}
-                  />
-                </Grid>
-
-                <Grid item md={6} xs={12}>
-                  <TextField
-                    fullWidth
-                    helperText='Primary recipient email address'
-                    label='To Email'
-                    placeholder='recipient@example.com'
-                    value={toEmail}
-                    onChange={e => setToEmail(e.target.value)}
-                  />
-                </Grid>
-
-                <Grid item md={6} xs={12}>
-                  <TextField
-                    fullWidth
-                    helperText='Carbon copy email address'
-                    label='CC Email (Optional)'
-                    placeholder='cc@example.com'
-                    value={ccEmail}
-                    onChange={e => setCcEmail(e.target.value)}
-                  />
-                </Grid>
-              </>
-            ) : null}
+      <Box sx={{ mb: 4 }}>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <TextField
+              fullWidth
+              helperText='Enter the version number for the release notes'
+              label='Version'
+              placeholder='e.g., 1.0.0'
+              value={version}
+              onChange={e => setVersion(e.target.value)}
+            />
           </Grid>
 
-          <FormControlLabel
-            control={
-              <Switch
-                checked={dryRun}
-                color='primary'
-                onChange={e => setDryRun(e.target.checked)}
-              />
-            }
-            label={dryRun ? 'Dry Run (Only preview and donwload template)' : 'Send Actual Email'}
-            sx={{ mt: 3, mb: 3 }}
-          />
+          <Grid size={{ xs: 12, md: 6 }}>
+            <TextField
+              fullWidth
+              helperText='Your Atlassian Wiki URL for release notes'
+              label='Wiki URL'
+              placeholder='https://your-company.atlassian.net/wiki'
+              value={wikiUrl}
+              onChange={e => setWikiUrl(e.target.value)}
+            />
+          </Grid>
 
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Button
-              disabled={isLoading || !version.trim() || !wikiUrl.trim() || !wikiBasicAuth.trim()}
-              size='large'
-              sx={{ minWidth: 200 }}
-              variant='contained'
-              onClick={handleSendEmail}
-            >
-              {isLoading ? (
-                <>
-                  <CircularProgress size={20} sx={{ mr: 1 }} />
-                  {dryRun ? 'Generating Preview...' : 'Sending Email...'}
-                </>
-              ) : dryRun ? (
-                emailPreview ? (
-                  'Regenerate Preview'
-                ) : (
-                  'Generate Preview'
-                )
+          <Grid size={{ xs: 12 }}>
+            <TextField
+              fullWidth
+              helperText='Wiki basic authentication (username:password)'
+              label='Wiki Basic Auth'
+              placeholder='username:password'
+              type='password'
+              value={wikiBasicAuth}
+              onChange={e => setWikiBasicAuth(e.target.value)}
+            />
+          </Grid>
+
+          {dryRun && emailPreview ? (
+            <>
+              <Grid size={{ xs: 12 }}>
+                <TextField
+                  fullWidth
+                  helperText='Email subject line'
+                  label='Subject'
+                  placeholder='Email subject'
+                  value={subject}
+                  onChange={e => setSubject(e.target.value)}
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TextField
+                  fullWidth
+                  helperText='Primary recipient email address'
+                  label='To Email'
+                  placeholder='recipient@example.com'
+                  value={toEmail}
+                  onChange={e => setToEmail(e.target.value)}
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TextField
+                  fullWidth
+                  helperText='Carbon copy email address'
+                  label='CC Email (Optional)'
+                  placeholder='cc@example.com'
+                  value={ccEmail}
+                  onChange={e => setCcEmail(e.target.value)}
+                />
+              </Grid>
+            </>
+          ) : null}
+        </Grid>
+
+        <FormControlLabel
+          control={
+            <Switch
+              checked={dryRun}
+              color='primary'
+              onChange={e => setDryRun(e.target.checked)}
+            />
+          }
+          label={dryRun ? 'Dry Run (Only preview and download template)' : 'Send Actual Email'}
+          sx={{ mt: 3, mb: 3, display: 'block' }}
+        />
+
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <Button
+            disabled={isLoading || !version.trim() || !wikiUrl.trim() || !wikiBasicAuth.trim()}
+            size='large'
+            sx={{ minWidth: 200 }}
+            variant='contained'
+            onClick={handleSendEmail}
+          >
+            {isLoading ? (
+              <>
+                <CircularProgress size={20} sx={{ mr: 1 }} />
+                {dryRun ? 'Generating Preview...' : 'Sending Email...'}
+              </>
+            ) : dryRun ? (
+              emailPreview ? (
+                'Regenerate Preview'
               ) : (
-                'Send Email'
-              )}
-            </Button>
+                'Generate Preview'
+              )
+            ) : (
+              'Send Email'
+            )}
+          </Button>
 
-            {dryRun && emailPreview ? (
-              <Button
-                size='large'
-                startIcon={<Download />}
-                sx={{ minWidth: 200 }}
-                variant='outlined'
-                onClick={handleDownloadTemplate}
-              >
-                Download Template
-              </Button>
-            ) : null}
-          </Box>
-        </Box>
-
-        {error ? (
-          <Alert severity='error' sx={{ mb: 3 }}>
-            Error: {error.data?.message || error.message || 'Failed to process email request'}
-          </Alert>
-        ) : null}
-
-        {success ? (
-          <Alert severity='success' sx={{ mb: 3 }}>
-            Email sent successfully for version {version}!
-          </Alert>
-        ) : null}
-
-        {emailPreview ? (
-          <Box sx={{ mt: 4 }}>
-            <Divider sx={{ mb: 3 }} />
-            <Typography variant='h6' gutterBottom>
-              {dryRun ? 'Email Preview' : 'Email Content'}
-            </Typography>
-            <Paper
+          {dryRun && emailPreview ? (
+            <Button
+              size='large'
+              startIcon={<Download />}
+              sx={{ minWidth: 200 }}
               variant='outlined'
-              sx={{
-                p: 0,
-                height: 500,
-                overflow: 'hidden',
-                backgroundColor: '#ffffff',
-              }}
+              onClick={handleDownloadTemplate}
             >
-              <iframe
-                srcDoc={emailPreview}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                  backgroundColor: 'white',
-                }}
-                title='Email Preview'
-              />
-            </Paper>
-          </Box>
-        ) : null}
-      </Paper>
+              Download Template
+            </Button>
+          ) : null}
+        </Box>
+      </Box>
+
+      {error ? (
+        <Alert severity='error' sx={{ mb: 3 }}>
+          Error: {error.data?.message || error.message || 'Failed to process email request'}
+        </Alert>
+      ) : null}
+
+      {success ? (
+        <Alert severity='success' sx={{ mb: 3 }}>
+          Email sent successfully for version {version}!
+        </Alert>
+      ) : null}
+
+      {emailPreview ? (
+        <Box sx={{ mt: 4 }}>
+          <Divider sx={{ mb: 3 }} />
+          <Typography variant='h6' gutterBottom>
+            {dryRun ? 'Email Preview' : 'Email Content'}
+          </Typography>
+          <Paper
+            variant='outlined'
+            sx={{
+              p: 0,
+              height: 500,
+              overflow: 'hidden',
+              backgroundColor: '#ffffff',
+            }}
+          >
+            <iframe
+              srcDoc={emailPreview}
+              style={{
+                width: '100%',
+                height: '100%',
+                border: 'none',
+                backgroundColor: 'white',
+              }}
+              title='Email Preview'
+            />
+          </Paper>
+        </Box>
+      ) : null}
     </Box>
   );
 };
