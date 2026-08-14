@@ -106,7 +106,7 @@ Beautiful, adaptive interface that automatically adjusts to your preferences:
   long sessions
 - **🔄 Smooth Transitions**: Elegant animations when switching between themes
 
-### **🔗 Feature #6: MCP Client Configuration**
+### **🔗 Feature #7: MCP Client Configuration**
 
 Advanced Model Context Protocol (MCP) client management for seamless AI tool integration:
 
@@ -117,6 +117,17 @@ Advanced Model Context Protocol (MCP) client management for seamless AI tool int
 - **📝 Client Documentation**: Add descriptions and metadata for organized client management
 - **🔄 Enable/Disable Toggle**: Easily activate or deactivate clients without deletion
 - **🏗️ LangChain Integration**: Seamless integration with LangChain MCP adapters for AI workflows
+
+### 🧠 **Feature #8: AI Knowledge Manager & Dashboard (NEW!)**
+
+A centralized, intelligent hub for managing your developer workflow, personal notes, and tasks with AI assistance:
+
+- **📝 AI-Powered Rich Text Notes**: Create and organize notes with a full-featured rich text editor.
+- **🔍 LanceDB Vector Search**: Semantic search across your notes using embedded vector representations for lightning-fast, context-aware retrieval.
+- **🤖 Knowledge Base RAG**: Chat with your personal knowledge base using Retrieval-Augmented Generation (RAG).
+- **⏰ Smart Reminders & Todos**: Keep track of your tasks and get timely reminders right on your dashboard.
+- **📊 Performance Metrics & Timeline**: Visualize your task timeline and monitor performance metrics seamlessly.
+- **🎨 Interactive Card UI**: A beautifully crafted, widget-based dashboard that you can manage effortlessly.
 
 ---
 
