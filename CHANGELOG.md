@@ -1,3 +1,12 @@
+# [1.12.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.11.0...v1.12.0) (2026-08-14)
+
+
+### Features
+
+* **model:** added ability to chose model in AI Manager ([16b900c](https://github.com/anuragarwalkar/ai-workflow-utils/commit/16b900c2257f648d3f12a8a8c7f8f6d8e0b73f35))
+* **search-bar:** improved the search bar UI ([8e396a4](https://github.com/anuragarwalkar/ai-workflow-utils/commit/8e396a47ae8dabb650fac18066678c308b6a0d4d))
+* **settings:** added test notification ([a8f010d](https://github.com/anuragarwalkar/ai-workflow-utils/commit/a8f010d112b6b09f0d411eab6e38ae904066a7d1))
+
 # [1.11.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.10.2...v1.11.0) (2026-08-14)
 
 
