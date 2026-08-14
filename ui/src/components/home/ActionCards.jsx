@@ -29,6 +29,7 @@ import {
   Tune as TuneIcon,
   Visibility as VisibilityIcon,
   AccountTree as WorkflowIcon,
+  Dashboard as DashboardIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useUnreleasedFeatures } from '../../hooks/useFeatureFlag';
@@ -88,9 +89,24 @@ const ActionCards = () => {
     navigate('/api-client');
   };
 
-  // Define all action cards
+  const handleAiDashboard = () => {
+    navigate('/ai-dashboard');
+  };
+
   const allActionCards = [
     // Released features
+    {
+      id: 'ai-dashboard',
+      title: 'AI Manager',
+      description: 'Your central hub for Notes, Reminders, Knowledge, Tasks',
+      icon: DashboardIcon,
+      actionIcon: AutoFixHighIcon,
+      onClick: handleAiDashboard,
+      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      shadowColor: 'rgba(240, 147, 251, 0.3)',
+      isReleased: true,
+      isAlpha: true,
+    },
     {
       id: 'create-jira',
       title: 'AI Create Jira',
@@ -113,7 +129,7 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)',
       shadowColor: 'rgba(139, 92, 246, 0.4)',
       isReleased: true,
-      isAlpha: true,
+      isBeta: true,
     },
     {
       id: 'ai-pr-code-review',
@@ -125,7 +141,7 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
       shadowColor: 'rgba(17, 153, 142, 0.3)',
       isReleased: true,
-      isAlpha: true,
+      isBeta: true,
     },
     {
       id: 'create-pr',
@@ -220,7 +236,6 @@ const ActionCards = () => {
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       shadowColor: 'rgba(102, 126, 234, 0.3)',
       isReleased: true,
-      isBeta: true,
     },
   ];
 

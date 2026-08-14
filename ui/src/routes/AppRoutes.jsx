@@ -13,6 +13,7 @@ import {
   ReleaseBuildContainer,
   SendEmailContainer,
   SettingsContainer,
+  AiDashboard,
 } from './lazyComponents';
 
 const AppRoutes = () => (
@@ -100,6 +101,10 @@ const AppRoutes = () => (
         </Layout>
       }
       path='/settings'
+    />
+    <Route
+      element={<AiDashboard />}
+      path='/ai-dashboard/*'
     />
   </Routes>
 );

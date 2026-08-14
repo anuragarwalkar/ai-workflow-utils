@@ -26,7 +26,7 @@ export const environmentSettingsApi = createApi({
         method: 'PUT',
         body: settings,
       }),
-      invalidatesTags: ['EnvironmentSettings', 'Providers'],
+      invalidatesTags: ['EnvironmentSettings', 'Providers', 'ProviderConfig'],
       async onQueryStarted(settings, { queryFulfilled }) {
         try {
           await queryFulfilled;

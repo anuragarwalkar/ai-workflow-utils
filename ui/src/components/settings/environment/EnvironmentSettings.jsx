@@ -66,7 +66,9 @@ const EnvironmentSettings = () => {
       // Ensure provider settings are set
       Object.entries(providerConfigData.data).forEach(([providerType, config]) => {
         const key = `${providerType}_provider`;
-        if (!flatSettings[key] && config.default) {
+        if (config.currentSelection) {
+          flatSettings[key] = config.currentSelection;
+        } else if (!flatSettings[key] && config.default) {
           flatSettings[key] = config.default;
         }
       });
@@ -142,6 +144,13 @@ const EnvironmentSettings = () => {
               flatSettings[key] = config.value;
             }
           });
+        });
+
+        // Preserve provider settings since result.data doesn't include them
+        Object.keys(settings).forEach(key => {
+          if (key.endsWith('_provider')) {
+            flatSettings[key] = settings[key];
+          }
         });
 
         setSettings(flatSettings);

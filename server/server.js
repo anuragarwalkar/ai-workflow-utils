@@ -23,6 +23,7 @@ import logsRoutes from './routes/logs-routes.js';
 import mcpRoutes from './routes/mcp-routes.js';
 import voiceRoutes from './routes/voice-routes.js';
 import appStateRoutes from './routes/app-state-routes.js';
+import dashboardRoutes from './routes/dashboard-routes.js';
 import langChainServiceFactory from './services/langchain/LangChainServiceFactory.js';
 import geminiVoiceService from './services/voice/GeminiVoiceService.js';
  
@@ -67,7 +68,7 @@ app.use(
   cors({
     origin: '*',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   })
 );
@@ -113,6 +114,7 @@ app.use('/api/logs', logsRoutes);
 app.use('/api/mcp', mcpRoutes);
 app.use('/api/voice', voiceRoutes);
 app.use('/api/app-state', appStateRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Serve static files from React build
 const staticPath = path.join(projectRoot, 'ui/dist');
