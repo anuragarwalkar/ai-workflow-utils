@@ -75,13 +75,18 @@ class EnvironmentDbService {
     try {
       await this.db.read();
 
+      const defaultData = await this.loadDefaultConfig();
+
       // If database is empty or doesn't exist, initialize with defaults
       if (!this.db.data || !this.db.data.schema) {
-        const defaultData = await this.loadDefaultConfig();
         this.db.data = defaultData;
-        await this.db.write();
         logger.info('Environment database initialized with default configuration');
+      } else {
+        // Always update the schema to ensure it matches the latest config.json
+        this.db.data.schema = defaultData.schema;
       }
+      
+      await this.db.write();
 
       return true;
     } catch (error) {

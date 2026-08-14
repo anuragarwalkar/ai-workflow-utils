@@ -8,7 +8,7 @@
       "options": [
         {
           "value": "anthropic",
-          "label": "Anthropic Claude (Recommended)",
+          "label": "OpenAI Compatible",
           "section": "openai",
           "available": true
         },
@@ -266,6 +266,8 @@
           "required": false,
           "sensitive": false,
           "default": "3000"
+        }
+      }
     }
   }
 }
