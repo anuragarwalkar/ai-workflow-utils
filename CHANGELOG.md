@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.10.2...v1.11.0) (2026-08-14)
+
+
+### Features
+
+* **ai-manager:** added new tab ai manger with notes, context based ai search and other functionality  ([#19](https://github.com/anuragarwalkar/ai-workflow-utils/issues/19)) ([85be86d](https://github.com/anuragarwalkar/ai-workflow-utils/commit/85be86db9f55ff1857cd6dd9b37fd9e2285e1a41))
+
 ## [1.10.2](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.10.1...v1.10.2) (2026-08-12)
 
 
