@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.12.0...v1.12.1) (2026-08-14)
+
+
+### Bug Fixes
+
+* **ui:** updated send email ([b38517b](https://github.com/anuragarwalkar/ai-workflow-utils/commit/b38517b007ae4663c7bab1cdbd24d16206beba21))
+
 # [1.12.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.11.0...v1.12.0) (2026-08-14)
 
 
