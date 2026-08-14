@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, TextField, IconButton, CircularProgress, Typography, Paper, Collapse } from '@mui/material';
+import { Box, InputBase, IconButton, CircularProgress, Typography, Paper, Collapse } from '@mui/material';
 import { Send as SendIcon, Mic as MicIcon, AttachFile as AttachFileIcon, Close as CloseIcon, AutoAwesome as AiIcon } from '@mui/icons-material';
 import { useAppTheme } from '../../theme/useAppTheme';
 import { useDispatch, useSelector } from 'react-redux';
@@ -122,25 +122,20 @@ const CommandBar = () => {
           display: 'flex',
           alignItems: 'center',
           px: 2,
-          py: 0.5,
+          py: 1.5,
           position: 'relative',
           zIndex: 10
         }}
       >
         <AiIcon sx={{ color: '#7C3AED', mr: 1, opacity: 0.7 }} />
-        <TextField
+        <InputBase
           inputRef={inputRef}
-          fullWidth
+          sx={{ flex: 1, color: isDark ? '#f8fafc' : '#0f172a' }}
           placeholder="Ask anything, add a note, set a reminder..."
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isProcessing}
-          variant="standard"
-          InputProps={{
-            disableUnderline: true,
-            sx: { color: isDark ? '#f8fafc' : '#0f172a', py: 1 }
-          }}
         />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <IconButton size="small" sx={{ color: isDark ? '#64748b' : '#94a3b8' }}>
