@@ -138,17 +138,26 @@ class SocketService {
     this.emit('voice-text-input', { sessionId, text });
   }
 
-  // Event listener management for voice events
-  onVoiceEvent(eventName, callback) {
+  // Event listener management
+  on(eventName, callback) {
     if (this.socket) {
       this.socket.on(eventName, callback);
     }
   }
 
-  offVoiceEvent(eventName, callback) {
+  off(eventName, callback) {
     if (this.socket) {
       this.socket.off(eventName, callback);
     }
+  }
+
+  // Event listener management for voice events (backwards compatibility)
+  onVoiceEvent(eventName, callback) {
+    this.on(eventName, callback);
+  }
+
+  offVoiceEvent(eventName, callback) {
+    this.off(eventName, callback);
   }
 }
 

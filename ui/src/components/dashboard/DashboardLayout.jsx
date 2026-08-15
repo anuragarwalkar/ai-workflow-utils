@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import { Routes, Route } from 'react-router-dom';
 import DashboardSidebar from './DashboardSidebar';
+import DashboardHeader from './DashboardHeader';
 import OverviewPage from './OverviewPage';
 import ManagePage from './ManagePage';
 import NotesPage from './notes/NotesPage';
@@ -33,12 +34,16 @@ const DashboardLayout = () => {
         flexGrow: 1,
         height: '100%',
         overflowY: 'auto',
+        position: 'relative',
         pt: 3,
         pb: 3,
         pl: 3,
-        pr: 1,
-        bgcolor: isDark ? '#0f172a' : '#f1f5f9', // slightly different bg for content area to contrast with cards
+        pr: 3,
+        bgcolor: isDark ? '#0f172a' : '#f1f5f9', // content area bg
       }}>
+        {/* Floating Notification Bell in top right */}
+        <DashboardHeader />
+
         <Routes>
           <Route path="/" element={<OverviewPage />} />
           <Route path="/notes" element={<NotesPage />} />

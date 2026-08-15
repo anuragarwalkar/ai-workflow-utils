@@ -1,73 +1,85 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectNotificationPermission, setNotificationPermission } from '../store/slices/dashboardSlice';
+import { showNotification } from '../store/slices/uiSlice';
+import { dashboardApi } from '../store/api/dashboardApi';
+import socketService from '../services/socketService';
+import { createLogger } from '../utils/log';
 
-export const useNotifications = (todos = []) => {
+const logger = createLogger('USE_NOTIFICATIONS');
+
+export const useNotifications = () => {
   const dispatch = useDispatch();
   const permission = useSelector(selectNotificationPermission);
-  const timersRef = useRef({});
 
+  // Sync browser notification permission state
   useEffect(() => {
-    if ('Notification' in window) {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
       dispatch(setNotificationPermission(Notification.permission));
     }
   }, [dispatch]);
 
-  const requestPermission = async () => {
-    if (!('Notification' in window)) return 'denied';
-    const result = await Notification.requestPermission();
-    dispatch(setNotificationPermission(result));
-    return result;
-  };
+  const requestPermission = useCallback(async () => {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      return 'denied';
+    }
+    try {
+      const result = await Notification.requestPermission();
+      dispatch(setNotificationPermission(result));
+      return result;
+    } catch (err) {
+      logger.error('requestPermission', 'Failed to request notification permission:', err);
+      return 'denied';
+    }
+  }, [dispatch]);
 
+  // Connect to Socket.IO and listen for server-driven notifications
   useEffect(() => {
-    if (permission !== 'granted') return;
+    socketService.connect();
 
-    const now = Date.now();
-    
-    todos.forEach(item => {
-      const isDone = item.done === true || item.status === 'done';
-      const targetTime = item.notifyAt || item.remindAt;
+    const handleServerNotification = (notificationData) => {
+      // Invalidate RTK Query cache to update NotificationCenter badge and list
+      dispatch(dashboardApi.util.invalidateTags(['Notification', 'Reminder', 'Todo']));
 
-      if (isDone || !targetTime) return;
-      
-      const notifyTime = new Date(targetTime).getTime();
-      const delay = notifyTime - now;
+      // In-app toast feedback
+      dispatch(
+        showNotification({
+          message: notificationData.title
+            ? `${notificationData.title}${notificationData.message ? ` - ${notificationData.message}` : ''}`
+            : 'New Notification Received',
+          severity: notificationData.severity || 'info',
+        })
+      );
 
-      // Only set timer if it's in the future and not already set
-      if (delay > 0 && delay < 86400000 && !timersRef.current[item.id]) { // max 24h timer
-        timersRef.current[item.id] = setTimeout(() => {
-          const notificationTitle = item.remindAt ? 'AI Workflow Reminder' : 'AI Workflow TODO';
-          const notification = new Notification(notificationTitle, {
-            body: item.title,
+      // Browser Desktop Notification if tab is open & permission granted
+      if (
+        typeof window !== 'undefined' &&
+        'Notification' in window &&
+        Notification.permission === 'granted'
+      ) {
+        try {
+          const browserNotice = new Notification(notificationData.title || 'AI Workflow Notification', {
+            body: notificationData.message || 'You have a new alert',
             icon: '/favicon.ico',
-            requireInteraction: true,
+            tag: `dashboard-notice-${notificationData.id || Date.now()}`,
           });
-          
-          notification.onclick = () => {
+
+          browserNotice.onclick = () => {
             window.focus();
-            notification.close();
+            browserNotice.close();
           };
-
-          // Clean up timer ref
-          delete timersRef.current[item.id];
-        }, delay);
+        } catch (err) {
+          logger.warn('handleServerNotification', 'Could not display browser Notification:', err);
+        }
       }
-    });
-
-    // Cleanup function
-    return () => {
-      // We don't clear all timers on every render, only when the component unmounts
     };
-  }, [todos, permission]);
 
-  // Clean up all timers on unmount
-  useEffect(() => {
+    socketService.onVoiceEvent('dashboard:notification', handleServerNotification);
+
     return () => {
-      Object.values(timersRef.current).forEach(clearTimeout);
-      timersRef.current = {};
+      socketService.offVoiceEvent('dashboard:notification', handleServerNotification);
     };
-  }, []);
+  }, [dispatch]);
 
   return { permission, requestPermission };
 };

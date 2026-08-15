@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { API_BASE_URL } from '../../config/environment.js';
 
@@ -6,7 +7,7 @@ export const dashboardApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${API_BASE_URL}/api/dashboard`,
   }),
-  tagTypes: ['Todo', 'Summary', 'Reminder', 'Note', 'TileConfig'],
+  tagTypes: ['Todo', 'Summary', 'Reminder', 'Note', 'TileConfig', 'Notification'],
   endpoints: builder => ({
     // Todos
     getTodos: builder.query({
@@ -186,14 +187,53 @@ export const dashboardApi = createApi({
       query: () => '/models',
       providesTags: ['Models'],
     }),
-    // We handle processCommand differently if it's streaming, but we can add a non-streaming mutation just in case
-    processCommand: builder.mutation({
-      query: ({ text, provider }) => ({
-        url: '/command',
-        method: 'POST',
-        body: { text, provider },
+    // Notifications
+    getNotifications: builder.query({
+      query: (params = {}) => ({
+        url: '/notifications',
+        params,
       }),
-      invalidatesTags: ['Todo', 'Reminder', 'Note'],
+      providesTags: ['Notification'],
+    }),
+    getUnreadNotificationCount: builder.query({
+      query: () => '/notifications/unread-count',
+      providesTags: ['Notification'],
+    }),
+    markNotificationRead: builder.mutation({
+      query: id => ({
+        url: `/notifications/${id}/read`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Notification'],
+    }),
+    markAllNotificationsRead: builder.mutation({
+      query: () => ({
+        url: '/notifications/mark-all-read',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Notification'],
+    }),
+    deleteNotification: builder.mutation({
+      query: id => ({
+        url: `/notifications/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Notification'],
+    }),
+    clearAllNotifications: builder.mutation({
+      query: () => ({
+        url: '/notifications',
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Notification'],
+    }),
+    triggerTestNotification: builder.mutation({
+      query: data => ({
+        url: '/notifications/test',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Notification', 'Reminder', 'Todo'],
     }),
   }),
 });
@@ -226,4 +266,11 @@ export const {
   useSearchSummariesMutation,
   useGetAvailableModelsQuery,
   useProcessCommandMutation,
+  useGetNotificationsQuery,
+  useGetUnreadNotificationCountQuery,
+  useMarkNotificationReadMutation,
+  useMarkAllNotificationsReadMutation,
+  useDeleteNotificationMutation,
+  useClearAllNotificationsMutation,
+  useTriggerTestNotificationMutation,
 } = dashboardApi;

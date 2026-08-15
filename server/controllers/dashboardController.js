@@ -5,6 +5,8 @@ import reminderDbService from '../services/dashboard/ReminderDbService.js';
 import noteDbService from '../services/dashboard/NoteDbService.js';
 import noteAiService from '../services/dashboard/NoteAiService.js';
 import tileConfigDbService from '../services/dashboard/TileConfigDbService.js';
+import notificationDbService from '../services/dashboard/NotificationDbService.js';
+import dashboardNotificationService from '../services/dashboard/DashboardNotificationService.js';
 import dashboardIntentGraph from '../services/dashboard/DashboardIntentGraph.js';
 import langChainServiceFactory from '../services/langchain/LangChainServiceFactory.js';
 import { setupSSEHeaders } from './chat/processors/streaming-processor.js';
@@ -490,6 +492,100 @@ User Query: {query}
       res.json({ success: true, data: formatted });
     } catch (err) {
       logger.error('Error searching summaries:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  // Notifications
+  async getNotifications(req, res) {
+    try {
+      const { status, type, limit } = req.query;
+      const options = {};
+      if (status) options.status = status;
+      if (type) options.type = type;
+      if (limit) options.limit = parseInt(limit, 10);
+
+      const notifications = await notificationDbService.getNotifications(options);
+      const unreadCount = await notificationDbService.getUnreadCount();
+
+      res.json({
+        success: true,
+        data: {
+          notifications,
+          unreadCount,
+        },
+      });
+    } catch (err) {
+      logger.error('Error fetching notifications:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async getUnreadNotificationCount(req, res) {
+    try {
+      const count = await notificationDbService.getUnreadCount();
+      res.json({ success: true, data: { unreadCount: count } });
+    } catch (err) {
+      logger.error('Error fetching unread notification count:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async markNotificationRead(req, res) {
+    try {
+      const { id } = req.params;
+      const updated = await notificationDbService.markAsRead(id);
+      res.json({ success: true, data: updated });
+    } catch (err) {
+      logger.error('Error marking notification as read:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async markAllNotificationsRead(req, res) {
+    try {
+      await notificationDbService.markAllAsRead();
+      res.json({ success: true, message: 'All notifications marked as read' });
+    } catch (err) {
+      logger.error('Error marking all notifications as read:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async deleteNotification(req, res) {
+    try {
+      const { id } = req.params;
+      await notificationDbService.deleteNotification(id);
+      res.json({ success: true, message: 'Notification deleted' });
+    } catch (err) {
+      logger.error('Error deleting notification:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async clearAllNotifications(req, res) {
+    try {
+      await notificationDbService.clearAllNotifications();
+      res.json({ success: true, message: 'All notifications cleared' });
+    } catch (err) {
+      logger.error('Error clearing all notifications:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async triggerTestNotification(req, res) {
+    try {
+      const { title, message, type, severity } = req.body;
+      const notification = await dashboardNotificationService.triggerManualNotification({
+        title: title || '🧪 Test Notification',
+        message: message || 'Server-driven test notification delivered successfully!',
+        type: type || 'system',
+        severity: severity || 'info',
+        metadata: { source: 'test-endpoint', triggeredAt: new Date().toISOString() },
+      });
+      res.status(201).json({ success: true, data: notification });
+    } catch (err) {
+      logger.error('Error triggering test notification:', err);
       res.status(500).json({ success: false, error: err.message });
     }
   }

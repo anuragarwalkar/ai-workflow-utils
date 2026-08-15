@@ -26,6 +26,7 @@ import appStateRoutes from './routes/app-state-routes.js';
 import dashboardRoutes from './routes/dashboard-routes.js';
 import langChainServiceFactory from './services/langchain/LangChainServiceFactory.js';
 import geminiVoiceService from './services/voice/GeminiVoiceService.js';
+import dashboardNotificationService from './services/dashboard/DashboardNotificationService.js';
  
 // Load default .env file first (for fallback values)
 dotenv.config();
@@ -54,6 +55,9 @@ const io = new SocketIOServer(server, {
     credentials: true,
   },
 });
+
+// Initialize server-driven notification engine for AI Dashboard
+dashboardNotificationService.init(io);
 
 const PORT = process.env.PORT || 3000;
 
@@ -241,6 +245,9 @@ const gracefulShutdown = signal => {
 
   isShuttingDown = true;
   logger.info(`${signal} received, shutting down gracefully`);
+
+  // Stop dashboard notification scheduler
+  dashboardNotificationService.stop();
 
   // Cleanup voice sessions
   geminiVoiceService.cleanupAll()

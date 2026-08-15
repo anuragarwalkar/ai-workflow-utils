@@ -42,4 +42,13 @@ router.put('/tiles/config', dashboardController.updateTileConfig);
 router.post('/summarize', dashboardController.runSummarize);
 router.post('/summaries/search', dashboardController.searchSummaries);
 
+// Notifications
+router.get('/notifications', dashboardController.getNotifications);
+router.get('/notifications/unread-count', dashboardController.getUnreadNotificationCount);
+router.patch('/notifications/:id/read', dashboardController.markNotificationRead);
+router.post('/notifications/mark-all-read', dashboardController.markAllNotificationsRead);
+router.delete('/notifications/:id', dashboardController.deleteNotification);
+router.delete('/notifications', dashboardController.clearAllNotifications);
+router.post('/notifications/test', dashboardController.triggerTestNotification);
+
 export default router;
