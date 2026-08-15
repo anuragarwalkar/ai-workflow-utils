@@ -1,3 +1,17 @@
+# [1.13.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.12.1...v1.13.0) (2026-08-15)
+
+
+### Bug Fixes
+
+* **fallback:** added loading fallback for lazy loading ([04039f9](https://github.com/anuragarwalkar/ai-workflow-utils/commit/04039f9aede94d5867c588c225c71fa1940e5811))
+* **tooltip:** fixed tooptip bug coming from top left ([aa8db4f](https://github.com/anuragarwalkar/ai-workflow-utils/commit/aa8db4f617d7672da32e6ca2de7dffd4b03c8097))
+
+
+### Features
+
+* **notifications:** added server sider notifications ([69e291b](https://github.com/anuragarwalkar/ai-workflow-utils/commit/69e291bf5a7c756e2b2b1d7df6360e71efea7685))
+* **vector-db:** added dashboard for lanceDb ([807b7fe](https://github.com/anuragarwalkar/ai-workflow-utils/commit/807b7fe427cb0d3b3a8c968392302183bfb4f011))
+
 ## [1.12.1](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.12.0...v1.12.1) (2026-08-14)
 
 
