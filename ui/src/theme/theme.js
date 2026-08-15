@@ -89,20 +89,31 @@ export const createAppTheme = (mode = 'auto') => {
         styleOverrides: {
           root: {
             textTransform: 'none',
-            borderRadius: '12px',
-            padding: '14px 28px',
-            fontSize: '1.1rem',
+            borderRadius: '8px',
             fontWeight: 600,
-            letterSpacing: '0.5px',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            letterSpacing: '0.3px',
+            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          },
+          sizeSmall: {
+            padding: '5px 12px',
+            fontSize: '0.8125rem',
+            borderRadius: '7px',
+          },
+          sizeMedium: {
+            padding: '8px 18px',
+            fontSize: '0.875rem',
+            borderRadius: '8px',
+          },
+          sizeLarge: {
+            padding: '12px 24px',
+            fontSize: '1rem',
+            borderRadius: '10px',
           },
           contained: {
-            boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.3)',
-            background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+            boxShadow: '0 2px 8px 0 rgba(102, 126, 234, 0.25)',
             '&:hover': {
-              boxShadow: '0 6px 20px 0 rgba(102, 126, 234, 0.4)',
-              transform: 'translateY(-2px)',
-              background: 'linear-gradient(45deg, #5a67d8 30%, #6b46c1 90%)',
+              boxShadow: '0 4px 14px 0 rgba(102, 126, 234, 0.35)',
+              transform: 'translateY(-1px)',
             },
             '&:active': {
               transform: 'translateY(0)',

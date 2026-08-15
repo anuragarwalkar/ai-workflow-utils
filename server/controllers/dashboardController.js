@@ -8,6 +8,7 @@ import tileConfigDbService from '../services/dashboard/TileConfigDbService.js';
 import notificationDbService from '../services/dashboard/NotificationDbService.js';
 import dashboardNotificationService from '../services/dashboard/DashboardNotificationService.js';
 import dashboardIntentGraph from '../services/dashboard/DashboardIntentGraph.js';
+import lanceDbService from '../services/dashboard/LanceDbService.js';
 import langChainServiceFactory from '../services/langchain/LangChainServiceFactory.js';
 import { setupSSEHeaders } from './chat/processors/streaming-processor.js';
 import { PromptTemplate } from '@langchain/core/prompts';
@@ -586,6 +587,148 @@ User Query: {query}
       res.status(201).json({ success: true, data: notification });
     } catch (err) {
       logger.error('Error triggering test notification:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  // LanceDB / Vector DB Endpoints
+  async getLanceDbStats(req, res) {
+    try {
+      const stats = await lanceDbService.getStats();
+      res.json({ success: true, data: stats });
+    } catch (err) {
+      logger.error('Error fetching LanceDB stats:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async getLanceDbTableRecords(req, res) {
+    try {
+      const { tableName = 'summaries' } = req.params;
+      const { limit = 50, offset = 0, type, search } = req.query;
+      const result = await lanceDbService.getTableRecords(tableName, {
+        limit: parseInt(limit, 10),
+        offset: parseInt(offset, 10),
+        type,
+        search
+      });
+      res.json({ success: true, data: result });
+    } catch (err) {
+      logger.error('Error fetching LanceDB records:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async getLanceDbTableSchema(req, res) {
+    try {
+      const { tableName = 'summaries' } = req.params;
+      const schema = await lanceDbService.getTableSchema(tableName);
+      res.json({ success: true, data: schema });
+    } catch (err) {
+      logger.error('Error fetching LanceDB schema:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async deleteLanceDbRecord(req, res) {
+    try {
+      const { tableName = 'summaries', id } = req.params;
+      const result = await lanceDbService.deleteRecord(tableName, id);
+      res.json({ success: true, data: result });
+    } catch (err) {
+      logger.error('Error deleting LanceDB record:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async bulkDeleteLanceDbRecords(req, res) {
+    try {
+      const { tableName = 'summaries' } = req.params;
+      const { ids = [], deleteAll = false, type = null } = req.body || {};
+      const result = await lanceDbService.deleteRecords(tableName, ids, { deleteAll, type });
+      res.json({ success: true, data: result, message: `Deleted ${result.count} record(s)` });
+    } catch (err) {
+      logger.error('Error bulk deleting LanceDB records:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async insertLanceDbRecord(req, res) {
+    try {
+      const { text, type = 'general', tags = [], summary = '', sourceId = '' } = req.body;
+      if (!text || !text.trim()) {
+        return res.status(400).json({ success: false, error: 'Text content is required' });
+      }
+      const id = await memoryService.addMemory(text.trim(), {
+        type,
+        tags: Array.isArray(tags) ? tags : [tags],
+        summary,
+        sourceId
+      });
+      res.status(201).json({ success: true, data: { id, text, type, tags, summary, sourceId } });
+    } catch (err) {
+      logger.error('Error inserting LanceDB record:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async reindexNotesToLanceDb(req, res) {
+    try {
+      await noteDbService.reindexAllNotes();
+      const stats = await lanceDbService.getStats();
+      res.json({ success: true, message: 'All notes re-indexed into LanceDB', data: stats });
+    } catch (err) {
+      logger.error('Error reindexing notes to LanceDB:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async searchLanceDb(req, res) {
+    try {
+      const { query, limit = 5, tableName = 'summaries' } = req.body;
+      if (!query || !query.trim()) {
+        return res.status(400).json({ success: false, error: 'Query is required' });
+      }
+      const { results, durationMs } = await memoryService.searchMemoryWithScore(query, parseInt(limit, 10), tableName);
+      
+      const formatted = results.map(([doc, distance]) => {
+        const rawDistance = typeof distance === 'number' ? distance : (doc.metadata?._distance || 0);
+        // Calculate similarity percentage: Cosine distance is usually 0 to 2, 0 is exact match
+        const similarityScore = Math.max(0, Math.min(100, Math.round((1 - rawDistance / 2) * 100)));
+
+        return {
+          id: doc.metadata?.id || '',
+          sourceId: doc.metadata?.sourceId || '',
+          type: doc.metadata?.type || 'note',
+          summary: doc.metadata?.summary || '',
+          tags: Array.isArray(doc.metadata?.tags) ? doc.metadata.tags : [],
+          text: doc.pageContent || '',
+          distance: Number(rawDistance.toFixed(4)),
+          similarityScore,
+        };
+      });
+
+      res.json({
+        success: true,
+        data: {
+          query,
+          count: formatted.length,
+          durationMs,
+          results: formatted
+        }
+      });
+    } catch (err) {
+      logger.error('Error searching LanceDB:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async getLanceDbDiagnostics(req, res) {
+    try {
+      const diagnostics = await lanceDbService.runDiagnostics();
+      res.json({ success: true, data: diagnostics });
+    } catch (err) {
+      logger.error('Error running LanceDB diagnostics:', err);
       res.status(500).json({ success: false, error: err.message });
     }
   }

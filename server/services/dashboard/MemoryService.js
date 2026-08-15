@@ -101,6 +101,26 @@ class MemoryService {
     }
   }
 
+  async searchMemoryWithScore(query, k = 5, tableName = 'summaries') {
+    const t0 = Date.now();
+    try {
+      const vectorStore = await this.getVectorStore(tableName);
+      let results = [];
+      try {
+        results = await vectorStore.similaritySearchWithScore(query, k);
+      } catch (err) {
+        logger.warn('similaritySearchWithScore fallback:', err.message);
+        const docs = await vectorStore.similaritySearch(query, k);
+        results = docs.map(d => [d, d.metadata?._distance !== undefined ? d.metadata._distance : 0.5]);
+      }
+      const durationMs = Date.now() - t0;
+      return { results, durationMs };
+    } catch (err) {
+      logger.error('Failed to search memory with score:', err);
+      return { results: [], durationMs: Date.now() - t0 };
+    }
+  }
+
   async deleteMemoryBySourceId(sourceId, tableName = 'summaries') {
     try {
       await this.getVectorStore(tableName);

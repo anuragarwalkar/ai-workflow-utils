@@ -336,9 +336,9 @@ const CommandBar = () => {
             <ListItemIcon sx={{ minWidth: 28, color: '#3B82F6' }}><NoteIcon fontSize="small" /></ListItemIcon>
             <ListItemText primary="Save Note / Idea" primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} />
           </MenuItem>
-          <MenuItem onClick={() => handleSelectAction('What are my latest notes about ')} sx={{ py: 1, gap: 1 }}>
-            <ListItemIcon sx={{ minWidth: 28, color: '#8B5CF6' }}><SearchIcon fontSize="small" /></ListItemIcon>
-            <ListItemText primary="Ask Knowledge Base" primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} />
+          <MenuItem onClick={() => handleSelectAction('Search vector db for ')} sx={{ py: 1, gap: 1 }}>
+            <ListItemIcon sx={{ minWidth: 28, color: '#00BFA5' }}><SearchIcon fontSize="small" /></ListItemIcon>
+            <ListItemText primary="Search Vector DB (LanceDB)" primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} />
           </MenuItem>
         </Menu>
 

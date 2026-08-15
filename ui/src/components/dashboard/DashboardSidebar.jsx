@@ -3,7 +3,7 @@ import { Box, Typography, IconButton, Tooltip } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import {
   Dashboard as DashboardIcon,
-  LibraryBooks as LibraryBooksIcon,
+  Storage as StorageIcon,
   AutoAwesome as AiIcon,
   ArrowBack as ArrowBackIcon,
   Settings as SettingsIcon,
@@ -18,7 +18,7 @@ import { API_BASE_URL } from '../../config/environment.js';
 const navItems = [
   { label: 'Overview', path: '/ai-dashboard', icon: DashboardIcon, exact: true },
   { label: 'AI Notes', path: '/ai-dashboard/notes', icon: NotesIcon },
-  { label: 'Knowledge Base', path: '/ai-dashboard/knowledge-base', icon: LibraryBooksIcon },
+  { label: 'Vector DB', path: '/ai-dashboard/vector-db', icon: StorageIcon },
   { label: 'Manage', path: '/ai-dashboard/manage', icon: SettingsIcon },
 ];
 

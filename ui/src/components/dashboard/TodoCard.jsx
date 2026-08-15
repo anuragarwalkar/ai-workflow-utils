@@ -44,7 +44,7 @@ const TodoCard = ({ cardStyle }) => {
   return (
     <Card sx={cardStyle}>
       <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3, pr: 4 }}>
           <Typography variant="h6" sx={{ color: isDark ? '#E8EDF5' : '#0f172a', fontWeight: 600 }}>
             Smart Tasks
           </Typography>

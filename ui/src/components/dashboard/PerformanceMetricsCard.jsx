@@ -6,7 +6,7 @@ const PerformanceMetricsCard = ({ cardStyle }) => {
 
   return (
     <Box sx={{ ...cardStyle, p: 2 }}>
-      <Typography variant="subtitle1" sx={{ fontWeight: 600, color: isDark ? '#f1f5f9' : '#0f172a', mb: 2 }}>
+      <Typography variant="subtitle1" sx={{ fontWeight: 600, color: isDark ? '#f1f5f9' : '#0f172a', mb: 2, pr: 4 }}>
         Performance metrics
       </Typography>
 

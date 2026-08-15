@@ -139,8 +139,8 @@ const NotesCard = ({ cardStyle }) => {
     <Card sx={cardStyle}>
       <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
-          <Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5, pr: 4.5 }}>
+          <Box sx={{ pr: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <StorageIcon sx={{ color: '#7C3AED', fontSize: 20 }} />
               <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#7C3AED' }}>
@@ -154,16 +154,22 @@ const NotesCard = ({ cardStyle }) => {
 
           <Button
             size="small"
-            startIcon={<AddIcon />}
+            startIcon={<AddIcon sx={{ fontSize: '0.95rem !important' }} />}
             onClick={handleAddNoteClick}
             disabled={isCreating}
             sx={{
               color: '#7C3AED',
               textTransform: 'none',
               fontWeight: 600,
-              bgcolor: 'rgba(124, 58, 237, 0.08)',
-              '&:hover': { bgcolor: 'rgba(124, 58, 237, 0.16)' },
-              borderRadius: '8px',
+              fontSize: '0.78rem',
+              height: 28,
+              px: 1.25,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              bgcolor: isDark ? 'rgba(124, 58, 237, 0.12)' : 'rgba(124, 58, 237, 0.08)',
+              border: '1px solid rgba(124, 58, 237, 0.25)',
+              '&:hover': { bgcolor: 'rgba(124, 58, 237, 0.18)', borderColor: '#7C3AED' },
+              borderRadius: '7px',
             }}
           >
             New Note

@@ -96,7 +96,7 @@ const ReminderCard = ({ cardStyle }) => {
   return (
     <Card sx={cardStyle}>
       <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, pr: 4.5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <TimeIcon sx={{ color: '#7C3AED', fontSize: 20 }} />
             <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#7C3AED' }}>
@@ -112,17 +112,23 @@ const ReminderCard = ({ cardStyle }) => {
               setOpenDialog(true);
             }} 
             size="small" 
+            startIcon={<AddIcon sx={{ fontSize: '0.95rem !important' }} />}
             sx={{ 
               color: '#7C3AED', 
-              bgcolor: 'rgba(124, 58, 237, 0.1)',
-              '&:hover': { bgcolor: 'rgba(124, 58, 237, 0.2)' },
-              borderRadius: '20px',
+              bgcolor: isDark ? 'rgba(124, 58, 237, 0.12)' : 'rgba(124, 58, 237, 0.08)',
+              border: '1px solid rgba(124, 58, 237, 0.25)',
+              '&:hover': { bgcolor: 'rgba(124, 58, 237, 0.18)', borderColor: '#7C3AED' },
+              borderRadius: '7px',
               textTransform: 'none',
-              pl: 1, pr: 1.5
+              height: 28,
+              px: 1.25,
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
-            <AddIcon fontSize="small" sx={{ mr: 0.5 }} />
-            <Typography variant="caption" sx={{ fontWeight: 600 }}>Add Reminder</Typography>
+            Add Reminder
           </Button>
         </Box>
 

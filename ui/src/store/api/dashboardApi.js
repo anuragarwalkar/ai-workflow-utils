@@ -7,7 +7,7 @@ export const dashboardApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${API_BASE_URL}/api/dashboard`,
   }),
-  tagTypes: ['Todo', 'Summary', 'Reminder', 'Note', 'TileConfig', 'Notification'],
+  tagTypes: ['Todo', 'Summary', 'Reminder', 'Note', 'TileConfig', 'Notification', 'LanceDb'],
   endpoints: builder => ({
     // Todos
     getTodos: builder.query({
@@ -235,6 +235,68 @@ export const dashboardApi = createApi({
       }),
       invalidatesTags: ['Notification', 'Reminder', 'Todo'],
     }),
+    // Vector DB / LanceDB Explorer
+    getLanceDbStats: builder.query({
+      query: () => '/lancedb/stats',
+      providesTags: ['LanceDb'],
+    }),
+    getLanceDbTableRecords: builder.query({
+      query: (params = {}) => {
+        const { tableName = 'summaries', limit = 50, offset = 0, type, search } = params;
+        const queryParams = new URLSearchParams();
+        if (limit) queryParams.append('limit', limit);
+        if (offset) queryParams.append('offset', offset);
+        if (type && type !== 'all') queryParams.append('type', type);
+        if (search) queryParams.append('search', search);
+        return `/lancedb/tables/${tableName}/records?${queryParams.toString()}`;
+      },
+      providesTags: ['LanceDb'],
+    }),
+    getLanceDbTableSchema: builder.query({
+      query: (tableName = 'summaries') => `/lancedb/tables/${tableName}/schema`,
+      providesTags: ['LanceDb'],
+    }),
+    deleteLanceDbRecord: builder.mutation({
+      query: ({ tableName = 'summaries', id }) => ({
+        url: `/lancedb/tables/${tableName}/records/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['LanceDb'],
+    }),
+    deleteLanceDbRecords: builder.mutation({
+      query: ({ tableName = 'summaries', ids = [], deleteAll = false, type = null }) => ({
+        url: `/lancedb/tables/${tableName}/records/bulk-delete`,
+        method: 'POST',
+        body: { ids, deleteAll, type },
+      }),
+      invalidatesTags: ['LanceDb'],
+    }),
+    insertLanceDbRecord: builder.mutation({
+      query: data => ({
+        url: '/lancedb/records',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['LanceDb'],
+    }),
+    reindexLanceDbNotes: builder.mutation({
+      query: () => ({
+        url: '/lancedb/reindex',
+        method: 'POST',
+      }),
+      invalidatesTags: ['LanceDb', 'Note'],
+    }),
+    searchLanceDb: builder.mutation({
+      query: ({ query, limit = 5, tableName = 'summaries' }) => ({
+        url: '/lancedb/search',
+        method: 'POST',
+        body: { query, limit, tableName },
+      }),
+    }),
+    getLanceDbDiagnostics: builder.query({
+      query: () => '/lancedb/diagnostics',
+      providesTags: ['LanceDb'],
+    }),
   }),
 });
 
@@ -273,4 +335,13 @@ export const {
   useDeleteNotificationMutation,
   useClearAllNotificationsMutation,
   useTriggerTestNotificationMutation,
+  useGetLanceDbStatsQuery,
+  useGetLanceDbTableRecordsQuery,
+  useGetLanceDbTableSchemaQuery,
+  useDeleteLanceDbRecordMutation,
+  useDeleteLanceDbRecordsMutation,
+  useInsertLanceDbRecordMutation,
+  useReindexLanceDbNotesMutation,
+  useSearchLanceDbMutation,
+  useGetLanceDbDiagnosticsQuery,
 } = dashboardApi;

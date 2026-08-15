@@ -7,7 +7,7 @@ const TaskTimelineCard = ({ cardStyle }) => {
   return (
     <Box sx={{ ...cardStyle, p: 0 }}>
       {/* Header */}
-      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)' }}>
+      <Box sx={{ p: 2, pr: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)' }}>
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 600, color: isDark ? '#f1f5f9' : '#0f172a' }}>
             Task & Nagging Queue
@@ -17,8 +17,8 @@ const TaskTimelineCard = ({ cardStyle }) => {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Box sx={{ px: 2, py: 0.5, borderRadius: '4px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)', fontSize: '0.7rem', color: '#94a3b8' }}>Upcoming Jobs</Box>
-          <Box sx={{ px: 2, py: 0.5, borderRadius: '4px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)', fontSize: '0.7rem', color: '#94a3b8' }}>Delayed Views</Box>
+          <Box sx={{ px: 1.5, py: 0.5, borderRadius: '4px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)', fontSize: '0.7rem', color: '#94a3b8' }}>Upcoming Jobs</Box>
+          <Box sx={{ px: 1.5, py: 0.5, borderRadius: '4px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)', fontSize: '0.7rem', color: '#94a3b8' }}>Delayed Views</Box>
         </Box>
       </Box>
 

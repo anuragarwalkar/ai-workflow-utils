@@ -11,14 +11,15 @@ import CommandBar from './CommandBar';
 import NotesCard from './NotesCard';
 import ReminderCard from './ReminderCard';
 import TodoCard from './TodoCard';
-import KnowledgeBaseRAGCard from './KnowledgeBaseRAGCard';
+import VectorDbOverviewCard from './VectorDbOverviewCard';
 import PRReviewsCard from './PRReviewsCard';
 import TaskTimelineCard from './TaskTimelineCard';
 import PerformanceMetricsCard from './PerformanceMetricsCard';
 
 const TILE_COMPONENTS = {
   contextStream: NotesCard,
-  knowledgeBase: KnowledgeBaseRAGCard,
+  vectorDb: VectorDbOverviewCard,
+  knowledgeBase: VectorDbOverviewCard,
   prReviews: PRReviewsCard,
   performanceMetrics: PerformanceMetricsCard,
   reminders: ReminderCard,
@@ -28,17 +29,28 @@ const TILE_COMPONENTS = {
 
 // Fallback logic in case x, y, w, h are missing from backend (e.g. legacy data)
 const getFallbackGridProps = (tile) => {
-  if (tile.x !== undefined) {
+  if (tile.x !== undefined && tile.y !== undefined && tile.w !== undefined && tile.h !== undefined) {
     return { x: tile.x, y: tile.y, w: tile.w, h: tile.h };
   }
-  
-  const isLeft = ['contextStream', 'knowledgeBase', 'prReviews', 'performanceMetrics'].includes(tile.id);
+
+  const isLeft = ['contextStream', 'vectorDb', 'knowledgeBase', 'prReviews', 'performanceMetrics'].includes(tile.id);
   const w = isLeft ? 7 : 5;
   const x = isLeft ? 0 : 7;
   const h = isLeft ? 4 : 3;
-  // just stack them based on order
   const y = (tile.order || 0) * h;
-  
+
+  return { x, y, w, h };
+};
+
+const normalizeGridLayout = (tile) => {
+  const safe = getFallbackGridProps(tile);
+  const maxCols = 12;
+
+  const x = Number.isFinite(safe.x) ? Math.max(0, Math.min(safe.x, maxCols - 1)) : 0;
+  const y = Number.isFinite(safe.y) ? Math.max(0, safe.y) : 0;
+  const w = Number.isFinite(safe.w) ? Math.max(3, Math.min(safe.w, maxCols)) : 5;
+  const h = Number.isFinite(safe.h) ? Math.max(2, safe.h) : 3;
+
   return { x, y, w, h };
 };
 
@@ -81,7 +93,7 @@ const OverviewPage = () => {
 
   // Generate the layout array expected by react-grid-layout
   const layout = visibleTiles.map(tile => {
-    const props = getFallbackGridProps(tile);
+    const props = normalizeGridLayout(tile);
     return {
       i: tile.id,
       x: props.x,
@@ -89,7 +101,7 @@ const OverviewPage = () => {
       w: props.w,
       h: props.h,
       minW: 3,
-      minH: 2
+      minH: 2,
     };
   });
 
@@ -197,35 +209,51 @@ const OverviewPage = () => {
             cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
             rowHeight={80}
             onLayoutChange={handleLayoutChange}
+            dragConfig={{ enabled: true, handle: '.drag-handle' }}
             draggableHandle=".drag-handle"
             margin={[24, 24]}
+            compactType={null}
+            preventCollision
+            verticalCompact={false}
           >
             {visibleTiles.map(tile => {
               const Component = TILE_COMPONENTS[tile.id];
               if (!Component) return null;
               
               return (
-                <Box key={tile.id}>
+                <Box key={tile.id} sx={{ position: 'relative', height: '100%' }}>
                   {/* Drag Handle Icon */}
                   <Box 
                     className="drag-handle"
                     sx={{
                       position: 'absolute',
-                      top: 12,
-                      right: 12,
+                      top: 14,
+                      right: 14,
                       cursor: 'grab',
                       zIndex: 10,
-                      color: 'text.secondary',
-                      background: 'rgba(124, 58, 237, 0.1)',
-                      borderRadius: '4px',
+                      color: isDark ? '#a78bfa' : '#7c3aed',
+                      background: isDark ? 'rgba(124, 58, 237, 0.12)' : 'rgba(124, 58, 237, 0.08)',
+                      border: isDark ? '1px solid rgba(124, 58, 237, 0.25)' : '1px solid rgba(124, 58, 237, 0.18)',
+                      borderRadius: '6px',
                       display: 'flex',
-                      p: 0.5,
-                      '&:active': { cursor: 'grabbing', background: 'rgba(124, 58, 237, 0.2)' },
-                      '&:hover': { background: 'rgba(124, 58, 237, 0.15)' }
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 28,
+                      height: 28,
+                      transition: 'all 0.15s ease',
+                      '&:active': {
+                        cursor: 'grabbing',
+                        background: isDark ? 'rgba(124, 58, 237, 0.3)' : 'rgba(124, 58, 237, 0.2)',
+                        transform: 'scale(0.95)',
+                      },
+                      '&:hover': {
+                        background: isDark ? 'rgba(124, 58, 237, 0.2)' : 'rgba(124, 58, 237, 0.14)',
+                        borderColor: '#7C3AED',
+                      }
                     }}
-                    title="Drag to move"
+                    title="Drag to move tile"
                   >
-                    <DragIndicator fontSize="small" sx={{ color: '#7C3AED' }} />
+                    <DragIndicator sx={{ fontSize: '1.1rem', color: '#7C3AED' }} />
                   </Box>
                   
                   {/* The card content */}

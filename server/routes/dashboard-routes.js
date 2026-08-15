@@ -51,4 +51,15 @@ router.delete('/notifications/:id', dashboardController.deleteNotification);
 router.delete('/notifications', dashboardController.clearAllNotifications);
 router.post('/notifications/test', dashboardController.triggerTestNotification);
 
+// Vector DB / LanceDB Explorer
+router.get('/lancedb/stats', dashboardController.getLanceDbStats);
+router.get('/lancedb/tables/:tableName/records', dashboardController.getLanceDbTableRecords);
+router.get('/lancedb/tables/:tableName/schema', dashboardController.getLanceDbTableSchema);
+router.delete('/lancedb/tables/:tableName/records/:id', dashboardController.deleteLanceDbRecord);
+router.post('/lancedb/tables/:tableName/records/bulk-delete', dashboardController.bulkDeleteLanceDbRecords);
+router.post('/lancedb/records', dashboardController.insertLanceDbRecord);
+router.post('/lancedb/reindex', dashboardController.reindexNotesToLanceDb);
+router.post('/lancedb/search', dashboardController.searchLanceDb);
+router.get('/lancedb/diagnostics', dashboardController.getLanceDbDiagnostics);
+
 export default router;

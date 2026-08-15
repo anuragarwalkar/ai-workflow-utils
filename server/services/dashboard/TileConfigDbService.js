@@ -2,8 +2,8 @@ import appStateDbService from '../appStateDbService.js';
 import logger from '../../logger.js';
 
 const DEFAULT_TILES = [
-  { id: 'contextStream', label: 'Context Stream (LanceDB)', visible: true, order: 0, column: 'left', x: 0, y: 0, w: 7, h: 5 },
-  { id: 'knowledgeBase', label: 'Knowledge Base & RAG', visible: false, order: 1, column: 'left', x: 0, y: 5, w: 7, h: 4 },
+  { id: 'contextStream', label: 'Context Stream (AI Notes)', visible: true, order: 0, column: 'left', x: 0, y: 0, w: 7, h: 5 },
+  { id: 'vectorDb', label: 'Vector DB (LanceDB)', visible: true, order: 1, column: 'left', x: 0, y: 5, w: 7, h: 4 },
   { id: 'prReviews', label: 'PR Reviews', visible: false, order: 2, column: 'left', x: 0, y: 9, w: 7, h: 4 },
   { id: 'performanceMetrics', label: 'Performance Metrics', visible: false, order: 3, column: 'left', x: 0, y: 13, w: 7, h: 4 },
   { id: 'reminders', label: 'Reminders', visible: true, order: 0, column: 'right', x: 7, y: 0, w: 5, h: 3 },

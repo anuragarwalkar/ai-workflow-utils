@@ -9,7 +9,7 @@ const PRReviewsCard = ({ cardStyle }) => {
   return (
     <Box sx={{ ...cardStyle, p: 0 }}>
       {/* Header */}
-      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)' }}>
+      <Box sx={{ p: 2, pr: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)' }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 600, color: isDark ? '#f1f5f9' : '#0f172a' }}>PR Reviews</Typography>
       </Box>
 

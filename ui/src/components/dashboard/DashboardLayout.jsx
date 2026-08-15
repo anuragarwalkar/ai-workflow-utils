@@ -5,6 +5,7 @@ import DashboardHeader from './DashboardHeader';
 import OverviewPage from './OverviewPage';
 import ManagePage from './ManagePage';
 import NotesPage from './notes/NotesPage';
+import VectorDbPage from './VectorDbPage';
 import { useAppTheme } from '../../theme/useAppTheme';
 
 // Placeholder components for other pages
@@ -49,7 +50,8 @@ const DashboardLayout = () => {
           <Route path="/notes" element={<NotesPage />} />
           <Route path="/notes/:id" element={<NotesPage />} />
           <Route path="/pr-reviews" element={<PlaceholderPage title="PR Reviews" />} />
-          <Route path="/knowledge-base" element={<PlaceholderPage title="Knowledge Base & RAG" />} />
+          <Route path="/vector-db" element={<VectorDbPage />} />
+          <Route path="/knowledge-base" element={<VectorDbPage />} />
           <Route path="/tasks" element={<PlaceholderPage title="Task & Nag Queue" />} />
           <Route path="/manage" element={<ManagePage />} />
         </Routes>
