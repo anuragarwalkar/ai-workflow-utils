@@ -1,11 +1,15 @@
+import React, { Suspense } from 'react';
 import { Box } from '@mui/material';
-import { Routes, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardHeader from './DashboardHeader';
-import OverviewPage from './OverviewPage';
-import ManagePage from './ManagePage';
-import NotesPage from './notes/NotesPage';
-import VectorDbPage from './VectorDbPage';
+import DashboardSkeleton from './DashboardSkeleton';
+import {
+  DashboardManagePage,
+  DashboardNotesPage,
+  DashboardOverviewPage,
+  DashboardVectorDbPage,
+} from '../../routes/lazyComponents';
 import { useAppTheme } from '../../theme/useAppTheme';
 
 // Placeholder components for other pages
@@ -45,16 +49,19 @@ const DashboardLayout = () => {
         {/* Floating Notification Bell in top right */}
         <DashboardHeader />
 
-        <Routes>
-          <Route path="/" element={<OverviewPage />} />
-          <Route path="/notes" element={<NotesPage />} />
-          <Route path="/notes/:id" element={<NotesPage />} />
-          <Route path="/pr-reviews" element={<PlaceholderPage title="PR Reviews" />} />
-          <Route path="/vector-db" element={<VectorDbPage />} />
-          <Route path="/knowledge-base" element={<VectorDbPage />} />
-          <Route path="/tasks" element={<PlaceholderPage title="Task & Nag Queue" />} />
-          <Route path="/manage" element={<ManagePage />} />
-        </Routes>
+        {/* Nested Suspense boundary so sidebar & header stay intact during tab switching */}
+        <Suspense fallback={<DashboardSkeleton />}>
+          <Routes>
+            <Route element={<DashboardOverviewPage />} path="/" />
+            <Route element={<DashboardNotesPage />} path="/notes" />
+            <Route element={<DashboardNotesPage />} path="/notes/:id" />
+            <Route element={<PlaceholderPage title="PR Reviews" />} path="/pr-reviews" />
+            <Route element={<DashboardVectorDbPage />} path="/vector-db" />
+            <Route element={<DashboardVectorDbPage />} path="/knowledge-base" />
+            <Route element={<PlaceholderPage title="Task & Nag Queue" />} path="/tasks" />
+            <Route element={<DashboardManagePage />} path="/manage" />
+          </Routes>
+        </Suspense>
       </Box>
     </Box>
   );

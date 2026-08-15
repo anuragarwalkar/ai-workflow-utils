@@ -9,6 +9,7 @@ import { ArrowBack as ArrowBackIcon, Home as HomeIcon } from '@mui/icons-materia
 import { alpha, useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { createLogger } from '../../utils/log.js';
+import { preloadRoute } from '../../routes/lazyComponents';
 
 const logger = createLogger('NavigationButton');
 
@@ -82,6 +83,8 @@ const NavigationButton = ({
           ...sx,
         }}
         onClick={handleNavigation}
+        onFocus={() => to && preloadRoute(to)}
+        onMouseEnter={() => to && preloadRoute(to)}
         {...props}
       >
         {getIcon()}

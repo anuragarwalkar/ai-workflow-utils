@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { resetCreateJira, resetViewJira } from '../../store/slices/jiraSlice';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from '../common/ThemeToggle';
+import { preloadRoute } from '../../routes/lazyComponents';
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -61,6 +62,8 @@ const Header = () => {
           },
         }}
         onClick={handleLogoClick}
+        onFocus={() => preloadRoute('/')}
+        onMouseEnter={() => preloadRoute('/')}
       >
         <Avatar
           sx={{
@@ -145,6 +148,8 @@ const Header = () => {
             },
           }}
           onClick={handleSettingsClick}
+          onFocus={() => preloadRoute('/settings')}
+          onMouseEnter={() => preloadRoute('/settings')}
         >
           <SettingsIcon />
         </IconButton>

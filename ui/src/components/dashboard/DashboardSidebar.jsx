@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, IconButton, Tooltip } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import {
-  Dashboard as DashboardIcon,
-  Storage as StorageIcon,
   AutoAwesome as AiIcon,
   ArrowBack as ArrowBackIcon,
-  Settings as SettingsIcon,
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
+  Dashboard as DashboardIcon,
   EditNote as NotesIcon,
+  Settings as SettingsIcon,
+  Storage as StorageIcon,
 } from '@mui/icons-material';
 import { useAppTheme } from '../../theme/useAppTheme';
+import { preloadRoute } from '../../routes/lazyComponents';
 
 import { API_BASE_URL } from '../../config/environment.js';
 
@@ -68,7 +69,7 @@ const DashboardSidebar = () => {
         boxSizing: 'border-box'
       }}>
         <AiIcon sx={{ color: '#00BFA5', flexShrink: 0 }} />
-        <Typography variant="h6" sx={{ 
+        <Typography sx={{ 
           fontWeight: 700, 
           color: isDark ? '#f1f5f9' : '#0f172a', 
           fontSize: '1.1rem', 
@@ -76,16 +77,18 @@ const DashboardSidebar = () => {
           opacity: isCollapsed ? 0 : 1,
           transition: 'opacity 0.2s',
           display: isCollapsed ? 'none' : 'block'
-        }}>
+        }} variant="h6">
           AI Manager
         </Typography>
       </Box>
 
       <Box sx={{ p: isCollapsed ? 1 : 2, display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
-        <Tooltip title={isCollapsed ? "Back to Home" : ""} placement="right">
+        <Tooltip placement="right" title={isCollapsed ? "Back to Home" : ""}>
           <NavLink
-            to="/"
             style={{ textDecoration: 'none', display: 'block', width: '100%', marginBottom: '16px' }}
+            to="/"
+            onFocus={() => preloadRoute('/')}
+            onMouseEnter={() => preloadRoute('/')}
           >
             <Box sx={{
               display: 'flex', 
@@ -99,12 +102,12 @@ const DashboardSidebar = () => {
               '&:hover': { bgcolor: 'rgba(100,116,139,0.1)' }
             }}>
               <ArrowBackIcon fontSize="small" sx={{ flexShrink: 0 }} />
-              <Typography variant="body2" sx={{ 
+              <Typography sx={{ 
                 fontWeight: 500, 
                 whiteSpace: 'nowrap',
                 opacity: isCollapsed ? 0 : 1,
                 display: isCollapsed ? 'none' : 'block'
-              }}>
+              }} variant="body2">
                 Back to Home
               </Typography>
             </Box>
@@ -117,9 +120,8 @@ const DashboardSidebar = () => {
           const Icon = item.icon;
           const navItem = (
             <NavLink
-              key={item.path}
-              to={item.path}
               end={item.exact}
+              key={item.path}
               style={({ isActive }) => ({
                 textDecoration: 'none',
                 display: 'block',
@@ -129,6 +131,9 @@ const DashboardSidebar = () => {
                 background: isActive ? (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)') : 'transparent',
                 color: isActive ? (isDark ? '#f8fafc' : '#0f172a') : '#64748b',
               })}
+              to={item.path}
+              onFocus={() => preloadRoute(item.path)}
+              onMouseEnter={() => preloadRoute(item.path)}
             >
               <Box sx={{
                 display: 'flex', 
@@ -143,12 +148,12 @@ const DashboardSidebar = () => {
                 }
               }}>
                 <Icon fontSize="small" sx={{ color: 'inherit', flexShrink: 0 }} />
-                <Typography variant="body2" sx={{ 
+                <Typography sx={{ 
                   fontWeight: 500, 
                   whiteSpace: 'nowrap',
                   opacity: isCollapsed ? 0 : 1,
                   display: isCollapsed ? 'none' : 'block'
-                }}>
+                }} variant="body2">
                   {item.label}
                 </Typography>
               </Box>
@@ -156,7 +161,7 @@ const DashboardSidebar = () => {
           );
           
           return isCollapsed ? (
-            <Tooltip key={item.path} title={item.label} placement="right">
+            <Tooltip key={item.path} placement="right" title={item.label}>
               {navItem}
             </Tooltip>
           ) : navItem;
@@ -173,7 +178,7 @@ const DashboardSidebar = () => {
         display: 'flex',
         justifyContent: isCollapsed ? 'center' : 'flex-end'
       }}>
-        <IconButton onClick={toggleSidebar} size="small" sx={{ color: '#64748b' }}>
+        <IconButton size="small" sx={{ color: '#64748b' }} onClick={toggleSidebar}>
           {isCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
         </IconButton>
       </Box>

@@ -19,6 +19,7 @@ import {
   Chat as ChatIcon,
   Code as CodeIcon,
   Create as CreateIcon,
+  Dashboard as DashboardIcon,
   Email as EmailIcon,
   Http as HttpIcon,
   MergeType as MergeIcon,
@@ -29,11 +30,11 @@ import {
   Tune as TuneIcon,
   Visibility as VisibilityIcon,
   AccountTree as WorkflowIcon,
-  Dashboard as DashboardIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useUnreleasedFeatures } from '../../hooks/useFeatureFlag';
 import { useAppTheme } from '../../theme/useAppTheme';
+import { preloadRoute } from '../../routes/lazyComponents';
 
 const ActionCards = () => {
   const navigate = useNavigate();
@@ -102,6 +103,7 @@ const ActionCards = () => {
       icon: DashboardIcon,
       actionIcon: AutoFixHighIcon,
       onClick: handleAiDashboard,
+      route: '/ai-dashboard',
       gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
       shadowColor: 'rgba(240, 147, 251, 0.3)',
       isReleased: true,
@@ -114,6 +116,7 @@ const ActionCards = () => {
       icon: BugReportIcon,
       actionIcon: AddIcon,
       onClick: handleCreateJira,
+      route: '/ai-create-jira',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       shadowColor: 'rgba(102, 126, 234, 0.3)',
       isReleased: true,
@@ -126,6 +129,7 @@ const ActionCards = () => {
       icon: VisibilityIcon,
       actionIcon: AutoFixHighIcon,
       onClick: handleFuturisticJiraViewer,
+      route: '/ai-view-jira',
       gradient: 'linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)',
       shadowColor: 'rgba(139, 92, 246, 0.4)',
       isReleased: true,
@@ -138,6 +142,7 @@ const ActionCards = () => {
       icon: CodeIcon,
       actionIcon: ReviewsIcon,
       onClick: handleGitStash,
+      route: '/ai-pr-code-review',
       gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
       shadowColor: 'rgba(17, 153, 142, 0.3)',
       isReleased: true,
@@ -150,6 +155,7 @@ const ActionCards = () => {
       icon: MergeIcon,
       actionIcon: CreateIcon,
       onClick: handleCreatePR,
+      route: '/ai-generate-pr-template',
       gradient: 'linear-gradient(135deg, #ff7b7b 0%, #667eea 100%)',
       shadowColor: 'rgba(255, 123, 123, 0.3)',
       isReleased: true,
@@ -162,6 +168,7 @@ const ActionCards = () => {
       icon: ChatIcon,
       actionIcon: AutoFixHighIcon,
       onClick: handleAiChat,
+      route: '/ai-chat-assistant',
       gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
       shadowColor: 'rgba(255, 154, 158, 0.3)',
       isReleased: true,
@@ -174,6 +181,7 @@ const ActionCards = () => {
       icon: EmailIcon,
       actionIcon: SendIcon,
       onClick: handleSendEmail,
+      route: '/send-email',
       gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
       shadowColor: 'rgba(79, 172, 254, 0.3)',
       isReleased: true,
@@ -186,6 +194,7 @@ const ActionCards = () => {
       icon: HttpIcon,
       actionIcon: SendIcon,
       onClick: handleApiClient,
+      route: '/api-client',
       gradient: 'linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)',
       shadowColor: 'rgba(108, 92, 231, 0.3)',
       isReleased: true,
@@ -198,6 +207,7 @@ const ActionCards = () => {
       icon: EmailIcon,
       actionIcon: SendIcon,
       onClick: handleSendEmailLegacy,
+      route: '/send-email-legacy',
       gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
       shadowColor: 'rgba(79, 172, 254, 0.3)',
       isReleased: true,
@@ -210,6 +220,7 @@ const ActionCards = () => {
       icon: BuildIcon,
       actionIcon: RocketLaunchIcon,
       onClick: handleReleaseBuild,
+      route: '/release-build',
       gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
       shadowColor: 'rgba(250, 112, 154, 0.3)',
       isReleased: true,
@@ -233,6 +244,7 @@ const ActionCards = () => {
       icon: SettingsIcon,
       actionIcon: TuneIcon,
       onClick: handleSettings,
+      route: '/settings',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       shadowColor: 'rgba(102, 126, 234, 0.3)',
       isReleased: true,
@@ -326,7 +338,7 @@ const ActionCards = () => {
             const ActionIconComponent = card.actionIcon;
 
             return (
-              <Grid item key={card.id} lg={3} md={4} sm={6} xs={12} sx={{ display: 'flex' }}>
+              <Grid item key={card.id} lg={3} md={4} sm={6} sx={{ display: 'flex' }} xs={12}>
                 <Card
                   sx={{
                     width: '100%',
@@ -360,6 +372,8 @@ const ActionCards = () => {
                     },
                   }}
                   onClick={card.onClick}
+                  onFocus={() => card.route && preloadRoute(card.route)}
+                  onMouseEnter={() => card.route && preloadRoute(card.route)}
                 >
                   {/* Render badge using DRY helper function */}
                   {renderBadge(card)}
