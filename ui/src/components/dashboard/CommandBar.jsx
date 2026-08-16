@@ -253,16 +253,141 @@ const CommandBar = () => {
     }
   };
 
+  const isExpandedLayout = inputText.includes('\n') || inputText.length > 65;
+
+  const plusButton = (
+    <Tooltip title="Quick actions">
+      <IconButton 
+        size="small"
+        onClick={(e) => setPlusAnchorEl(e.currentTarget)}
+        sx={{ 
+          color: isDark ? '#94a3b8' : '#64748b',
+          bgcolor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+          width: 34,
+          height: 34,
+          '&:hover': {
+            bgcolor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+            color: isDark ? '#f8fafc' : '#0f172a'
+          }
+        }}
+      >
+        <AddIcon sx={{ fontSize: 20 }} />
+      </IconButton>
+    </Tooltip>
+  );
+
+  const rightControls = (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+      {/* Gemini-style Model Switcher Pill */}
+      <Tooltip title="Switch AI Model">
+        <Box
+          onClick={(e) => setModelAnchorEl(e.currentTarget)}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            px: 1.2,
+            py: 0.45,
+            borderRadius: '18px',
+            cursor: 'pointer',
+            bgcolor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
+            color: isDark ? '#cbd5e1' : '#475569',
+            transition: 'all 0.15s ease',
+            userSelect: 'none',
+            '&:hover': {
+              bgcolor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+              color: isDark ? '#ffffff' : '#0f172a',
+              borderColor: isDark ? 'rgba(139, 92, 246, 0.4)' : 'rgba(124, 58, 237, 0.3)',
+            }
+          }}
+        >
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              fontWeight: 600, 
+              fontSize: '0.82rem',
+              letterSpacing: '0.01em',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {activeModelLabel}
+          </Typography>
+          <ChevronDownIcon sx={{ fontSize: 16, opacity: 0.7 }} />
+        </Box>
+      </Tooltip>
+
+      {/* Voice Input Mic Button */}
+      <Tooltip title={isListening ? "Listening... (Click to stop)" : "Voice input"}>
+        <IconButton 
+          size="small" 
+          onClick={toggleListening}
+          sx={{ 
+            color: isListening ? '#EF4444' : (isDark ? '#94a3b8' : '#64748b'),
+            bgcolor: isListening ? (isDark ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)') : 'transparent',
+            width: 34,
+            height: 34,
+            animation: isListening ? 'pulse 1.5s infinite' : 'none',
+            '@keyframes pulse': {
+              '0%': { transform: 'scale(1)', opacity: 1 },
+              '50%': { transform: 'scale(1.15)', opacity: 0.8 },
+              '100%': { transform: 'scale(1)', opacity: 1 },
+            },
+            '&:hover': { 
+              color: isListening ? '#DC2626' : (isDark ? '#f8fafc' : '#0f172a'),
+              bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)' 
+            }
+          }}
+        >
+          {isListening ? <MicOffIcon sx={{ fontSize: 19 }} /> : <MicIcon sx={{ fontSize: 19 }} />}
+        </IconButton>
+      </Tooltip>
+
+      {/* Send Button */}
+      <IconButton 
+        size="small" 
+        onClick={handleSend}
+        disabled={!inputText.trim() || isProcessing}
+        sx={{ 
+          width: 34,
+          height: 34,
+          background: (!inputText.trim() || isProcessing) 
+            ? (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)') 
+            : 'linear-gradient(135deg, #7C3AED 0%, #6366F1 100%)',
+          color: 'white',
+          boxShadow: (!inputText.trim() || isProcessing) ? 'none' : '0 2px 8px rgba(124, 58, 237, 0.4)',
+          transition: 'all 0.15s ease',
+          '&:hover': { 
+            background: 'linear-gradient(135deg, #6D28D9 0%, #4F46E5 100%)',
+            transform: 'scale(1.04)'
+          },
+          '&.Mui-disabled': { 
+            color: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.25)',
+            background: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)' 
+          }
+        }}
+      >
+        {isProcessing ? (
+          <CircularProgress size={16} color="inherit" />
+        ) : (
+          <SendIcon sx={{ fontSize: 16 }} />
+        )}
+      </IconButton>
+    </Box>
+  );
+
   return (
     <Box sx={{ width: '100%', mb: 2.5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {/* Compact Gemini-style Pill Command Bar */}
+      {/* Auto-expanding Gemini-style Prompt Bar */}
       <Paper 
         elevation={0}
         sx={{ 
           width: '100%',
-          maxWidth: { xs: '100%', sm: '720px', md: '780px' },
-          minHeight: '54px',
-          borderRadius: '32px',
+          maxWidth: isExpandedLayout 
+            ? { xs: '100%', sm: '760px', md: '840px' } 
+            : { xs: '100%', sm: '720px', md: '780px' },
+          minHeight: '52px',
+          borderRadius: isExpandedLayout ? '20px' : '32px',
           bgcolor: isDark ? 'rgba(24, 28, 38, 0.95)' : '#ffffff',
           border: isDark 
             ? '1px solid rgba(255, 255, 255, 0.12)' 
@@ -271,12 +396,14 @@ const CommandBar = () => {
             ? '0 6px 24px -2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05)' 
             : '0 6px 20px -2px rgba(0, 0, 0, 0.07)',
           display: 'flex',
-          alignItems: 'center',
-          px: 1.8,
-          py: 1,
+          flexDirection: isExpandedLayout ? 'column' : 'row',
+          alignItems: isExpandedLayout ? 'stretch' : 'center',
+          px: isExpandedLayout ? 2 : 1.8,
+          py: isExpandedLayout ? 1.4 : 0.8,
+          gap: isExpandedLayout ? 1.25 : 0.5,
           position: 'relative',
           zIndex: 10,
-          transition: 'all 0.2s ease-in-out',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:focus-within': {
             border: isDark 
               ? '1px solid rgba(139, 92, 246, 0.6)' 
@@ -287,26 +414,67 @@ const CommandBar = () => {
           }
         }}
       >
-        {/* Left Plus Action Button */}
-        <Tooltip title="Quick actions">
-          <IconButton 
-            size="small"
-            onClick={(e) => setPlusAnchorEl(e.currentTarget)}
+        {/* Main Content: Input Base */}
+        <Box sx={{ display: 'flex', alignItems: isExpandedLayout ? 'flex-start' : 'center', width: '100%', gap: 1 }}>
+          {!isExpandedLayout && plusButton}
+
+          <InputBase
+            inputRef={inputRef}
+            multiline
+            minRows={isExpandedLayout ? 2 : 1}
+            maxRows={10}
             sx={{ 
-              color: isDark ? '#94a3b8' : '#64748b',
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
-              width: 36,
-              height: 36,
-              mr: 1.2,
-              '&:hover': {
-                bgcolor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
-                color: isDark ? '#f8fafc' : '#0f172a'
+              flex: 1, 
+              color: isDark ? '#f8fafc' : '#0f172a',
+              fontSize: '1rem',
+              lineHeight: 1.5,
+              px: 0.5,
+              py: isExpandedLayout ? 0.4 : 0.2,
+              '& textarea': {
+                resize: 'none',
+                overflowY: 'auto !important',
+                maxHeight: '260px',
+                '&::-webkit-scrollbar': { width: '4px' },
+                '&::-webkit-scrollbar-thumb': {
+                  bgcolor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)',
+                  borderRadius: '4px',
+                },
+              },
+              '& textarea::placeholder, & input::placeholder': {
+                color: isDark ? '#64748b' : '#94a3b8',
+                opacity: 1
               }
             }}
-          >
-            <AddIcon sx={{ fontSize: 22 }} />
-          </IconButton>
-        </Tooltip>
+            placeholder={activeModelObj ? `Ask ${activeModelLabel}, add a note, set a reminder...` : "Ask anything, add a note, set a reminder..."}
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isProcessing}
+          />
+
+          {!isExpandedLayout && rightControls}
+        </Box>
+
+        {/* Bottom Actions Bar (Visible when multiline/expanded) */}
+        {isExpandedLayout && (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', pt: 0.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {plusButton}
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  color: isDark ? '#64748b' : '#94a3b8', 
+                  fontSize: '0.74rem',
+                  userSelect: 'none',
+                  display: { xs: 'none', sm: 'block' }
+                }}
+              >
+                Shift + Enter for new line
+              </Typography>
+            </Box>
+            {rightControls}
+          </Box>
+        )}
 
         {/* Plus Quick Actions Menu */}
         <Menu
@@ -342,203 +510,83 @@ const CommandBar = () => {
           </MenuItem>
         </Menu>
 
-        {/* Main Text Input */}
-        <InputBase
-          inputRef={inputRef}
-          sx={{ 
-            flex: 1, 
-            color: isDark ? '#f8fafc' : '#0f172a',
-            fontSize: '1rem',
-            px: 0.5,
-            py: 0.2,
-            '& input::placeholder': {
-              color: isDark ? '#64748b' : '#94a3b8',
-              opacity: 1
+        {/* Model Switcher Menu */}
+        <Menu
+          anchorEl={modelAnchorEl}
+          open={Boolean(modelAnchorEl)}
+          onClose={() => setModelAnchorEl(null)}
+          PaperProps={{
+            sx: {
+              borderRadius: '16px',
+              mt: 1,
+              minWidth: 260,
+              bgcolor: isDark ? '#1e2433' : '#ffffff',
+              border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.08)',
+              boxShadow: isDark ? '0 10px 30px -5px rgba(0,0,0,0.6)' : '0 10px 25px -5px rgba(0,0,0,0.1)',
+              p: 0.5
             }
           }}
-          placeholder={activeModelObj ? `Ask ${activeModelLabel}, add a note, set a reminder...` : "Ask anything, add a note, set a reminder..."}
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={isProcessing}
-        />
+        >
+          <Box sx={{ px: 1.5, py: 1, borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.05)' }}>
+            <Typography variant="caption" sx={{ color: isDark ? '#94a3b8' : '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Select AI Model
+            </Typography>
+          </Box>
 
-        {/* Right Side Controls: Model Switcher, Mic, Send */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, ml: 0.5 }}>
-          {/* Gemini-style Model Switcher Pill */}
-          <Tooltip title="Switch AI Model">
-            <Box
-              onClick={(e) => setModelAnchorEl(e.currentTarget)}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.5,
-                px: 1.3,
-                py: 0.55,
-                borderRadius: '18px',
-                cursor: 'pointer',
-                bgcolor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
-                border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.05)',
-                color: isDark ? '#cbd5e1' : '#475569',
-                transition: 'all 0.15s ease',
-                userSelect: 'none',
-                '&:hover': {
-                  bgcolor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
-                  color: isDark ? '#ffffff' : '#0f172a',
-                  borderColor: isDark ? 'rgba(139, 92, 246, 0.4)' : 'rgba(124, 58, 237, 0.3)',
-                }
-              }}
-            >
-              <Typography 
-                variant="caption" 
-                sx={{ 
-                  fontWeight: 600, 
-                  fontSize: '0.84rem',
-                  letterSpacing: '0.01em',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {activeModelLabel}
-              </Typography>
-              <ChevronDownIcon sx={{ fontSize: 18, opacity: 0.7 }} />
-            </Box>
-          </Tooltip>
-
-          {/* Model Switcher Menu */}
-          <Menu
-            anchorEl={modelAnchorEl}
-            open={Boolean(modelAnchorEl)}
-            onClose={() => setModelAnchorEl(null)}
-            PaperProps={{
-              sx: {
-                borderRadius: '16px',
-                mt: 1,
-                minWidth: 260,
-                bgcolor: isDark ? '#1e2433' : '#ffffff',
-                border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.08)',
-                boxShadow: isDark ? '0 10px 30px -5px rgba(0,0,0,0.6)' : '0 10px 25px -5px rgba(0,0,0,0.1)',
-                p: 0.5
-              }
-            }}
-          >
-            <Box sx={{ px: 1.5, py: 1, borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.05)' }}>
-              <Typography variant="caption" sx={{ color: isDark ? '#94a3b8' : '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Select AI Model
-              </Typography>
-            </Box>
-
-            {availableModels.length === 0 ? (
-              <MenuItem disabled sx={{ py: 1.5 }}>
-                <Typography variant="body2" sx={{ color: '#94a3b8' }}>Loading models...</Typography>
-              </MenuItem>
-            ) : (
-              availableModels.map((model) => {
-                const isSelected = (selectedModel === model.id) || (!selectedModel && model.id === defaultModel);
-                return (
-                  <MenuItem 
-                    key={model.id}
-                    onClick={() => {
-                      dispatch(setSelectedModel(model.id));
-                      setModelAnchorEl(null);
-                    }}
-                    sx={{ 
-                      py: 1, 
-                      my: 0.3,
-                      borderRadius: '10px',
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'space-between',
-                      bgcolor: isSelected 
-                        ? (isDark ? 'rgba(124, 58, 237, 0.15)' : 'rgba(124, 58, 237, 0.08)') 
-                        : 'transparent',
-                      '&:hover': {
-                        bgcolor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
-                      }
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                      <AiIcon sx={{ 
-                        fontSize: 18, 
-                        color: isSelected ? '#8B5CF6' : (isDark ? '#94a3b8' : '#64748b') 
-                      }} />
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: isSelected ? 600 : 400, color: isDark ? '#f8fafc' : '#0f172a' }}>
-                          {model.name}
+          {availableModels.length === 0 ? (
+            <MenuItem disabled sx={{ py: 1.5 }}>
+              <Typography variant="body2" sx={{ color: '#94a3b8' }}>Loading models...</Typography>
+            </MenuItem>
+          ) : (
+            availableModels.map((model) => {
+              const isSelected = (selectedModel === model.id) || (!selectedModel && model.id === defaultModel);
+              return (
+                <MenuItem 
+                  key={model.id}
+                  onClick={() => {
+                    dispatch(setSelectedModel(model.id));
+                    setModelAnchorEl(null);
+                  }}
+                  sx={{ 
+                    py: 1, 
+                    my: 0.3,
+                    borderRadius: '10px',
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    bgcolor: isSelected 
+                      ? (isDark ? 'rgba(124, 58, 237, 0.15)' : 'rgba(124, 58, 237, 0.08)') 
+                      : 'transparent',
+                    '&:hover': {
+                      bgcolor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+                    }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                    <AiIcon sx={{ 
+                      fontSize: 18, 
+                      color: isSelected ? '#8B5CF6' : (isDark ? '#94a3b8' : '#64748b') 
+                    }} />
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: isSelected ? 600 : 400, color: isDark ? '#f8fafc' : '#0f172a' }}>
+                        {model.name}
+                      </Typography>
+                      {model.model && (
+                        <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', fontSize: '0.72rem' }}>
+                          {model.model}
                         </Typography>
-                        {model.model && (
-                          <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', fontSize: '0.72rem' }}>
-                            {model.model}
-                          </Typography>
-                        )}
-                      </Box>
+                      )}
                     </Box>
+                  </Box>
 
-                    {isSelected && (
-                      <CheckIcon sx={{ fontSize: 18, color: '#8B5CF6', ml: 1 }} />
-                    )}
-                  </MenuItem>
-                );
-              })
-            )}
-          </Menu>
-
-          {/* Voice Input Mic Button */}
-          <Tooltip title={isListening ? "Listening... (Click to stop)" : "Voice input"}>
-            <IconButton 
-              size="small" 
-              onClick={toggleListening}
-              sx={{ 
-                color: isListening ? '#EF4444' : (isDark ? '#94a3b8' : '#64748b'),
-                bgcolor: isListening ? (isDark ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)') : 'transparent',
-                width: 36,
-                height: 36,
-                animation: isListening ? 'pulse 1.5s infinite' : 'none',
-                '@keyframes pulse': {
-                  '0%': { transform: 'scale(1)', opacity: 1 },
-                  '50%': { transform: 'scale(1.15)', opacity: 0.8 },
-                  '100%': { transform: 'scale(1)', opacity: 1 },
-                },
-                '&:hover': { 
-                  color: isListening ? '#DC2626' : (isDark ? '#f8fafc' : '#0f172a'),
-                  bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)' 
-                }
-              }}
-            >
-              {isListening ? <MicOffIcon sx={{ fontSize: 20 }} /> : <MicIcon sx={{ fontSize: 20 }} />}
-            </IconButton>
-          </Tooltip>
-
-          {/* Send Button */}
-          <IconButton 
-            size="small" 
-            onClick={handleSend}
-            disabled={!inputText.trim() || isProcessing}
-            sx={{ 
-              width: 36,
-              height: 36,
-              background: (!inputText.trim() || isProcessing) 
-                ? (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)') 
-                : 'linear-gradient(135deg, #7C3AED 0%, #6366F1 100%)',
-              color: 'white',
-              boxShadow: (!inputText.trim() || isProcessing) ? 'none' : '0 2px 8px rgba(124, 58, 237, 0.4)',
-              transition: 'all 0.15s ease',
-              '&:hover': { 
-                background: 'linear-gradient(135deg, #6D28D9 0%, #4F46E5 100%)',
-                transform: 'scale(1.04)'
-              },
-              '&.Mui-disabled': { 
-                color: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.25)',
-                background: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)' 
-              }
-            }}
-          >
-            {isProcessing ? (
-              <CircularProgress size={18} color="inherit" />
-            ) : (
-              <SendIcon sx={{ fontSize: 17 }} />
-            )}
-          </IconButton>
-        </Box>
+                  {isSelected && (
+                    <CheckIcon sx={{ fontSize: 18, color: '#8B5CF6', ml: 1 }} />
+                  )}
+                </MenuItem>
+              );
+            })
+          )}
+        </Menu>
       </Paper>
 
       {/* Response Area */}
