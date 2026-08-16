@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.0...v1.13.1) (2026-08-16)
+
+
+### Bug Fixes
+
+* **app-crash:** fixed app crash added error boundry & cache issues ([d9c24c4](https://github.com/anuragarwalkar/ai-workflow-utils/commit/d9c24c485101e3862cc8adc5b890f67d74c2a14a))
+
 # [1.13.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.12.1...v1.13.0) (2026-08-15)
 
 
