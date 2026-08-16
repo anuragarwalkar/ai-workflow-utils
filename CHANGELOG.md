@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.1...v1.13.2) (2026-08-16)
+
+
+### Bug Fixes
+
+* **task:** fixed tasks ([0e12355](https://github.com/anuragarwalkar/ai-workflow-utils/commit/0e123556decc6250011ed165563a9814737e681d))
+
 ## [1.13.1](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.0...v1.13.1) (2026-08-16)
 
 
