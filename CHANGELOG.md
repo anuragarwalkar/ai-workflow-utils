@@ -1,3 +1,10 @@
+## [1.13.3](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.2...v1.13.3) (2026-08-16)
+
+
+### Bug Fixes
+
+* **search:** added expand to serach bar ([42b2577](https://github.com/anuragarwalkar/ai-workflow-utils/commit/42b25772713aa6d8df2938edee760641de3b2828))
+
 ## [1.13.2](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.1...v1.13.2) (2026-08-16)
 
 
