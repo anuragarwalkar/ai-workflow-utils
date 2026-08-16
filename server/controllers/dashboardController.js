@@ -215,6 +215,8 @@ User Query: {query}
       let todoData = req.body;
       if (isAiPrompt && text) {
         todoData = await dashboardLangGraphService.processNaturalLanguageTodo(text);
+      } else if (!todoData.title && text) {
+        todoData = { ...todoData, title: text };
       }
       const newTodo = await todoDbService.addTodo(todoData);
       res.status(201).json({ success: true, data: newTodo });
@@ -242,6 +244,17 @@ User Query: {query}
       res.json({ success: true });
     } catch (err) {
       logger.error('Error deleting todo:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async reorderTodos(req, res) {
+    try {
+      const { orderedIds } = req.body;
+      const todos = await todoDbService.reorderTodos(orderedIds);
+      res.json({ success: true, data: todos });
+    } catch (err) {
+      logger.error('Error reordering todos:', err);
       res.status(500).json({ success: false, error: err.message });
     }
   }

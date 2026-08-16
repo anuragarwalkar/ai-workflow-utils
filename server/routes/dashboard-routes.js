@@ -10,6 +10,7 @@ router.post('/command', dashboardController.processCommand);
 // Todos
 router.get('/todos', dashboardController.getTodos);
 router.post('/todos', dashboardController.createTodo);
+router.put('/todos/reorder', dashboardController.reorderTodos);
 router.patch('/todos/:id', dashboardController.updateTodo);
 router.delete('/todos/:id', dashboardController.deleteTodo);
 

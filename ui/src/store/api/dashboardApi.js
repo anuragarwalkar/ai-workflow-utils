@@ -21,6 +21,27 @@ export const dashboardApi = createApi({
         body: todo,
       }),
       invalidatesTags: ['Todo'],
+      async onQueryStarted(todo, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          dashboardApi.util.updateQueryData('getTodos', undefined, draft => {
+            if (draft && Array.isArray(draft.data)) {
+              draft.data.unshift({
+                id: `temp-${Date.now()}`,
+                title: todo.title || todo.text || '',
+                done: false,
+                priority: todo.priority || 'Medium',
+                dueAt: todo.dueAt || null,
+                createdAt: new Date().toISOString(),
+              });
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
     }),
     updateTodo: builder.mutation({
       query: ({ id, ...patch }) => ({
@@ -29,6 +50,23 @@ export const dashboardApi = createApi({
         body: patch,
       }),
       invalidatesTags: ['Todo'],
+      async onQueryStarted({ id, ...patch }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          dashboardApi.util.updateQueryData('getTodos', undefined, draft => {
+            if (draft && Array.isArray(draft.data)) {
+              const item = draft.data.find(t => t.id === id);
+              if (item) {
+                Object.assign(item, patch);
+              }
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
     }),
     deleteTodo: builder.mutation({
       query: id => ({
@@ -36,6 +74,56 @@ export const dashboardApi = createApi({
         method: 'DELETE',
       }),
       invalidatesTags: ['Todo'],
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          dashboardApi.util.updateQueryData('getTodos', undefined, draft => {
+            if (draft && Array.isArray(draft.data)) {
+              const idx = draft.data.findIndex(t => t.id === id);
+              if (idx !== -1) {
+                draft.data.splice(idx, 1);
+              }
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
+    }),
+    reorderTodos: builder.mutation({
+      query: orderedIds => ({
+        url: '/todos/reorder',
+        method: 'PUT',
+        body: { orderedIds },
+      }),
+      invalidatesTags: ['Todo'],
+      async onQueryStarted(orderedIds, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          dashboardApi.util.updateQueryData('getTodos', undefined, draft => {
+            if (draft && Array.isArray(draft.data)) {
+              const map = new Map(draft.data.map(t => [t.id, t]));
+              const reordered = [];
+              for (const id of orderedIds) {
+                if (map.has(id)) {
+                  reordered.push(map.get(id));
+                  map.delete(id);
+                }
+              }
+              for (const rem of map.values()) {
+                reordered.push(rem);
+              }
+              draft.data = reordered;
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo();
+        }
+      },
     }),
     // Reminders
     getReminders: builder.query({
@@ -305,6 +393,7 @@ export const {
   useCreateTodoMutation,
   useUpdateTodoMutation,
   useDeleteTodoMutation,
+  useReorderTodosMutation,
   useGetRemindersQuery,
   useCreateReminderMutation,
   useUpdateReminderMutation,

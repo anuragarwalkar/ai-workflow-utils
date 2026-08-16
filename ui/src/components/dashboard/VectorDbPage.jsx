@@ -676,7 +676,7 @@ const VectorDbPage = () => {
                 <Typography variant="caption" sx={{ color: isDark ? '#94a3b8' : '#64748b', fontWeight: 600, mr: 0.5 }}>
                   TYPE:
                 </Typography>
-                {['all', 'note', 'summary', 'knowledge_dump', 'general'].map((t) => (
+                {['all', 'note', 'todo', 'summary', 'knowledge_dump', 'general'].map((t) => (
                   <Chip
                     key={t}
                     label={t === 'all' ? 'All Records' : t}
