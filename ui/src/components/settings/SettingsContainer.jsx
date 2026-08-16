@@ -1,13 +1,13 @@
-import React, { lazy, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Alert, Box, Container, Paper, Tab, Tabs, Typography } from '@mui/material';
 import {
   Api as ApiIcon,
   Build as BuildIcon,
   Assignment as LogsIcon,
+  Cable as MCPIcon,
   Settings as SettingsIcon,
   Description as TemplateIcon,
   Tune as TuneIcon,
-  Cable as MCPIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -24,9 +24,11 @@ import GeneralSettings from './general/GeneralSettings';
 import EnvironmentSettings from './environment/EnvironmentSettings';
 import AdvancedSettings from './advanced/AdvancedSettings';
 import LogsViewer from './advanced/LogsViewer';
+import ErrorBoundary from '../common/ErrorBoundary';
+import { lazyWithPreload } from '../../utils/lazyWithRetry';
 import { useAppTheme } from '../../theme/useAppTheme';
 
-const MCPClientsTab = lazy(() => import('./MCPClientsTab'));
+const MCPClientsTab = lazyWithPreload(() => import('./MCPClientsTab'), 'MCPClientsTab');
 
 const SettingsContainer = () => {
   const dispatch = useDispatch();
@@ -80,9 +82,11 @@ const SettingsContainer = () => {
       label: 'MCP Clients',
       icon: <MCPIcon />,
       component: (
-        <React.Suspense fallback={<Typography>Loading MCP Clients...</Typography>}>
-          <MCPClientsTab />
-        </React.Suspense>
+        <ErrorBoundary friendlyMessage="Failed to load MCP Clients tab. Please refresh or retry.">
+          <React.Suspense fallback={<Typography>Loading MCP Clients...</Typography>}>
+            <MCPClientsTab />
+          </React.Suspense>
+        </ErrorBoundary>
       ),
     },
     {

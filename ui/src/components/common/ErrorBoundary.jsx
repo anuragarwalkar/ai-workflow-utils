@@ -1,9 +1,28 @@
 /**
- * Error boundary component for handling React errors gracefully
+ * Error boundary component for handling React errors and chunk loading failures gracefully
  */
 
 import React from 'react';
-import { Alert, Box, Button, Typography } from '@mui/material';
+import {
+  Alert,
+  AlertTitle,
+  Box,
+  Button,
+  Collapse,
+  IconButton,
+  Paper,
+  Stack,
+  Typography,
+} from '@mui/material';
+import {
+  CleaningServices as ClearCacheIcon,
+  ExpandLess as ExpandLessIcon,
+  ExpandMore as ExpandMoreIcon,
+  Home as HomeIcon,
+  Refresh as RefreshIcon,
+  RestartAlt as RetryIcon,
+} from '@mui/icons-material';
+import { clearAppCacheAndReload, isChunkLoadError } from '../../utils/lazyWithRetry.js';
 import { createLogger } from '../../utils/log.js';
 
 const logger = createLogger('ErrorBoundary');
@@ -12,27 +31,26 @@ const logger = createLogger('ErrorBoundary');
  * Error boundary class component
  */
 class ErrorBoundary extends React.Component {
-  static getDerivedStateFromError(_error) {
-    // Update state so the next render will show the fallback UI
-    return { hasError: true };
+  static getDerivedStateFromError(error) {
+    // Update state with error details so the next render will show the fallback UI
+    return { hasError: true, error };
   }
 
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = {
+      hasError: false,
+      error: null,
+      showDetails: false,
+    };
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log the error
+    // Log the caught error
     logger.error('componentDidCatch', 'React error boundary caught an error', {
-      error: error.message,
+      error: error?.message,
       errorInfo,
-      stack: error.stack,
-    });
-
-    // Update state with error details
-    this.setState({
-      error,
+      stack: error?.stack,
     });
 
     // Call optional error callback
@@ -43,7 +61,29 @@ class ErrorBoundary extends React.Component {
 
   handleRetry = () => {
     logger.info('handleRetry', 'User attempted to retry after error');
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false, error: null, showDetails: false });
+  };
+
+  handleReload = () => {
+    logger.info('handleReload', 'User requested page reload');
+    window.location.reload();
+  };
+
+  handleClearCacheAndReload = async () => {
+    logger.info('handleClearCacheAndReload', 'User requested cache clear and reload');
+    await clearAppCacheAndReload();
+  };
+
+  handleGoHome = () => {
+    if (window.location.pathname === '/') {
+      this.handleRetry();
+    } else {
+      window.location.href = '/';
+    }
+  };
+
+  toggleDetails = () => {
+    this.setState((prev) => ({ showDetails: !prev.showDetails }));
   };
 
   render() {
@@ -53,40 +93,166 @@ class ErrorBoundary extends React.Component {
         return this.props.fallback(this.state.error, this.handleRetry);
       }
 
-      // Default fallback UI
-      return (
-        <Box sx={{ p: 3, maxWidth: 600 }}>
-          <Alert severity="error" sx={{ mb: 2 }}>
-            <Typography gutterBottom variant="h6">
-              Something went wrong
+      const isChunkError = isChunkLoadError(this.state.error);
+      const isFullScreen = this.props.fullScreen || false;
+
+      const title = isChunkError
+        ? 'Application Update / Loading Issue'
+        : 'Something went wrong';
+
+      const message = isChunkError
+        ? 'A new version of the application is available or the network connection was interrupted while loading this section.'
+        : this.props.friendlyMessage ||
+          'An unexpected error occurred while rendering this component. You can retry or reload the page.';
+
+      const content = (
+        <Paper
+          elevation={isFullScreen ? 4 : 1}
+          sx={{
+            p: { xs: 2.5, sm: 3.5 },
+            maxWidth: isFullScreen ? 650 : '100%',
+            width: '100%',
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: isChunkError ? 'info.light' : 'error.light',
+            bgcolor: 'background.paper',
+          }}
+        >
+          <Alert
+            severity={isChunkError ? 'info' : 'error'}
+            sx={{
+              mb: 2.5,
+              '& .MuiAlert-message': { width: '100%' },
+            }}
+          >
+            <AlertTitle sx={{ fontWeight: 600, fontSize: '1.05rem' }}>
+              {title}
+            </AlertTitle>
+            <Typography sx={{ mt: 0.5, mb: 1 }} variant="body2">
+              {message}
             </Typography>
-            <Typography sx={{ mb: 2 }} variant="body2">
-              {this.props.friendlyMessage || 
-                'An unexpected error occurred. Please try again or contact support if the problem persists.'}
-            </Typography>
-            {!!(this.state.error) && (
-              <Typography sx={{ display: 'block', mb: 2, color: 'text.secondary' }} variant="caption">
-                Error: {this.state.error.message}
-              </Typography>
+
+            {Boolean(this.state.error) && (
+              <Box sx={{ mt: 1 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                  }}
+                  onClick={this.toggleDetails}
+                >
+                  <Typography
+                    color="text.secondary"
+                    sx={{ fontWeight: 500, fontSize: '0.8rem' }}
+                    variant="caption"
+                  >
+                    Technical Details
+                  </Typography>
+                  <IconButton size="small">
+                    {this.state.showDetails ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                  </IconButton>
+                </Box>
+                <Collapse in={this.state.showDetails}>
+                  <Box
+                    sx={{
+                      p: 1.5,
+                      mt: 1,
+                      borderRadius: 1,
+                      bgcolor: 'action.hover',
+                      fontFamily: 'monospace',
+                      fontSize: '0.75rem',
+                      maxHeight: 180,
+                      overflow: 'auto',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-all',
+                      color: 'text.secondary',
+                    }}
+                  >
+                    {this.state.error.message || String(this.state.error)}
+                    {Boolean(this.state.error.stack) && (
+                      <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed rgba(128,128,128,0.3)' }}>
+                        {this.state.error.stack}
+                      </Box>
+                    )}
+                  </Box>
+                </Collapse>
+              </Box>
             )}
-            <Button 
-              size="small" 
-              sx={{ mr: 1 }}
-              variant="outlined" 
-              onClick={this.handleRetry}
+          </Alert>
+
+          <Stack direction={{ xs: 'column', sm: 'row' }} flexWrap="wrap" gap={1.5}>
+            {isChunkError ? (
+              <Button
+                color="primary"
+                startIcon={<RefreshIcon />}
+                variant="contained"
+                onClick={this.handleReload}
+              >
+                Reload Application
+              </Button>
+            ) : (
+              <Button
+                color="primary"
+                startIcon={<RetryIcon />}
+                variant="contained"
+                onClick={this.handleRetry}
+              >
+                Try Again
+              </Button>
+            )}
+
+            <Button
+              color="inherit"
+              startIcon={<ClearCacheIcon />}
+              variant="outlined"
+              onClick={this.handleClearCacheAndReload}
             >
-              Try Again
+              Clear Cache & Refresh
             </Button>
-            {!!(this.props.onReset) && (
-              <Button 
-                size="small" 
-                variant="text" 
+
+            <Button
+              color="inherit"
+              startIcon={<HomeIcon />}
+              variant="text"
+              onClick={this.handleGoHome}
+            >
+              Go to Home
+            </Button>
+
+            {Boolean(this.props.onReset) && (
+              <Button
+                color="secondary"
+                variant="text"
                 onClick={this.props.onReset}
               >
                 Reset
               </Button>
             )}
-          </Alert>
+          </Stack>
+        </Paper>
+      );
+
+      if (isFullScreen) {
+        return (
+          <Box
+            sx={{
+              minHeight: '80vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              p: 3,
+            }}
+          >
+            {content}
+          </Box>
+        );
+      }
+
+      return (
+        <Box sx={{ p: { xs: 2, sm: 3 }, width: '100%', boxSizing: 'border-box' }}>
+          {content}
         </Box>
       );
     }

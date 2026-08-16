@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardHeader from './DashboardHeader';
 import DashboardSkeleton from './DashboardSkeleton';
+import ErrorBoundary from '../common/ErrorBoundary';
 import {
   DashboardManagePage,
   DashboardNotesPage,
@@ -49,19 +50,21 @@ const DashboardLayout = () => {
         {/* Floating Notification Bell in top right */}
         <DashboardHeader />
 
-        {/* Nested Suspense boundary so sidebar & header stay intact during tab switching */}
-        <Suspense fallback={<DashboardSkeleton />}>
-          <Routes>
-            <Route element={<DashboardOverviewPage />} path="/" />
-            <Route element={<DashboardNotesPage />} path="/notes" />
-            <Route element={<DashboardNotesPage />} path="/notes/:id" />
-            <Route element={<PlaceholderPage title="PR Reviews" />} path="/pr-reviews" />
-            <Route element={<DashboardVectorDbPage />} path="/vector-db" />
-            <Route element={<DashboardVectorDbPage />} path="/knowledge-base" />
-            <Route element={<PlaceholderPage title="Task & Nag Queue" />} path="/tasks" />
-            <Route element={<DashboardManagePage />} path="/manage" />
-          </Routes>
-        </Suspense>
+        {/* Nested ErrorBoundary & Suspense boundary so sidebar & header stay intact during tab switching */}
+        <ErrorBoundary friendlyMessage="Failed to load dashboard tab. Please try switching tabs or reload.">
+          <Suspense fallback={<DashboardSkeleton />}>
+            <Routes>
+              <Route element={<DashboardOverviewPage />} path="/" />
+              <Route element={<DashboardNotesPage />} path="/notes" />
+              <Route element={<DashboardNotesPage />} path="/notes/:id" />
+              <Route element={<PlaceholderPage title="PR Reviews" />} path="/pr-reviews" />
+              <Route element={<DashboardVectorDbPage />} path="/vector-db" />
+              <Route element={<DashboardVectorDbPage />} path="/knowledge-base" />
+              <Route element={<PlaceholderPage title="Task & Nag Queue" />} path="/tasks" />
+              <Route element={<DashboardManagePage />} path="/manage" />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </Box>
     </Box>
   );

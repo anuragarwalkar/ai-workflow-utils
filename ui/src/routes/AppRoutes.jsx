@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import ErrorBoundary from '../components/common/ErrorBoundary';
 import LoadingFallback from '../components/common/LoadingFallback';
 import PageSkeletonFallback from '../components/common/PageSkeletonFallback';
 import {
@@ -20,23 +21,32 @@ import {
 } from './lazyComponents';
 
 /**
- * Helper to render a page inside Layout with in-layout Suspense fallback
+ * Helper to render a page inside Layout with in-layout ErrorBoundary & Suspense fallback
  */
 const withLayout = (Component, { fullWidth = false, title = 'Loading Module...' } = {}) => (
   <Layout fullWidth={fullWidth}>
-    <Suspense fallback={<PageSkeletonFallback title={title} />}>
-      <Component />
-    </Suspense>
+    <ErrorBoundary
+      friendlyMessage={`Failed to load ${title.replace(/^Loading\s*/i, '').replace(/\.\.\.$/, '')}. Please check your connection or reload.`}
+    >
+      <Suspense fallback={<PageSkeletonFallback title={title} />}>
+        <Component />
+      </Suspense>
+    </ErrorBoundary>
   </Layout>
 );
 
 /**
- * Helper to render a full-screen page with full-screen Suspense fallback
+ * Helper to render a full-screen page with full-screen ErrorBoundary & Suspense fallback
  */
 const withFullScreen = (Component, { message = 'Initializing...' } = {}) => (
-  <Suspense fallback={<LoadingFallback message={message} />}>
-    <Component />
-  </Suspense>
+  <ErrorBoundary
+    fullScreen
+    friendlyMessage={`Failed to initialize module (${message.replace(/^Initializing\s*|^Loading\s*/i, '').replace(/\.\.\.$/, '')}).`}
+  >
+    <Suspense fallback={<LoadingFallback message={message} />}>
+      <Component />
+    </Suspense>
+  </ErrorBoundary>
 );
 
 const AppRoutes = () => (

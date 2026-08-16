@@ -17,6 +17,14 @@ export default defineConfig({
         enabled: true,
       },
       includeAssets: ['ai-favicon.svg', 'ai_logo.png'],
+      workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//, /^\/uploads\//, /^\/logs\//, /\.[a-zA-Z0-9]+$/],
+      },
       manifest: {
         name: 'AI Workflow Utils',
         short_name: 'AIWorkflow',

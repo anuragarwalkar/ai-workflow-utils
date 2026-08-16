@@ -128,6 +128,22 @@ app.use(
     maxAge: process.env.NODE_ENV === 'production' ? '1d' : '0',
     etag: true,
     lastModified: true,
+    setHeaders: (res, filePath) => {
+      // Never cache index.html, service worker, or manifest files
+      if (
+        filePath.endsWith('index.html') ||
+        filePath.endsWith('sw.js') ||
+        filePath.endsWith('registerSW.js') ||
+        filePath.endsWith('manifest.webmanifest')
+      ) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      } else if (filePath.includes('/assets/') || filePath.includes('\\assets\\')) {
+        // Hashed assets can safely be cached with immutable flag
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    },
   })
 );
 
@@ -144,6 +160,11 @@ app.use((req, res, next) => {
   if (hasFileExtension) {
     return next(); // Let express.static handle it or return 404
   }
+
+  // Set no-cache headers so client always gets the latest index.html with valid chunk hashes
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
 
   // Only serve index.html for navigation requests (routes without file extensions)
   res.sendFile('index.html', { root: staticPath }, err => {
