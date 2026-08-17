@@ -209,8 +209,9 @@ const OverviewPage = () => {
             cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
             rowHeight={80}
             onLayoutChange={handleLayoutChange}
-            dragConfig={{ enabled: true, handle: '.drag-handle' }}
-            draggableHandle=".drag-handle"
+            dragConfig={{ enabled: true, handle: '.tile-drag-handle' }}
+            draggableHandle=".tile-drag-handle"
+            draggableCancel=".task-drag-handle, input, textarea, button, select, option"
             margin={[24, 24]}
             compactType={null}
             preventCollision
@@ -224,7 +225,7 @@ const OverviewPage = () => {
                 <Box key={tile.id} sx={{ position: 'relative', height: '100%' }}>
                   {/* Drag Handle Icon */}
                   <Box 
-                    className="drag-handle"
+                    className="tile-drag-handle"
                     sx={{
                       position: 'absolute',
                       top: 14,

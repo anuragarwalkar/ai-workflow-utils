@@ -149,7 +149,7 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
             boxShadow: isDark
               ? '0 4px 12px rgba(0, 0, 0, 0.3)'
               : '0 3px 10px rgba(0, 0, 0, 0.06)',
-            '& .drag-handle': {
+            '& .task-drag-handle': {
               opacity: 0.9,
               color: '#00BFA5',
             },
@@ -164,8 +164,11 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
           {/* Drag Handle */}
           <Box
             component="span"
-            className="drag-handle"
-            onPointerDown={(e) => controls.start(e)}
+            className="task-drag-handle"
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              controls.start(e);
+            }}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -490,8 +493,15 @@ const TodoCard = ({ cardStyle }) => {
   const [inputValue, setInputValue] = useState('');
   const [expandedId, setExpandedId] = useState(null);
 
+  const sortTodos = (todoList) => {
+    if (!Array.isArray(todoList)) return [];
+    const pending = todoList.filter((t) => !t.done);
+    const completed = todoList.filter((t) => t.done);
+    return [...pending, ...completed];
+  };
+
   useEffect(() => {
-    setItems(todos);
+    setItems(sortTodos(todos));
   }, [todos]);
 
   const handleAddTodo = async (e) => {
@@ -513,7 +523,12 @@ const TodoCard = ({ cardStyle }) => {
   };
 
   const toggleTodo = (id, done) => {
-    updateTodo({ id, done: !done });
+    const nextDone = !done;
+    const updated = items.map((t) => (t.id === id ? { ...t, done: nextDone } : t));
+    const sorted = sortTodos(updated);
+    setItems(sorted);
+    updateTodo({ id, done: nextDone });
+    reorderTodos(sorted.map((item) => item.id));
   };
 
   const handleToggleExpand = (id) => {

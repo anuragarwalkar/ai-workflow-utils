@@ -31,7 +31,10 @@ class TodoDbService {
 
   async getTodos() {
     await this.init();
-    return this.db.data.todos || [];
+    const todos = this.db.data.todos || [];
+    const pending = todos.filter(t => !t.done);
+    const completed = todos.filter(t => t.done);
+    return [...pending, ...completed];
   }
 
   async indexTodoInLanceDb(todo) {
@@ -93,7 +96,14 @@ class TodoDbService {
       ...todoData
     };
     
-    this.db.data.todos.push(newTodo);
+    const todos = this.db.data.todos || [];
+    const pending = todos.filter(t => !t.done);
+    const completed = todos.filter(t => t.done);
+    if (newTodo.done) {
+      this.db.data.todos = [...pending, ...completed, newTodo];
+    } else {
+      this.db.data.todos = [newTodo, ...pending, ...completed];
+    }
     await this.db.write();
     logger.info(`Added new TODO: ${newTodo.id}`);
 
@@ -118,8 +128,14 @@ class TodoDbService {
       updatedAt: new Date().toISOString()
     };
     
+    if (patch.done !== undefined) {
+      const pending = this.db.data.todos.filter(t => !t.done);
+      const completed = this.db.data.todos.filter(t => t.done);
+      this.db.data.todos = [...pending, ...completed];
+    }
+
     await this.db.write();
-    const updatedTodo = this.db.data.todos[index];
+    const updatedTodo = this.db.data.todos.find(t => t.id === id) || this.db.data.todos[index];
 
     // Asynchronously update / re-index in LanceDB
     this.indexTodoInLanceDb(updatedTodo).catch(err => {
