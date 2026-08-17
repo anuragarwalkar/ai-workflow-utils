@@ -1,3 +1,10 @@
+## [1.13.4](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.3...v1.13.4) (2026-08-17)
+
+
+### Bug Fixes
+
+* **manager:** populate node_modules and git metadata for build environment ([c281621](https://github.com/anuragarwalkar/ai-workflow-utils/commit/c281621e009c2002c4a5fc14228caf4cedfba9ff))
+
 ## [1.13.3](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.2...v1.13.3) (2026-08-16)
 
 
