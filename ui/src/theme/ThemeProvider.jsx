@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import PropTypes from 'prop-types';
 import { createAppTheme, getSystemTheme } from './theme';
 import { ThemeContext } from './ThemeContext';
@@ -66,7 +68,11 @@ export const AppThemeProvider = ({ children }) => {
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      <MuiThemeProvider theme={currentTheme}>{children}</MuiThemeProvider>
+      <MuiThemeProvider theme={currentTheme}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          {children}
+        </LocalizationProvider>
+      </MuiThemeProvider>
     </ThemeContext.Provider>
   );
 };

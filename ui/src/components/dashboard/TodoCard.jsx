@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { AppDateTimePicker } from '../common';
 import {
   Box,
   Card,
@@ -413,29 +414,28 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
                     <Typography variant="caption" sx={{ color: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }}>
                       Due:
                     </Typography>
-                    <TextField
-                      type="datetime-local"
-                      size="small"
+                    <AppDateTimePicker
                       value={editDueAt}
-                      onChange={(e) => setEditDueAt(e.target.value)}
-                      sx={{
-                        width: 190,
-                        '& .MuiOutlinedInput-root': {
-                          bgcolor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
-                          borderRadius: '8px',
-                          fontSize: '0.78rem',
-                          height: 30,
+                      onChange={(val) => setEditDueAt(val)}
+                      slotProps={{
+                        textField: {
+                          size: 'small',
+                          sx: {
+                            width: 220,
+                            '& .MuiOutlinedInput-root': {
+                              bgcolor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
+                              borderRadius: '8px',
+                              fontSize: '0.78rem',
+                              height: 34,
+                            },
+                            '& input': {
+                              p: '4px 8px',
+                            },
+                          },
                         },
-                        '& input': {
-                          p: '4px 8px',
-                        },
+                        field: { clearable: true, onClear: () => setEditDueAt('') },
                       }}
                     />
-                    {editDueAt && (
-                      <IconButton size="small" onClick={() => setEditDueAt('')} sx={{ p: 0.25, color: isDark ? '#94a3b8' : '#64748b' }}>
-                        <CloseIcon sx={{ fontSize: 14 }} />
-                      </IconButton>
-                    )}
                   </Box>
                 </Box>
 

@@ -5,6 +5,7 @@ import { useAppTheme } from '../../theme/useAppTheme';
 import { useState } from 'react';
 import useNotifications from '../../hooks/useNotifications';
 import { AnimatePresence, motion } from 'framer-motion';
+import { AppDateTimePicker } from '../common';
 
 const ReminderCard = ({ cardStyle }) => {
   const { isDark } = useAppTheme();
@@ -275,15 +276,17 @@ const ReminderCard = ({ cardStyle }) => {
                 '& .MuiOutlinedInput-root': { color: isDark ? '#E8EDF5' : '#334155' }
               }}
             />
-            <TextField
-              type="datetime-local"
+            <AppDateTimePicker
               label="When?"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
               value={newTime}
-              onChange={(e) => setNewTime(e.target.value)}
-              sx={{
-                '& .MuiOutlinedInput-root': { color: isDark ? '#E8EDF5' : '#334155' }
+              onChange={(val) => setNewTime(val)}
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  sx: {
+                    '& .MuiOutlinedInput-root': { color: isDark ? '#E8EDF5' : '#334155' },
+                  },
+                },
               }}
             />
           </DialogContent>
