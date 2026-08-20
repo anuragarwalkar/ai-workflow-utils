@@ -52,10 +52,23 @@ const getPriorityStyle = (priority) => {
     case 'high':
       return { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.12)', border: 'rgba(239, 68, 68, 0.3)', label: 'High' };
     case 'medium':
+    case 'med':
       return { color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.3)', label: 'Med' };
     default:
       return { color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)', border: 'rgba(16, 185, 129, 0.3)', label: 'Low' };
   }
+};
+
+const PRIORITY_ORDER = {
+  high: 1,
+  medium: 2,
+  med: 2,
+  low: 3,
+};
+
+const getPriorityRank = (priority) => {
+  const p = (priority || '').toLowerCase();
+  return PRIORITY_ORDER[p] || 2;
 };
 
 const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded, onToggleExpand }) => {
@@ -118,7 +131,7 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
           py: 1.25,
           px: 1.5,
           borderRadius: '10px',
-          bgcolor: todo.done
+          bgcolor: Boolean(todo.done)
             ? isDark
               ? 'rgba(255, 255, 255, 0.02)'
               : 'rgba(248, 250, 252, 0.8)'
@@ -128,7 +141,7 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
           border: '1px solid',
           borderColor: isExpanded
             ? '#00BFA5'
-            : todo.done
+            : Boolean(todo.done)
             ? isDark
               ? 'rgba(255, 255, 255, 0.04)'
               : 'rgba(0, 0, 0, 0.04)'
@@ -137,12 +150,12 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
             : 'rgba(0, 0, 0, 0.06)',
           boxShadow: isExpanded
             ? '0 0 0 1px rgba(0, 191, 165, 0.3)'
-            : todo.done
+            : Boolean(todo.done)
             ? 'none'
             : isDark
             ? '0 1px 3px rgba(0,0,0,0.2)'
             : '0 1px 3px rgba(0,0,0,0.03)',
-          opacity: todo.done ? 0.6 : 1,
+          opacity: Boolean(todo.done) ? 0.6 : 1,
           transition: 'border-color 0.2s, box-shadow 0.2s, background-color 0.2s',
           '&:hover': {
             borderColor: isExpanded ? '#00BFA5' : isDark ? 'rgba(0, 191, 165, 0.35)' : 'rgba(0, 191, 165, 0.3)',
@@ -194,7 +207,7 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
 
           {/* Checkbox */}
           <Checkbox
-            checked={todo.done}
+            checked={Boolean(todo.done)}
             onChange={() => toggleTodo(todo.id, todo.done)}
             icon={<UncheckedIcon sx={{ fontSize: 20, color: isDark ? '#64748b' : '#cbd5e1' }} />}
             checkedIcon={<CheckCircleIcon sx={{ fontSize: 20, color: '#00BFA5' }} />}
@@ -218,16 +231,16 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
           >
             <Typography
               sx={{
-                color: todo.done
+                color: Boolean(todo.done)
                   ? isDark
                     ? '#64748b'
                     : '#94a3b8'
                   : isDark
                   ? '#E8EDF5'
                   : '#1e293b',
-                textDecoration: todo.done ? 'line-through' : 'none',
+                textDecoration: Boolean(todo.done) ? 'line-through' : 'none',
                 fontSize: '0.92rem',
-                fontWeight: todo.done ? 400 : 500,
+                fontWeight: Boolean(todo.done) ? 400 : 500,
                 lineHeight: 1.4,
                 wordBreak: 'break-word',
                 transition: 'color 0.2s',
@@ -496,7 +509,11 @@ const TodoCard = ({ cardStyle }) => {
   const sortTodos = (todoList) => {
     if (!Array.isArray(todoList)) return [];
     const pending = todoList.filter((t) => !t.done);
-    const completed = todoList.filter((t) => t.done);
+    const completed = todoList.filter((t) => Boolean(t.done));
+
+    pending.sort((a, b) => getPriorityRank(a.priority) - getPriorityRank(b.priority));
+    completed.sort((a, b) => getPriorityRank(a.priority) - getPriorityRank(b.priority));
+
     return [...pending, ...completed];
   };
 
@@ -528,7 +545,6 @@ const TodoCard = ({ cardStyle }) => {
     const sorted = sortTodos(updated);
     setItems(sorted);
     updateTodo({ id, done: nextDone });
-    reorderTodos(sorted.map((item) => item.id));
   };
 
   const handleToggleExpand = (id) => {
