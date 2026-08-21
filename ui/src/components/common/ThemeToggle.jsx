@@ -12,7 +12,7 @@ const ThemeToggle = () => {
       dark: 'auto',
       auto: 'light',
     };
-    setThemeMode(nextTheme[themeMode] || 'auto');
+    setThemeMode(nextTheme[themeMode] || 'light');
   };
 
   const getIcon = () => {

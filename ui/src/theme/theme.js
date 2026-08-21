@@ -9,7 +9,7 @@ export const getSystemTheme = () => {
 };
 
 // Create theme factory function
-export const createAppTheme = (mode = 'auto') => {
+export const createAppTheme = (mode = 'light') => {
   // Determine actual theme mode
   let themeMode = mode;
   if (mode === 'auto') {
@@ -188,7 +188,7 @@ export const createAppTheme = (mode = 'auto') => {
   });
 };
 
-// Default theme with auto mode
-const theme = createAppTheme('auto');
+// Default theme with light mode
+const theme = createAppTheme('light');
 
 export default theme;

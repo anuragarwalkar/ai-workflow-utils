@@ -8,13 +8,13 @@ import { ThemeContext } from './ThemeContext';
 
 // Theme provider component
 export const AppThemeProvider = ({ children }) => {
-  // Get initial theme mode from localStorage or default to 'auto'
+  // Get initial theme mode from localStorage or default to 'light'
   const getInitialThemeMode = () => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('themeMode');
-      return stored || 'auto';
+      return stored || 'light';
     }
-    return 'auto';
+    return 'light';
   };
 
   const [themeMode, setThemeMode] = useState(getInitialThemeMode);
