@@ -90,36 +90,43 @@ export class PRLangChainService extends BaseLangChainService {
   /**
    * Stream PR content generation with real-time updates and parsing
    */
-  async streamPRContent(promptTemplateFormatter, templateIdentifier, res) {
+  async streamPRContent(promptTemplateFormatter, templateIdentifier, res, images = []) {
     if (this.providers.length === 0) {
       throw new Error('No AI providers are configured');
     }
 
-    logger.info(`PR LangChain streamPRContent called with template: ${templateIdentifier}`);
+    const hasImages = Boolean(images && Array.isArray(images) && images.length > 0);
+    logger.info(
+      `PR LangChain streamPRContent called with template: ${templateIdentifier} (hasImages: ${hasImages}, count: ${images?.length || 0})`
+    );
 
     // Get the base template and format it
-    const promptTemplate = await this.createPromptTemplate(templateIdentifier, false);
+    const promptTemplate = await this.createPromptTemplate(templateIdentifier, hasImages);
 
-    const formattedPrompt = await promptTemplate.format({
+    let formattedPrompt = await promptTemplate.format({
       ...promptTemplateFormatter,
     });
 
+    if (hasImages) {
+      formattedPrompt += `\n\n**Visual Context & Attached Screenshots:**\nOne or more screenshots of the application / UI changes have been attached. Carefully analyze the visual elements, UI components, layout updates, and user flow shown in the screenshots in conjunction with the commit messages.\n\nIn the PR DESCRIPTION:\n- Provide a comprehensive summary combining both the code changes and the visual UI/UX updates.\n- If visual/UI changes are present, include a '## Visual Changes / UI Updates' or '## UI Changes' section in the description detailing the visual modifications.\n- Highlight the visual impact and behavior changes observed in the screenshots.`;
+    }
+
     // Try each provider in order of priority
-    return this.tryProvidersForStreaming(formattedPrompt, res);
+    return this.tryProvidersForStreaming(formattedPrompt, res, images);
   }
 
   /**
    * Try providers for streaming content generation
    */
-  async tryProvidersForStreaming(formattedPrompt, res) {
-    return PRStreamingHandler.tryProvidersForStreaming(this.providers, formattedPrompt, res);
+  async tryProvidersForStreaming(formattedPrompt, res, images = []) {
+    return PRStreamingHandler.tryProvidersForStreaming(this.providers, formattedPrompt, res, images);
   }
 
   /**
    * Stream with a specific provider
    */
-  async streamWithProvider(provider, formattedPrompt, res) {
-    return PRStreamingHandler.streamWithProvider(provider, formattedPrompt, res);
+  async streamWithProvider(provider, formattedPrompt, res, images = []) {
+    return PRStreamingHandler.streamWithProvider(provider, formattedPrompt, res, images);
   }
 
   /**

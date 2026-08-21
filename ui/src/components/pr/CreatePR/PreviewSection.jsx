@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { CircularProgress } from '@mui/material';
+import { Chip, CircularProgress, Stack } from '@mui/material';
+import { AutoAwesome as AutoAwesomeIcon, Image as ImageIcon } from '@mui/icons-material';
 import { PREVIEW_MODES } from '../../../constants/pr.js';
 import DescriptionEditor from './DescriptionEditor.jsx';
 import TitleEditor from './TitleEditor.jsx';
@@ -17,18 +18,31 @@ import {
  * Preview Info Component - Shows branch and AI generation info
  * @param {object} props - Component props
  * @param {object} props.preview - Preview data
+ * @param {Array} props.attachedImages - Attached screenshots
  * @returns {JSX.Element} PreviewInfo component
  */
-const PreviewInfoComponent = ({ preview }) => (
+const PreviewInfoComponent = ({ preview, attachedImages = [] }) => (
   <PreviewInfo>
-    <InfoText>
-      Branch: {preview?.branchName}
-    </InfoText>
-    {!!(preview?.aiGenerated) && (
-      <AIGeneratedText>
-        AI-Generated Content (Streamed)
-      </AIGeneratedText>
-    )}
+    <Stack alignItems='center' direction='row' spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+      <InfoText>
+        Branch: {preview?.branchName}
+      </InfoText>
+      {!!(preview?.aiGenerated) && (
+        <AIGeneratedText>
+          AI-Generated Content (Streamed)
+        </AIGeneratedText>
+      )}
+      {attachedImages.length > 0 && (
+        <Chip
+          color='info'
+          icon={<ImageIcon sx={{ fontSize: '1rem !important' }} />}
+          label={`${attachedImages.length} Screenshot${attachedImages.length > 1 ? 's' : ''} Analyzed`}
+          size='small'
+          sx={{ height: 22, fontSize: '0.725rem' }}
+          variant='outlined'
+        />
+      )}
+    </Stack>
   </PreviewInfo>
 );
 
@@ -42,6 +56,7 @@ const PreviewInfoComponent = ({ preview }) => (
  * @param {string} props.descriptionMode - Description editor mode
  * @param {function} props.setDescriptionMode - Description mode setter
  * @param {object} props.preview - Preview data
+ * @param {Array} props.attachedImages - Attached screenshots
  * @returns {JSX.Element} PreviewForm component
  */
 const PreviewFormComponent = ({
@@ -52,16 +67,18 @@ const PreviewFormComponent = ({
   descriptionMode,
   setDescriptionMode,
   preview,
+  attachedImages = [],
 }) => (
   <PreviewForm>
     <TitleEditor title={editableTitle} onChange={setEditableTitle} />
     <DescriptionEditor
+      attachedImages={attachedImages}
       description={editableDescription}
       mode={descriptionMode}
       onChange={setEditableDescription}
       onModeChange={setDescriptionMode}
     />
-    <PreviewInfoComponent preview={preview} />
+    <PreviewInfoComponent attachedImages={attachedImages} preview={preview} />
   </PreviewForm>
 );
 
@@ -96,11 +113,12 @@ const usePreviewState = preview => {
  * Main PreviewSection component
  * @param {object} props - Component props
  * @param {object} props.preview - Preview data
+ * @param {Array} props.attachedImages - Attached screenshots
  * @param {function} props.onConfirm - Confirm handler
  * @param {boolean} props.isLoading - Loading state
  * @returns {JSX.Element} PreviewSection component
  */
-const PreviewSection = ({ preview, onConfirm, isLoading }) => {
+const PreviewSection = ({ preview, attachedImages = [], onConfirm, isLoading }) => {
   const previewState = usePreviewState(preview);
 
   const handleConfirm = () => {
@@ -118,7 +136,11 @@ const PreviewSection = ({ preview, onConfirm, isLoading }) => {
       <PreviewTitle variant='h6'>
         Preview
       </PreviewTitle>
-      <PreviewFormComponent {...previewState} preview={preview} />
+      <PreviewFormComponent
+        {...previewState}
+        attachedImages={attachedImages}
+        preview={preview}
+      />
       <CreateButton 
         color='primary' 
         disabled={isDisabled} 

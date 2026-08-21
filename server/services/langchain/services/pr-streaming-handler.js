@@ -1,3 +1,4 @@
+/* eslint-disable max-params, max-statements */
 import logger from '../../../logger.js';
 import StreamingService from '../../../controllers/pull-request/services/streaming-service.js';
 import PRContentParser from './pr-content-parser.js';
@@ -7,21 +8,66 @@ import PRContentParser from './pr-content-parser.js';
  */
 class PRStreamingHandler {
   /**
+   * Helper to format image array into LangChain multimodal message format
+   */
+  static prepareImageContent(images) {
+    if (!images || !Array.isArray(images) || images.length === 0) {
+      return [];
+    }
+
+    return images
+      .filter(img => img && typeof img === 'string')
+      .map(img => {
+        let base64Data = img;
+        let mediaType = 'image/png';
+
+        if (img.startsWith('data:')) {
+          const [header, data] = img.split(',');
+          base64Data = data;
+          const mediaTypeMatch = header.match(/data:([^;]+)/);
+          if (mediaTypeMatch) {
+            [, mediaType] = mediaTypeMatch;
+          }
+        } else if (img.startsWith('/9j/')) {
+          mediaType = 'image/jpeg';
+        } else if (img.startsWith('iVBORw0KGgo')) {
+          mediaType = 'image/png';
+        }
+
+        return {
+          type: 'image_url',
+          image_url: {
+            url: `data:${mediaType};base64,${base64Data}`,
+          },
+        };
+      });
+  }
+
+  /**
    * Stream with a specific provider
    */
-  static async streamWithProvider(provider, formattedPrompt, res) {
+  static async streamWithProvider(provider, formattedPrompt, res, images = []) {
     logger.info(`Trying provider for PR streaming: ${provider.name}`);
 
-    // Use the same approach as ChatLangChainService - create a chain first
-    const { ChatPromptTemplate } = await import('@langchain/core/prompts');
+    const { HumanMessage } = await import('@langchain/core/messages');
     const { StringOutputParser } = await import('@langchain/core/output_parsers');
 
     try {
-      // Create a simple chain like the working services
-      const prompt = ChatPromptTemplate.fromMessages([['human', '{input}']]);
+      const hasImages = Boolean(images && Array.isArray(images) && images.length > 0);
+      let message;
 
-      const outputParser = new StringOutputParser();
-      const chain = prompt.pipe(provider.model).pipe(outputParser);
+      if (hasImages && provider.supportsVision) {
+        const imageContent = this.prepareImageContent(images);
+        message = new HumanMessage({
+          content: [{ type: 'text', text: formattedPrompt }, ...imageContent],
+        });
+      } else {
+        let promptText = formattedPrompt;
+        if (hasImages && !provider.supportsVision) {
+          promptText += " (Note: Screenshots were provided, but the active AI model does not support vision input.)";
+        }
+        message = new HumanMessage({ content: promptText });
+      }
 
       // Send status update using StreamingService (only if res is provided)
       if (res) {
@@ -33,10 +79,8 @@ class PRStreamingHandler {
       let parsedDescription = '';
       let chunkCount = 0;
 
-      // Use chain.stream like the working services
-      const stream = await chain.stream({
-        input: formattedPrompt,
-      });
+      const outputParser = new StringOutputParser();
+      const stream = await provider.model.pipe(outputParser).stream([message]);
 
       for await (const chunk of stream) {
         chunkCount++;
@@ -46,15 +90,13 @@ class PRStreamingHandler {
         if (content && content.trim() !== '') {
           fullContent += content;
           // Handle parsing and chunk sending
-          const parseResult = this.handleStreamChunk(
+          ({ parsedTitle, parsedDescription } = this.handleStreamChunk(
             fullContent,
             parsedTitle,
             parsedDescription,
             res,
             content
-          );
-          parsedTitle = parseResult.parsedTitle;
-          parsedDescription = parseResult.parsedDescription;
+          ));
         }
       }
 
@@ -76,7 +118,7 @@ class PRStreamingHandler {
         parsedDescription,
       };
     } catch (error) {
-      logger.error(`Chain streaming failed with ${provider.name}: ${error.message}`);
+      logger.error(`Streaming failed with ${provider.name}: ${error.message}`);
       throw error;
     }
   }
@@ -90,17 +132,18 @@ class PRStreamingHandler {
 
     // Only send streaming updates if res is provided
     if (res) {
+      const { title, description } = parsed;
       // Send title chunks if found
-      if (parsed.title && parsed.title !== currentTitle) {
-        const titleChunk = parsed.title.slice(currentTitle.length);
+      if (title && title !== currentTitle) {
+        const titleChunk = title.slice(currentTitle.length);
         if (titleChunk) {
           StreamingService.sendTitleChunk(res, titleChunk);
         }
       }
 
       // Send description chunks if found
-      if (parsed.description && parsed.description !== currentDescription) {
-        const descriptionChunk = parsed.description.slice(currentDescription.length);
+      if (description && description !== currentDescription) {
+        const descriptionChunk = description.slice(currentDescription.length);
         if (descriptionChunk) {
           StreamingService.sendDescriptionChunk(res, descriptionChunk);
         }
@@ -119,10 +162,10 @@ class PRStreamingHandler {
   /**
    * Try providers for streaming content generation
    */
-  static async tryProvidersForStreaming(providers, formattedPrompt, res) {
+  static async tryProvidersForStreaming(providers, formattedPrompt, res, images = []) {
     for (const provider of providers) {
       try {
-        const result = await this.streamWithProvider(provider, formattedPrompt, res);
+        const result = await this.streamWithProvider(provider, formattedPrompt, res, images);
         return result;
       } catch (error) {
         logger.warn(`Provider ${provider.name} failed for PR streaming: ${error.message}`);

@@ -27,6 +27,9 @@ const logger = createLogger('CreatePRContainer');
 const CreatePRContent = () => {
   const {
     formData,
+    attachedImages,
+    handleAddImages,
+    handleRemoveImage,
     handleFieldChange,
     resetBranchName,
     saveCurrentConfig,
@@ -59,6 +62,34 @@ const CreatePRContent = () => {
   };
 
   /**
+   * Convert attached image files to Base64 data URLs
+   * @returns {Promise<string[]>}
+   */
+  const convertImagesToBase64 = async () => {
+    if (!attachedImages || attachedImages.length === 0) {
+      return [];
+    }
+
+    try {
+      return await Promise.all(
+        attachedImages.map(
+          img =>
+            new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result);
+              reader.onerror = error => reject(error);
+              reader.readAsDataURL(img.file);
+            })
+        )
+      );
+    } catch (error) {
+      logger.error('convertImagesToBase64', 'Failed to read image files', error);
+      ToastService.error('Failed to process attached screenshots');
+      return [];
+    }
+  };
+
+  /**
    * Handle preview generation
    */
   const handlePreview = async () => {
@@ -77,8 +108,13 @@ const CreatePRContent = () => {
       return;
     }
 
+    const base64Images = await convertImagesToBase64();
+
     await generatePreview(
-      formData,
+      {
+        ...formData,
+        images: base64Images,
+      },
       (_previewData) => {
         logger.info('handlePreview', SUCCESS_MESSAGES.PREVIEW_GENERATED);
         saveCurrentConfig();
@@ -133,9 +169,12 @@ const CreatePRContent = () => {
         </Title>
 
         <PRForm 
+          attachedImages={attachedImages}
           disabled={isPreviewLoading || isCreating}
           formData={formData} 
+          onAddImages={handleAddImages}
           onChange={handleFormChange}
+          onRemoveImage={handleRemoveImage}
         />
 
         <ActionContainer>
@@ -150,6 +189,7 @@ const CreatePRContent = () => {
 
         {!!(showPreview && preview) && (
           <PreviewSection 
+            attachedImages={attachedImages}
             isLoading={isCreating} 
             preview={preview} 
             onConfirm={handleCreate} 

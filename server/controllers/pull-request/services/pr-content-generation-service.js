@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import logger from '../../../logger.js';
 import { prLangChainService } from '../../../services/langchain/index.js';
 import PRContentService from './pr-content-service.js';
@@ -10,7 +11,7 @@ class PRContentGenerationService {
   /**
    * Generate AI content for PR using combined template with streaming
    */
-  static async generateAIContent(commits, ticketNumber, branchName, res) {
+  static async generateAIContent(commits, ticketNumber, branchName, res, images = []) {
     const commitMessages = commits
       .map(commit => `- ${commit.message} (by ${commit.author})`)
       .join('\n');
@@ -20,7 +21,8 @@ class PRContentGenerationService {
       const result = await prLangChainService.streamPRContent(
         { commitMessages },
         'PR_COMBINED',
-        res
+        res,
+        images
       );
 
       const processedContent = this.processStreamResult(result, commits, ticketNumber);

@@ -216,6 +216,24 @@ const createListComponents = isDark => ({
 export const createMarkdownComponents = isDark => ({
   code: props => <CodeComponent {...props} isDark={isDark} />,
   pre: PreComponent,
+  img: ({ src, alt, ...props }) => (
+    <Box
+      alt={alt || 'Screenshot'}
+      component='img'
+      src={src}
+      sx={{
+        maxWidth: '100%',
+        maxHeight: '480px',
+        objectFit: 'contain',
+        borderRadius: '8px',
+        border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.12)',
+        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.5)' : '0 4px 12px rgba(0,0,0,0.1)',
+        my: 1.5,
+        display: 'block',
+      }}
+      {...props}
+    />
+  ),
   ...createBasicComponents(isDark),
   ...createTextComponents(isDark),
   ...createListComponents(isDark),

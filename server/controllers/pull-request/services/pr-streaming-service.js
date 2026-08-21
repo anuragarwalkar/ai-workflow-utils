@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 import logger from '../../../logger.js';
 import BitbucketService from './bit-bucket-service.js';
 import PRContentGenerationService from './pr-content-generation-service.js';
@@ -73,7 +74,7 @@ class PRStreamingService {
    * Handle streaming PR preview with response object
    */
   static async handleStreamingPRPreview(req, res) {
-    const { ticketNumber, branchName, projectKey, repoSlug } = req.body;
+    const { ticketNumber, branchName, projectKey, repoSlug, images = [] } = req.body;
 
     if (!branchName || !projectKey || !repoSlug) {
       return res.status(400).json({
@@ -99,13 +100,17 @@ class PRStreamingService {
 
         if (commits.length > 0) {
           // Generate PR content using AI
-          StreamingService.sendStatus(res, 'Generating PR title and description...');
+          const statusMessage = images && images.length > 0
+            ? 'Analyzing commits and screenshots for PR preview...'
+            : 'Generating PR title and description...';
+          StreamingService.sendStatus(res, statusMessage);
 
           await PRContentGenerationService.generateAIContent(
             commits,
             ticketNumber,
             branchName,
-            res
+            res,
+            images
           );
         } else {
           logger.warn(

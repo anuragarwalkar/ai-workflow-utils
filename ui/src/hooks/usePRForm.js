@@ -15,6 +15,7 @@ const logger = createLogger('usePRForm');
  */
 export const usePRForm = () => {
   const [formData, setFormData] = useState(DEFAULT_FORM_STATE);
+  const [attachedImages, setAttachedImages] = useState([]);
 
   // Load saved configuration on mount
   useEffect(() => {
@@ -34,6 +35,52 @@ export const usePRForm = () => {
     
     loadConfig();
   }, []);
+
+  /**
+   * Add new images to attachedImages state
+   * @param {File[]} files
+   */
+  const handleAddImages = (files) => {
+    logger.debug('handleAddImages', `Adding ${files.length} images`);
+    const newImages = Array.from(files).map(file => ({
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      file,
+      url: URL.createObjectURL(file),
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    }));
+
+    setAttachedImages(prev => [...prev, ...newImages]);
+  };
+
+  /**
+   * Remove an image by ID and revoke its object URL
+   * @param {string} imageId
+   */
+  const handleRemoveImage = (imageId) => {
+    logger.debug('handleRemoveImage', `Removing image: ${imageId}`);
+    setAttachedImages(prev => {
+      const target = prev.find(img => img.id === imageId);
+      if (target?.url) {
+        URL.revokeObjectURL(target.url);
+      }
+      return prev.filter(img => img.id !== imageId);
+    });
+  };
+
+  /**
+   * Clear all attached images and revoke URLs
+   */
+  const clearAttachedImages = () => {
+    logger.debug('clearAttachedImages', 'Clearing all attached images');
+    attachedImages.forEach(img => {
+      if (img.url) {
+        URL.revokeObjectURL(img.url);
+      }
+    });
+    setAttachedImages([]);
+  };
 
   /**
    * Handle form field changes
@@ -63,6 +110,7 @@ export const usePRForm = () => {
    */
   const resetForm = () => {
     logger.info('resetForm', 'Resetting form to default state');
+    clearAttachedImages();
     setFormData(DEFAULT_FORM_STATE);
   };
 
@@ -106,6 +154,10 @@ export const usePRForm = () => {
 
   return {
     formData,
+    attachedImages,
+    handleAddImages,
+    handleRemoveImage,
+    clearAttachedImages,
     handleFieldChange,
     updateFormData,
     resetForm,

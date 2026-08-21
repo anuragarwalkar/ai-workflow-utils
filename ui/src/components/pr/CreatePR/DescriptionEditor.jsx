@@ -1,49 +1,115 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
+  Button,
   CircularProgress,
+  Menu,
+  MenuItem,
+  Stack,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import {
+  AddPhotoAlternate as AddPhotoIcon,
   Code as CodeIcon,
   Edit as EditIcon,
+  Image as ImageIcon,
   Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 import RichTextViewer from '../../common/RichTextViewer';
 import Editor from '@monaco-editor/react';
 import { useAppTheme } from '../../../theme/useAppTheme';
 
-// Mode Toggle Component
-const ModeToggle = ({ mode, onModeChange }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-    <Typography sx={{ flexGrow: 1 }} variant='h6'>
-      Description
-    </Typography>
-    <ToggleButtonGroup
-      exclusive
-      size='small'
-      value={mode}
-      onChange={(event, newMode) => {
-        if (newMode !== null) {
-          onModeChange(newMode);
-        }
-      }}
-    >
-      <ToggleButton value='view'>
-        <VisibilityIcon fontSize='small' />
-      </ToggleButton>
-      <ToggleButton value='edit'>
-        <CodeIcon fontSize='small' />
-      </ToggleButton>
-      <ToggleButton value='source'>
-        <EditIcon fontSize='small' />
-      </ToggleButton>
-    </ToggleButtonGroup>
-  </Box>
-);
+// Mode Toggle Component with optional Screenshot insertion action
+const ModeToggle = ({ mode, onModeChange, attachedImages = [], onInsertScreenshots }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const isMenuOpen = Boolean(anchorEl);
+
+  const handleMenuClick = event => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleInsertAll = () => {
+    onInsertScreenshots(attachedImages);
+    handleMenuClose();
+  };
+
+  const handleInsertSingle = image => {
+    onInsertScreenshots([image]);
+    handleMenuClose();
+  };
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+      <Typography sx={{ fontWeight: 600 }} variant='h6'>
+        Description
+      </Typography>
+
+      <Stack alignItems='center' direction='row' spacing={1}>
+        {Boolean(attachedImages.length > 0 && onInsertScreenshots) && (
+          <>
+            <Tooltip arrow title='Embed screenshot image(s) into markdown description'>
+              <Button
+                color='primary'
+                size='small'
+                startIcon={<AddPhotoIcon fontSize='small' />}
+                sx={{ textTransform: 'none', fontSize: '0.8rem', py: 0.5 }}
+                variant='outlined'
+                onClick={handleMenuClick}
+              >
+                Insert Screenshot
+              </Button>
+            </Tooltip>
+            <Menu anchorEl={anchorEl} open={isMenuOpen} onClose={handleMenuClose}>
+              <MenuItem onClick={handleInsertAll}>
+                <ImageIcon fontSize='small' sx={{ mr: 1 }} /> Insert All ({attachedImages.length} Screenshots)
+              </MenuItem>
+              {attachedImages.map(img => (
+                <MenuItem key={img.id} onClick={() => handleInsertSingle(img)}>
+                  <AddPhotoIcon fontSize='small' sx={{ mr: 1 }} /> {img.name}
+                </MenuItem>
+              ))}
+            </Menu>
+          </>
+        )}
+
+        <ToggleButtonGroup
+          exclusive
+          size='small'
+          value={mode}
+          onChange={(event, newMode) => {
+            if (newMode !== null) {
+              onModeChange(newMode);
+            }
+          }}
+        >
+          <Tooltip title='Rendered Markdown View'>
+            <ToggleButton value='view'>
+              <VisibilityIcon fontSize='small' />
+            </ToggleButton>
+          </Tooltip>
+          <Tooltip title='Monaco Code Editor'>
+            <ToggleButton value='edit'>
+              <CodeIcon fontSize='small' />
+            </ToggleButton>
+          </Tooltip>
+          <Tooltip title='Raw Markdown Text'>
+            <ToggleButton value='source'>
+              <EditIcon fontSize='small' />
+            </ToggleButton>
+          </Tooltip>
+        </ToggleButtonGroup>
+      </Stack>
+    </Box>
+  );
+};
 
 // View Mode Component
 const ViewMode = ({ description }) => (
@@ -121,7 +187,38 @@ const SourceMode = ({ description, onChange }) => (
   />
 );
 
-const DescriptionEditor = ({ description, onChange, mode, onModeChange }) => {
+const DescriptionEditor = ({
+  description,
+  onChange,
+  mode,
+  onModeChange,
+  attachedImages = [],
+}) => {
+  /**
+   * Insert screenshots into markdown description
+   */
+  const handleInsertScreenshots = async imagesToInsert => {
+    if (!imagesToInsert || imagesToInsert.length === 0) return;
+
+    const markdownBlocks = await Promise.all(
+      imagesToInsert.map(async img => {
+        let dataUrl = img.url;
+        if (img.file) {
+          dataUrl = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(img.file);
+          });
+        }
+        return `\n### ${img.name}\n![${img.name}](${dataUrl})\n`;
+      })
+    );
+
+    const screenshotSection = `\n\n## Screenshots\n${markdownBlocks.join('\n')}`;
+    const newDescription = (description || '').trim() + screenshotSection;
+    onChange(newDescription);
+  };
+
   const renderContent = () => {
     switch (mode) {
       case 'view':
@@ -137,10 +234,16 @@ const DescriptionEditor = ({ description, onChange, mode, onModeChange }) => {
 
   return (
     <Box sx={{ mb: 2 }}>
-      <ModeToggle mode={mode} onModeChange={onModeChange} />
+      <ModeToggle
+        attachedImages={attachedImages}
+        mode={mode}
+        onInsertScreenshots={handleInsertScreenshots}
+        onModeChange={onModeChange}
+      />
       {renderContent()}
     </Box>
   );
 };
 
 export default DescriptionEditor;
+
