@@ -11,6 +11,7 @@ import { TextStyle, Color } from '@tiptap/extension-text-style';
 import { Box } from '@mui/material';
 import NoteEditorToolbar from './NoteEditorToolbar';
 import { useAppTheme } from '../../../theme/useAppTheme';
+import { playTickSound } from '../../../utils/soundUtils';
 
 const RichTextEditor = ({
   content = '',
@@ -112,7 +113,8 @@ const RichTextEditor = ({
             outline: 'none',
             minHeight: '100%',
             color: isDark ? '#e2e8f0' : '#1e293b',
-            fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            fontFamily:
+              '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             fontSize: '0.95rem',
             lineHeight: 1.65,
 
@@ -214,7 +216,9 @@ const RichTextEditor = ({
             },
             '& hr': {
               border: 'none',
-              borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+              borderTop: isDark
+                ? '1px solid rgba(255, 255, 255, 0.1)'
+                : '1px solid rgba(0, 0, 0, 0.1)',
               margin: '1.5em 0',
             },
             '& a': {
@@ -231,7 +235,10 @@ const RichTextEditor = ({
             },
           },
         }}
-        onClick={() => {
+        onClick={e => {
+          if (e.target && e.target.type === 'checkbox') {
+            playTickSound(e.target.checked);
+          }
           if (editor && !editor.isFocused) {
             editor.chain().focus().run();
           }

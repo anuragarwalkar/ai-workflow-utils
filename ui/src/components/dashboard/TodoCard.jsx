@@ -34,8 +34,9 @@ import {
 } from '../../store/api/dashboardApi';
 import { AnimatePresence, Reorder, motion, useDragControls } from 'framer-motion';
 import { useAppTheme } from '../../theme/useAppTheme';
+import { playTickSound } from '../../utils/soundUtils';
 
-const getLocalIsoString = (isoString) => {
+const getLocalIsoString = isoString => {
   if (!isoString) return '';
   try {
     const d = new Date(isoString);
@@ -47,15 +48,30 @@ const getLocalIsoString = (isoString) => {
   }
 };
 
-const getPriorityStyle = (priority) => {
+const getPriorityStyle = priority => {
   switch (priority?.toLowerCase()) {
     case 'high':
-      return { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.12)', border: 'rgba(239, 68, 68, 0.3)', label: 'High' };
+      return {
+        color: '#EF4444',
+        bg: 'rgba(239, 68, 68, 0.12)',
+        border: 'rgba(239, 68, 68, 0.3)',
+        label: 'High',
+      };
     case 'medium':
     case 'med':
-      return { color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.3)', label: 'Med' };
+      return {
+        color: '#F59E0B',
+        bg: 'rgba(245, 158, 11, 0.12)',
+        border: 'rgba(245, 158, 11, 0.3)',
+        label: 'Med',
+      };
     default:
-      return { color: '#10B981', bg: 'rgba(16, 185, 129, 0.12)', border: 'rgba(16, 185, 129, 0.3)', label: 'Low' };
+      return {
+        color: '#10B981',
+        bg: 'rgba(16, 185, 129, 0.12)',
+        border: 'rgba(16, 185, 129, 0.3)',
+        label: 'Low',
+      };
   }
 };
 
@@ -66,12 +82,20 @@ const PRIORITY_ORDER = {
   low: 3,
 };
 
-const getPriorityRank = (priority) => {
+const getPriorityRank = priority => {
   const p = (priority || '').toLowerCase();
   return PRIORITY_ORDER[p] || 2;
 };
 
-const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded, onToggleExpand }) => {
+const TodoItem = ({
+  todo,
+  toggleTodo,
+  deleteTodo,
+  updateTodo,
+  isDark,
+  isExpanded,
+  onToggleExpand,
+}) => {
   const controls = useDragControls();
 
   const [editTitle, setEditTitle] = useState(todo.title || '');
@@ -98,7 +122,7 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
     onToggleExpand();
   };
 
-  const handlePriorityChange = (newPriority) => {
+  const handlePriorityChange = newPriority => {
     setEditPriority(newPriority);
     updateTodo({ id: todo.id, priority: newPriority });
   };
@@ -119,9 +143,7 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
       whileDrag={{
         scale: 1.02,
         zIndex: 999,
-        boxShadow: isDark
-          ? '0 12px 30px rgba(0, 0, 0, 0.55)'
-          : '0 8px 24px rgba(0, 0, 0, 0.12)',
+        boxShadow: isDark ? '0 12px 30px rgba(0, 0, 0, 0.55)' : '0 8px 24px rgba(0, 0, 0, 0.12)',
       }}
     >
       <Box
@@ -136,33 +158,35 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
               ? 'rgba(255, 255, 255, 0.02)'
               : 'rgba(248, 250, 252, 0.8)'
             : isDark
-            ? 'rgba(255, 255, 255, 0.04)'
-            : '#ffffff',
+              ? 'rgba(255, 255, 255, 0.04)'
+              : '#ffffff',
           border: '1px solid',
           borderColor: isExpanded
             ? '#00BFA5'
             : Boolean(todo.done)
-            ? isDark
-              ? 'rgba(255, 255, 255, 0.04)'
-              : 'rgba(0, 0, 0, 0.04)'
-            : isDark
-            ? 'rgba(255, 255, 255, 0.07)'
-            : 'rgba(0, 0, 0, 0.06)',
+              ? isDark
+                ? 'rgba(255, 255, 255, 0.04)'
+                : 'rgba(0, 0, 0, 0.04)'
+              : isDark
+                ? 'rgba(255, 255, 255, 0.07)'
+                : 'rgba(0, 0, 0, 0.06)',
           boxShadow: isExpanded
             ? '0 0 0 1px rgba(0, 191, 165, 0.3)'
             : Boolean(todo.done)
-            ? 'none'
-            : isDark
-            ? '0 1px 3px rgba(0,0,0,0.2)'
-            : '0 1px 3px rgba(0,0,0,0.03)',
+              ? 'none'
+              : isDark
+                ? '0 1px 3px rgba(0,0,0,0.2)'
+                : '0 1px 3px rgba(0,0,0,0.03)',
           opacity: Boolean(todo.done) ? 0.6 : 1,
           transition: 'border-color 0.2s, box-shadow 0.2s, background-color 0.2s',
           '&:hover': {
-            borderColor: isExpanded ? '#00BFA5' : isDark ? 'rgba(0, 191, 165, 0.35)' : 'rgba(0, 191, 165, 0.3)',
+            borderColor: isExpanded
+              ? '#00BFA5'
+              : isDark
+                ? 'rgba(0, 191, 165, 0.35)'
+                : 'rgba(0, 191, 165, 0.3)',
             bgcolor: isDark ? 'rgba(255, 255, 255, 0.06)' : '#ffffff',
-            boxShadow: isDark
-              ? '0 4px 12px rgba(0, 0, 0, 0.3)'
-              : '0 3px 10px rgba(0, 0, 0, 0.06)',
+            boxShadow: isDark ? '0 4px 12px rgba(0, 0, 0, 0.3)' : '0 3px 10px rgba(0, 0, 0, 0.06)',
             '& .task-drag-handle': {
               opacity: 0.9,
               color: '#00BFA5',
@@ -177,9 +201,9 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
           {/* Drag Handle */}
           <Box
-            component="span"
-            className="task-drag-handle"
-            onPointerDown={(e) => {
+            component='span'
+            className='task-drag-handle'
+            onPointerDown={e => {
               e.stopPropagation();
               controls.start(e);
             }}
@@ -236,8 +260,8 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
                     ? '#64748b'
                     : '#94a3b8'
                   : isDark
-                  ? '#E8EDF5'
-                  : '#1e293b',
+                    ? '#E8EDF5'
+                    : '#1e293b',
                 textDecoration: Boolean(todo.done) ? 'line-through' : 'none',
                 fontSize: '0.92rem',
                 fontWeight: Boolean(todo.done) ? 400 : 500,
@@ -249,11 +273,13 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
               {todo.title}
             </Typography>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.5, flexWrap: 'wrap' }}>
+            <Box
+              sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.5, flexWrap: 'wrap' }}
+            >
               {/* Priority badge - always displayed */}
               <Chip
                 label={priorityInfo.label}
-                size="small"
+                size='small'
                 sx={{
                   height: 18,
                   fontSize: '0.65rem',
@@ -269,7 +295,7 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
               {todo.dueAt && !todo.done && (
                 <Chip
                   label={`Due ${new Date(todo.dueAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-                  size="small"
+                  size='small'
                   sx={{
                     height: 18,
                     fontSize: '0.65rem',
@@ -282,8 +308,14 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
 
               {/* Has Notes / Description Indicator */}
               {todo.description && (
-                <Tooltip title="Has additional notes" arrow placement="top">
-                  <Box sx={{ display: 'flex', alignItems: 'center', color: isDark ? '#8899BB' : '#64748b' }}>
+                <Tooltip title='Has additional notes' arrow placement='top'>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: isDark ? '#8899BB' : '#64748b',
+                    }}
+                  >
                     <NotesIcon sx={{ fontSize: 14 }} />
                   </Box>
                 </Tooltip>
@@ -292,11 +324,20 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
           </Box>
 
           {/* Row Actions */}
-          <Box className="row-actions" sx={{ display: 'flex', alignItems: 'center', gap: 0.25, opacity: { xs: 1, md: isExpanded ? 1 : 0 }, transition: 'opacity 0.2s' }}>
-            <Tooltip title={isExpanded ? 'Collapse' : 'Add details / Edit'} arrow placement="top">
+          <Box
+            className='row-actions'
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.25,
+              opacity: { xs: 1, md: isExpanded ? 1 : 0 },
+              transition: 'opacity 0.2s',
+            }}
+          >
+            <Tooltip title={isExpanded ? 'Collapse' : 'Add details / Edit'} arrow placement='top'>
               <IconButton
                 onClick={onToggleExpand}
-                size="small"
+                size='small'
                 sx={{
                   color: isDark ? '#94a3b8' : '#64748b',
                   p: 0.5,
@@ -306,14 +347,18 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
                   },
                 }}
               >
-                {isExpanded ? <ExpandLessIcon sx={{ fontSize: 18 }} /> : <ExpandMoreIcon sx={{ fontSize: 18 }} />}
+                {isExpanded ? (
+                  <ExpandLessIcon sx={{ fontSize: 18 }} />
+                ) : (
+                  <ExpandMoreIcon sx={{ fontSize: 18 }} />
+                )}
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Delete task" arrow placement="top">
+            <Tooltip title='Delete task' arrow placement='top'>
               <IconButton
                 onClick={() => deleteTodo(todo.id)}
-                size="small"
+                size='small'
                 sx={{
                   color: isDark ? '#94a3b8' : '#94a3b8',
                   p: 0.5,
@@ -344,7 +389,9 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
                 sx={{
                   pt: 1.5,
                   mt: 1.25,
-                  borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.06)' : '1px solid rgba(0, 0, 0, 0.06)',
+                  borderTop: isDark
+                    ? '1px solid rgba(255, 255, 255, 0.06)'
+                    : '1px solid rgba(0, 0, 0, 0.06)',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 1.5,
@@ -353,10 +400,10 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
                 {/* Title Edit */}
                 <TextField
                   fullWidth
-                  size="small"
-                  label="Task Title"
+                  size='small'
+                  label='Task Title'
                   value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
+                  onChange={e => setEditTitle(e.target.value)}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       bgcolor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
@@ -372,11 +419,11 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
                   multiline
                   minRows={2}
                   maxRows={5}
-                  size="small"
-                  label="Notes & Context (Indexed in LanceDB)"
-                  placeholder="Add details, checklists, or context for future AI queries..."
+                  size='small'
+                  label='Notes & Context (Indexed in LanceDB)'
+                  placeholder='Add details, checklists, or context for future AI queries...'
                   value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
+                  onChange={e => setEditDescription(e.target.value)}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       bgcolor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
@@ -387,27 +434,42 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
                 />
 
                 {/* Priority & Due Date Row */}
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 1.5,
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
                   {/* Priority selector */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                    <Typography variant="caption" sx={{ color: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }}>
+                    <Typography
+                      variant='caption'
+                      sx={{ color: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }}
+                    >
                       Priority:
                     </Typography>
-                    {['Low', 'Medium', 'High'].map((p) => {
+                    {['Low', 'Medium', 'High'].map(p => {
                       const pStyle = getPriorityStyle(p);
                       const isSelected = editPriority?.toLowerCase() === p.toLowerCase();
                       return (
                         <Chip
                           key={p}
                           label={p}
-                          size="small"
+                          size='small'
                           onClick={() => handlePriorityChange(p)}
                           sx={{
                             cursor: 'pointer',
                             fontWeight: 600,
                             fontSize: '0.72rem',
                             height: 24,
-                            bgcolor: isSelected ? pStyle.bg : isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.03)',
+                            bgcolor: isSelected
+                              ? pStyle.bg
+                              : isDark
+                                ? 'rgba(255, 255, 255, 0.04)'
+                                : 'rgba(0, 0, 0, 0.03)',
                             color: isSelected ? pStyle.color : isDark ? '#94a3b8' : '#64748b',
                             border: '1px solid',
                             borderColor: isSelected ? pStyle.border : 'transparent',
@@ -424,12 +486,15 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
 
                   {/* Due date picker */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                    <Typography variant="caption" sx={{ color: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }}>
+                    <Typography
+                      variant='caption'
+                      sx={{ color: isDark ? '#94a3b8' : '#64748b', fontWeight: 600 }}
+                    >
                       Due:
                     </Typography>
                     <AppDateTimePicker
                       value={editDueAt}
-                      onChange={(val) => setEditDueAt(val)}
+                      onChange={val => setEditDueAt(val)}
                       slotProps={{
                         textField: {
                           size: 'small',
@@ -455,7 +520,7 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
                 {/* Save / Close Actions */}
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, pt: 0.5 }}>
                   <Button
-                    size="small"
+                    size='small'
                     onClick={onToggleExpand}
                     sx={{
                       color: isDark ? '#94a3b8' : '#64748b',
@@ -467,8 +532,8 @@ const TodoItem = ({ todo, toggleTodo, deleteTodo, updateTodo, isDark, isExpanded
                     Cancel
                   </Button>
                   <Button
-                    variant="contained"
-                    size="small"
+                    variant='contained'
+                    size='small'
                     onClick={handleSaveDetails}
                     sx={{
                       bgcolor: '#00BFA5',
@@ -506,10 +571,10 @@ const TodoCard = ({ cardStyle }) => {
   const [inputValue, setInputValue] = useState('');
   const [expandedId, setExpandedId] = useState(null);
 
-  const sortTodos = (todoList) => {
+  const sortTodos = todoList => {
     if (!Array.isArray(todoList)) return [];
-    const pending = todoList.filter((t) => !t.done);
-    const completed = todoList.filter((t) => Boolean(t.done));
+    const pending = todoList.filter(t => !t.done);
+    const completed = todoList.filter(t => Boolean(t.done));
 
     pending.sort((a, b) => getPriorityRank(a.priority) - getPriorityRank(b.priority));
     completed.sort((a, b) => getPriorityRank(a.priority) - getPriorityRank(b.priority));
@@ -521,7 +586,7 @@ const TodoCard = ({ cardStyle }) => {
     setItems(sortTodos(todos));
   }, [todos]);
 
-  const handleAddTodo = async (e) => {
+  const handleAddTodo = async e => {
     e.preventDefault();
     const text = inputValue.trim();
     if (!text) return;
@@ -534,38 +599,50 @@ const TodoCard = ({ cardStyle }) => {
     }
   };
 
-  const handleReorder = (newItems) => {
+  const handleReorder = newItems => {
     setItems(newItems);
-    reorderTodos(newItems.map((item) => item.id));
+    reorderTodos(newItems.map(item => item.id));
   };
 
   const toggleTodo = (id, done) => {
     const nextDone = !done;
-    const updated = items.map((t) => (t.id === id ? { ...t, done: nextDone } : t));
+    playTickSound(nextDone);
+    const updated = items.map(t => (t.id === id ? { ...t, done: nextDone } : t));
     const sorted = sortTodos(updated);
     setItems(sorted);
     updateTodo({ id, done: nextDone });
   };
 
-  const handleToggleExpand = (id) => {
-    setExpandedId((prev) => (prev === id ? null : id));
+  const handleToggleExpand = id => {
+    setExpandedId(prev => (prev === id ? null : id));
   };
 
-  const pendingCount = items.filter((t) => !t.done).length;
+  const pendingCount = items.filter(t => !t.done).length;
 
   return (
     <Card sx={cardStyle}>
       <CardContent sx={{ p: 2.5, height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, pr: 4 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 2,
+            pr: 4,
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-            <Typography variant="h6" sx={{ color: isDark ? '#E8EDF5' : '#0f172a', fontWeight: 700, fontSize: '1.1rem' }}>
+            <Typography
+              variant='h6'
+              sx={{ color: isDark ? '#E8EDF5' : '#0f172a', fontWeight: 700, fontSize: '1.1rem' }}
+            >
               Tasks
             </Typography>
             {items.length > 0 && (
               <Chip
                 label={`${pendingCount} pending`}
-                size="small"
+                size='small'
                 sx={{
                   height: 22,
                   fontSize: '0.72rem',
@@ -580,26 +657,29 @@ const TodoCard = ({ cardStyle }) => {
         </Box>
 
         {/* Input Form */}
-        <Box component="form" onSubmit={handleAddTodo} sx={{ mb: 2 }}>
+        <Box component='form' onSubmit={handleAddTodo} sx={{ mb: 2 }}>
           <TextField
             fullWidth
-            variant="outlined"
-            size="small"
-            placeholder="Add a new task..."
+            variant='outlined'
+            size='small'
+            placeholder='Add a new task...'
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={e => setInputValue(e.target.value)}
             InputProps={{
               endAdornment: (
-                <InputAdornment position="end">
+                <InputAdornment position='end'>
                   <IconButton
-                    type="submit"
+                    type='submit'
                     disabled={!inputValue.trim()}
-                    size="small"
+                    size='small'
                     sx={{
                       color: '#ffffff',
                       bgcolor: inputValue.trim() ? '#00BFA5' : 'transparent',
                       '&:hover': { bgcolor: '#00a38c' },
-                      '&.Mui-disabled': { color: isDark ? '#475569' : '#cbd5e1', bgcolor: 'transparent' },
+                      '&.Mui-disabled': {
+                        color: isDark ? '#475569' : '#cbd5e1',
+                        bgcolor: 'transparent',
+                      },
                       transition: 'all 0.2s',
                       width: 28,
                       height: 28,
@@ -648,11 +728,16 @@ const TodoCard = ({ cardStyle }) => {
             },
           }}
         >
-          {isLoading && <CircularProgress size={24} sx={{ display: 'block', mx: 'auto', mt: 4, color: '#00BFA5' }} />}
+          {isLoading && (
+            <CircularProgress
+              size={24}
+              sx={{ display: 'block', mx: 'auto', mt: 4, color: '#00BFA5' }}
+            />
+          )}
 
           <Reorder.Group
-            as="div"
-            axis="y"
+            as='div'
+            axis='y'
             values={items}
             onReorder={handleReorder}
             style={{
@@ -664,7 +749,7 @@ const TodoCard = ({ cardStyle }) => {
               listStyle: 'none',
             }}
           >
-            {items.map((todo) => (
+            {items.map(todo => (
               <TodoItem
                 key={todo.id}
                 todo={todo}
@@ -680,7 +765,10 @@ const TodoCard = ({ cardStyle }) => {
 
           {!isLoading && items.length === 0 && (
             <Box sx={{ textAlign: 'center', py: 5, px: 2 }}>
-              <Typography variant="body2" sx={{ color: isDark ? '#64748b' : '#94a3b8', fontWeight: 500 }}>
+              <Typography
+                variant='body2'
+                sx={{ color: isDark ? '#64748b' : '#94a3b8', fontWeight: 500 }}
+              >
                 No tasks yet. Type above to add one!
               </Typography>
             </Box>
