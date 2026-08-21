@@ -1,3 +1,11 @@
+## [1.13.7](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.6...v1.13.7) (2026-08-21)
+
+
+### Bug Fixes
+
+* **create-pr:** add missing node_modules dependency and build artifacts ([f44532f](https://github.com/anuragarwalkar/ai-workflow-utils/commit/f44532f090f5ac9deb37f23694e9eb5173a67f54))
+* **todo-sound:** simplify sidebar state management and add sound utility integration for UI interactions ([d00a21f](https://github.com/anuragarwalkar/ai-workflow-utils/commit/d00a21fc8ece527a83955c48966fc7defc721da4))
+
 ## [1.13.6](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.5...v1.13.6) (2026-08-20)
 
 
