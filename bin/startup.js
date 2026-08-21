@@ -93,7 +93,7 @@ class StartupManager {
           execSync(`launchctl start ${this.serviceName}`, { stdio: 'inherit' });
           break;
         case 'win32':
-          execSync(`sc start "${this.serviceName}"`, { stdio: 'inherit' });
+          execSync(`schtasks /run /tn "${this.serviceName}"`, { stdio: 'inherit' });
           break;
         case 'linux':
           execSync(`sudo systemctl start ${this.serviceName}`, { stdio: 'inherit' });
@@ -116,7 +116,7 @@ class StartupManager {
           execSync(`launchctl stop ${this.serviceName}`, { stdio: 'inherit' });
           break;
         case 'win32':
-          execSync(`sc stop "${this.serviceName}"`, { stdio: 'inherit' });
+          execSync(`schtasks /end /tn "${this.serviceName}"`, { stdio: 'inherit' });
           break;
         case 'linux':
           execSync(`sudo systemctl stop ${this.serviceName}`, { stdio: 'inherit' });
@@ -160,10 +160,10 @@ class StartupManager {
           break;
         case 'win32':
           try {
-            console.log('\\n📊 Service Status (sc query):');
-            execSync(`sc query "${this.serviceName}"`, { stdio: 'inherit' });
+            console.log('\n📊 Scheduled Task Status (schtasks):');
+            execSync(`schtasks /query /tn "${this.serviceName}" /fo LIST /v`, { stdio: 'inherit' });
           } catch (e) {
-            console.log('❌ Service is not installed or not running');
+            console.log('❌ Scheduled task is not installed or not found');
           }
 
           console.log('\\n📝 Recent Logs (daemon logs):');
@@ -311,108 +311,49 @@ class StartupManager {
   }
 
   async installWindows() {
-    const servicePath = path.join(this.packageDir, 'bin', 'windows-service.js');
     const nodePath = process.execPath;
+    const cliPath = path.join(this.packageDir, 'bin', 'cli.js');
+    const taskName = this.serviceName;
 
-    // Create Windows service wrapper
-    this.createWindowsServiceWrapper(servicePath);
+    // Remove any existing task with the same name (ignore errors)
+    try {
+      execSync(`schtasks /delete /tn "${taskName}" /f`, { stdio: 'pipe' });
+    } catch (e) {
+      // Task didn't exist — that's fine
+    }
 
-    // Create the service using sc command
-    const createCmd = `sc create "${this.serviceName}" binPath= "${nodePath} ${servicePath}" start= auto DisplayName= "AI Workflow Utils"`;
+    // Create a Scheduled Task that runs at system startup (requires SYSTEM or elevated user)
+    // /sc ONSTART runs the task at system startup; /ru SYSTEM runs it as LocalSystem
+    const createCmd = [
+      'schtasks',
+      '/create',
+      `/tn "${taskName}"`,
+      `/tr "\\"${nodePath}\\" \\"${cliPath}\\""`,
+      '/sc ONSTART',
+      '/ru SYSTEM',
+      '/rl HIGHEST',
+      '/f',
+    ].join(' ');
+
     execSync(createCmd, { stdio: 'inherit' });
-    console.log('🔧 Windows service created');
+    console.log('🔧 Windows scheduled task created');
 
-    // Set service description
-    const descCmd = `sc description "${this.serviceName}" "AI Workflow Utils - Comprehensive automation platform for software development workflows"`;
-    execSync(descCmd, { stdio: 'inherit' });
-    console.log('📝 Service description set');
-
-    // Start the service
-    execSync(`sc start "${this.serviceName}"`, { stdio: 'inherit' });
-    console.log('▶️  Service started');
+    // Start the task immediately
+    execSync(`schtasks /run /tn "${taskName}"`, { stdio: 'inherit' });
+    console.log('▶️  Scheduled task started');
   }
 
   async uninstallWindows() {
+    const taskName = this.serviceName;
+
     try {
-      execSync(`sc stop "${this.serviceName}"`, { stdio: 'pipe' });
-    } catch (error) {
-      // Ignore if service is already stopped
+      execSync(`schtasks /end /tn "${taskName}"`, { stdio: 'pipe' });
+    } catch (e) {
+      // Ignore if task is not running
     }
 
-    execSync(`sc delete "${this.serviceName}"`, { stdio: 'inherit' });
-    console.log('🗑️  Windows service removed');
-
-    // Remove service wrapper file
-    const servicePath = path.join(this.packageDir, 'bin', 'windows-service.js');
-    if (fs.existsSync(servicePath)) {
-      fs.unlinkSync(servicePath);
-    }
-  }
-
-  createWindowsServiceWrapper(servicePath) {
-    const wrapperContent = `import { Service } from 'node-windows';
-import path from 'path';
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Create a new service object
-const svc = new Service({
-  name: '${this.serviceName}',
-  description: 'AI Workflow Utils - Comprehensive automation platform',
-  script: path.join(__dirname, 'cli.js'),
-  nodeOptions: [
-    '--max_old_space_size=4096'
-  ],
-  env: {
-    name: 'NODE_ENV',
-    value: 'production'
-  }
-});
-
-// Listen for the "install" event, which indicates the process is available as a service
-svc.on('install', function() {
-  svc.start();
-});
-
-svc.on('alreadyinstalled', function() {
-  console.log('Service is already installed.');
-});
-
-// Install the script as a service
-if (process.argv.includes('--install')) {
-  svc.install();
-} else if (process.argv.includes('--uninstall')) {
-  svc.uninstall();
-} else {
-  // Run directly
-  const cliPath = path.join(__dirname, 'cli.js');
-  const server = spawn('node', [cliPath], {
-    stdio: 'inherit',
-    env: {
-      ...process.env,
-      NODE_ENV: 'production'
-    }
-  });
-
-  server.on('error', (err) => {
-    console.error('Failed to start server:', err);
-    process.exit(1);
-  });
-
-  process.on('SIGINT', () => {
-    server.kill('SIGINT');
-  });
-
-  process.on('SIGTERM', () => {
-    server.kill('SIGTERM');
-  });
-}`;
-
-    fs.writeFileSync(servicePath, wrapperContent);
-    console.log(`📝 Created Windows service wrapper: ${servicePath}`);
+    execSync(`schtasks /delete /tn "${taskName}" /f`, { stdio: 'inherit' });
+    console.log('🗑️  Windows scheduled task removed');
   }
 
   async installLinux() {
