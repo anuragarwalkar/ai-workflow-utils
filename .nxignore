@@ -1,0 +1,10 @@
+node_modules
+dist
+logs
+*.log
+uploads
+pids
+coverage
+.vscode
+.idea
+tmp

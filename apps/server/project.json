@@ -1,0 +1,31 @@
+{
+  "name": "server",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/server/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "webpack --config apps/server/webpack.config.js"
+      },
+      "outputs": ["{workspaceRoot}/dist/apps/server"]
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "webpack --config apps/server/webpack.config.js --watch",
+          "nodemon dist/apps/server/server.js"
+        ],
+        "parallel": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p apps/server/tsconfig.json --noEmit"
+      }
+    }
+  }
+}

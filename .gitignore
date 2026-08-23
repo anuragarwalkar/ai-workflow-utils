@@ -1,20 +1,41 @@
 # Environment variables
 .env
+.env.local
+.env.*.local
 
 # Node modules
 node_modules/
 
-# Logs
+# Nx
+.nx/
+.nx/cache
+
+# Build & Dev outputs (never commit build artifacts)
+dist/
+build/
+dev-dist/
+tmp/
+*.tsbuildinfo
+*.tgz
+
+# Logs (runtime directory)
+/logs/
 *.log
 
 # OS-specific files
 .DS_Store
+.DS_Store?
+._*
 
 # IDE-specific files
 .vscode/
 .idea/
 
-# ignore server
-dist/
+# Application runtime directories
+/uploads/
+/pids/
+*.pid
+/coverage/
 
-uploads/
+# Always track server controllers and source code
+!apps/server/src/controllers/logs/**
