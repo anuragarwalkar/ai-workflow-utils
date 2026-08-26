@@ -1,0 +1,7 @@
+{
+  "name": "@ai-workflow-utils/shared-types",
+  "version": "1.13.7",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "data",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/data/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "mkdir -p dist/libs/data && cp -r libs/data/src/* dist/libs/data/"
+      },
+      "outputs": ["{workspaceRoot}/dist/libs/data"]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/data/tsconfig.json --noEmit"
+      }
+    }
+  }
+}

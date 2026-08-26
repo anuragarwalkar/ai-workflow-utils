@@ -1,0 +1,6 @@
+{
+  "name": "@ai-workflow-utils/data",
+  "version": "1.13.7",
+  "type": "module",
+  "main": "src/index.ts"
+}
