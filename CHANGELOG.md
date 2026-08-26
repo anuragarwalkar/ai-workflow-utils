@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.7...v1.14.0) (2026-08-26)
+
+
+### Features
+
+* **nx:** upgraded monorepo to Nx ([#20](https://github.com/anuragarwalkar/ai-workflow-utils/issues/20)) ([832a928](https://github.com/anuragarwalkar/ai-workflow-utils/commit/832a9286948994d696d89f32d9f2cb5a0c4e1217))
+
 ## [1.13.7](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.6...v1.13.7) (2026-08-21)
 
 
