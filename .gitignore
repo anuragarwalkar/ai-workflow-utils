@@ -39,3 +39,6 @@ tmp/
 
 # Always track server controllers and source code
 !apps/server/src/controllers/logs/**
+
+.claude/worktrees
+.claude/settings.local.json

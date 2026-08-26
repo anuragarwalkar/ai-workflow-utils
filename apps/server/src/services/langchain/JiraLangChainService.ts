@@ -44,7 +44,7 @@ export class JiraLangChainService extends BaseLangChainService {
         })}\n\n`
       );
 
-      const { content } = result;
+      const content = typeof result.content === 'string' ? result.content : Array.isArray(result.content) ? result.content.map((c: any) => (typeof c === 'string' ? c : c?.text ?? '')).join('') : String(result.content ?? '');
       if (content) {
         const words = content.split(' ');
         for (let i = 0; i < words.length; i += 5) {
@@ -64,9 +64,9 @@ export class JiraLangChainService extends BaseLangChainService {
         `data: ${JSON.stringify({
           type: 'complete',
           message: `${issueType} preview generated successfully`,
-          bugReport: fullContent || result.content,
-          summary: this.extractSummaryFromContent(fullContent || result.content),
-          description: fullContent || result.content,
+          bugReport: fullContent || content,
+          summary: this.extractSummaryFromContent(fullContent || content),
+          description: fullContent || content,
           provider: result.provider,
           usedMCP: result.usedMCP,
         })}\n\n`
@@ -103,8 +103,15 @@ export class JiraLangChainService extends BaseLangChainService {
       preferredProvider: options.preferredProvider || null,
     });
 
+    const rawContent = result.content;
+    const normalizedContent = typeof rawContent === 'string'
+      ? rawContent
+      : Array.isArray(rawContent)
+        ? rawContent.map((c: any) => (typeof c === 'string' ? c : c?.text ?? '')).join('')
+        : String(rawContent ?? '');
+
     return {
-      content: result.content,
+      content: normalizedContent,
       provider: result.provider,
       usedMCP: result.usedMCP || false,
     };

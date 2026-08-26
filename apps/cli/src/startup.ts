@@ -13,6 +13,7 @@ export class StartupManager {
   packageDir: string;
   packageJson: any;
   serviceName: string;
+  serviceLabel: string;
   platform: NodeJS.Platform;
 
   constructor() {
@@ -20,10 +21,20 @@ export class StartupManager {
     if (!fs.existsSync(path.join(base, 'package.json'))) {
       base = path.resolve(__dirname, '..');
     }
+    if (!fs.existsSync(path.join(base, 'package.json'))) {
+      base = process.cwd();
+    }
     this.packageDir = base;
+
     const packageJsonPath = path.join(this.packageDir, 'package.json');
-    this.packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    if (fs.existsSync(packageJsonPath)) {
+      this.packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    } else {
+      this.packageJson = { name: 'ai-workflow-utils', version: '1.0.0' };
+    }
+
     this.serviceName = 'ai-workflow-utils';
+    this.serviceLabel = `com.anuragarwalkar.${this.serviceName}`;
     this.platform = os.platform();
   }
 
@@ -96,14 +107,21 @@ export class StartupManager {
     console.log('🚀 Starting AI Workflow Utils service...');
     try {
       switch (this.platform) {
-        case 'darwin':
-          execSync(`launchctl start com.anuragarwalkar.${this.serviceName}`);
+        case 'darwin': {
+          const plistPath = path.join(os.homedir(), 'Library', 'LaunchAgents', `${this.serviceLabel}.plist`);
+          if (fs.existsSync(plistPath)) {
+            try {
+              execSync(`launchctl load -w "${plistPath}" 2>/dev/null || true`);
+            } catch (_) {}
+          }
+          execSync(`launchctl start ${this.serviceLabel}`);
           break;
+        }
         case 'linux':
           execSync(`systemctl --user start ${this.serviceName}`);
           break;
         case 'win32':
-          execSync(`net start ${this.serviceName}`);
+          execSync(`sc start ${this.serviceName}`);
           break;
       }
       console.log('✅ Service started successfully!');
@@ -118,13 +136,13 @@ export class StartupManager {
     try {
       switch (this.platform) {
         case 'darwin':
-          execSync(`launchctl stop com.anuragarwalkar.${this.serviceName}`);
+          execSync(`launchctl stop ${this.serviceLabel}`);
           break;
         case 'linux':
           execSync(`systemctl --user stop ${this.serviceName}`);
           break;
         case 'win32':
-          execSync(`net stop ${this.serviceName}`);
+          execSync(`sc stop ${this.serviceName}`);
           break;
       }
       console.log('✅ Service stopped successfully!');
@@ -135,21 +153,42 @@ export class StartupManager {
   }
 
   async status(): Promise<void> {
+    console.log('📊 Checking AI Workflow Utils service status...\n');
     try {
       switch (this.platform) {
         case 'darwin': {
-          const out = execSync(`launchctl list | grep com.anuragarwalkar.${this.serviceName} || true`).toString();
-          console.log(out.trim() ? `🟢 Service is registered: ${out}` : '🔴 Service is not running/registered');
+          const plistPath = path.join(os.homedir(), 'Library', 'LaunchAgents', `${this.serviceLabel}.plist`);
+          const isInstalled = fs.existsSync(plistPath);
+          const out = execSync(`launchctl list | grep -E "${this.serviceName}|${this.serviceLabel}" || true`, { encoding: 'utf8' }).trim();
+
+          if (out) {
+            const parts = out.split(/\s+/);
+            const pid = parts[0] !== '-' ? parts[0] : 'Idle / Stopped';
+            const exitCode = parts[1];
+            console.log(`🟢 Service Status: RUNNING / LOADED`);
+            console.log(`   • Label:       ${parts[2] || this.serviceLabel}`);
+            console.log(`   • Process PID: ${pid}`);
+            console.log(`   • Last Exit:   ${exitCode}`);
+            console.log(`   • Plist Path:  ${plistPath}`);
+            console.log(`   • Output Log:  ${os.homedir()}/Library/Logs/${this.serviceName}.log`);
+            console.log(`   • Error Log:   ${os.homedir()}/Library/Logs/${this.serviceName}.error.log`);
+          } else if (isInstalled) {
+            console.log(`🟡 Service is installed (${plistPath}) but not currently loaded in launchctl.`);
+            console.log(`   Run "ai-workflow-utils startup start" to start it.`);
+          } else {
+            console.log(`🔴 Service is not installed.`);
+            console.log(`   Run "ai-workflow-utils startup install" to register the service.`);
+          }
           break;
         }
         case 'linux': {
-          const out = execSync(`systemctl --user status ${this.serviceName} || true`).toString();
-          console.log(out);
+          const out = execSync(`systemctl --user status ${this.serviceName} || true`, { encoding: 'utf8' }).toString();
+          console.log(out || '🔴 Service status not available');
           break;
         }
         case 'win32': {
-          const out = execSync(`sc query ${this.serviceName} || true`).toString();
-          console.log(out);
+          const out = execSync(`sc query ${this.serviceName} || true`, { encoding: 'utf8' }).toString();
+          console.log(out || '🔴 Service status not available');
           break;
         }
       }
@@ -158,21 +197,45 @@ export class StartupManager {
     }
   }
 
-  private async installMacOS(): Promise<void> {
-    const plistDir = path.join(os.homedir(), 'Library', 'LaunchAgents');
-    if (!fs.existsSync(plistDir)) {
-      fs.mkdirSync(plistDir, { recursive: true });
+  private getNodePath(): string {
+    let nodePath: string;
+    try {
+      nodePath = execSync('which node', { encoding: 'utf8' }).trim();
+    } catch {
+      const commonPaths = ['/usr/local/bin/node', '/opt/homebrew/bin/node', process.execPath];
+      nodePath = commonPaths.find(p => fs.existsSync(p)) || process.execPath;
     }
-    const plistPath = path.join(plistDir, `com.anuragarwalkar.${this.serviceName}.plist`);
-    const nodePath = process.execPath;
+    return nodePath;
+  }
+
+  private async installMacOS(): Promise<void> {
+    const launchAgentsDir = path.join(os.homedir(), 'Library', 'LaunchAgents');
+    if (!fs.existsSync(launchAgentsDir)) {
+      fs.mkdirSync(launchAgentsDir, { recursive: true });
+    }
+
+    const plistPath = path.join(launchAgentsDir, `${this.serviceLabel}.plist`);
+    const legacyPlistPath = path.join(launchAgentsDir, `${this.serviceName}.plist`);
+    const nodePath = this.getNodePath();
     const serverPath = path.join(this.packageDir, 'dist', 'apps', 'server', 'server.js');
+    const logDir = path.join(os.homedir(), 'Library', 'Logs');
+
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+
+    // Clean up any legacy or previously loaded version
+    try {
+      execSync(`launchctl unload "${plistPath}" 2>/dev/null || true`);
+      execSync(`launchctl unload "${legacyPlistPath}" 2>/dev/null || true`);
+    } catch (_) {}
 
     const plistContent = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.anuragarwalkar.${this.serviceName}</string>
+    <string>${this.serviceLabel}</string>
     <key>ProgramArguments</key>
     <array>
         <string>${nodePath}</string>
@@ -181,22 +244,68 @@ export class StartupManager {
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
-    <true/>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+        <key>Crashed</key>
+        <true/>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>${logDir}/${this.serviceName}.log</string>
+    <key>StandardErrorPath</key>
+    <string>${logDir}/${this.serviceName}.error.log</string>
     <key>WorkingDirectory</key>
     <string>${this.packageDir}</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>NODE_ENV</key>
+        <string>production</string>
+        <key>PORT</key>
+        <string>3000</string>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:${path.dirname(nodePath)}</string>
+    </dict>
+    <key>ProcessType</key>
+    <string>Background</string>
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
 </dict>
 </plist>`;
+
     fs.writeFileSync(plistPath, plistContent);
-    execSync(`launchctl load -w "${plistPath}"`);
+    console.log(`📝 Created plist file: ${plistPath}`);
+    console.log(`🔧 Using Node.js at: ${nodePath}`);
+    console.log(`🖥️  Server script: ${serverPath}`);
+    console.log(`📊 Logs will be written to:`);
+    console.log(`   • Output: ${logDir}/${this.serviceName}.log`);
+    console.log(`   • Errors: ${logDir}/${this.serviceName}.error.log`);
+
+    execSync(`launchctl load -w "${plistPath}"`, { stdio: 'inherit' });
+    console.log('🔄 Service loaded into launchctl');
   }
 
   private async uninstallMacOS(): Promise<void> {
-    const plistPath = path.join(os.homedir(), 'Library', 'LaunchAgents', `com.anuragarwalkar.${this.serviceName}.plist`);
-    if (fs.existsSync(plistPath)) {
-      try {
-        execSync(`launchctl unload "${plistPath}"`);
-      } catch (_) {}
-      fs.unlinkSync(plistPath);
+    const launchAgentsDir = path.join(os.homedir(), 'Library', 'LaunchAgents');
+    const plistPath = path.join(launchAgentsDir, `${this.serviceLabel}.plist`);
+    const legacyPlistPath = path.join(launchAgentsDir, `${this.serviceName}.plist`);
+
+    let removed = false;
+    for (const p of [plistPath, legacyPlistPath]) {
+      if (fs.existsSync(p)) {
+        try {
+          execSync(`launchctl unload "${p}" 2>/dev/null || true`);
+        } catch (_) {}
+        try {
+          fs.unlinkSync(p);
+        } catch (_) {}
+        removed = true;
+      }
+    }
+
+    if (removed) {
+      console.log('🗑️  Removed plist file and unloaded launchctl service');
+    } else {
+      console.log('ℹ️  Service was not installed');
     }
   }
 
@@ -206,7 +315,7 @@ export class StartupManager {
       fs.mkdirSync(systemdDir, { recursive: true });
     }
     const servicePath = path.join(systemdDir, `${this.serviceName}.service`);
-    const nodePath = process.execPath;
+    const nodePath = this.getNodePath();
     const serverPath = path.join(this.packageDir, 'dist', 'apps', 'server', 'server.js');
 
     const content = `[Unit]
@@ -218,13 +327,20 @@ Type=simple
 ExecStart=${nodePath} ${serverPath}
 WorkingDirectory=${this.packageDir}
 Restart=always
+RestartSec=3
+Environment=NODE_ENV=production
+Environment=PORT=3000
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=default.target`;
+
     fs.writeFileSync(servicePath, content);
     execSync(`systemctl --user daemon-reload`);
     execSync(`systemctl --user enable ${this.serviceName}`);
     execSync(`systemctl --user start ${this.serviceName}`);
+    console.log(`📝 Created systemd service: ${servicePath}`);
   }
 
   private async uninstallLinux(): Promise<void> {
@@ -240,11 +356,63 @@ WantedBy=default.target`;
   }
 
   private async installWindows(): Promise<void> {
-    console.log('Windows service installation requires manual or NSSM setup.');
+    const nodePath = process.execPath;
+    const serverPath = path.join(this.packageDir, 'dist', 'apps', 'server', 'server.js');
+
+    const createCmd = `sc create "${this.serviceName}" binPath= "\"${nodePath}\" \"${serverPath}\"" start= auto DisplayName= "AI Workflow Utils"`;
+    execSync(createCmd, { stdio: 'inherit' });
+    console.log('🔧 Windows service created');
+
+    const descCmd = `sc description "${this.serviceName}" "AI Workflow Utils - Automation platform for software development workflows"`;
+    execSync(descCmd, { stdio: 'inherit' });
+    console.log('📝 Service description set');
+
+    execSync(`sc start "${this.serviceName}"`, { stdio: 'inherit' });
+    console.log('▶️  Service started');
   }
 
   private async uninstallWindows(): Promise<void> {
-    console.log('Windows service uninstallation requires manual or NSSM removal.');
+    try {
+      execSync(`sc stop "${this.serviceName}"`, { stdio: 'pipe' });
+    } catch (_) {}
+    execSync(`sc delete "${this.serviceName}"`, { stdio: 'inherit' });
+    console.log('🗑️  Windows service removed');
+  }
+}
+
+// Standalone execution support
+if (process.argv[1]?.endsWith('startup.ts') || process.argv[1]?.endsWith('startup.js')) {
+  const manager = new StartupManager();
+  const command = process.argv[2];
+
+  switch (command) {
+    case 'install':
+      manager.install();
+      break;
+    case 'uninstall':
+      manager.uninstall();
+      break;
+    case 'start':
+      manager.start();
+      break;
+    case 'stop':
+      manager.stop();
+      break;
+    case 'status':
+      manager.status();
+      break;
+    default:
+      console.log('🚀 AI Workflow Utils - Startup Manager');
+      console.log('='.repeat(50));
+      console.log('Usage: ai-workflow-utils startup <command>');
+      console.log('');
+      console.log('Commands:');
+      console.log('  install    Install as startup service');
+      console.log('  uninstall  Remove startup service');
+      console.log('  start      Start the service');
+      console.log('  stop       Stop the service');
+      console.log('  status     Check service status');
+      break;
   }
 }
 

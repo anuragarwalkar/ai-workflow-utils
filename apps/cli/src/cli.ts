@@ -4,9 +4,13 @@ import path from 'path';
 import fs from 'fs';
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
+import { StartupManager } from './startup.js';
+import { checkPermissions } from './check-permissions.js';
+import { EnvironmentSetup } from './setup.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 // Find root where package.json lives
 let packageDir = path.resolve(__dirname, '../../..');
 if (!fs.existsSync(path.join(packageDir, 'package.json'))) {
@@ -29,43 +33,58 @@ async function main(): Promise<void> {
 
   // Handle startup command
   if (args[0] === 'startup') {
-    const startupCandidates = [
-      path.join(__dirname, 'startup.js'),
-      path.join(__dirname, 'startup.ts'),
-      path.join(packageDir, 'apps', 'cli', 'src', 'startup.js'),
-    ];
-    const startupScript = startupCandidates.find(p => fs.existsSync(p)) || startupCandidates[0];
-    const startupArgs = args.slice(1);
+    const manager = new StartupManager();
+    const subCommand = args[1];
 
-    const startupProcess = spawn('node', [startupScript, ...startupArgs], {
-      stdio: 'inherit',
-      cwd: packageDir,
-    });
-
-    startupProcess.on('exit', (code: number | null) => {
-      process.exit(code || 0);
-    });
-
+    switch (subCommand) {
+      case 'install':
+        await manager.install();
+        break;
+      case 'uninstall':
+        await manager.uninstall();
+        break;
+      case 'start':
+        await manager.start();
+        break;
+      case 'stop':
+        await manager.stop();
+        break;
+      case 'status':
+        await manager.status();
+        break;
+      default:
+        console.log('🚀 AI Workflow Utils - Startup Service Manager');
+        console.log('='.repeat(50));
+        console.log('Usage: ai-workflow-utils startup <command>');
+        console.log('');
+        console.log('Commands:');
+        console.log('  install      Install and register as startup service');
+        console.log('  uninstall    Remove and unregister startup service');
+        console.log('  start        Start the registered service');
+        console.log('  stop         Stop the registered service');
+        console.log('  status       Check service registration & running status');
+        console.log('');
+        console.log('Examples:');
+        console.log('  ai-workflow-utils startup install');
+        console.log('  ai-workflow-utils startup status');
+        console.log('  ai-workflow-utils startup stop');
+        break;
+    }
     return;
   }
 
-  // Handle validate command
+  // Handle validate / setup command
   if (args[0] === 'validate') {
-    const validateCandidates = [
-      path.join(__dirname, 'validate.js'),
-      path.join(__dirname, 'validate.ts'),
-    ];
-    const validateScript = validateCandidates.find(p => fs.existsSync(p)) || validateCandidates[0];
+    console.log('🔍 Running system validation & permission checks...\n');
+    const setup = new EnvironmentSetup();
+    const envOk = await setup.checkEnvironmentHealth();
+    const permOk = await checkPermissions();
 
-    const validateProcess = spawn('node', [validateScript], {
-      stdio: 'inherit',
-      cwd: packageDir,
-    });
-
-    validateProcess.on('exit', (code: number | null) => {
-      process.exit(code || 0);
-    });
-
+    if (envOk && permOk) {
+      console.log('\n🎉 Validation successful! System is ready to run.');
+    } else {
+      console.log('\n⚠️  Validation finished with warnings or issues. See details above.');
+    }
     return;
   }
 
@@ -81,7 +100,7 @@ async function main(): Promise<void> {
     console.log('    start        Start the service');
     console.log('    stop         Stop the service');
     console.log('    status       Check service status');
-    console.log('  validate       Validate startup configuration');
+    console.log('  validate       Validate startup configuration and permissions');
     console.log('');
     console.log('Options:');
     console.log('  --help, -h     Show this help message');
@@ -103,8 +122,12 @@ async function main(): Promise<void> {
 
   if (args.includes('--version') || args.includes('-v')) {
     const packageJsonPath = path.join(packageDir, 'package.json');
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    console.log(`AI Workflow Utils v${packageJson.version}`);
+    if (fs.existsSync(packageJsonPath)) {
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+      console.log(`AI Workflow Utils v${packageJson.version}`);
+    } else {
+      console.log('AI Workflow Utils');
+    }
     return;
   }
 

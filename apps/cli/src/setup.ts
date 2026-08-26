@@ -15,7 +15,7 @@ export class EnvironmentSetup {
   serverEnvPath: string;
   configMetaPath: string;
   serverEnvExamplePath: string;
-  rl: readline.Interface;
+  rl: readline.Interface | null = null;
   envConfig: Record<string, any>;
 
   constructor() {
@@ -32,11 +32,6 @@ export class EnvironmentSetup {
 
     // Package directory paths for examples
     this.serverEnvExamplePath = path.join(this.packageDir, '.env.example');
-
-    this.rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
 
     this.envConfig = {
       server: {
@@ -131,10 +126,27 @@ export class EnvironmentSetup {
     };
   }
 
+  getReadline(): readline.Interface {
+    if (!this.rl) {
+      this.rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      });
+    }
+    return this.rl;
+  }
+
   async question(prompt: string): Promise<string> {
     return new Promise(resolve => {
-      this.rl.question(prompt, resolve);
+      this.getReadline().question(prompt, resolve);
     });
+  }
+
+  close(): void {
+    if (this.rl) {
+      this.rl.close();
+      this.rl = null;
+    }
   }
 
   async setupEnvironment(): Promise<boolean> {
@@ -156,7 +168,7 @@ export class EnvironmentSetup {
       const overwrite = await this.question('\nDo you want to reconfigure? (y/N): ');
       if (overwrite.toLowerCase() !== 'y' && overwrite.toLowerCase() !== 'yes') {
         console.log('✅ Using existing configuration. Starting application...');
-        this.rl.close();
+        this.close();
         return false;
       }
     }
@@ -179,7 +191,7 @@ export class EnvironmentSetup {
     console.log('\n💡 Configuration will persist across package upgrades!');
     console.log('\n🌐 Frontend configuration is now handled directly in the UI application.');
 
-    this.rl.close();
+    this.close();
     return true;
   }
 
