@@ -6,6 +6,7 @@ export {
   createPullRequest,
   streamCreatePRPreview,
   addComment,
+  getActivities,
 } from './pull-request-controller.ts';
 
 export { default as BitbucketService } from './services/bit-bucket-service.js';

@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
   Chip,
   IconButton,
-  Tooltip
+  Tooltip,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   Code as CodeIcon,
-  ContentCopy as ContentCopyIcon
+  ContentCopy as ContentCopyIcon,
+  ChatBubbleOutline as CommentIcon,
 } from '@mui/icons-material';
 import DiffLine from '../DiffLine';
 import {
@@ -17,10 +20,23 @@ import {
   FilePathText,
   HunkHeader,
   DiffContent,
-  EmptyStateContainer
+  EmptyStateContainer,
 } from './FileDiffViewer.style';
 
-const FileDiffViewer = ({ file, totalFiles, currentIndex, onNavigate }) => {
+const FileDiffViewer = ({
+  file,
+  totalFiles,
+  currentIndex,
+  onNavigate,
+  projectKey,
+  repoSlug,
+  pullRequestId,
+  comments = [],
+  onAddComment,
+}) => {
+  const [openCommentKey, setOpenCommentKey] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
   if (!file) {
     return (
       <EmptyStateContainer>
@@ -43,18 +59,67 @@ const FileDiffViewer = ({ file, totalFiles, currentIndex, onNavigate }) => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'ADDED': return 'success';
-      case 'REMOVED': return 'error';
-      case 'MODIFIED': return 'warning';
-      default: return 'default';
+      case 'ADDED':
+        return 'success';
+      case 'REMOVED':
+        return 'error';
+      case 'MODIFIED':
+        return 'warning';
+      default:
+        return 'default';
     }
   };
 
   const status = getFileStatus();
   const filePath = file.destination?.toString || file.source?.toString || 'Unknown file';
+  const srcPath = file.source?.toString || filePath;
 
   const handleCopyPath = () => {
     navigator.clipboard.writeText(filePath);
+    setSnackbar({
+      open: true,
+      message: 'File path copied to clipboard',
+      severity: 'info',
+    });
+  };
+
+  // Find comments anchored to a specific line for this file
+  const getLineComments = (lineNum) => {
+    if (!lineNum || !comments || comments.length === 0) return [];
+    return comments.filter((c) => {
+      const anchor = c.anchor;
+      if (!anchor) return false;
+      const matchesPath =
+        anchor.path === filePath ||
+        anchor.srcPath === filePath ||
+        anchor.path === srcPath ||
+        anchor.srcPath === srcPath;
+      return matchesPath && anchor.line === lineNum;
+    });
+  };
+
+  const handleToggleComment = (key) => {
+    setOpenCommentKey((prev) => (prev === key ? null : key));
+  };
+
+  const handleAddLineComment = async (commentPayload) => {
+    if (onAddComment) {
+      try {
+        await onAddComment(commentPayload);
+        setSnackbar({
+          open: true,
+          message: `Comment added to line ${commentPayload.anchor?.line} on ${filePath.split('/').pop()}`,
+          severity: 'success',
+        });
+      } catch (err) {
+        setSnackbar({
+          open: true,
+          message: err?.data?.message || err?.message || 'Failed to post comment',
+          severity: 'error',
+        });
+        throw err;
+      }
+    }
   };
 
   return (
@@ -87,7 +152,7 @@ const FileDiffViewer = ({ file, totalFiles, currentIndex, onNavigate }) => {
           <Box key={hunkIndex} sx={{ mb: 2 }}>
             <HunkHeader>
               <Typography
-                sx={{ color: '#569cd6', fontFamily: 'monospace' }}
+                sx={{ color: '#569cd6', fontFamily: 'monospace', fontSize: '0.8rem' }}
                 variant="subtitle2"
               >
                 {hunk.context ||
@@ -97,27 +162,53 @@ const FileDiffViewer = ({ file, totalFiles, currentIndex, onNavigate }) => {
             <Box>
               {hunk.segments?.map((segment, segmentIndex) => (
                 <Box key={segmentIndex}>
-                  {segment.lines?.map((line, lineIndex) => (
-                    <DiffLine
-                      key={`${segmentIndex}-${lineIndex}`}
-                      line={line.line}
-                      lineNumber={line.source || line.destination}
-                      type={segment.type}
-                    />
-                  ))}
+                  {segment.lines?.map((line, lineIndex) => {
+                    const lineNum = line.destination || line.source;
+                    const lineKey = `${hunkIndex}-${segmentIndex}-${lineIndex}-${lineNum}`;
+                    const lineComments = getLineComments(lineNum);
+
+                    return (
+                      <DiffLine
+                        key={lineKey}
+                        line={line.line}
+                        lineNumber={lineNum}
+                        type={segment.type}
+                        filePath={filePath}
+                        srcPath={srcPath}
+                        comments={lineComments}
+                        isCommentOpen={openCommentKey === lineKey}
+                        onToggleComment={() => handleToggleComment(lineKey)}
+                        onAddComment={handleAddLineComment}
+                      />
+                    );
+                  })}
                 </Box>
               ))}
             </Box>
           </Box>
         ))}
+
         {(!file.hunks || file.hunks.length === 0) && (
           <Box sx={{ p: 4, textAlign: 'center' }}>
-             <Typography sx={{ color: '#858585' }}>No content changes visible.</Typography>
+            <Typography sx={{ color: '#858585' }}>No content changes visible.</Typography>
           </Box>
         )}
       </DiffContent>
 
-
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </DiffViewerContainer>
   );
 };

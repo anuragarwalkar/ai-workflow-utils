@@ -25,23 +25,26 @@ const ManualCommentModal = ({ open, onClose, projectKey, repoSlug, pullRequestId
     if (isLoading || !content.trim()) return;
 
     try {
-      let formattedComment = '';
-      if (filename.trim()) {
-        formattedComment += `📁 File: \`${filename.trim()}\``;
-        if (lineNumber.trim()) {
-          formattedComment += `, Line: \`${lineNumber.trim()}\``;
-        }
-        formattedComment += '\n\n';
-      }
-      formattedComment += content.trim();
-
-      await addPRComment({
+      const payload = {
         projectKey,
         repoSlug,
         pullRequestId,
-        commentText: formattedComment,
-      }).unwrap();
-      
+        commentText: content.trim(),
+      };
+
+      if (filename.trim()) {
+        const parsedLine = parseInt(lineNumber.trim(), 10);
+        if (!isNaN(parsedLine) && parsedLine > 0) {
+          payload.anchor = {
+            path: filename.trim(),
+            line: parsedLine,
+            lineType: 'CONTEXT',
+            fileType: 'TO',
+          };
+        }
+      }
+
+      await addPRComment(payload).unwrap();
       handleClose();
     } catch (err) {
       console.error('Failed to post comment:', err);
@@ -60,25 +63,27 @@ const ManualCommentModal = ({ open, onClose, projectKey, repoSlug, pullRequestId
   return (
     <>
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle>Add Manual Comment</DialogTitle>
+        <DialogTitle>Add Pull Request Comment</DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
-            label="Filename (Optional)"
+            label="File Path (Optional - will post inline to this file if provided)"
             type="text"
             fullWidth
             variant="outlined"
             value={filename}
+            placeholder="e.g. src/features/myFile.tsx"
             onChange={(e) => setFilename(e.target.value)}
             sx={{ mt: 2 }}
           />
           <TextField
             margin="dense"
-            label="Line Number (Optional)"
-            type="text"
+            label="Line Number (Optional - will anchor to line if provided)"
+            type="number"
             fullWidth
             variant="outlined"
             value={lineNumber}
+            placeholder="e.g. 45"
             onChange={(e) => setLineNumber(e.target.value)}
             sx={{ mt: 2 }}
           />

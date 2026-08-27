@@ -82,12 +82,23 @@ const ReviewIssuesPanel = ({ reviewContent, projectKey, repoSlug, pullRequestId 
     
     for (const issue of unpostedIssues) {
       try {
-        await addPRComment({
+        const payload = {
           projectKey,
           repoSlug,
           pullRequestId,
           commentText: formatComment(issue),
-        }).unwrap();
+        };
+
+        if (issue.file) {
+          payload.anchor = {
+            path: issue.file,
+            line: issue.line || 1,
+            lineType: 'CONTEXT',
+            fileType: 'TO',
+          };
+        }
+
+        await addPRComment(payload).unwrap();
         
         handleIssuePosted(issue.id);
       } catch (err) {

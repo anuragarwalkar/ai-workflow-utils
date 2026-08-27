@@ -33,12 +33,23 @@ const IssueCommentButton = ({ issue, projectKey, repoSlug, pullRequestId, onPost
     try {
       setStatus('loading');
       setModalOpen(false);
-      await addPRComment({
+      const payload = {
         projectKey,
         repoSlug,
         pullRequestId,
         commentText: editableComment,
-      }).unwrap();
+      };
+
+      if (issue.file) {
+        payload.anchor = {
+          path: issue.file,
+          line: issue.line || 1,
+          lineType: 'CONTEXT',
+          fileType: 'TO',
+        };
+      }
+
+      await addPRComment(payload).unwrap();
       
       setStatus('success');
       if (onPosted) onPosted(issue.id);

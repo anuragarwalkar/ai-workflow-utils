@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable react/jsx-max-depth */
 /* eslint-disable max-lines */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   Alert,
   Box,
@@ -30,6 +30,8 @@ import {
   useGetPullRequestDiffQuery,
   useGetPullRequestsQuery,
   useReviewPullRequestMutation,
+  useGetPRActivitiesQuery,
+  useAddPRCommentMutation,
 } from '../../store/api/prApi';
 import {
   setDiffData,
@@ -53,6 +55,55 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
   );
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [localComments, setLocalComments] = useState([]);
+
+  const prId = selectedPullRequest?.id || directPRId;
+  const projectKey = selectedProject?.projectKey;
+  const repoSlug = selectedProject?.repoSlug;
+
+  // Fetch PR activities to extract line comments
+  const { data: activitiesData, refetch: refetchActivities } = useGetPRActivitiesQuery(
+    {
+      projectKey,
+      repoSlug,
+      pullRequestId: prId,
+    },
+    {
+      skip: !projectKey || !repoSlug || !prId,
+    }
+  );
+
+  const [addPRComment] = useAddPRCommentMutation();
+
+  // Extract inline comments from activities
+  const prComments = useMemo(() => {
+    const fetched = [];
+    if (activitiesData?.values) {
+      activitiesData.values.forEach((act) => {
+        if (act.action === 'COMMENTED' && act.comment) {
+          fetched.push(act.comment);
+        }
+      });
+    }
+    return [...fetched, ...localComments];
+  }, [activitiesData, localComments]);
+
+  const handleAddInlineComment = async ({ commentText, anchor, parent }) => {
+    const result = await addPRComment({
+      projectKey,
+      repoSlug,
+      pullRequestId: prId,
+      commentText,
+      anchor,
+      parent,
+    }).unwrap();
+
+    if (result) {
+      setLocalComments((prev) => [...prev, result]);
+    }
+    refetchActivities();
+    return result;
+  };
 
   // Fetch PR list if we have a direct PR ID but no selected PR details
   const { data: pullRequests, isLoading: isPRListLoading } = useGetPullRequestsQuery(
@@ -300,6 +351,11 @@ const PullRequestDiff = ({ onPrevious, onReset }) => {
           totalFiles={diffData?.diffs?.length || 0}
           currentIndex={selectedFileIndex}
           onNavigate={handleNavigateFile}
+          projectKey={projectKey}
+          repoSlug={repoSlug}
+          pullRequestId={prId}
+          comments={prComments}
+          onAddComment={handleAddInlineComment}
         />
       </Box>
 

@@ -44,7 +44,13 @@ export class JiraLangChainService extends BaseLangChainService {
         })}\n\n`
       );
 
-      const content = typeof result.content === 'string' ? result.content : Array.isArray(result.content) ? result.content.map((c: any) => (typeof c === 'string' ? c : c?.text ?? '')).join('') : String(result.content ?? '');
+      const rawContent: any = result.content;
+      const content =
+        typeof rawContent === 'string'
+          ? rawContent
+          : Array.isArray(rawContent)
+          ? rawContent.map((c: any) => (typeof c === 'string' ? c : c?.text ?? '')).join('')
+          : String(rawContent ?? '');
       if (content) {
         const words = content.split(' ');
         for (let i = 0; i < words.length; i += 5) {

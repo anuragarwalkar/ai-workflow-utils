@@ -6,6 +6,7 @@ import fs from 'fs';
 import { Server as SocketIOServer } from 'socket.io';
 import logger from './logger.ts';
 import dotenv from 'dotenv';
+import loadEnvironment from './utils/envLoader.ts';
 import configBridge from './services/configBridge.ts';
 
 // Import middleware
@@ -29,13 +30,11 @@ import langChainServiceFactory from './services/langchain/LangChainServiceFactor
 import geminiVoiceService from './services/voice/GeminiVoiceService.ts';
 import dashboardNotificationService from './services/dashboard/DashboardNotificationService.ts';
 
-// Load default .env file first (for fallback values)
-dotenv.config();
+// Discover and load environment files across workspace, global config, and package dir
+loadEnvironment();
 
 // Load dynamic configuration from database to process.env
-if (process.env.NODE_ENV === 'production') {
-  await configBridge.loadConfigToEnv();
-}
+await configBridge.loadConfigToEnv();
 
 langChainServiceFactory.initializeProviders();
 
@@ -120,7 +119,14 @@ app.use('/api/app-state', appStateRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Serve static files from React build (check dist/apps/ui first, fallback to ui/dist)
-let staticPath = path.join(projectRoot, 'dist/apps/ui');
+const packageRoot = process.env.AI_WORKFLOW_PACKAGE_DIR || projectRoot;
+let staticPath = path.join(packageRoot, 'dist/apps/ui');
+if (!fs.existsSync(staticPath)) {
+  staticPath = path.join(projectRoot, 'dist/apps/ui');
+}
+if (!fs.existsSync(staticPath)) {
+  staticPath = path.join(packageRoot, 'ui/dist');
+}
 if (!fs.existsSync(staticPath)) {
   staticPath = path.join(projectRoot, 'ui/dist');
 }

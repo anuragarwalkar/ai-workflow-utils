@@ -6,7 +6,7 @@ export const prApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${API_BASE_URL}/api/pr`,
   }),
-  tagTypes: ['PullRequest', 'PRReview'],
+  tagTypes: ['PullRequest', 'PRReview', 'PRActivities'],
   endpoints: builder => ({
     getPullRequests: builder.query({
       query: ({ projectKey, repoSlug }) => `/${projectKey}/${repoSlug}/pull-requests`,
@@ -20,6 +20,16 @@ export const prApi = createApi({
       providesTags: (result, error, { projectKey, repoSlug, pullRequestId }) => [
         {
           type: 'PullRequest',
+          id: `${projectKey}-${repoSlug}-${pullRequestId}`,
+        },
+      ],
+    }),
+    getPRActivities: builder.query({
+      query: ({ projectKey, repoSlug, pullRequestId }) =>
+        `/${projectKey}/${repoSlug}/pull-requests/${pullRequestId}/activities`,
+      providesTags: (result, error, { projectKey, repoSlug, pullRequestId }) => [
+        {
+          type: 'PRActivities',
           id: `${projectKey}-${repoSlug}-${pullRequestId}`,
         },
       ],
@@ -48,13 +58,14 @@ export const prApi = createApi({
       }),
     }),
     addPRComment: builder.mutation({
-      query: ({ projectKey, repoSlug, pullRequestId, commentText }) => ({
+      query: ({ projectKey, repoSlug, pullRequestId, commentText, anchor, parent }) => ({
         url: `/${projectKey}/${repoSlug}/pull-requests/${pullRequestId}/comments`,
         method: 'POST',
-        body: { commentText },
+        body: { commentText, anchor, parent },
       }),
       invalidatesTags: (result, error, { projectKey, repoSlug, pullRequestId }) => [
         { type: 'PullRequest', id: `${projectKey}-${repoSlug}-${pullRequestId}` },
+        { type: 'PRActivities', id: `${projectKey}-${repoSlug}-${pullRequestId}` },
       ],
     }),
   }),
@@ -65,6 +76,8 @@ export const {
   useLazyGetPullRequestsQuery,
   useGetPullRequestDiffQuery,
   useLazyGetPullRequestDiffQuery,
+  useGetPRActivitiesQuery,
+  useLazyGetPRActivitiesQuery,
   useReviewPullRequestMutation,
   useCreatePullRequestMutation,
   useAddPRCommentMutation,

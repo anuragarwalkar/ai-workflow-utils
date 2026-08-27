@@ -6,6 +6,7 @@ import {
   reviewPullRequest,
   streamCreatePRPreview,
   addComment,
+  getActivities,
 } from '../controllers/pull-request/index.js';
 import { asyncHandler, createRateLimit } from '../middleware/index.ts';
 
@@ -16,6 +17,7 @@ router.use(prRateLimit);
 
 router.get('/:projectKey/:repoSlug/pull-requests', asyncHandler(getPullRequests));
 router.get('/:projectKey/:repoSlug/pull-requests/:pullRequestId/diff', asyncHandler(getPullRequestDiff));
+router.get('/:projectKey/:repoSlug/pull-requests/:pullRequestId/activities', asyncHandler(getActivities));
 router.post('/review', asyncHandler(reviewPullRequest));
 router.post('/create', asyncHandler(createPullRequest));
 router.post('/stream-preview', asyncHandler(streamCreatePRPreview));

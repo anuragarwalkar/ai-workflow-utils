@@ -197,7 +197,7 @@ class PRController {
   static async addComment(req: Request, res: Response): Promise<void> {
     try {
       const { projectKey, repoSlug, pullRequestId } = req.params;
-      const { commentText } = req.body;
+      const { commentText, anchor, parent } = req.body;
 
       if (!projectKey || !repoSlug || !pullRequestId) {
         ErrorHandler.handleValidationError(
@@ -220,7 +220,9 @@ class PRController {
         projectKey,
         repoSlug,
         pullRequestId,
-        commentText
+        commentText,
+        anchor,
+        parent
       );
 
       res.status(201).json(data);
@@ -240,6 +242,30 @@ class PRController {
       });
     }
   }
+
+  static async getActivities(req: Request, res: Response): Promise<void> {
+    try {
+      const { projectKey, repoSlug, pullRequestId } = req.params;
+
+      if (!projectKey || !repoSlug || !pullRequestId) {
+        ErrorHandler.handleValidationError(
+          'Project key, repository slug, and pull request ID are required',
+          res
+        );
+        return;
+      }
+
+      const data = await BitbucketService.getPullRequestActivities(
+        projectKey,
+        repoSlug,
+        pullRequestId
+      );
+
+      res.json(data);
+    } catch (error: any) {
+      ErrorHandler.handleApiError(error, 'fetch pull request activities', res);
+    }
+  }
 }
 
 export const {
@@ -249,6 +275,7 @@ export const {
   createPullRequest,
   streamCreatePRPreview,
   addComment,
+  getActivities,
 } = PRController;
 
 export default PRController;

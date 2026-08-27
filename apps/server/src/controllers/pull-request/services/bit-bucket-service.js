@@ -1,6 +1,6 @@
 import axios from 'axios';
 import https from 'https';
-import logger from '../../../logger.js';
+import logger from '../../../logger.ts';
 import EnvironmentConfig from '../utils/environment-config.js';
 import { DEFAULT_COMMIT_LIMIT } from '../utils/constants.js';
 
@@ -19,6 +19,7 @@ class BitbucketService {
    * Get pull requests for a specific project and repository
    */
   static async getPullRequests(projectKey, repoSlug) {
+    EnvironmentConfig.validate();
     const { bitbucketUrl, authToken } = EnvironmentConfig.get();
     const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests`;
 
@@ -39,6 +40,7 @@ class BitbucketService {
    * Get diff for a specific pull request
    */
   static async getPullRequestDiff(projectKey, repoSlug, pullRequestId) {
+    EnvironmentConfig.validate();
     const { bitbucketUrl, authToken } = EnvironmentConfig.get();
     const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests/${pullRequestId}/diff`;
 
@@ -59,6 +61,7 @@ class BitbucketService {
    * Get commit messages from a branch
    */
   static async getCommitMessages(projectKey, repoSlug, branchName) {
+    EnvironmentConfig.validate();
     const { bitbucketUrl, authToken } = EnvironmentConfig.get();
     const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/commits`;
 
@@ -95,6 +98,7 @@ class BitbucketService {
    * Create a pull request
    */
   static async createPullRequest(projectKey, repoSlug, payload) {
+    EnvironmentConfig.validate();
     const { bitbucketUrl, authToken } = EnvironmentConfig.get();
     const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests`;
 
@@ -110,18 +114,28 @@ class BitbucketService {
     logger.info('Pull request created successfully');
     return response.data;
   }
+
   /**
-   * Add a comment to a pull request
+   * Add a comment to a pull request (supports general, file-level, and inline comments)
    */
-  static async addPullRequestComment(projectKey, repoSlug, pullRequestId, text) {
+  static async addPullRequestComment(projectKey, repoSlug, pullRequestId, text, anchor = null, parent = null) {
+    EnvironmentConfig.validate();
     const { bitbucketUrl, authToken } = EnvironmentConfig.get();
     const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests/${pullRequestId}/comments`;
+
+    const payload = { text };
+    if (anchor) {
+      payload.anchor = anchor;
+    }
+    if (parent) {
+      payload.parent = parent;
+    }
 
     logger.info(`Adding comment to PR ${pullRequestId} in ${projectKey}/${repoSlug}`);
 
     const response = await axiosInstance.post(
       url,
-      { text },
+      payload,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -131,6 +145,26 @@ class BitbucketService {
     );
 
     logger.info(`Successfully added comment to PR ${pullRequestId}`);
+    return response.data;
+  }
+
+  /**
+   * Get activities/comments for a pull request
+   */
+  static async getPullRequestActivities(projectKey, repoSlug, pullRequestId) {
+    EnvironmentConfig.validate();
+    const { bitbucketUrl, authToken } = EnvironmentConfig.get();
+    const url = `${bitbucketUrl}/rest/api/1.0/projects/${projectKey}/repos/${repoSlug}/pull-requests/${pullRequestId}/activities`;
+
+    logger.info(`Fetching activities for PR ${pullRequestId} in ${projectKey}/${repoSlug}`);
+
+    const response = await axiosInstance.get(url, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
     return response.data;
   }
 }

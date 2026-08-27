@@ -2,8 +2,10 @@
 
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 import { StartupManager } from './startup.js';
 import { checkPermissions } from './check-permissions.js';
 import { EnvironmentSetup } from './setup.js';
@@ -11,13 +13,39 @@ import { EnvironmentSetup } from './setup.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Capture the user's working directory where CLI/npx was invoked
+const userCwd = process.env.AI_WORKFLOW_USER_CWD || process.env.INIT_CWD || process.cwd();
+
 // Find root where package.json lives
 let packageDir = path.resolve(__dirname, '../../..');
 if (!fs.existsSync(path.join(packageDir, 'package.json'))) {
   packageDir = path.resolve(__dirname, '..');
 }
 if (!fs.existsSync(path.join(packageDir, 'package.json'))) {
-  packageDir = process.cwd();
+  packageDir = userCwd;
+}
+
+// Load environment variables from user directory, global config, and package dir
+const loadedEnvFiles: string[] = [];
+const candidatePaths = [
+  path.join(userCwd, '.env.local'),
+  path.join(userCwd, '.env'),
+  path.join(os.homedir(), '.ai-workflow-utils', 'config.env'),
+  path.join(os.homedir(), '.ai-workflow-utils', '.env'),
+  path.join(packageDir, '.env'),
+];
+
+for (const filePath of candidatePaths) {
+  try {
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      const result = dotenv.config({ path: filePath });
+      if (!result.error && !loadedEnvFiles.includes(filePath)) {
+        loadedEnvFiles.push(filePath);
+      }
+    }
+  } catch {
+    // Ignore error reading file
+  }
 }
 
 const serverPathCandidates = [
@@ -141,8 +169,12 @@ async function main(): Promise<void> {
   }
 
   console.log('🚀 Starting AI Workflow Utils server...');
-  console.log(`📁 Package directory: ${packageDir}`);
+  console.log(`📁 Working directory: ${userCwd}`);
+  console.log(`📦 Package directory: ${packageDir}`);
   console.log(`🖥️  Server path: ${serverPath}`);
+  if (loadedEnvFiles.length > 0) {
+    console.log(`🌲 Loaded environment: ${loadedEnvFiles.join(', ')}`);
+  }
   console.log('');
   console.log('📋 Configuration:');
   console.log('   All settings can be configured through the web interface.');
@@ -159,8 +191,10 @@ async function main(): Promise<void> {
     cwd: packageDir,
     env: {
       ...process.env,
-      NODE_ENV: 'production',
-      PORT: '3000',
+      AI_WORKFLOW_USER_CWD: userCwd,
+      AI_WORKFLOW_PACKAGE_DIR: packageDir,
+      NODE_ENV: process.env.NODE_ENV || 'production',
+      PORT: process.env.PORT || '3000',
     },
   });
 
