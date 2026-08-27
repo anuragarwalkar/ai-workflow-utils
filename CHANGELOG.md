@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.14.0...v1.14.1) (2026-08-27)
+
+
+### Bug Fixes
+
+* **bugs:** fixed npx not initalizing the environment & updated pr view ([6d32975](https://github.com/anuragarwalkar/ai-workflow-utils/commit/6d32975be1e12281641674ed7a07557e540d0143))
+
 # [1.14.0](https://github.com/anuragarwalkar/ai-workflow-utils/compare/v1.13.7...v1.14.0) (2026-08-26)
 
 
